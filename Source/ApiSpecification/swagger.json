@@ -1,0 +1,109 @@
+{
+  "openapi" : "3.0.0",
+  "servers" : [ {
+    "description" : "SwaggerHub API Auto Mocking",
+    "url" : "https://virtserver.swaggerhub.com/kirypto/TimelineTracker/1.0.0"
+  } ],
+  "info" : {
+    "version" : "0.1.0",
+    "title" : "Timeline Tracker API",
+    "license" : {
+      "url" : "https://github.com/kirypto/TimelineTracker/blob/master/LICENSE.txt",
+      "name" : "GNU General Public License v3.0"
+    },
+    "contact" : {
+      "url" : "https://github.com/kirypto/TimelineTracker/issues",
+      "name" : "kirypto"
+    }
+  },
+  "paths" : {
+    "/hello" : {
+      "get" : {
+        "tags" : [ "public" ],
+        "summary" : "Hello World GET handler",
+        "operationId" : "helloWorld",
+        "description" : "Returs a simple hello world greeting\n",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "excited",
+          "description" : "requests an excited greeting (with an exclamation mark)",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "example" : true
+          }
+        }, {
+          "in" : "query",
+          "name" : "searchString",
+          "description" : "request a greeting for a specific person",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "example" : "James T. Kirk"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "simple greeting",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object"
+                },
+                "example" : {
+                  "response" : "Hello, World."
+                }
+              },
+              "text/plain" : {
+                "schema" : {
+                  "type" : "string"
+                },
+                "example" : "Hello, World!"
+              }
+            }
+          },
+          "400" : {
+            "description" : "bad input parameter"
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "Position" : {
+        "type" : "object",
+        "properties" : {
+          "latitude" : {
+            "type" : "number",
+            "format" : "float",
+            "example" : -10.9378
+          },
+          "longitude" : {
+            "type" : "number",
+            "format" : "float",
+            "example" : -8.61222
+          },
+          "altitude" : {
+            "type" : "number",
+            "format" : "float",
+            "example" : 816.72
+          },
+          "continuum" : {
+            "type" : "number",
+            "format" : "float",
+            "example" : 737194.31
+          },
+          "reality" : {
+            "type" : "integer",
+            "format" : "int"
+          }
+        },
+        "description" : "A multi-dimensional point, currently intended to support up to the 5th dimension:\n- Dimensions 1-3: typical coordinate system consisting of latitude, longitude, and height relative to sea level.\n- Dimension 4: 'time' or 'duration', the time that the position is tied to.\n- Dimension 5: 'decision space' or 'alternate realities' which may be jumped between."
+      },
+      "Location" : {
+        "description" : "A Place"
+      }
+    }
+  }
+}
