@@ -140,17 +140,35 @@
         }
       },
       "PositionalTransition" : {
+        "description" : "A combination of a position and a type of transition which describe how the transition from the previous position to this position is made.\n- Interpolated: the position smoothly interpolates the position in specific dimensions depending on the query dimension.\n- Jump: the earlier position is used to 'infill' all possible queries between two points in a sequence until the latter position is reached, at which time the latter position is instantaneously used.\n",
         "type" : "object",
-        "description" : "A combination of a position and a type of transition which describe how the transition from the previous position to this position is made.\n- Interpolated: the position smoothly interpolates the position in specific dimensions depending on the query dimension.\n- Jump: the earlier position is used to 'infill' all possible queries between two points in a sequence until the latter position is reached, at which time the latter position is instantaneously used. \n",
         "properties" : {
           "position" : {
             "$ref" : "#/components/schemas/Position"
           },
           "transition" : {
             "type" : "string",
-            "enum" : [ "Interpolated", "Jump" ]
+            "enum" : [ "Interpolated", "Jump" ],
+            "example" : "Jump"
           }
         }
+      },
+      "Timeline" : {
+        "description" : "A sequence of positional transitions.",
+        "type" : "array",
+        "items" : {
+          "$ref" : "#/components/schemas/PositionalTransition"
+        },
+        "example" : [ {
+          "position" : {
+            "latitude" : -10.9378,
+            "longitude" : -8.61222,
+            "altitude" : 816.72,
+            "continuum" : 737194.31,
+            "reality" : 1
+          },
+          "transition" : "Jump"
+        } ]
       }
     }
   }
