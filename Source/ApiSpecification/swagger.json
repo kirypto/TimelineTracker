@@ -72,6 +72,7 @@
   "components" : {
     "schemas" : {
       "Position" : {
+        "description" : "A multi-dimensional point, currently intended to support up to the 5th dimension:\n- Dimensions 1-3: typical coordinate system consisting of latitude, longitude, and height relative to sea level.\n- Dimension 4: 'time' or 'duration', the time that the position is tied to.\n- Dimension 5: 'decision space' or 'alternate realities' which may be jumped between.\n",
         "type" : "object",
         "properties" : {
           "latitude" : {
@@ -96,13 +97,47 @@
           },
           "reality" : {
             "type" : "integer",
-            "format" : "int"
+            "format" : "int",
+            "example" : 1
           }
-        },
-        "description" : "A multi-dimensional point, currently intended to support up to the 5th dimension:\n- Dimensions 1-3: typical coordinate system consisting of latitude, longitude, and height relative to sea level.\n- Dimension 4: 'time' or 'duration', the time that the position is tied to.\n- Dimension 5: 'decision space' or 'alternate realities' which may be jumped between."
+        }
       },
-      "Location" : {
-        "description" : "A Place"
+      "Range" : {
+        "description" : "a single-dimensional range with a lower and higher value.",
+        "type" : "object",
+        "properties" : {
+          "lower" : {
+            "type" : "number",
+            "format" : "float",
+            "example" : -5
+          },
+          "higher" : {
+            "type" : "number",
+            "format" : "float",
+            "example" : 15
+          }
+        }
+      },
+      "PositionalRange" : {
+        "description" : "a multi-dimensional range, with a range for each dimension.",
+        "type" : "object",
+        "properties" : {
+          "latitudeRange" : {
+            "$ref" : "#/components/schemas/Range"
+          },
+          "longitudeRange" : {
+            "$ref" : "#/components/schemas/Range"
+          },
+          "altitudeRange" : {
+            "$ref" : "#/components/schemas/Range"
+          },
+          "continuumRange" : {
+            "$ref" : "#/components/schemas/Range"
+          },
+          "realityRange" : {
+            "$ref" : "#/components/schemas/Range"
+          }
+        }
       }
     }
   }
