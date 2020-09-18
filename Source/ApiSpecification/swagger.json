@@ -191,6 +191,28 @@
             "$ref" : "#/components/schemas/Timeline"
           }
         }
+      },
+      "Location" : {
+        "description" : "A place of significance that travelers can visit and events can occur\nat which cover a multi-dimensional area. Most locations will consist of\nan area that spans 4 of the 5 dimensions: a 3-dimensional area and the\ntime range from when it was constructed to when it will be no more. In\nthis case, it's range in the 5th dimension is instantaneous _(the low\nand high values are equal)_.\n",
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "format" : "uuid",
+            "example" : "abad1dea-0000-4000-0000-000000000000"
+          },
+          "friendlyId" : {
+            "type" : "string",
+            "example" : "The Great Pyramid"
+          },
+          "description" : {
+            "type" : "string",
+            "example" : "A great triangular structure in Egypt constructed long ago.\n"
+          },
+          "span" : {
+            "$ref" : "#/components/schemas/PositionalRange"
+          }
+        }
       }
     }
   }
