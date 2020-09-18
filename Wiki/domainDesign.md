@@ -45,10 +45,6 @@ somewhere and may include zero or more travelers.
    traveler, meaning it is likely an event or something which happened to that
    traveler. It may have multiple travelers, meaning it is likely an interaction
    or connection between multiple travelers.
-- `Group`: an alias for a set of one or more travelers.
-   - A group has a set of travelers. This can be used to represent a the
-   ownership of an important object or objects, listing the object travelers and
-   the possessor traveler.
 
 ### See Also
 
