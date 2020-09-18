@@ -176,8 +176,8 @@
         "properties" : {
           "id" : {
             "type" : "string",
-            "format" : "uuid",
-            "example" : "abad1dea-0000-4000-0000-000000000000"
+            "format" : "prefixed-uuid",
+            "example" : "traveler-abad1dea-0000-4000-0000-000000000000"
           },
           "friendlyId" : {
             "type" : "string",
@@ -198,8 +198,8 @@
         "properties" : {
           "id" : {
             "type" : "string",
-            "format" : "uuid",
-            "example" : "abad1dea-0000-4000-0000-000000000000"
+            "format" : "prefixed-uuid",
+            "example" : "location-abad1dea-0000-4000-0000-000000000000"
           },
           "friendlyId" : {
             "type" : "string",
