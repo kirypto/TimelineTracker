@@ -35,14 +35,12 @@ from.
    constructed to when it will be no more. It's range in the 5th dimension is
    still a range but is likely only one point in that dimension _(the low and
    high values are equal)_.
-- `Interaction`: a link, connection, or event which occurs somewhere and may
-include zero or more travelers.
-   - An interaction has a description, which summarized the interaction or event
-   that occurs.
-   - An interaction has either a position or a location _(which implies a
-   positional range)_. This is the position or place at which the interaction
-   occurs.
-   - An interaction has a set of travelers. This may be empty, meaning it is
+- `Event`: an interaction, connection, or other event which occurs
+somewhere and may include zero or more travelers.
+   - An event has a description, which summarizes the details of what occurs.
+   - An event has either a position or a location _(which implies a positional
+   range)_. This is the position or place at which the event occurs.
+   - An event has a set of travelers. This may be empty, meaning it is
    likely a natural event of one form or another. It may have only a single
    traveler, meaning it is likely an event or something which happened to that
    traveler. It may have multiple travelers, meaning it is likely an interaction
