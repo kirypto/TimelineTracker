@@ -179,7 +179,7 @@
             "format" : "prefixed-uuid",
             "example" : "traveler-abad1dea-0000-4000-0000-000000000000"
           },
-          "friendlyId" : {
+          "name" : {
             "type" : "string",
             "example" : "James T. Kirk"
           },
@@ -201,7 +201,7 @@
             "format" : "prefixed-uuid",
             "example" : "location-abad1dea-0000-4000-0000-000000000000"
           },
-          "friendlyId" : {
+          "name" : {
             "type" : "string",
             "example" : "The Great Pyramid"
           },
@@ -223,7 +223,7 @@
             "format" : "prefixed-uuid",
             "example" : "event-abad1dea-0000-4000-0000-000000000000"
           },
-          "friendlyId" : {
+          "name" : {
             "type" : "string",
             "example" : "Skirmish in the market"
           },
