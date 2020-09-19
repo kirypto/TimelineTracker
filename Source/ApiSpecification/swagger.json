@@ -34,7 +34,7 @@
           }
         }, {
           "in" : "query",
-          "name" : "searchString",
+          "name" : "name",
           "description" : "request a greeting for a specific person",
           "required" : false,
           "schema" : {
@@ -72,7 +72,7 @@
   "components" : {
     "schemas" : {
       "Range" : {
-        "description" : "a single-dimensional range with a lower and higher value.",
+        "description" : "A single-dimensional range with a lower and higher value.",
         "type" : "object",
         "properties" : {
           "lower" : {
@@ -88,7 +88,7 @@
         }
       },
       "PositionalRange" : {
-        "description" : "a multi-dimensional range, with a range for each dimension.",
+        "description" : "A multi-dimensional range, with a range for each dimension.",
         "type" : "object",
         "properties" : {
           "latitudeRange" : {
@@ -109,7 +109,7 @@
         }
       },
       "Position" : {
-        "description" : "A multi-dimensional point, currently intended to support up to the 5th dimension:\n- Dimensions 1-3: typical coordinate system consisting of latitude, longitude, and height relative to sea level.\n- Dimension 4: \"time\" or \"duration\", the time that the position is tied to.\n- Dimension 5: \"decision space\" or \"alternate realities\" which may be jumped between.\n",
+        "description" : "A multi-dimensional point, currently intended to support up to the 5th dimension.\n- Dimensions 1-3 => typical coordinate system consisting of latitude, longitude, and height relative to sea level.\n- Dimension 4 => \"time\" or \"duration\", the time that the position is tied to.\n- Dimension 5 => \"decision space\" or \"alternate realities\" which may be jumped between.\n",
         "type" : "object",
         "properties" : {
           "latitude" : {
@@ -140,7 +140,7 @@
         }
       },
       "PositionalTransition" : {
-        "description" : "A combination of a position and a type of transition which describe how the transition from the previous position to this position is made.\n- Interpolated: the position smoothly interpolates the position in specific dimensions depending on the query dimension.\n- Jump: the earlier position is used to \"infill\" all possible queries between two points in a sequence until the latter position is reached, at which time the latter position is instantaneously used.\n",
+        "description" : "A combination of a position and a type of transition which describe how the transition from the previous position to this position is made.\n- Interpolated => the position smoothly interpolates the position in specific dimensions depending on the query dimension.\n- Jump => the earlier position is used to \"infill\" all possible queries between two points in a sequence until the latter position is reached, at which time the latter position is instantaneously used.\n",
         "type" : "object",
         "properties" : {
           "position" : {
@@ -193,7 +193,7 @@
         }
       },
       "Location" : {
-        "description" : "A place of significance that travelers can visit and events can occur\nat which cover a multi-dimensional area. Most locations will consist of\nan area that spans 4 of the 5 dimensions: a 3-dimensional area and the\ntime range from when it was constructed to when it will be no more. In\nthis case, it's range in the 5th dimension is instantaneous _(the low\nand high values are equal)_.\n",
+        "description" : "A place of significance that travelers can visit and events can occur\nat which cover a multi-dimensional area. Most locations will consist of\nan area that spans 4 of the 5 dimensions; a 3-dimensional area and the\ntime range from when it was constructed to when it will be no more. In\nthis case, it's range in the 5th dimension is instantaneous _(the low\nand high values are equal)_.\n",
         "type" : "object",
         "properties" : {
           "id" : {
