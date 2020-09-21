@@ -222,14 +222,24 @@
           }
         }
       },
+      "LocationId" : {
+        "description" : "A unique identifier for a Location",
+        "type" : "string",
+        "format" : "prefixed-uuid",
+        "example" : "location-abad1dea-0000-4000-0000-000000000000"
+      },
+      "LocationIds" : {
+        "type" : "array",
+        "items" : {
+          "$ref" : "#/components/schemas/LocationId"
+        }
+      },
       "Location" : {
         "description" : "A place of significance that travelers can visit and events can occur\nat which cover a multi-dimensional area. Most locations will consist of\nan area that spans 4 of the 5 dimensions; a 3-dimensional area and the\ntime range from when it was constructed to when it will be no more. In\nthis case, it's range in the 5th dimension is instantaneous _(the low\nand high values are equal)_.\n",
         "type" : "object",
         "properties" : {
           "id" : {
-            "type" : "string",
-            "format" : "prefixed-uuid",
-            "example" : "location-abad1dea-0000-4000-0000-000000000000"
+            "$ref" : "#/components/schemas/LocationId"
           },
           "name" : {
             "type" : "string",
