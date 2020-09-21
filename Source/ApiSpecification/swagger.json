@@ -75,17 +75,17 @@
       }
     },
     "/api/location/{locationId}" : {
+      "parameters" : [ {
+        "in" : "path",
+        "name" : "locationId",
+        "schema" : {
+          "$ref" : "#/components/schemas/LocationId"
+        },
+        "required" : true
+      } ],
       "get" : {
         "summary" : "Retrieves the specified Location",
         "tags" : [ "Locations" ],
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "locationId",
-          "schema" : {
-            "$ref" : "#/components/schemas/LocationId"
-          },
-          "required" : true
-        } ],
         "responses" : {
           "200" : {
             "description" : "Successfully retrieved",
@@ -96,6 +96,15 @@
                 }
               }
             }
+          }
+        }
+      },
+      "delete" : {
+        "summary" : "Deletes the specified Location",
+        "tags" : [ "Locations" ],
+        "responses" : {
+          "204" : {
+            "description" : "Successfully deleted"
           }
         }
       }
