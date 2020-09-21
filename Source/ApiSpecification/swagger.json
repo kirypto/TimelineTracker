@@ -17,57 +17,6 @@
     }
   },
   "paths" : {
-    "/hello" : {
-      "get" : {
-        "tags" : [ "public" ],
-        "summary" : "Hello World GET handler",
-        "operationId" : "helloWorld",
-        "description" : "Returs a simple hello world greeting\n",
-        "parameters" : [ {
-          "in" : "query",
-          "name" : "excited",
-          "description" : "requests an excited greeting (with an exclamation mark)",
-          "required" : false,
-          "schema" : {
-            "type" : "boolean",
-            "example" : true
-          }
-        }, {
-          "in" : "query",
-          "name" : "name",
-          "description" : "request a greeting for a specific person",
-          "required" : false,
-          "schema" : {
-            "type" : "string",
-            "example" : "James T. Kirk"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "simple greeting",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "object"
-                },
-                "example" : {
-                  "response" : "Hello, World."
-                }
-              },
-              "text/plain" : {
-                "schema" : {
-                  "type" : "string"
-                },
-                "example" : "Hello, World!"
-              }
-            }
-          },
-          "400" : {
-            "description" : "bad input parameter"
-          }
-        }
-      }
-    },
     "/api/location" : {
       "post" : {
         "summary" : "Creates a new Location",
