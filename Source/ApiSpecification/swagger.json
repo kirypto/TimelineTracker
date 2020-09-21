@@ -124,6 +124,32 @@
           }
         }
       }
+    },
+    "/api/location/{locationId}" : {
+      "get" : {
+        "summary" : "Retrieves the specified Location",
+        "tags" : [ "Locations" ],
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "locationId",
+          "schema" : {
+            "$ref" : "#/components/schemas/LocationId"
+          },
+          "required" : true
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successfully retrieved",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Location"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components" : {
