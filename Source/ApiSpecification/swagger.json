@@ -97,6 +97,33 @@
           }
         }
       }
+    },
+    "/api/locations" : {
+      "get" : {
+        "summary" : "Retrieves all Locations",
+        "tags" : [ "Locations" ],
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "name",
+          "description" : "Filters to Locations with the queried name",
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "The Great Pyramid"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successfully retrieved",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LocationIds"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components" : {
