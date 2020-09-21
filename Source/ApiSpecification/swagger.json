@@ -67,6 +67,36 @@
           }
         }
       }
+    },
+    "/api/location" : {
+      "post" : {
+        "summary" : "Creates a new Location",
+        "description" : "Creates a new Location with a generated id and returns it.\n",
+        "tags" : [ "Locations" ],
+        "requestBody" : {
+          "required" : true,
+          "description" : "*Notes*\n- *When POSTing a Location, providing an id is not required as it will\nbe generated. If one is provided it will be ignored.*\n- *For each of the ranges making up the span field, either the range\nobject or a single value can be provided. If a sinlge value is\nprovided, it will be used as both the lower and higher value of the\nrange.*\n",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Location"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Successfully created",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Location"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components" : {
@@ -246,5 +276,9 @@
         }
       }
     }
-  }
+  },
+  "tags" : [ {
+    "name" : "Locations",
+    "description" : "Requests regarding Location resources."
+  } ]
 }
