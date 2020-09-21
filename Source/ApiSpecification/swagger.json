@@ -104,7 +104,7 @@
         "tags" : [ "Locations" ],
         "responses" : {
           "204" : {
-            "description" : "Successfully deleted"
+            "description" : "Successfully removed"
           }
         }
       }
