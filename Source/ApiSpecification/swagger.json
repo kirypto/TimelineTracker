@@ -165,6 +165,33 @@
           }
         }
       }
+    },
+    "/api/travelers" : {
+      "get" : {
+        "summary" : "Retrieves all Travelers",
+        "tags" : [ "Travelers" ],
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "name",
+          "description" : "Filters to Travelers with the queried name",
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "James T. Kirk"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successfully retrieved",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TravelerIds"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components" : {
