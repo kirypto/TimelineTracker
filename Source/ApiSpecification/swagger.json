@@ -226,6 +226,33 @@
             "description" : "Successfully removed"
           }
         }
+      },
+      "patch" : {
+        "summary" : "Modifies the specified Traveler",
+        "tags" : [ "Travelers" ],
+        "requestBody" : {
+          "required" : true,
+          "description" : "*Notes*\n- *Modifying the id is not permitted.*\n",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PatchRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Successfully modified",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Traveler"
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
