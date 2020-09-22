@@ -217,6 +217,15 @@
             }
           }
         }
+      },
+      "delete" : {
+        "summary" : "Deletes the specified Traveler",
+        "tags" : [ "Travelers" ],
+        "responses" : {
+          "204" : {
+            "description" : "Successfully removed"
+          }
+        }
       }
     }
   },
