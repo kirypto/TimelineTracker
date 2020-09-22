@@ -153,7 +153,8 @@
             "format" : "float",
             "example" : 15
           }
-        }
+        },
+        "required" : [ "lower", "higher" ]
       },
       "PositionalRange" : {
         "description" : "A multi-dimensional range, with a range for each dimension.",
@@ -174,7 +175,8 @@
           "realityRange" : {
             "$ref" : "#/components/schemas/Range"
           }
-        }
+        },
+        "required" : [ "latitudeRange", "longitudeRange", "altitudeRange", "continuumRange", "realityRange" ]
       },
       "Position" : {
         "description" : "A multi-dimensional point, currently intended to support up to the 5th dimension.\n- Dimensions 1-3 => typical coordinate system consisting of latitude, longitude, and height relative to sea level.\n- Dimension 4 => \"time\" or \"duration\", the time that the position is tied to.\n- Dimension 5 => \"decision space\" or \"alternate realities\" which may be jumped between.\n",
@@ -205,7 +207,8 @@
             "format" : "int",
             "example" : 1
           }
-        }
+        },
+        "required" : [ "latitude", "longitude", "altitude", "continuum", "reality" ]
       },
       "PositionalTransition" : {
         "description" : "A combination of a position and a type of transition which describe how the transition from the previous position to this position is made.\n- Interpolated => the position smoothly interpolates the position in specific dimensions depending on the query dimension.\n- Jump => the earlier position is used to \"infill\" all possible queries between two points in a sequence until the latter position is reached, at which time the latter position is instantaneously used.\n",
@@ -219,7 +222,8 @@
             "enum" : [ "Interpolated", "Jump" ],
             "example" : "Jump"
           }
-        }
+        },
+        "required" : [ "position", "transition" ]
       },
       "Timeline" : {
         "description" : "A sequence of positional transitions.",
@@ -258,7 +262,8 @@
           "timeline" : {
             "$ref" : "#/components/schemas/Timeline"
           }
-        }
+        },
+        "required" : [ "id", "name", "description", "timeline" ]
       },
       "LocationId" : {
         "description" : "A unique identifier for a Location",
@@ -290,7 +295,8 @@
           "span" : {
             "$ref" : "#/components/schemas/PositionalRange"
           }
-        }
+        },
+        "required" : [ "id", "name", "description", "span" ]
       },
       "Event" : {
         "description" : "words\n",
@@ -321,7 +327,8 @@
               "$ref" : "#/components/schemas/Traveler"
             }
           }
-        }
+        },
+        "required" : [ "id", "name", "description", "position", "location", "travelers" ]
       },
       "PatchRequest" : {
         "type" : "array",
