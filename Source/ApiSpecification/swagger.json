@@ -192,6 +192,32 @@
           }
         }
       }
+    },
+    "/api/traveler/{travelerId}" : {
+      "parameters" : [ {
+        "in" : "path",
+        "name" : "travelerId",
+        "schema" : {
+          "$ref" : "#/components/schemas/TravelerId"
+        },
+        "required" : true
+      } ],
+      "get" : {
+        "summary" : "Retrieves the specified Location",
+        "tags" : [ "Travelers" ],
+        "responses" : {
+          "200" : {
+            "description" : "Successfully retrieved",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Traveler"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components" : {
