@@ -135,6 +135,36 @@
           }
         }
       }
+    },
+    "/api/traveler" : {
+      "post" : {
+        "summary" : "Creates a new Traveler",
+        "description" : "Creates a new Traveler with a generated id and returns it.\n",
+        "tags" : [ "Travelers" ],
+        "requestBody" : {
+          "required" : true,
+          "description" : "*Notes*\n- *When POSTing a Traveler, providing an id is not required as it will\nbe generated. If one is provided it will be ignored.*\n- *For each of the ranges making up the span field, either the range\nobject or a single value can be provided. If a sinlge value is\nprovided, it will be used as both the lower and higher value of the\nrange.*\n",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TravelerWithoutTimelineAndId"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Successfully created  \n*Notes*\n- *When first created, the timeline will be empty.*\n",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Traveler"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components" : {
@@ -265,6 +295,21 @@
         },
         "required" : [ "id", "name", "description", "timeline" ]
       },
+      "TravelerWithoutTimelineAndId" : {
+        "description" : "A person or thing which has a timeline consisting of the positions\nit visits. A traveler can interact with other travelers and locations.\n",
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "example" : "James T. Kirk"
+          },
+          "description" : {
+            "type" : "string",
+            "example" : "He is captain of the NCC-1701 Starship Enterprise, and leads an \nongoing mission to explore strange new worlds, to seek out new life\nand new civilizations, and to boldly go where no one has gone before.\n"
+          }
+        },
+        "required" : [ "name", "description" ]
+      },
       "LocationId" : {
         "description" : "A unique identifier for a Location",
         "type" : "string",
@@ -370,5 +415,8 @@
   "tags" : [ {
     "name" : "Locations",
     "description" : "Requests regarding Location resources."
+  }, {
+    "name" : "Travelers",
+    "description" : "Requests regarding Travelers resources."
   } ]
 }
