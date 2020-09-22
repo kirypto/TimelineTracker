@@ -272,14 +272,24 @@
           "transition" : "Jump"
         } ]
       },
+      "TravelerId" : {
+        "description" : "A unique identifier for a Traveler",
+        "type" : "string",
+        "format" : "prefixed-uuid",
+        "example" : "traveler-abad1dea-0000-4000-0000-000000000000"
+      },
+      "TravelerIds" : {
+        "type" : "array",
+        "items" : {
+          "$ref" : "#/components/schemas/TravelerId"
+        }
+      },
       "Traveler" : {
         "description" : "A person or thing which has a timeline consisting of the positions\nit visits. A traveler can interact with other travelers and locations.\n",
         "type" : "object",
         "properties" : {
           "id" : {
-            "type" : "string",
-            "format" : "prefixed-uuid",
-            "example" : "traveler-abad1dea-0000-4000-0000-000000000000"
+            "$ref" : "#/components/schemas/TravelerId"
           },
           "name" : {
             "type" : "string",
