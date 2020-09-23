@@ -460,14 +460,18 @@
         },
         "required" : [ "name", "description", "span" ]
       },
+      "EventId" : {
+        "description" : "A unique identifier for a Event",
+        "type" : "string",
+        "format" : "prefixed-uuid",
+        "example" : "event-abad1dea-0000-4000-0000-000000000000"
+      },
       "Event" : {
         "description" : "words\n",
         "type" : "object",
         "properties" : {
           "id" : {
-            "type" : "string",
-            "format" : "prefixed-uuid",
-            "example" : "event-abad1dea-0000-4000-0000-000000000000"
+            "$ref" : "#/components/schemas/EventId"
           },
           "name" : {
             "type" : "string",
@@ -491,6 +495,33 @@
           }
         },
         "required" : [ "id", "name", "description", "position", "location", "travelers" ]
+      },
+      "EventWithoutId" : {
+        "description" : "words\n",
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "example" : "Skirmish in the market"
+          },
+          "description" : {
+            "type" : "string",
+            "example" : "Attacked by the Briggand Band, the civilians ran in despair until\nthe courageous Band Of Defenders came to the rescue.\n"
+          },
+          "position" : {
+            "$ref" : "#/components/schemas/Position"
+          },
+          "location" : {
+            "$ref" : "#/components/schemas/Location"
+          },
+          "travelers" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Traveler"
+            }
+          }
+        },
+        "required" : [ "name", "description", "position", "location", "travelers" ]
       },
       "PatchRequest" : {
         "type" : "array",
