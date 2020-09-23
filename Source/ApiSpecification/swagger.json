@@ -147,14 +147,14 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/TravelerWithoutTimelineAndId"
+                "$ref" : "#/components/schemas/TravelerWithoutJourneyAndId"
               }
             }
           }
         },
         "responses" : {
           "201" : {
-            "description" : "Successfully created  \n*Notes*\n- *When first created, the timeline will be empty.*\n",
+            "description" : "Successfully created  \n*Notes*\n- *When first created, the journey will be empty.*\n",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -374,7 +374,7 @@
         },
         "required" : [ "position", "transition" ]
       },
-      "Timeline" : {
+      "Journey" : {
         "description" : "A sequence of positional transitions.",
         "type" : "array",
         "items" : {
@@ -404,7 +404,7 @@
         }
       },
       "Traveler" : {
-        "description" : "A person or thing which has a timeline consisting of the positions\nit visits. A traveler can interact with other travelers and locations.\n",
+        "description" : "A person or thing which has a journey consisting of the positions\nit visits. A traveler can interact with other travelers and locations.\n",
         "type" : "object",
         "properties" : {
           "id" : {
@@ -418,14 +418,14 @@
             "type" : "string",
             "example" : "He is captain of the NCC-1701 Starship Enterprise, and leads an \nongoing mission to explore strange new worlds, to seek out new life\nand new civilizations, and to boldly go where no one has gone before.\n"
           },
-          "timeline" : {
-            "$ref" : "#/components/schemas/Timeline"
+          "journey" : {
+            "$ref" : "#/components/schemas/Journey"
           }
         },
-        "required" : [ "id", "name", "description", "timeline" ]
+        "required" : [ "id", "name", "description", "journey" ]
       },
-      "TravelerWithoutTimelineAndId" : {
-        "description" : "A person or thing which has a timeline consisting of the positions\nit visits. A traveler can interact with other travelers and locations.\n",
+      "TravelerWithoutJourneyAndId" : {
+        "description" : "A person or thing which has a journey consisting of the positions\nit visits. A traveler can interact with other travelers and locations.\n",
         "type" : "object",
         "properties" : {
           "name" : {
