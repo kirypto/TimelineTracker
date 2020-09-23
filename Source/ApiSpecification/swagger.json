@@ -391,6 +391,17 @@
           "transition" : "Jump"
         } ]
       },
+      "Tag" : {
+        "description" : "Alpha-numeric string to allow custom categorization for Travelers, Locations, and Events.",
+        "type" : "string",
+        "example" : "important"
+      },
+      "Tags" : {
+        "type" : "array",
+        "items" : {
+          "$ref" : "#/components/schemas/Tag"
+        }
+      },
       "TravelerId" : {
         "description" : "A unique identifier for a Traveler",
         "type" : "string",
