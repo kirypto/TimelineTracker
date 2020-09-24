@@ -656,6 +656,26 @@
         },
         "required" : [ "name", "description", "position", "location", "travelers" ]
       },
+      "PositionOrEventId" : {
+        "type" : "object",
+        "oneOf" : [ {
+          "$ref" : "#/components/schemas/Position"
+        }, {
+          "$ref" : "#/components/schemas/EventId"
+        } ]
+      },
+      "TravelerTimeline" : {
+        "type" : "array",
+        "items" : {
+          "$ref" : "#/components/schemas/PositionOrEventId"
+        }
+      },
+      "LocationTimeline" : {
+        "type" : "array",
+        "items" : {
+          "$ref" : "#/components/schemas/EventId"
+        }
+      },
       "PatchRequest" : {
         "type" : "array",
         "items" : {
