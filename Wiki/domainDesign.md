@@ -24,31 +24,33 @@ points in a timeline may move in the 4th or even 5th dimension.
      which time the latter position is instantaneously used.
 - `Traveler`: a person or thing which has a timeline consisting of the positions
 it visits. A traveler can interact with other travelers and locations.
-   - A traveler has a timeline, which is a sequence of positions.
    - A traveler has a description, which is tied to it's timeline. The
    traveler's description will change as it experiences it's timeline.
+   - A traveler has a timeline, which is a sequence of positions.
+   - A traveler can have zero or more tags, which are strings to allow easy
+   identification and other utilities such as filtering and querying.
 - `Location`: a place of significance that traveler's can come to and leave
 from.
+   - A location has a description, which provides details about the location.
    - A location has a positional range that covers specified what area it covers
    in each dimension. Most locations will consist of an area that spans 4 of the
    5 dimensions: it's 3-dimensional area and the time range from when it was
    constructed to when it will be no more. It's range in the 5th dimension is
    still a range but is likely only one point in that dimension _(the low and
    high values are equal)_.
-- `Event`: an interaction, connection, or other event which occurs
-somewhere and may include zero or more travelers.
+   - A location can have zero or more tags, which are strings to allow easy
+   identification and other utilities such as filtering and querying.
+- `Event`: An interaction, connection, or other thing which happens at a place
+to and optionally includes travelers. 
    - An event has a description, which summarizes the details of what occurs.
    - An event has either a position or a location _(which implies a positional
    range)_. This is the position or place at which the event occurs.
-   - An event has a set of travelers. This may be empty, meaning it is
-   likely a natural event of one form or another. It may have only a single
-   traveler, meaning it is likely an event or something which happened to that
-   traveler. It may have multiple travelers, meaning it is likely an interaction
-   or connection between multiple travelers.
-- `Group`: an alias for a set of one or more travelers.
-   - A group has a set of travelers. This can be used to represent a the
-   ownership of an important object or objects, listing the object travelers and
-   the possessor traveler.
+   - An event has a set of travelers. Most events have at least one traveler,
+indicating that the event affected or included those travelers. Events without
+any travelers are supported but must still have a position or location _(for
+example a natural disaster in a remote area)_.
+   - An event can have zero or more tags, which are strings to allow easy
+   identification and other utilities such as filtering and querying.
 
 ### See Also
 
