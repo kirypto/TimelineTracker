@@ -314,6 +314,65 @@
         }
       }
     },
+    "/api/traveler/{travelerId}/timeline" : {
+      "parameters" : [ {
+        "in" : "path",
+        "name" : "travelerId",
+        "schema" : {
+          "$ref" : "#/components/schemas/TravelerId"
+        },
+        "required" : true
+      } ],
+      "get" : {
+        "summary" : "Retrieves the specified Traveler's Timeline",
+        "tags" : [ "Travelers" ],
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "includeEventsTaggedWithAnyOf",
+          "description" : "Comma separated list of tags. Filters timeline Events to only those which have at least one of the specified tags.",
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "important,unimportant"
+        }, {
+          "in" : "query",
+          "name" : "includeEventsTaggedWithAllOf",
+          "description" : "Comma separated list of tags. Filters timeline Events to only those which have all of the specified tags.",
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "important,unimportant"
+        }, {
+          "in" : "query",
+          "name" : "excludeEventsTaggedWithAnyOf",
+          "description" : "Comma separated list of tags. Filters timeline Events to only those which do not have any of the specified tags.",
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "important,unimportant"
+        }, {
+          "in" : "query",
+          "name" : "excludeEventsTaggedWithAllOf",
+          "description" : "Comma separated list of tags. Filters timeline Events to only those which do not have all of the specified tags.",
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "important,unimportant"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successfully retrieved",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TravelerTimeline"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/event" : {
       "post" : {
         "summary" : "Creates a new Event",
