@@ -336,6 +336,15 @@
             }
           }
         }
+      },
+      "delete" : {
+        "summary" : "Deletes the specified Event",
+        "tags" : [ "Events" ],
+        "responses" : {
+          "204" : {
+            "description" : "Successfully removed"
+          }
+        }
       }
     }
   },
