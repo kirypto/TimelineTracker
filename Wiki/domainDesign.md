@@ -68,6 +68,8 @@ a Traveler or Location throughout its existence.
       earliest position that the event is applicable. 
       - A traveler's timeline would always begin with a position, but might end
       with either a position or event
+   - Events included in a retrieved timeline can be filtered according to those
+   event's tags.
 
 ### See Also
 
