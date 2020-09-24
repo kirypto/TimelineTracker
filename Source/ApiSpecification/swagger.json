@@ -311,6 +311,32 @@
           }
         }
       }
+    },
+    "/api/events/{eventId}" : {
+      "parameters" : [ {
+        "in" : "path",
+        "name" : "eventId",
+        "schema" : {
+          "$ref" : "#/components/schemas/EventId"
+        },
+        "required" : true
+      } ],
+      "get" : {
+        "summary" : "Retrieves the specified Event",
+        "tags" : [ "Events" ],
+        "responses" : {
+          "200" : {
+            "description" : "Successfully retrieved",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Event"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components" : {
