@@ -1,5 +1,7 @@
 # Domain Design
 
+### Domain Objects
+
 - `Position`: a multi-dimensional point. Currently intended to support up to
 the 5th dimension:
    - Dimensions 1-3: typical coordinate system consisting of longitude,
@@ -50,6 +52,22 @@ any travelers are supported but must still have a position or location _(for
 example a natural disaster in a remote area)_.
    - An event can have zero or more tags, which are strings to allow easy
    identification and other utilities such as filtering and querying.
+   
+### Domain Usages
+
+- `Timeline`: a series of positions and events which show what has happened to
+a Traveler or Location throughout its existence.
+   - A timeline does not exist as a domain object on its own. It is an aggregate
+   of travelers, positions, locations, and/or events.
+   - The timeline of a location would contain only events, as a location is
+   unable to move. These events can reference travelers, but the timeline itself
+   would not.
+   - The timeline of a traveler would certainly include positions and events, as
+   each position in a traveler's journey would be included. 
+      - Events referenced in a traveler's timeline will be listed at the
+      earliest position that the event is applicable. 
+      - A traveler's timeline would always begin with a position, but might end
+      with either a position or event
 
 ### See Also
 
