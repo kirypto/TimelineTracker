@@ -40,16 +40,15 @@ from.
    high values are equal)_.
    - A location can have zero or more tags, which are strings to allow easy
    identification and other utilities such as filtering and querying.
-- `Event`: an interaction, connection, or other event which occurs
-somewhere and may include zero or more travelers.
+- `Event`: An interaction, connection, or other thing which happens at a place
+to and optionally includes travelers. 
    - An event has a description, which summarizes the details of what occurs.
    - An event has either a position or a location _(which implies a positional
    range)_. This is the position or place at which the event occurs.
-   - An event has a set of travelers. This may be empty, meaning it is
-   likely a natural event of one form or another. It may have only a single
-   traveler, meaning it is likely an event or something which happened to that
-   traveler. It may have multiple travelers, meaning it is likely an interaction
-   or connection between multiple travelers.
+   - An event has a set of travelers. Most events have at least one traveler,
+indicating that the event affected or included those travelers. Events without
+any travelers are supported but must still have a position or location _(for
+example a natural disaster in a remote area)_.
    - An event can have zero or more tags, which are strings to allow easy
    identification and other utilities such as filtering and querying.
 
