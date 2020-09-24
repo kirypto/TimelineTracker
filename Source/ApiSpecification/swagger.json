@@ -532,13 +532,10 @@
             "$ref" : "#/components/schemas/Position"
           },
           "location" : {
-            "$ref" : "#/components/schemas/Location"
+            "$ref" : "#/components/schemas/LocationId"
           },
           "travelers" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/Traveler"
-            }
+            "$ref" : "#/components/schemas/TravelerIds"
           },
           "tags" : {
             "$ref" : "#/components/schemas/Tags"
@@ -562,13 +559,10 @@
             "$ref" : "#/components/schemas/Position"
           },
           "location" : {
-            "$ref" : "#/components/schemas/Location"
+            "$ref" : "#/components/schemas/LocationId"
           },
           "travelers" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/Traveler"
-            }
+            "$ref" : "#/components/schemas/TravelerIds"
           }
         },
         "required" : [ "name", "description", "position", "location", "travelers" ]
