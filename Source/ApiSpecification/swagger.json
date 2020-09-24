@@ -284,6 +284,33 @@
           }
         }
       }
+    },
+    "/api/events" : {
+      "get" : {
+        "summary" : "Retrieves all events",
+        "tags" : [ "Events" ],
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "name",
+          "description" : "Filters to Events with the queried name",
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Skirmish in the market"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successfully retrieved",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TravelerIds"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components" : {
