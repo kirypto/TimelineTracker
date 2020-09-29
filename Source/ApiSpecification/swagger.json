@@ -206,7 +206,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/TravelerWithoutJourneyAndId"
+                "$ref" : "#/components/schemas/NewTraveler"
               }
             }
           }
@@ -217,7 +217,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Traveler"
+                  "$ref" : "#/components/schemas/ExistingTraveler"
                 }
               }
             }
@@ -270,7 +270,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Traveler"
+                  "$ref" : "#/components/schemas/ExistingTraveler"
                 }
               }
             }
@@ -306,7 +306,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Traveler"
+                  "$ref" : "#/components/schemas/ExistingTraveler"
                 }
               }
             }
@@ -495,6 +495,69 @@
   },
   "components" : {
     "schemas" : {
+      "BaseTraveler" : {
+        "description" : "A person or thing which has a journey consisting of the positions it visits. A traveler can interact with other travelers and locations via events.",
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "example" : "James T. Kirk"
+          },
+          "description" : {
+            "type" : "string",
+            "example" : "He is captain of the NCC-1701 Starship Enterprise, and leads an ongoing mission to explore strange new worlds, to seek out new life and new civilizations, and to boldly go where no one has gone before."
+          }
+        },
+        "required" : [ "name", "description" ]
+      },
+      "NewTraveler" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BaseTraveler"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "initialPosition" : {
+              "$ref" : "#/components/schemas/Position"
+            }
+          }
+        } ],
+        "required" : [ "initialPosition" ]
+      },
+      "ExistingTraveler" : {
+        "allOf" : [ {
+          "type" : "object",
+          "properties" : {
+            "id" : {
+              "$ref" : "#/components/schemas/TravelerId"
+            }
+          }
+        }, {
+          "$ref" : "#/components/schemas/BaseTraveler"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "journey" : {
+              "$ref" : "#/components/schemas/Journey"
+            },
+            "tags" : {
+              "$ref" : "#/components/schemas/Tags"
+            }
+          }
+        } ],
+        "required" : [ "id", "journey" ]
+      },
+      "TravelerId" : {
+        "description" : "A unique identifier for a Traveler",
+        "type" : "string",
+        "format" : "prefixed-uuid",
+        "example" : "traveler-abad1dea-0000-4000-0000-000000000000"
+      },
+      "TravelerIds" : {
+        "type" : "array",
+        "items" : {
+          "$ref" : "#/components/schemas/TravelerId"
+        }
+      },
       "Range" : {
         "description" : "A single-dimensional range with a lower and higher value.",
         "type" : "object",
@@ -608,57 +671,6 @@
         "items" : {
           "$ref" : "#/components/schemas/Tag"
         }
-      },
-      "TravelerId" : {
-        "description" : "A unique identifier for a Traveler",
-        "type" : "string",
-        "format" : "prefixed-uuid",
-        "example" : "traveler-abad1dea-0000-4000-0000-000000000000"
-      },
-      "TravelerIds" : {
-        "type" : "array",
-        "items" : {
-          "$ref" : "#/components/schemas/TravelerId"
-        }
-      },
-      "Traveler" : {
-        "description" : "A person or thing which has a journey consisting of the positions it visits. A traveler can interact with other travelers and locations.",
-        "type" : "object",
-        "properties" : {
-          "id" : {
-            "$ref" : "#/components/schemas/TravelerId"
-          },
-          "name" : {
-            "type" : "string",
-            "example" : "James T. Kirk"
-          },
-          "description" : {
-            "type" : "string",
-            "example" : "He is captain of the NCC-1701 Starship Enterprise, and leads an ongoing mission to explore strange new worlds, to seek out new life and new civilizations, and to boldly go where no one has gone before."
-          },
-          "journey" : {
-            "$ref" : "#/components/schemas/Journey"
-          },
-          "tags" : {
-            "$ref" : "#/components/schemas/Tags"
-          }
-        },
-        "required" : [ "id", "name", "description", "journey" ]
-      },
-      "TravelerWithoutJourneyAndId" : {
-        "description" : "A person or thing which has a journey consisting of the positions it visits. A traveler can interact with other travelers and locations.",
-        "type" : "object",
-        "properties" : {
-          "name" : {
-            "type" : "string",
-            "example" : "James T. Kirk"
-          },
-          "description" : {
-            "type" : "string",
-            "example" : "He is captain of the NCC-1701 Starship Enterprise, and leads an ongoing mission to explore strange new worlds, to seek out new life and new civilizations, and to boldly go where no one has gone before."
-          }
-        },
-        "required" : [ "name", "description" ]
       },
       "LocationId" : {
         "description" : "A unique identifier for a Location",
