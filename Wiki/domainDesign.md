@@ -44,12 +44,15 @@ from.
 - `Event`: An interaction, connection, or other thing which happens at a place
 to and optionally includes travelers. 
    - An event has a description, which summarizes the details of what occurs.
-   - An event has either a positional range or a location _(which implies a
-   positional range)_. This is the span where at which the event occurs.
+   - An event has either a positional range, which is the multi-dimensional span
+   over which the event occurs.
    - An event has a set of travelers. Most events have at least one traveler,
 indicating that the event affected or included those travelers. Events without
 any travelers are supported but must still have a position or location _(for
 example a natural disaster in a remote area)_.
+   - An event has a set of locations showing which locations were affected by
+   the event. This set can have 0 or more locations, but each location's span
+   must intersect with the event's span at least partially.
    - An event can have zero or more tags, which are strings to allow easy
    identification and other utilities such as filtering and querying.
    
