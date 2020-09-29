@@ -15,19 +15,20 @@ in each dimension.
 does not necessarily imply increasing in along the 4th dimension _(as would be
 expected with 'real-world' 3 dimensional positions)_. Instead, two adjacent
 points in a journey may move in the 4th or even 5th dimension.
-  - A journey has a sequence of positions, which represent the travel or
-  movement of something.
+  - A journey has a sequence of one or more positions, which represent the
+  travel or movement of something.
   - A journey has a sequence of transition rules, which represent how the
   movement between positions occurs. Examples are:
-     - Interpolation: the position smoothly interpolates the position in
-     specific dimensions depending on the query dimension.
-     - Jump: the earlier position is used to 'infill' all possible queries
-     between two points in a sequence until the latter position is reached, at
-     which time the latter position is instantaneously used.
+     - Interpolated: the position smoothly interpolates the position in each of
+     the 1st through 4th.
+     - Immediate: the earlier position is used to 'infill' between two points
+     in a sequence until the latter position is reached, then the latter
+     position is instantaneously used.
 - `Traveler`: a person or thing which has a journey consisting of the positions
 it visits. A traveler can interact with other travelers and locations.
    - A traveler has a description, which provides details about the traveler.
-   - A traveler has a journey, which shows its travel from place to place.
+   - A Traveler has a journey consisting of the positions it visits starting at
+   the beginning of its existence and continuing until the end of its existence.
    - A traveler can have zero or more tags, which are strings to allow easy
    identification and other utilities such as filtering and querying.
 - `Location`: a place of significance that traveler's can come to and leave
@@ -69,8 +70,10 @@ a Traveler or Location throughout its existence.
    each position in a traveler's journey would be included. 
       - Events referenced in a traveler's timeline will be listed at the
       earliest position that the event is applicable. 
-      - A traveler's timeline would always begin with a position, but might end
-      with either a position or event
+      - Events may also appear multiple times in a traveler's timeline, as a
+      traveler could leave and re-enter the event's span. 
+      - A traveler's timeline will always begin and end positions, with a
+      combination of events and positions between.
    - Events included in a retrieved timeline can be filtered according to those
    event's tags.
 
