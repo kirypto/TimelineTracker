@@ -43,7 +43,7 @@ from.
    - A location can have zero or more tags, which are strings to allow easy
    identification and other utilities such as filtering and querying.
 - `Event`: An interaction, connection, or other thing which happens at a place
-to and optionally includes travelers. 
+to and optionally includes travelers.
    - An event has a description, which summarizes the details of what occurs.
    - An event has either a positional range, which is the multi-dimensional span
    over which the event occurs.
@@ -56,8 +56,18 @@ example a natural disaster in a remote area)_.
    must intersect with the event's span at least partially.
    - An event can have zero or more tags, which are strings to allow easy
    identification and other utilities such as filtering and querying.
-   
+
 ### Domain Usages
+
+- `Tags`: can be added to travelers, locations, and events to categorize and
+assist in retrieving desired items. Tags can be filtered as follows:
+   - `All`: Only items which have each of the given tags will be returned.
+   - `Any`: Items which have at least one of the given tags will be returned.
+   - `None`: Items which do not have any of the of the given tags will be
+   returned.
+   - `Only`: Items which have only the given tags will be returned.
+   - Multiple filters can be used simultaneously. Non-intersecting filters
+   _(such as combining `only=A` and `none=A`)_ will result in an empty list.
 
 - `Timeline`: a series of positions and events which show what has happened to
 a Traveler or Location throughout its existence.
@@ -67,11 +77,11 @@ a Traveler or Location throughout its existence.
    unable to move. These events can reference travelers, but the timeline itself
    would not.
    - The timeline of a traveler would certainly include positions and events, as
-   each position in a traveler's journey would be included. 
+   each position in a traveler's journey would be included.
       - Events referenced in a traveler's timeline will be listed at the
-      earliest position that the event is applicable. 
+      earliest position that the event is applicable.
       - Events may also appear multiple times in a traveler's timeline, as a
-      traveler could leave and re-enter the event's span. 
+      traveler could leave and re-enter the event's span.
       - A traveler's timeline will always begin and end positions, with a
       combination of events and positions between.
    - Events included in a retrieved timeline can be filtered according to those
