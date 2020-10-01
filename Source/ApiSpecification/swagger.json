@@ -661,6 +661,18 @@
           "$ref" : "#/components/schemas/TravelerId"
         }
       },
+      "TravelerTimeline" : {
+        "type" : "array",
+        "items" : {
+          "$ref" : "#/components/schemas/PositionOrEventId"
+        }
+      },
+      "LocationTimeline" : {
+        "type" : "array",
+        "items" : {
+          "$ref" : "#/components/schemas/EventId"
+        }
+      },
       "Range" : {
         "description" : "A single-dimensional range with a lower and higher value.",
         "type" : "object",
@@ -782,18 +794,6 @@
         }, {
           "$ref" : "#/components/schemas/EventId"
         } ]
-      },
-      "TravelerTimeline" : {
-        "type" : "array",
-        "items" : {
-          "$ref" : "#/components/schemas/PositionOrEventId"
-        }
-      },
-      "LocationTimeline" : {
-        "type" : "array",
-        "items" : {
-          "$ref" : "#/components/schemas/EventId"
-        }
       },
       "PatchRequest" : {
         "type" : "array",
