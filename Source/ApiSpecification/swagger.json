@@ -637,29 +637,29 @@
         "format" : "prefixed-uuid",
         "example" : "location-abad1dea-0000-4000-0000-000000000000"
       },
-      "LocationIds" : {
-        "type" : "array",
-        "items" : {
-          "$ref" : "#/components/schemas/LocationId"
-        }
-      },
       "TravelerId" : {
         "description" : "A unique identifier for a Traveler",
         "type" : "string",
         "format" : "prefixed-uuid",
         "example" : "traveler-abad1dea-0000-4000-0000-000000000000"
       },
-      "TravelerIds" : {
-        "type" : "array",
-        "items" : {
-          "$ref" : "#/components/schemas/TravelerId"
-        }
-      },
       "EventId" : {
         "description" : "A unique identifier for a Event",
         "type" : "string",
         "format" : "prefixed-uuid",
         "example" : "event-abad1dea-0000-4000-0000-000000000000"
+      },
+      "LocationIds" : {
+        "type" : "array",
+        "items" : {
+          "$ref" : "#/components/schemas/LocationId"
+        }
+      },
+      "TravelerIds" : {
+        "type" : "array",
+        "items" : {
+          "$ref" : "#/components/schemas/TravelerId"
+        }
       },
       "Range" : {
         "description" : "A single-dimensional range with a lower and higher value.",
