@@ -384,7 +384,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/EventWithoutTagsAndId"
+                "$ref" : "#/components/schemas/NewEvent"
               }
             }
           }
@@ -395,7 +395,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Event"
+                  "$ref" : "#/components/schemas/ExistingEvent"
                 }
               }
             }
@@ -448,7 +448,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Event"
+                  "$ref" : "#/components/schemas/ExistingEvent"
                 }
               }
             }
@@ -484,7 +484,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Event"
+                  "$ref" : "#/components/schemas/ExistingEvent"
                 }
               }
             }
@@ -582,6 +582,55 @@
         } ],
         "required" : [ "id", "journey" ]
       },
+      "BaseEvent" : {
+        "description" : "An interaction, connection, or other thing which happens across a dimensional range and optionally includes travelers and/or locations. Most events have at least one traveler, indicating that the event affected or included those travelers. Events without any travelers are supported but must still have a position or location _(for example a natural disaster in a remote area)_.\n- An event can have zero or more locations. The locations' spans must intersect the event.\n- An event can have zero or more travelers. The travelers' journeys must intersect the event.\n",
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "example" : "Skirmish in the market"
+          },
+          "description" : {
+            "type" : "string",
+            "example" : "Attacked by the Briggand Band, the civilians ran in despair until the courageous Band Of Defenders came to the rescue."
+          },
+          "span" : {
+            "$ref" : "#/components/schemas/PositionalRange"
+          },
+          "locations" : {
+            "$ref" : "#/components/schemas/LocationIds"
+          },
+          "travelers" : {
+            "$ref" : "#/components/schemas/TravelerIds"
+          }
+        },
+        "required" : [ "name", "description", "span", "locations", "travelers" ]
+      },
+      "NewEvent" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BaseEvent"
+        } ]
+      },
+      "ExistingEvent" : {
+        "allOf" : [ {
+          "type" : "object",
+          "properties" : {
+            "id" : {
+              "$ref" : "#/components/schemas/EventId"
+            }
+          }
+        }, {
+          "$ref" : "#/components/schemas/BaseEvent"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "tags" : {
+              "$ref" : "#/components/schemas/Tags"
+            }
+          }
+        } ],
+        "required" : [ "id" ]
+      },
       "LocationId" : {
         "description" : "A unique identifier for a Location",
         "type" : "string",
@@ -605,6 +654,12 @@
         "items" : {
           "$ref" : "#/components/schemas/TravelerId"
         }
+      },
+      "EventId" : {
+        "description" : "A unique identifier for a Event",
+        "type" : "string",
+        "format" : "prefixed-uuid",
+        "example" : "event-abad1dea-0000-4000-0000-000000000000"
       },
       "Range" : {
         "description" : "A single-dimensional range with a lower and higher value.",
@@ -719,66 +774,6 @@
         "items" : {
           "$ref" : "#/components/schemas/Tag"
         }
-      },
-      "EventId" : {
-        "description" : "A unique identifier for a Event",
-        "type" : "string",
-        "format" : "prefixed-uuid",
-        "example" : "event-abad1dea-0000-4000-0000-000000000000"
-      },
-      "Event" : {
-        "description" : "An interaction, connection, or other thing which happens at a place to and optionally includes travelers. Most events have at least one traveler, indicating that the event affected or included those travelers. Events without any travelers are supported but must still have a position or location _(for example a natural disaster in a remote area)_.\n- An event must have either a position or a location, but not both.\n- An event can have zero or more travelers.\n",
-        "type" : "object",
-        "properties" : {
-          "id" : {
-            "$ref" : "#/components/schemas/EventId"
-          },
-          "name" : {
-            "type" : "string",
-            "example" : "Skirmish in the market"
-          },
-          "description" : {
-            "type" : "string",
-            "example" : "Attacked by the Briggand Band, the civilians ran in despair until the courageous Band Of Defenders came to the rescue."
-          },
-          "position" : {
-            "$ref" : "#/components/schemas/Position"
-          },
-          "location" : {
-            "$ref" : "#/components/schemas/LocationId"
-          },
-          "travelers" : {
-            "$ref" : "#/components/schemas/TravelerIds"
-          },
-          "tags" : {
-            "$ref" : "#/components/schemas/Tags"
-          }
-        },
-        "required" : [ "id", "name", "description", "position", "location", "travelers" ]
-      },
-      "EventWithoutTagsAndId" : {
-        "description" : "An interaction, connection, or other thing which happens at a place to and optionally includes travelers. Most events have at least one traveler, indicating that the event affected or included those travelers. Events without any travelers are supported but must still have a position or location _(for example a natural disaster in a remote area)_.\n- An event must have either a position or a location, but not both.\n- An event can have zero or more travelers.\n",
-        "type" : "object",
-        "properties" : {
-          "name" : {
-            "type" : "string",
-            "example" : "Skirmish in the market"
-          },
-          "description" : {
-            "type" : "string",
-            "example" : "Attacked by the Briggand Band, the civilians ran in despair until the courageous Band Of Defenders came to the rescue."
-          },
-          "position" : {
-            "$ref" : "#/components/schemas/Position"
-          },
-          "location" : {
-            "$ref" : "#/components/schemas/LocationId"
-          },
-          "travelers" : {
-            "$ref" : "#/components/schemas/TravelerIds"
-          }
-        },
-        "required" : [ "name", "description", "position", "location", "travelers" ]
       },
       "PositionOrEventId" : {
         "type" : "object",
