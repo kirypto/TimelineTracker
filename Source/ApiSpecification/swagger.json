@@ -28,7 +28,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/LocationWithoutId"
+                "$ref" : "#/components/schemas/NewLocation"
               }
             }
           }
@@ -39,7 +39,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Location"
+                  "$ref" : "#/components/schemas/ExistingLocation"
                 }
               }
             }
@@ -92,7 +92,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Location"
+                  "$ref" : "#/components/schemas/ExistingLocation"
                 }
               }
             }
@@ -128,7 +128,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Location"
+                  "$ref" : "#/components/schemas/ExistingLocation"
                 }
               }
             }
@@ -495,6 +495,42 @@
   },
   "components" : {
     "schemas" : {
+      "BaseLocation" : {
+        "description" : "A place of significance that travelers can visit and events can occur at which cover a multi-dimensional area.  \nMost locations will consist of an area that spans 4 of the 5 dimensions;\n- Ranges for dimensions 1-3 representing the physical area.\n- A range for dimension 4 representing the time range from when it was constructed to when it will be no more. \n- A instantaneous range for dimension 5 _(lower and higher values are the same)_.\n",
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "example" : "The Great Pyramid"
+          },
+          "description" : {
+            "type" : "string",
+            "example" : "A great triangular structure in Egypt constructed long ago.\n"
+          },
+          "span" : {
+            "$ref" : "#/components/schemas/PositionalRange"
+          }
+        },
+        "required" : [ "name", "description", "span" ]
+      },
+      "NewLocation" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BaseLocation"
+        } ]
+      },
+      "ExistingLocation" : {
+        "allOf" : [ {
+          "type" : "object",
+          "properties" : {
+            "id" : {
+              "$ref" : "#/components/schemas/LocationId"
+            }
+          }
+        }, {
+          "$ref" : "#/components/schemas/BaseLocation"
+        } ],
+        "required" : [ "id" ]
+      },
       "BaseTraveler" : {
         "description" : "A person or thing which has a journey consisting of the positions it visits. A traveler can interact with other travelers and locations via events.",
         "type" : "object",
@@ -545,6 +581,18 @@
           }
         } ],
         "required" : [ "id", "journey" ]
+      },
+      "LocationId" : {
+        "description" : "A unique identifier for a Location",
+        "type" : "string",
+        "format" : "prefixed-uuid",
+        "example" : "location-abad1dea-0000-4000-0000-000000000000"
+      },
+      "LocationIds" : {
+        "type" : "array",
+        "items" : {
+          "$ref" : "#/components/schemas/LocationId"
+        }
       },
       "TravelerId" : {
         "description" : "A unique identifier for a Traveler",
@@ -671,60 +719,6 @@
         "items" : {
           "$ref" : "#/components/schemas/Tag"
         }
-      },
-      "LocationId" : {
-        "description" : "A unique identifier for a Location",
-        "type" : "string",
-        "format" : "prefixed-uuid",
-        "example" : "location-abad1dea-0000-4000-0000-000000000000"
-      },
-      "LocationIds" : {
-        "type" : "array",
-        "items" : {
-          "$ref" : "#/components/schemas/LocationId"
-        }
-      },
-      "Location" : {
-        "description" : "A place of significance that travelers can visit and events can occur at which cover a multi-dimensional area.  \nMost locations will consist of an area that spans 4 of the 5 dimensions;\n- Ranges for dimensions 1-3 representing the physical area.\n- A range for dimension 4 representing the time range from when it was constructed to when it will be no more. \n- A instantaneous range for dimension 5 _(lower and higher values are the same)_.\n",
-        "type" : "object",
-        "properties" : {
-          "id" : {
-            "$ref" : "#/components/schemas/LocationId"
-          },
-          "name" : {
-            "type" : "string",
-            "example" : "The Great Pyramid"
-          },
-          "description" : {
-            "type" : "string",
-            "example" : "A great triangular structure in Egypt constructed long ago.\n"
-          },
-          "span" : {
-            "$ref" : "#/components/schemas/PositionalRange"
-          },
-          "tags" : {
-            "$ref" : "#/components/schemas/Tags"
-          }
-        },
-        "required" : [ "id", "name", "description", "span" ]
-      },
-      "LocationWithoutId" : {
-        "description" : "A place of significance that travelers can visit and events can occur at which cover a multi-dimensional area.  \nMost locations will consist of an area that spans 4 of the 5 dimensions;\n- Ranges for dimensions 1-3 representing the physical area.\n- A range for dimension 4 representing the time range from when it was constructed to when it will be no more. \n- A instantaneous range for dimension 5 _(lower and higher values are the same)_.\n",
-        "type" : "object",
-        "properties" : {
-          "name" : {
-            "type" : "string",
-            "example" : "The Great Pyramid"
-          },
-          "description" : {
-            "type" : "string",
-            "example" : "A great triangular structure in Egypt constructed long ago."
-          },
-          "span" : {
-            "$ref" : "#/components/schemas/PositionalRange"
-          }
-        },
-        "required" : [ "name", "description", "span" ]
       },
       "EventId" : {
         "description" : "A unique identifier for a Event",
