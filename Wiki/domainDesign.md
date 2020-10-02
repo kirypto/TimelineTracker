@@ -63,9 +63,9 @@ example a natural disaster in a remote area)_.
 assist in retrieving desired items. Tags can be filtered as follows:
    - `All`: Only items which have each of the given tags will be returned.
    - `Any`: Items which have at least one of the given tags will be returned.
+   - `Only`: Items which have only the given tags will be returned.
    - `None`: Items which do not have any of the of the given tags will be
    returned.
-   - `Only`: Items which have only the given tags will be returned.
    - Multiple filters can be used simultaneously. Non-intersecting filters
    _(such as combining `only=A` and `none=A`)_ will result in an empty list.
 
