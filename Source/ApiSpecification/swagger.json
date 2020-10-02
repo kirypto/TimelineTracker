@@ -673,6 +673,23 @@
           "$ref" : "#/components/schemas/EventId"
         }
       },
+      "Journey" : {
+        "description" : "A sequence of positional transitions.",
+        "type" : "array",
+        "items" : {
+          "$ref" : "#/components/schemas/PositionalTransition"
+        },
+        "example" : [ {
+          "position" : {
+            "latitude" : -10.9378,
+            "longitude" : -8.61222,
+            "altitude" : 816.72,
+            "continuum" : 737194.31,
+            "reality" : 1
+          },
+          "transition" : "Jump"
+        } ]
+      },
       "Range" : {
         "description" : "A single-dimensional range with a lower and higher value.",
         "type" : "object",
@@ -758,23 +775,6 @@
           }
         },
         "required" : [ "position", "transition" ]
-      },
-      "Journey" : {
-        "description" : "A sequence of positional transitions.",
-        "type" : "array",
-        "items" : {
-          "$ref" : "#/components/schemas/PositionalTransition"
-        },
-        "example" : [ {
-          "position" : {
-            "latitude" : -10.9378,
-            "longitude" : -8.61222,
-            "altitude" : 816.72,
-            "continuum" : 737194.31,
-            "reality" : 1
-          },
-          "transition" : "Jump"
-        } ]
       },
       "Tag" : {
         "description" : "Alpha-numeric string to allow custom categorization for Travelers, Locations, and Events.",
