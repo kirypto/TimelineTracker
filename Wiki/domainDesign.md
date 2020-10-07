@@ -60,15 +60,22 @@ example a natural disaster in a remote area)_.
 ### Domain Usages
 
 - `Tags`: can be added to travelers, locations, and events to categorize and
-assist in retrieving desired items. Tags can be filtered as follows:
-   - `All`: Only items which have each of the given tags will be returned.
-   - `Any`: Items which have at least one of the given tags will be returned.
-   - `Only`: Items which have only the given tags will be returned. Items with
-   a subset of the given tags will be returned.
-   - `None`: Items which do not have any of the of the given tags will be
-   returned.
+assist in retrieving desired items. 
+   - Tags can be filtered as follows:
+      - `All`: Only items which have each of the given tags will be returned.
+      - `Any`: Items which have at least one of the given tags will be returned.
+      - `Only`: Items which have only the given tags will be returned. Items with
+      a subset of the given tags will be returned.
+      - `None`: Items which do not have any of the of the given tags will be
+      returned.
    - Multiple filters can be used simultaneously. Non-intersecting filters
    _(such as combining `only=A` and `none=A`)_ will result in an empty list.
+   - Because having an empty tag set is valid, the `Only` filters treats
+   untagged items as 'passing' the filter. This allows:
+      - To filter to only untagged items, use: `Only={}`.
+      - To filter to items tagged with 'A' and/or 'B' _(but not untagged items)_
+      combine the `Only` and `Any` filters: `Only={A,B}&Any{A,B}`.
+   
 
 - `Timeline`: a series of positions and events which show what has happened to
 a Traveler or Location throughout its existence.
