@@ -328,32 +328,32 @@
         "tags" : [ "Travelers" ],
         "parameters" : [ {
           "in" : "query",
-          "name" : "includeEventsTaggedWithAnyOf",
-          "description" : "Comma separated list of tags. Filters timeline Events to only those which have at least one of the specified tags.",
+          "name" : "eventsTaggedAll",
+          "description" : "Comma separated list of tags. Filters timeline to inlcude events which have all of the specified tags.",
           "schema" : {
             "type" : "string"
           },
           "example" : "important,unimportant"
         }, {
           "in" : "query",
-          "name" : "includeEventsTaggedWithAllOf",
-          "description" : "Comma separated list of tags. Filters timeline Events to only those which have all of the specified tags.",
+          "name" : "eventsTaggedAny",
+          "description" : "Comma separated list of tags. Filters timeline to include events which have at least one of the specified tags.",
           "schema" : {
             "type" : "string"
           },
           "example" : "important,unimportant"
         }, {
           "in" : "query",
-          "name" : "excludeEventsTaggedWithAnyOf",
-          "description" : "Comma separated list of tags. Filters timeline Events to only those which do not have any of the specified tags.",
+          "name" : "eventsTaggedOnly",
+          "description" : "Comma separated list of tags. Filters timeline to include events which are only tagged with the specified tags _(or a subset of them)_.",
           "schema" : {
             "type" : "string"
           },
           "example" : "important,unimportant"
         }, {
           "in" : "query",
-          "name" : "excludeEventsTaggedWithAllOf",
-          "description" : "Comma separated list of tags. Filters timeline Events to only those which do not have all of the specified tags.",
+          "name" : "eventsTaggedNone",
+          "description" : "Comma separated list of tags. Filters timeline to include events which have none of the of the specified tags.",
           "schema" : {
             "type" : "string"
           },
