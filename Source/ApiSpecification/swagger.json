@@ -59,6 +59,38 @@
             "type" : "string"
           },
           "example" : "The Great Pyramid"
+        }, {
+          "in" : "query",
+          "name" : "taggedAll",
+          "description" : "Comma separated list of tags. Filters to only include locations which have all of the specified tags.",
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "important,unimportant"
+        }, {
+          "in" : "query",
+          "name" : "taggedAny",
+          "description" : "Comma separated list of tags. Filters to only include locations which have at least one of the specified tags.",
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "important,unimportant"
+        }, {
+          "in" : "query",
+          "name" : "taggedOnly",
+          "description" : "Comma separated list of tags. Filters to only include locations which are only tagged with the specified tags _(or a subset of them)_.",
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "important,unimportant"
+        }, {
+          "in" : "query",
+          "name" : "taggedNone",
+          "description" : "Comma separated list of tags. Filters to only include locations which have none of the of the specified tags.",
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "important,unimportant"
         } ],
         "responses" : {
           "200" : {
