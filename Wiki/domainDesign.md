@@ -5,7 +5,7 @@
 - `Position`: a multi-dimensional point. Currently intended to support up to
 the 5th dimension:
    - Dimensions 1-3: typical coordinate system consisting of longitude,
-   latitude, and height relative to sea level
+   latitude, and altitude.
    - Dimension 4: 'time' or 'duration', the time that the position is tied to
    - Dimension 5: 'decision space' or 'alternate realities' which may be
    jumped between
