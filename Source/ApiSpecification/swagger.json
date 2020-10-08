@@ -151,7 +151,7 @@
         "parameters" : [ {
           "in" : "query",
           "name" : "eventsTaggedAll",
-          "description" : "Comma separated list of tags. Filters timeline to inlcude events which have all of the specified tags.",
+          "description" : "Comma separated list of tags. Filters timeline to include events which have all of the specified tags.",
           "schema" : {
             "type" : "string"
           },
@@ -329,7 +329,7 @@
         "parameters" : [ {
           "in" : "query",
           "name" : "eventsTaggedAll",
-          "description" : "Comma separated list of tags. Filters timeline to inlcude events which have all of the specified tags.",
+          "description" : "Comma separated list of tags. Filters timeline to include events which have all of the specified tags.",
           "schema" : {
             "type" : "string"
           },
