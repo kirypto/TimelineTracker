@@ -2,7 +2,7 @@
   "openapi" : "3.0.0",
   "servers" : [ {
     "description" : "SwaggerHub API Auto Mocking",
-    "url" : "https://virtserver.swaggerhub.com/kirypto/TimelineTracker/1.0.0"
+    "url" : "https://virtserver.swaggerhub.com/kirypto/TimelineTracker/0.1.0"
   } ],
   "info" : {
     "version" : "0.1.0",
