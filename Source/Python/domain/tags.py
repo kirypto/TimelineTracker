@@ -1,6 +1,7 @@
 from functools import total_ordering
 
 from re import compile, match
+from typing import Set
 
 
 def special_match(strg, search=compile(r'^[a-zA-Z0-9_-]$').search):
@@ -38,4 +39,17 @@ class Tag:
 
 
 class Tags:
-    pass
+    _tags: Set[Tag]
+
+    def __init__(self) -> None:
+        self._tags = set()
+
+    @property
+    def tags(self) -> Set[Tag]:
+        return set(self._tags)
+
+    def add_tag(self, tag: Tag) -> None:
+        self._tags.add(tag)
+
+    def remove_tag(self, tag: Tag) -> None:
+        self._tags.remove(tag)
