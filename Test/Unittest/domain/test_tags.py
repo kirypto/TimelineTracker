@@ -13,6 +13,7 @@ def anon_tag() -> Tag:
     return Tag(anon_tag_name())
 
 
+# noinspection DuplicatedCode
 class TestTag(TestCase):
     def test__str__should_return_tag_as_plain_text(self) -> None:
         # Arrange
@@ -35,7 +36,7 @@ class TestTag(TestCase):
         # Assert
         self.assertRaises(ValueError, Action)
 
-    def test__init__should_empty(self) -> None:
+    def test__init__should_reject_empty(self) -> None:
         # Arrange
 
         # Act
