@@ -69,7 +69,7 @@ class TestTag(TestCase):
         tag = anon_tag()
 
         # Act
-        def Action(): var = {tag}
+        def Action(): _ = {tag}
 
         # Assert
         Action()
