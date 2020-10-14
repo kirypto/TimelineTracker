@@ -98,6 +98,17 @@ class TestTags(TestCase):
         # Assert
         self.assertSetEqual(set(), actual)
 
+    def test__tags__should_not_be_settable(self) -> None:
+        # Arrange
+        tags = Tags()
+
+        # Act
+        # noinspection PyPropertyAccess
+        def Action(): tags.tags = {anon_tag()}
+
+        # Assert
+        self.assertRaises(AttributeError, Action)
+
     def test__add_tag__should_add_to_set(self) -> None:
         # Arrange
         tags = Tags()
