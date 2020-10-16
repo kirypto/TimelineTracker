@@ -41,8 +41,14 @@ class Tag:
 class TaggedEntity:
     _tags: Set[Tag]
 
-    def __init__(self) -> None:
-        self._tags = set()
+    def __init__(self, *, tags: Set[Tag] = None, **kwargs) -> None:
+        if tags is not None:
+            if not isinstance(tags, set) or any([not isinstance(t, Tag) for t in tags]):
+                raise ValueError("tags must be a set of Tags")
+            self._tags = set(tags)
+        else:
+            self._tags = set()
+        super().__init__(**kwargs)
 
     @property
     def tags(self) -> Set[Tag]:
