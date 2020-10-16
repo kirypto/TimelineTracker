@@ -38,7 +38,7 @@ class Tag:
         return hash((self.__class__.__name__, self._name))
 
 
-class Tags:
+class TaggedEntity:
     _tags: Set[Tag]
 
     def __init__(self) -> None:

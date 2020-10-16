@@ -2,7 +2,7 @@ from random import choices
 from string import ascii_letters, digits
 from unittest import TestCase
 
-from domain.tags import Tag, Tags
+from domain.tags import Tag, TaggedEntity
 
 
 def anon_tag_name(num_digits: int = 10) -> str:
@@ -76,10 +76,10 @@ class TestTag(TestCase):
         Action()
 
 
-class TestTags(TestCase):
+class TestTaggedEntity(TestCase):
     def test__tags__should_initialize_empty(self) -> None:
         # Arrange
-        tags = Tags()
+        tags = TaggedEntity()
 
         # Act
         actual = tags.tags
@@ -89,7 +89,7 @@ class TestTags(TestCase):
 
     def test__tags__should_not_allow_external_mutation(self) -> None:
         # Arrange
-        tags = Tags()
+        tags = TaggedEntity()
         tag_set = tags.tags
         tag_set.add(anon_tag())
 
@@ -101,7 +101,7 @@ class TestTags(TestCase):
 
     def test__tags__should_not_be_settable(self) -> None:
         # Arrange
-        tags = Tags()
+        tags = TaggedEntity()
 
         # Act
         # noinspection PyPropertyAccess
@@ -112,7 +112,7 @@ class TestTags(TestCase):
 
     def test__add_tag__should_add_to_set(self) -> None:
         # Arrange
-        tags = Tags()
+        tags = TaggedEntity()
         tag = anon_tag()
         tags.add_tag(tag)
         expected = {tag}
@@ -125,7 +125,7 @@ class TestTags(TestCase):
 
     def test__add_tag__should_ignore_duplicates(self) -> None:
         # Arrange
-        tags = Tags()
+        tags = TaggedEntity()
         tag = anon_tag()
         tags.add_tag(tag)
         tags.add_tag(tag)
@@ -139,7 +139,7 @@ class TestTags(TestCase):
     
     def test__remove_tag__should_remove_existent_tags(self) -> None:
         # Arrange
-        tags = Tags()
+        tags = TaggedEntity()
         tags.add_tag(anon_tag())
         expected = tags.tags
         tag = anon_tag()
@@ -154,7 +154,7 @@ class TestTags(TestCase):
 
     def test__remove_tag__should_reject_non_existent_tags(self) -> None:
         # Arrange
-        tags = Tags()
+        tags = TaggedEntity()
 
         # Act
         def Action(): tags.remove_tag(anon_tag())
