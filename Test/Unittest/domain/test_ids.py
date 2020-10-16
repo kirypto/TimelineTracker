@@ -103,10 +103,13 @@ class TestIdentifiedEntity(TestCase):
             pass
 
         # Act
-        def Action(): _ = TestKwargs(id=anon_prefixed_id(), other="other")
+        expected = "other"
+
+        def Action(): return TestKwargs(id=anon_prefixed_id(), other=expected)
+        actual = Action()
 
         # Assert
-        Action()
+        self.assertEqual(expected, actual.other)
 
     def test__id__should_return_prefixed_id(self) -> None:
         # Arrange
@@ -132,5 +135,5 @@ class TestIdentifiedEntity(TestCase):
 
 class _Other:
     def __init__(self, other, **kwargs):
-        _ = other
+        self.other = other
         super().__init__(**kwargs)
