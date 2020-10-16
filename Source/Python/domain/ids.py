@@ -19,7 +19,7 @@ class PrefixedUUID:
     def __str__(self) -> str:
         return f"{self._prefix}{self.__delimiter}{self._uuid}"
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if not isinstance(other, PrefixedUUID):
             return NotImplemented
         return self._prefix == other._prefix and self._uuid == other._uuid
@@ -29,4 +29,12 @@ class PrefixedUUID:
 
 
 class IdentifiedEntity:
-    pass
+    _id: PrefixedUUID
+
+    @property
+    def id(self) -> PrefixedUUID:
+        return self._id
+
+    def __init__(self, *, id: PrefixedUUID, **kwargs):
+        self._id = id
+        super().__init__(**kwargs)
