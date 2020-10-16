@@ -10,32 +10,31 @@ def special_match(strg, search=compile(r'^[a-zA-Z0-9_-]$').search):
 
 @total_ordering
 class Tag:
-    _name: str
+    _tag: str
 
-    def __init__(self, name: str) -> None:
-        name_valid = match(r"^[a-zA-Z0-9_-]+$", name)
-        if not name_valid:
-            raise ValueError(f"Invalid tag name '{name}'")
-        self._name = name
+    def __init__(self, tag: str) -> None:
+        if not isinstance(tag, str) or not match(r"^[a-zA-Z0-9_-]+$", tag):
+            raise ValueError(f"Invalid tag name '{tag}'")
+        self._tag = tag
 
     def __str__(self) -> str:
-        return self._name
+        return self._tag
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({repr(self._name)})"
+        return f"{self.__class__.__name__}({repr(self._tag)})"
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Tag):
             return NotImplemented
-        return self._name == other._name
+        return self._tag == other._tag
 
     def __lt__(self, other: object) -> bool:
         if not isinstance(other, Tag):
             return NotImplemented
-        return self._name < other._name
+        return self._tag < other._tag
 
     def __hash__(self) -> int:
-        return hash((self.__class__.__name__, self._name))
+        return hash((self.__class__.__name__, self._tag))
 
 
 class TaggedEntity:
