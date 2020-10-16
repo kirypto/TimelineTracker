@@ -77,7 +77,7 @@ class TestTag(TestCase):
 
 
 class TestTaggedEntity(TestCase):
-    def test__tags__should_initialize_empty(self) -> None:
+    def test__init__should_initialize_empty__when_no_tags_given(self) -> None:
         # Arrange
         tags = TaggedEntity()
 
@@ -86,6 +86,31 @@ class TestTaggedEntity(TestCase):
 
         # Assert
         self.assertSetEqual(set(), actual)
+
+    def test__init__should_initialize_tags__when_tags_given(self) -> None:
+        # Arrange
+        expected = {anon_tag(), anon_tag()}
+        tags = TaggedEntity(tags=expected)
+
+        # Act
+        actual = tags.tags
+
+        # Assert
+        self.assertSetEqual(expected, actual)
+
+    def test__init__should_support_kwargs(self) -> None:
+        # Arrange
+        class TestKwargs(TaggedEntity, _Other):
+            pass
+
+        # Act
+        expected = "other"
+
+        def Action(): return TestKwargs(tags={anon_tag()}, other=expected)
+        actual = Action()
+
+        # Assert
+        self.assertEqual(expected, actual.other)
 
     def test__tags__should_not_allow_external_mutation(self) -> None:
         # Arrange
@@ -161,3 +186,9 @@ class TestTaggedEntity(TestCase):
 
         # Assert
         self.assertRaises(KeyError, Action)
+
+
+class _Other:
+    def __init__(self, other, **kwargs):
+        self.other = other
+        super().__init__(**kwargs)
