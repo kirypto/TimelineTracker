@@ -48,6 +48,33 @@ class TestPosition(TestCase):
         # Assert
         self.assertEqual("other", actual.other)
 
+    def test__init__should_reject_invalid_types(self) -> None:
+        # Arrange
+        invalid_type = choice(["string", False, True])
+
+        # Act
+        def InvalidLatitude(): Position(latitude=invalid_type,
+                                        longitude=anon_float(), altitude=anon_float(), continuum=anon_float(), reality=anon_int())
+
+        def InvalidLongitude(): Position(longitude=invalid_type,
+                                         latitude=anon_float(), altitude=anon_float(), continuum=anon_float(), reality=anon_int())
+
+        def InvalidAltitude(): Position(altitude=invalid_type,
+                                        latitude=anon_float(), longitude=anon_float(), continuum=anon_float(), reality=anon_int())
+
+        def InvalidContinuum(): Position(continuum=invalid_type,
+                                         latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), reality=anon_int())
+
+        def InvalidReality(): Position(reality=invalid_type,
+                                       latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=anon_float())
+
+        # Assert
+        self.assertRaises(ValueError, InvalidLatitude)
+        self.assertRaises(ValueError, InvalidLongitude)
+        self.assertRaises(ValueError, InvalidAltitude)
+        self.assertRaises(ValueError, InvalidContinuum)
+        self.assertRaises(ValueError, InvalidReality)
+
     def test__properties__should_not_be_mutable(self) -> None:
         # Arrange
         position = Position(latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=anon_float(), reality=anon_int())
@@ -139,6 +166,87 @@ class TestPositionalRange(TestCase):
 
         # Assert
         self.assertEqual("other", actual.other)
+
+    def test__init__should_reject_attempts_to_provide_singular_and_range_args_simultaneously(self) -> None:
+        # Arrange
+        anon = anon_int()
+
+        # Act
+        def InvalidLatitudeAction(): PositionalRange(latitude_low=anon, latitude_high=anon, latitude=anon,
+                                                     longitude=anon, altitude=anon, continuum=anon, reality=anon)
+
+        def InvalidLongitudeAction(): PositionalRange(longitude_low=anon, longitude_high=anon, longitude=anon,
+                                                      latitude=anon, altitude=anon, continuum=anon, reality=anon)
+
+        def InvalidAltitudeAction(): PositionalRange(altitude_low=anon, altitude_high=anon, altitude=anon,
+                                                     latitude=anon, longitude=anon, continuum=anon, reality=anon)
+
+        def InvalidContinuumAction(): PositionalRange(continuum_low=anon, continuum_high=anon, continuum=anon,
+                                                      latitude=anon, longitude=anon, altitude=anon, reality=anon)
+
+        def InvalidRealityAction(): PositionalRange(reality_low=anon, reality_high=anon, reality=anon,
+                                                    latitude=anon, longitude=anon, altitude=anon, continuum=anon)
+
+        # Assert
+        self.assertRaises(ValueError, InvalidLatitudeAction)
+        self.assertRaises(ValueError, InvalidLongitudeAction)
+        self.assertRaises(ValueError, InvalidAltitudeAction)
+        self.assertRaises(ValueError, InvalidContinuumAction)
+        self.assertRaises(ValueError, InvalidRealityAction)
+
+    def test__init__should_reject_invalid_types_for_singular_args(self) -> None:
+        # Arrange
+        invalid_type = choice(["string", False, True])
+
+        # Act
+        def InvalidLatitude(): PositionalRange(latitude=invalid_type,
+                                               longitude=anon_float(), altitude=anon_float(), continuum=anon_float(), reality=anon_int())
+
+        def InvalidLongitude(): PositionalRange(longitude=invalid_type,
+                                                latitude=anon_float(), altitude=anon_float(), continuum=anon_float(), reality=anon_int())
+
+        def InvalidAltitude(): PositionalRange(altitude=invalid_type,
+                                               latitude=anon_float(), longitude=anon_float(), continuum=anon_float(), reality=anon_int())
+
+        def InvalidContinuum(): PositionalRange(continuum=invalid_type,
+                                                latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), reality=anon_int())
+
+        def InvalidReality(): PositionalRange(reality=invalid_type,
+                                              latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=anon_float())
+
+        # Assert
+        self.assertRaises(ValueError, InvalidLatitude)
+        self.assertRaises(ValueError, InvalidLongitude)
+        self.assertRaises(ValueError, InvalidAltitude)
+        self.assertRaises(ValueError, InvalidContinuum)
+        self.assertRaises(ValueError, InvalidReality)
+
+    def test__init__should_reject_invalid_types_for_range_args(self) -> None:
+        # Arrange
+        invalid_type = choice(["string", False, True])
+
+        # Act
+        def InvalidLatitude(): PositionalRange(latitude_low=invalid_type, latitude_high=invalid_type,
+                                               longitude=anon_float(), altitude=anon_float(), continuum=anon_float(), reality=anon_int())
+
+        def InvalidLongitude(): PositionalRange(longitude_low=invalid_type, longitude_high=invalid_type,
+                                                latitude=anon_float(), altitude=anon_float(), continuum=anon_float(), reality=anon_int())
+
+        def InvalidAltitude(): PositionalRange(altitude_low=invalid_type, altitude_high=invalid_type,
+                                               latitude=anon_float(), longitude=anon_float(), continuum=anon_float(), reality=anon_int())
+
+        def InvalidContinuum(): PositionalRange(continuum_low=invalid_type, continuum_high=invalid_type,
+                                                latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), reality=anon_int())
+
+        def InvalidReality(): PositionalRange(reality_low=invalid_type, reality_high=invalid_type,
+                                              latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=anon_float())
+
+        # Assert
+        self.assertRaises(ValueError, InvalidLatitude)
+        self.assertRaises(ValueError, InvalidLongitude)
+        self.assertRaises(ValueError, InvalidAltitude)
+        self.assertRaises(ValueError, InvalidContinuum)
+        self.assertRaises(ValueError, InvalidReality)
 
     def test__includes__should_return_true__when_provided_position_is_within_positional_range(self) -> None:
         # Arrange
