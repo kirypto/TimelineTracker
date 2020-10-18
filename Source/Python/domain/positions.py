@@ -26,11 +26,16 @@ class Position:
         return self._reality
 
     def __init__(self, *, latitude: float, longitude: float, altitude: float, continuum: float, reality: int, **kwargs) -> None:
-        self._reality = reality
-        self._continuum = continuum
-        self._altitude = altitude
-        self._longitude = longitude
-        self._latitude = latitude
+        def validate_type(value, acceptable_types):
+            if type(value) not in acceptable_types:
+                raise ValueError(f"non-numeric value")
+            return acceptable_types[0](value)
+
+        self._latitude = validate_type(latitude, [float, int])
+        self._longitude = validate_type(longitude, [float, int])
+        self._altitude = validate_type(altitude, [float, int])
+        self._continuum = validate_type(continuum, [float, int])
+        self._reality = validate_type(reality, [int])
         super().__init__(**kwargs)
 
 
