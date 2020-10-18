@@ -126,15 +126,15 @@ class TestPositionalRange(TestCase):
     def test__init__should_initialize_from_provided_range_args(self) -> None:
         # Arrange
         expected_latitude_low = anon_float()
-        expected_latitude_high = anon_float()
+        expected_latitude_high = expected_latitude_low + abs(anon_float())
         expected_longitude_low = anon_float()
-        expected_longitude_high = anon_float()
+        expected_longitude_high = expected_longitude_low + abs(anon_float())
         expected_altitude_low = anon_float()
-        expected_altitude_high = anon_float()
+        expected_altitude_high = expected_altitude_low + abs(anon_float())
         expected_continuum_low = anon_float()
-        expected_continuum_high = anon_float()
+        expected_continuum_high = expected_continuum_low + abs(anon_float())
         expected_reality_low = anon_int()
-        expected_reality_high = anon_int()
+        expected_reality_high = expected_reality_low + abs(anon_int())
 
         # Act
         actual = PositionalRange(latitude_low=expected_latitude_low, latitude_high=expected_latitude_high,
@@ -248,10 +248,38 @@ class TestPositionalRange(TestCase):
         self.assertRaises(ValueError, InvalidContinuum)
         self.assertRaises(ValueError, InvalidReality)
 
+    def test__init__should_reject_args_when_low_is_greater_than_high(self) -> None:
+        # Arrange
+        invalid_low = anon_int()
+        invalid_high = invalid_low - abs(anon_int())
+
+        # Act
+        def InvalidLatitude(): PositionalRange(latitude_low=invalid_low, latitude_high=invalid_high,
+                                               longitude=anon_float(), altitude=anon_float(), continuum=anon_float(), reality=anon_int())
+
+        def InvalidLongitude(): PositionalRange(longitude_low=invalid_low, longitude_high=invalid_high,
+                                                latitude=anon_float(), altitude=anon_float(), continuum=anon_float(), reality=anon_int())
+
+        def InvalidAltitude(): PositionalRange(altitude_low=invalid_low, altitude_high=invalid_high,
+                                               latitude=anon_float(), longitude=anon_float(), continuum=anon_float(), reality=anon_int())
+
+        def InvalidContinuum(): PositionalRange(continuum_low=invalid_low, continuum_high=invalid_high,
+                                                latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), reality=anon_int())
+
+        def InvalidReality(): PositionalRange(reality_low=invalid_low, reality_high=invalid_high,
+                                              latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=anon_float())
+
+        # Assert
+        self.assertRaises(ValueError, InvalidLatitude)
+        self.assertRaises(ValueError, InvalidLongitude)
+        self.assertRaises(ValueError, InvalidAltitude)
+        self.assertRaises(ValueError, InvalidContinuum)
+        self.assertRaises(ValueError, InvalidReality)
+
     def test__includes__should_return_true__when_provided_position_is_within_positional_range(self) -> None:
         # Arrange
         low = anon_int()
-        high = low + anon_int()
+        high = low + abs(anon_int())
         positional_range = PositionalRange(latitude_low=low, latitude_high=high,
                                            longitude_low=low, longitude_high=high,
                                            altitude_low=low, altitude_high=high,
@@ -269,7 +297,7 @@ class TestPositionalRange(TestCase):
     def test__includes__should_return_false__when_any_dimension_of_provided_position_is_outside_range(self) -> None:
         # Arrange
         low = anon_int()
-        high = low + anon_int()
+        high = low + abs(anon_int())
         positional_range = PositionalRange(latitude_low=low, latitude_high=high,
                                            longitude_low=low, longitude_high=high,
                                            altitude_low=low, altitude_high=high,
@@ -299,7 +327,7 @@ class TestPositionalRange(TestCase):
     def test__intersects__should_return_true__when_provided_range_partially_overlaps(self) -> None:
         # Arrange
         low = anon_int()
-        high = low + anon_int()
+        high = low + abs(anon_int())
         positional_range = PositionalRange(latitude_low=low, latitude_high=high,
                                            longitude_low=low, longitude_high=high,
                                            altitude_low=low, altitude_high=high,
@@ -317,7 +345,7 @@ class TestPositionalRange(TestCase):
     def test__intersects__should_return_true__when_provided_range_contained_completely(self) -> None:
         # Arrange
         low = anon_int()
-        high = low + 5
+        high = low + abs(anon_int())
         positional_range = PositionalRange(latitude_low=low, latitude_high=high,
                                            longitude_low=low, longitude_high=high,
                                            altitude_low=low, altitude_high=high,
@@ -338,7 +366,7 @@ class TestPositionalRange(TestCase):
     def test__intersects__should_return_false__when_provided_range_does_not_overlap(self) -> None:
         # Arrange
         low = anon_int()
-        high = low + anon_int()
+        high = low + abs(anon_int())
         positional_range = PositionalRange(latitude_low=low, latitude_high=high,
                                            longitude_low=low, longitude_high=high,
                                            altitude_low=low, altitude_high=high,
