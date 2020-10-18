@@ -1,3 +1,6 @@
+from typing import Any
+
+
 class Position:
     _latitude: float
     _longitude: float
@@ -106,12 +109,15 @@ class PositionalRange:
                 raise ValueError("Cannot provide singular and low/high values simultaneously for the same dimension")
             if not any([singular_given, low_given, high_given]):
                 raise ValueError("Must either provide singular value or low/high values for each dimension")
-            actual_low, actual_high = (singular, singular) if singular_given else (range_low, range_high)
-            if type(actual_low) not in acceptable_types:
-                raise ValueError(f"Invalid value '{actual_low}', must be one of {acceptable_types}")
-            if type(actual_high) not in acceptable_types:
-                raise ValueError(f"Invalid value '{actual_high}', must be one of {acceptable_types}")
-            return acceptable_types[0](actual_low), acceptable_types[0](actual_high)
+            low, high = (singular, singular) if singular_given else (range_low, range_high)
+            if type(low) not in acceptable_types:
+                raise ValueError(f"Invalid value '{low}', must be one of {acceptable_types}")
+            if type(high) not in acceptable_types:
+                raise ValueError(f"Invalid value '{high}', must be one of {acceptable_types}")
+            actual_low, actual_high = (acceptable_types[0](low), acceptable_types[0](high))
+            if actual_low > actual_high:
+                raise ValueError(f"Invalid range, low value must be lesser or equal to high value")
+            return actual_low, actual_high
 
         self._latitude_low, self._latitude_high = validate_low_and_high(latitude, latitude_low, latitude_high, [float, int])
         self._longitude_low, self._longitude_high = validate_low_and_high(longitude, longitude_low, longitude_high, [float, int])
@@ -119,3 +125,15 @@ class PositionalRange:
         self._continuum_low, self._continuum_high = validate_low_and_high(continuum, continuum_low, continuum_high, [float, int])
         self._reality_low, self._reality_high = validate_low_and_high(reality, reality_low, reality_high, [int])
         super().__init__(**kwargs)
+
+    def includes(self, position: Position) -> bool:
+        return (self._range_includes(self.latitude_low, self.latitude_high, position.latitude) and
+                self._range_includes(self.longitude_low, self.longitude_high, position.longitude) and
+                self._range_includes(self.altitude_low, self.altitude_high, position.altitude) and
+                self._range_includes(self.continuum_low, self.continuum_high, position.continuum) and
+                self._range_includes(self.reality_low, self.reality_high, position.reality))
+
+    @staticmethod
+    def _range_includes(low: Any, high: Any, value: Any) -> bool:
+        return min(low, high) <= value <= max(low, high)
+
