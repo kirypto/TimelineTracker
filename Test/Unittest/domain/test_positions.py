@@ -16,6 +16,7 @@ def anon_int(a: int = None, b: int = None):
     return randint(start, end)
 
 
+# noinspection PyPropertyAccess
 class TestPosition(TestCase):
     def test__init__should_initialize_from_provided_args(self) -> None:
         # Arrange
@@ -98,6 +99,7 @@ class TestPosition(TestCase):
         self.assertRaises(AttributeError, ActionReality)
 
 
+# noinspection PyTypeChecker
 class TestPositionalRange(TestCase):
     def test__init__should_initialize_from_provided_singular_args(self) -> None:
         # Arrange
@@ -324,6 +326,23 @@ class TestPositionalRange(TestCase):
         self.assertFalse(actual_continuum)
         self.assertFalse(actual_reality)
 
+    def test__includes__should_reject_non_position_arguments(self) -> None:
+        # Arrange
+        low = anon_int()
+        high = low + abs(anon_int())
+        positional_range = PositionalRange(latitude_low=low, latitude_high=high,
+                                           longitude_low=low, longitude_high=high,
+                                           altitude_low=low, altitude_high=high,
+                                           continuum_low=low, continuum_high=high,
+                                           reality_low=low, reality_high=high)
+        invalid_type = choice([True, 1.0, "nope", positional_range])
+
+        # Act
+        def Action(): positional_range.includes(invalid_type)
+
+        # Assert
+        self.assertRaises(ValueError, Action)
+
     def test__intersects__should_return_true__when_provided_range_partially_overlaps(self) -> None:
         # Arrange
         low = anon_int()
@@ -392,6 +411,24 @@ class TestPositionalRange(TestCase):
         self.assertFalse(actual_altitude)
         self.assertFalse(actual_continuum)
         self.assertFalse(actual_reality)
+
+    def test__intersects__should_reject_non_positional_range_arguments(self) -> None:
+        # Arrange
+        low = anon_int()
+        high = low + abs(anon_int())
+        positional_range = PositionalRange(latitude_low=low, latitude_high=high,
+                                           longitude_low=low, longitude_high=high,
+                                           altitude_low=low, altitude_high=high,
+                                           continuum_low=low, continuum_high=high,
+                                           reality_low=low, reality_high=high)
+        anon_position = Position(latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=anon_float(), reality=anon_int())
+        invalid_type = choice([True, 1.0, "nope", anon_position])
+
+        # Act
+        def Action(): positional_range.includes(invalid_type)
+
+        # Assert
+        self.assertRaises(ValueError, Action)
 
 
 class _Other:

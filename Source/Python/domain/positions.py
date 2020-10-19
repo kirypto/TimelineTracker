@@ -129,6 +129,8 @@ class PositionalRange:
         super().__init__(**kwargs)
 
     def includes(self, position: Position) -> bool:
+        if not isinstance(position, Position):
+            raise ValueError(f"Argument must be of type {Position.__name__}")
         return (self._range_includes(self.latitude_low, self.latitude_high, position.latitude) and
                 self._range_includes(self.longitude_low, self.longitude_high, position.longitude) and
                 self._range_includes(self.altitude_low, self.altitude_high, position.altitude) and
@@ -136,6 +138,8 @@ class PositionalRange:
                 self._range_includes(self.reality_low, self.reality_high, position.reality))
 
     def intersects(self, positional_range: PositionalRange) -> bool:
+        if not isinstance(positional_range, PositionalRange):
+            raise ValueError(f"Argument must be of type {PositionalRange.__name__}")
         return (any([self._range_includes(self.latitude_low, self.latitude_high, other)
                      for other in (positional_range.latitude_low, positional_range.latitude_high)]) and
                 any([self._range_includes(self.longitude_low, self.longitude_high, other)
