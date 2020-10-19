@@ -378,6 +378,9 @@ class TestPositionalRange(TestCase):
         # Act
         actual = positional_range.intersects(other)
 
+        # Assert
+        self.assertTrue(actual)
+
     def test__intersects__should_return_true__when_provided_range_contained_completely(self) -> None:
         # Arrange
         low = anon_int()
