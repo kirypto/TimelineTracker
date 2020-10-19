@@ -98,6 +98,7 @@ class TestPrefixedUUID(TestCase):
         Action()
 
 
+# noinspection PyPropertyAccess
 class TestIdentifiedEntity(TestCase):
     def test__init__should_accept_id(self) -> None:
         # Arrange
