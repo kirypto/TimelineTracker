@@ -373,11 +373,11 @@ class TestPositionalRange(TestCase):
                                            continuum_low=low, continuum_high=high,
                                            reality_low=low, reality_high=high)
         out_of_range_values = [low - 1, high + 1]
-        out_of_range_latitude = Position(latitude=choice(out_of_range_values), longitude=low, altitude=low, continuum=low, reality=low)
-        out_of_range_longitude = Position(latitude=low, longitude=choice(out_of_range_values), altitude=low, continuum=low, reality=low)
-        out_of_range_altitude = Position(latitude=low, longitude=low, altitude=choice(out_of_range_values), continuum=low, reality=low)
-        out_of_range_continuum = Position(latitude=low, longitude=low, altitude=low, continuum=choice(out_of_range_values), reality=low)
-        out_of_range_reality = Position(latitude=low, longitude=low, altitude=low, continuum=low, reality=choice(out_of_range_values))
+        out_of_range_latitude = PositionalRange(latitude=choice(out_of_range_values), longitude=low, altitude=low, continuum=low, reality=low)
+        out_of_range_longitude = PositionalRange(latitude=low, longitude=choice(out_of_range_values), altitude=low, continuum=low, reality=low)
+        out_of_range_altitude = PositionalRange(latitude=low, longitude=low, altitude=choice(out_of_range_values), continuum=low, reality=low)
+        out_of_range_continuum = PositionalRange(latitude=low, longitude=low, altitude=low, continuum=choice(out_of_range_values), reality=low)
+        out_of_range_reality = PositionalRange(latitude=low, longitude=low, altitude=low, continuum=low, reality=choice(out_of_range_values))
 
         # Act
         actual_latitude = positional_range.intersects(out_of_range_latitude)
