@@ -8,8 +8,10 @@ class PrefixedUUID:
     __delimiter: str = "-"
 
     def __init__(self, prefix: str, uuid: UUID) -> None:
-        if not isinstance(uuid, UUID) or uuid.version != 4:
-            raise ValueError(f"uuid argument must be version 4 UUID")
+        if not isinstance(uuid, UUID):
+            raise TypeError(f"Must be {UUID.__name__}")
+        if uuid.version != 4:
+            raise ValueError(f"Must be version 4")
         if not isinstance(prefix, str) or not match(r"^\w+$", prefix):
             raise ValueError(f"Prefix must contain only alphanumeric and underscore characters")
 

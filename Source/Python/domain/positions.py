@@ -33,7 +33,7 @@ class Position:
     def __init__(self, *, latitude: float, longitude: float, altitude: float, continuum: float, reality: int, **kwargs) -> None:
         def validate_type(value, acceptable_types):
             if type(value) not in acceptable_types:
-                raise ValueError(f"Invalid value '{value}', must be one of {acceptable_types}")
+                raise TypeError(f"Invalid value '{value}', must be one of {acceptable_types}")
             return acceptable_types[0](value)
 
         self._latitude = validate_type(latitude, [float, int])
@@ -113,9 +113,9 @@ class PositionalRange:
                 raise ValueError("Must either provide singular value or low/high values for each dimension")
             low, high = (singular, singular) if singular_given else (range_low, range_high)
             if type(low) not in acceptable_types:
-                raise ValueError(f"Invalid value '{low}', must be one of {acceptable_types}")
+                raise TypeError(f"Invalid value '{low}', must be one of {acceptable_types}")
             if type(high) not in acceptable_types:
-                raise ValueError(f"Invalid value '{high}', must be one of {acceptable_types}")
+                raise TypeError(f"Invalid value '{high}', must be one of {acceptable_types}")
             actual_low, actual_high = (acceptable_types[0](low), acceptable_types[0](high))
             if actual_low > actual_high:
                 raise ValueError(f"Invalid range, low value must be lesser or equal to high value")
@@ -130,7 +130,7 @@ class PositionalRange:
 
     def includes(self, position: Position) -> bool:
         if not isinstance(position, Position):
-            raise ValueError(f"Argument must be of type {Position.__name__}")
+            raise TypeError(f"Argument must be of type {Position.__name__}")
         return (self._range_includes(self.latitude_low, self.latitude_high, position.latitude) and
                 self._range_includes(self.longitude_low, self.longitude_high, position.longitude) and
                 self._range_includes(self.altitude_low, self.altitude_high, position.altitude) and
@@ -139,7 +139,7 @@ class PositionalRange:
 
     def intersects(self, positional_range: PositionalRange) -> bool:
         if not isinstance(positional_range, PositionalRange):
-            raise ValueError(f"Argument must be of type {PositionalRange.__name__}")
+            raise TypeError(f"Argument must be of type {PositionalRange.__name__}")
         return (any([self._range_includes(self.latitude_low, self.latitude_high, other)
                      for other in (positional_range.latitude_low, positional_range.latitude_high)]) and
                 any([self._range_includes(self.longitude_low, self.longitude_high, other)

@@ -70,11 +70,11 @@ class TestPosition(TestCase):
                                        latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=anon_float())
 
         # Assert
-        self.assertRaises(ValueError, InvalidLatitude)
-        self.assertRaises(ValueError, InvalidLongitude)
-        self.assertRaises(ValueError, InvalidAltitude)
-        self.assertRaises(ValueError, InvalidContinuum)
-        self.assertRaises(ValueError, InvalidReality)
+        self.assertRaises(TypeError, InvalidLatitude)
+        self.assertRaises(TypeError, InvalidLongitude)
+        self.assertRaises(TypeError, InvalidAltitude)
+        self.assertRaises(TypeError, InvalidContinuum)
+        self.assertRaises(TypeError, InvalidReality)
 
     def test__properties__should_not_be_mutable(self) -> None:
         # Arrange
@@ -217,11 +217,11 @@ class TestPositionalRange(TestCase):
                                               latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=anon_float())
 
         # Assert
-        self.assertRaises(ValueError, InvalidLatitude)
-        self.assertRaises(ValueError, InvalidLongitude)
-        self.assertRaises(ValueError, InvalidAltitude)
-        self.assertRaises(ValueError, InvalidContinuum)
-        self.assertRaises(ValueError, InvalidReality)
+        self.assertRaises(TypeError, InvalidLatitude)
+        self.assertRaises(TypeError, InvalidLongitude)
+        self.assertRaises(TypeError, InvalidAltitude)
+        self.assertRaises(TypeError, InvalidContinuum)
+        self.assertRaises(TypeError, InvalidReality)
 
     def test__init__should_reject_invalid_types_for_range_args(self) -> None:
         # Arrange
@@ -244,11 +244,11 @@ class TestPositionalRange(TestCase):
                                               latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=anon_float())
 
         # Assert
-        self.assertRaises(ValueError, InvalidLatitude)
-        self.assertRaises(ValueError, InvalidLongitude)
-        self.assertRaises(ValueError, InvalidAltitude)
-        self.assertRaises(ValueError, InvalidContinuum)
-        self.assertRaises(ValueError, InvalidReality)
+        self.assertRaises(TypeError, InvalidLatitude)
+        self.assertRaises(TypeError, InvalidLongitude)
+        self.assertRaises(TypeError, InvalidAltitude)
+        self.assertRaises(TypeError, InvalidContinuum)
+        self.assertRaises(TypeError, InvalidReality)
 
     def test__init__should_reject_args_when_low_is_greater_than_high(self) -> None:
         # Arrange
@@ -341,7 +341,7 @@ class TestPositionalRange(TestCase):
         def Action(): positional_range.includes(invalid_type)
 
         # Assert
-        self.assertRaises(ValueError, Action)
+        self.assertRaises(TypeError, Action)
 
     def test__intersects__should_return_true__when_provided_range_partially_overlaps(self) -> None:
         # Arrange
@@ -425,10 +425,10 @@ class TestPositionalRange(TestCase):
         invalid_type = choice([True, 1.0, "nope", anon_position])
 
         # Act
-        def Action(): positional_range.includes(invalid_type)
+        def Action(): positional_range.intersects(invalid_type)
 
         # Assert
-        self.assertRaises(ValueError, Action)
+        self.assertRaises(TypeError, Action)
 
 
 class _Other:

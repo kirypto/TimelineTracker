@@ -14,6 +14,7 @@ def anon_prefixed_id() -> PrefixedUUID:
     return PrefixedUUID(anon_id_prefix(20), uuid4())
 
 
+# noinspection PyTypeChecker
 class TestPrefixedUUID(TestCase):
     def test__init__should_reject_non_alpha_numeric_prefix(self) -> None:
         # Arrange
@@ -25,6 +26,16 @@ class TestPrefixedUUID(TestCase):
 
         # Assert
         self.assertRaises(ValueError, Action)
+
+    def test__init__should_reject_non_uuids(self) -> None:
+        # Arrange
+        invalid_type = choice(["nope", 1, False])
+
+        # Act
+        def Action(): PrefixedUUID(anon_id_prefix(), invalid_type)
+
+        # Assert
+        self.assertRaises(TypeError, Action)
 
     def test__init__should_reject_non_version_4_uuids(self) -> None:
         # Arrange
