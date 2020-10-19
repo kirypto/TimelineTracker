@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 
@@ -132,6 +134,18 @@ class PositionalRange:
                 self._range_includes(self.altitude_low, self.altitude_high, position.altitude) and
                 self._range_includes(self.continuum_low, self.continuum_high, position.continuum) and
                 self._range_includes(self.reality_low, self.reality_high, position.reality))
+
+    def intersects(self, positional_range: PositionalRange) -> bool:
+        return (any([self._range_includes(self.latitude_low, self.latitude_high, other)
+                     for other in (positional_range.latitude_low, positional_range.latitude_high)]) and
+                any([self._range_includes(self.longitude_low, self.longitude_high, other)
+                     for other in (positional_range.longitude_low, positional_range.longitude_high)]) and
+                any([self._range_includes(self.altitude_low, self.altitude_high, other)
+                     for other in (positional_range.altitude_low, positional_range.altitude_high)]) and
+                any([self._range_includes(self.continuum_low, self.continuum_high, other)
+                     for other in (positional_range.continuum_low, positional_range.continuum_high)]) and
+                any([self._range_includes(self.reality_low, self.reality_high, other)
+                     for other in (positional_range.reality_low, positional_range.reality_high)]))
 
     @staticmethod
     def _range_includes(low: Any, high: Any, value: Any) -> bool:
