@@ -14,6 +14,14 @@ class NamedEntity:
         self._name = name
         super().__init__(**kwargs)
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, NamedEntity):
+            return NotImplemented
+        return self._name == other._name
+
+    def __hash__(self) -> int:
+        return hash((self.__class__, self._name))
+
 
 class DescribedEntity:
     _description: str
@@ -27,4 +35,12 @@ class DescribedEntity:
             raise ValueError("description must be a string")
         self._description = description
         super().__init__(**kwargs)
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, DescribedEntity):
+            return NotImplemented
+        return self._description == other._description
+
+    def __hash__(self) -> int:
+        return hash((self.__class__, self._description))
 

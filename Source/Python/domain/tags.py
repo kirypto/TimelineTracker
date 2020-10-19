@@ -1,11 +1,7 @@
 from functools import total_ordering
 
-from re import compile, match
+from re import match
 from typing import Set
-
-
-def special_match(strg, search=compile(r'^[a-zA-Z0-9_-]$').search):
-    return not bool(search(strg))
 
 
 @total_ordering
@@ -34,7 +30,7 @@ class Tag:
         return self._tag < other._tag
 
     def __hash__(self) -> int:
-        return hash((self.__class__.__name__, self._tag))
+        return hash((self.__class__, self._tag))
 
 
 class TaggedEntity:
@@ -58,3 +54,11 @@ class TaggedEntity:
 
     def remove_tag(self, tag: Tag) -> None:
         self._tags.remove(tag)
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, TaggedEntity):
+            return NotImplemented
+        return self._tags == other._tags
+
+    def __hash__(self) -> int:
+        return hash((self.__class__, self._tags))

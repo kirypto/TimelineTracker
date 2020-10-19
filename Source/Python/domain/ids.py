@@ -27,7 +27,7 @@ class PrefixedUUID:
         return self._prefix == other._prefix and self._uuid == other._uuid
 
     def __hash__(self) -> int:
-        return hash((self.__class__.__name__, self._prefix, self._uuid))
+        return hash((self.__class__, self._prefix, self._uuid))
 
 
 class IdentifiedEntity:
@@ -40,3 +40,11 @@ class IdentifiedEntity:
     def __init__(self, *, id: PrefixedUUID, **kwargs):
         self._id = id
         super().__init__(**kwargs)
+
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, IdentifiedEntity):
+            return NotImplemented
+        return self._id == other._id
+
+    def __hash__(self) -> int:
+        return hash((self.__class__, self._id))

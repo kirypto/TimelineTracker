@@ -13,6 +13,11 @@ def anon_tag() -> Tag:
     return Tag(anon_tag_name())
 
 
+def anon_tagged_entity(num_tags: int = 3) -> TaggedEntity:
+    tags = {anon_tag() for _ in range(num_tags)}
+    return TaggedEntity(tags=tags)
+
+
 # noinspection DuplicatedCode
 class TestTag(TestCase):
     def test__str__should_return_tag_as_plain_text(self) -> None:
@@ -186,6 +191,36 @@ class TestTaggedEntity(TestCase):
 
         # Assert
         self.assertRaises(KeyError, Action)
+
+    def test__equality__should_correctly_compare_attributes(self) -> None:
+        # Arrange
+        tag_set_1 = {anon_tag(), anon_tag()}
+        tag_set_2 = {anon_tag(), anon_tag()}
+        tagged_entity_a = TaggedEntity(tags=tag_set_1)
+        tagged_entity_b = TaggedEntity(tags=tag_set_1)
+        tagged_entity_c = TaggedEntity(tags=tag_set_2)
+
+        # Act
+        actual_a_equals_b = tagged_entity_a == tagged_entity_b
+        actual_a_not_equals_b = tagged_entity_a != tagged_entity_b
+        actual_a_equals_c = tagged_entity_a == tagged_entity_c
+        actual_a_not_equals_c = tagged_entity_a != tagged_entity_c
+
+        # Assert
+        self.assertTrue(actual_a_equals_b)
+        self.assertFalse(actual_a_not_equals_b)
+        self.assertFalse(actual_a_equals_c)
+        self.assertTrue(actual_a_not_equals_c)
+
+    def test__hash__should_be_hashable(self) -> None:
+        # Arrange
+        tag = anon_tag()
+
+        # Act
+        def Action(): _ = {tag}
+
+        # Assert
+        Action()
 
 
 class _Other:

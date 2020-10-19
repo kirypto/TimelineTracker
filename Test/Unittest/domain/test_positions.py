@@ -16,6 +16,23 @@ def anon_int(a: int = None, b: int = None):
     return randint(start, end)
 
 
+def anon_position() -> Position:
+    return Position(latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=anon_float(), reality=anon_int())
+
+
+def anon_positional_range() -> PositionalRange:
+    latitude_low = anon_int()
+    longitude_low = anon_int()
+    altitude_low = anon_int()
+    continuum_low = anon_int()
+    reality_low = anon_int()
+    return PositionalRange(latitude_low=latitude_low, latitude_high=latitude_low + abs(anon_int()),
+                           longitude_low=longitude_low, longitude_high=longitude_low + abs(anon_int()),
+                           altitude_low=altitude_low, altitude_high=altitude_low + abs(anon_int()),
+                           continuum_low=continuum_low, continuum_high=continuum_low + abs(anon_int()),
+                           reality_low=reality_low, reality_high=reality_low + abs(anon_int()))
+
+
 # noinspection PyPropertyAccess
 class TestPosition(TestCase):
     def test__init__should_initialize_from_provided_args(self) -> None:
@@ -414,15 +431,9 @@ class TestPositionalRange(TestCase):
 
     def test__intersects__should_reject_non_positional_range_arguments(self) -> None:
         # Arrange
-        low = anon_int()
-        high = low + abs(anon_int())
-        positional_range = PositionalRange(latitude_low=low, latitude_high=high,
-                                           longitude_low=low, longitude_high=high,
-                                           altitude_low=low, altitude_high=high,
-                                           continuum_low=low, continuum_high=high,
-                                           reality_low=low, reality_high=high)
-        anon_position = Position(latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=anon_float(), reality=anon_int())
-        invalid_type = choice([True, 1.0, "nope", anon_position])
+        positional_range = anon_positional_range()
+        position = anon_position()
+        invalid_type = choice([True, 1.0, "nope", position])
 
         # Act
         def Action(): positional_range.intersects(invalid_type)

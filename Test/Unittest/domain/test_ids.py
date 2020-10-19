@@ -14,6 +14,10 @@ def anon_prefixed_id() -> PrefixedUUID:
     return PrefixedUUID(anon_id_prefix(20), uuid4())
 
 
+def anon_identified_entity() -> IdentifiedEntity:
+    return IdentifiedEntity(id=anon_prefixed_id())
+
+
 # noinspection PyTypeChecker
 class TestPrefixedUUID(TestCase):
     def test__init__should_reject_non_alpha_numeric_prefix(self) -> None:
@@ -143,6 +147,36 @@ class TestIdentifiedEntity(TestCase):
 
         # Assert
         self.assertRaises(AttributeError, Action)
+
+    def test__equality__should_compare_prefixed_ids(self) -> None:
+        # Arrange
+        prefixed_id_1 = anon_prefixed_id()
+        prefixed_id_2 = anon_prefixed_id()
+        identified_entity_a = IdentifiedEntity(id=prefixed_id_1)
+        identified_entity_b = IdentifiedEntity(id=prefixed_id_1)
+        identified_entity_c = IdentifiedEntity(id=prefixed_id_2)
+
+        # Act
+        actual_a_equals_b = identified_entity_a == identified_entity_b
+        actual_a_not_equals_b = identified_entity_a != identified_entity_b
+        actual_a_equals_c = identified_entity_a == identified_entity_c
+        actual_a_not_equals_c = identified_entity_a != identified_entity_c
+
+        # Assert
+        self.assertTrue(actual_a_equals_b)
+        self.assertFalse(actual_a_not_equals_b)
+        self.assertFalse(actual_a_equals_c)
+        self.assertTrue(actual_a_not_equals_c)
+
+    def test__hash__should_be_hashable(self) -> None:
+        # Arrange
+        identified_entity = anon_identified_entity()
+
+        # Act
+        def Action(): _ = {identified_entity}
+
+        # Assert
+        Action()
 
 
 class _Other:

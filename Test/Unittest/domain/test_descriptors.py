@@ -13,6 +13,7 @@ def anon_description(num_chars: int = 100) -> str:
     return "".join(choices(printable, k=num_chars))
 
 
+# noinspection PyPropertyAccess
 class TestNamedEntity(TestCase):
     def test__init__should_reject_illegal_characters(self) -> None:
         # Arrange
@@ -67,7 +68,38 @@ class TestNamedEntity(TestCase):
         # Assert
         self.assertRaises(AttributeError, Action)
 
+    def test__equality__should_correctly_compare_attributes(self) -> None:
+        # Arrange
+        name_1 = anon_name()
+        name_2 = anon_name()
+        named_entity_a = NamedEntity(name=name_1)
+        named_entity_b = NamedEntity(name=name_1)
+        named_entity_c = NamedEntity(name=name_2)
 
+        # Act
+        actual_a_equals_b = named_entity_a == named_entity_b
+        actual_a_not_equals_b = named_entity_a != named_entity_b
+        actual_a_equals_c = named_entity_a == named_entity_c
+        actual_a_not_equals_c = named_entity_a != named_entity_c
+
+        # Assert
+        self.assertTrue(actual_a_equals_b)
+        self.assertFalse(actual_a_not_equals_b)
+        self.assertFalse(actual_a_equals_c)
+        self.assertTrue(actual_a_not_equals_c)
+        
+    def test__hash__should_be_hashable(self) -> None:
+        # Arrange
+        named_entity = NamedEntity(name=anon_name())
+
+        # Act
+        def Action(): _ = {named_entity}
+
+        # Assert
+        Action()
+
+
+# noinspection PyPropertyAccess
 class TestDescribedEntity(TestCase):
     def test__init__should_default_to_empty_string(self) -> None:
         # Arrange
@@ -111,6 +143,36 @@ class TestDescribedEntity(TestCase):
 
         # Assert
         self.assertRaises(AttributeError, Action)
+
+    def test__equality__should_correctly_compare_tags(self) -> None:
+        # Arrange
+        description_1 = anon_description()
+        description_2 = anon_description()
+        described_entity_a = DescribedEntity(description=description_1)
+        described_entity_b = DescribedEntity(description=description_1)
+        described_entity_c = DescribedEntity(description=description_2)
+
+        # Act
+        actual_a_equals_b = described_entity_a == described_entity_b
+        actual_a_not_equals_b = described_entity_a != described_entity_b
+        actual_a_equals_c = described_entity_a == described_entity_c
+        actual_a_not_equals_c = described_entity_a != described_entity_c
+
+        # Assert
+        self.assertTrue(actual_a_equals_b)
+        self.assertFalse(actual_a_not_equals_b)
+        self.assertFalse(actual_a_equals_c)
+        self.assertTrue(actual_a_not_equals_c)
+
+    def test__hash__should_be_hashable(self) -> None:
+        # Arrange
+        named_entity = DescribedEntity(description=anon_description())
+
+        # Act
+        def Action(): _ = {named_entity}
+
+        # Assert
+        Action()
 
 
 class _Other:
