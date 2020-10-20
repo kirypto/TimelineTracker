@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from domain.base_entity import BaseEntity
+
 
 class Position:
     _latitude: float
@@ -188,7 +190,7 @@ class PositionalRange:
                 or (b_low <= a_low and b_high >= a_high))
 
 
-class SpanningEntity:
+class SpanningEntity(BaseEntity):
     _span: PositionalRange
 
     @property
@@ -203,8 +205,8 @@ class SpanningEntity:
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, SpanningEntity):
-            return NotImplemented
-        return self._span == other._span
+            return False
+        return self._span == other._span and super().__eq__(other)
 
     def __hash__(self) -> int:
         return hash((self.__class__, self._span))

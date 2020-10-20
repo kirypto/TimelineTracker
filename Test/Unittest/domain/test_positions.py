@@ -1,6 +1,7 @@
 from random import choice, randint, uniform
 from unittest import TestCase
 
+from domain.base_entity import BaseEntity
 from domain.positions import Position, PositionalRange, SpanningEntity
 
 
@@ -600,6 +601,7 @@ class TestPositionalRange(TestCase):
         Action()
 
 
+# noinspection PyPropertyAccess
 class TestSpanningEntity(TestCase):
     def test__init__should_initialize_with_provided_value(self) -> None:
         # Arrange
@@ -676,7 +678,7 @@ class TestSpanningEntity(TestCase):
         Action()
 
 
-class _Other:
+class _Other(BaseEntity):
     def __init__(self, other, **kwargs):
         self.other = other
         super().__init__(**kwargs)

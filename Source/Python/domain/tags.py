@@ -3,6 +3,8 @@ from functools import total_ordering
 from re import match
 from typing import Set
 
+from domain.base_entity import BaseEntity
+
 
 @total_ordering
 class Tag:
@@ -33,7 +35,7 @@ class Tag:
         return hash((self.__class__, self._tag))
 
 
-class TaggedEntity:
+class TaggedEntity(BaseEntity):
     _tags: Set[Tag]
 
     def __init__(self, *, tags: Set[Tag] = None, **kwargs) -> None:
@@ -57,8 +59,8 @@ class TaggedEntity:
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, TaggedEntity):
-            return NotImplemented
-        return self._tags == other._tags
+            return False
+        return self._tags == other._tags and super().__eq__(other)
 
     def __hash__(self) -> int:
         return hash((self.__class__, self._tags))

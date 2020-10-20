@@ -3,6 +3,7 @@ from string import ascii_letters
 from unittest import TestCase
 from uuid import uuid4, uuid3, uuid1, NAMESPACE_URL, uuid5
 
+from domain.base_entity import BaseEntity
 from domain.ids import PrefixedUUID, IdentifiedEntity
 
 
@@ -179,7 +180,7 @@ class TestIdentifiedEntity(TestCase):
         Action()
 
 
-class _Other:
+class _Other(BaseEntity):
     def __init__(self, other, **kwargs):
         self.other = other
         super().__init__(**kwargs)

@@ -1,6 +1,8 @@
 from uuid import UUID
 from re import match
 
+from domain.base_entity import BaseEntity
+
 
 class PrefixedUUID:
     _prefix: str
@@ -30,7 +32,7 @@ class PrefixedUUID:
         return hash((self.__class__, self._prefix, self._uuid))
 
 
-class IdentifiedEntity:
+class IdentifiedEntity(BaseEntity):
     _id: PrefixedUUID
 
     @property
@@ -43,8 +45,8 @@ class IdentifiedEntity:
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, IdentifiedEntity):
-            return NotImplemented
-        return self._id == other._id
+            return False
+        return self._id == other._id and super().__eq__(other)
 
     def __hash__(self) -> int:
         return hash((self.__class__, self._id))

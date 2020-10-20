@@ -2,6 +2,7 @@ from random import choices
 from string import ascii_letters, printable
 from unittest import TestCase
 
+from domain.base_entity import BaseEntity
 from domain.descriptors import NamedEntity, DescribedEntity
 
 
@@ -175,7 +176,7 @@ class TestDescribedEntity(TestCase):
         Action()
 
 
-class _Other:
-    def __init__(self, other, **kwargs):
+class _Other(BaseEntity):
+    def __init__(self, *, other, **kwargs):
         self.other = other
         super().__init__(**kwargs)

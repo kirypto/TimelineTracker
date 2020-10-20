@@ -1,7 +1,9 @@
 from re import match
 
+from domain.base_entity import BaseEntity
 
-class NamedEntity:
+
+class NamedEntity(BaseEntity):
     _name: str
 
     @property
@@ -16,14 +18,14 @@ class NamedEntity:
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, NamedEntity):
-            return NotImplemented
-        return self._name == other._name
+            return False
+        return self._name == other._name and super().__eq__(other)
 
     def __hash__(self) -> int:
         return hash((self.__class__, self._name))
 
 
-class DescribedEntity:
+class DescribedEntity(BaseEntity):
     _description: str
 
     @property
@@ -38,9 +40,8 @@ class DescribedEntity:
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, DescribedEntity):
-            return NotImplemented
-        return self._description == other._description
+            return False
+        return self._description == other._description and super().__eq__(other)
 
     def __hash__(self) -> int:
         return hash((self.__class__, self._description))
-

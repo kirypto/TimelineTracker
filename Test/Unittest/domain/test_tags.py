@@ -2,6 +2,7 @@ from random import choices
 from string import ascii_letters, digits
 from unittest import TestCase
 
+from domain.base_entity import BaseEntity
 from domain.tags import Tag, TaggedEntity
 
 
@@ -223,7 +224,7 @@ class TestTaggedEntity(TestCase):
         Action()
 
 
-class _Other:
+class _Other(BaseEntity):
     def __init__(self, other, **kwargs):
         self.other = other
         super().__init__(**kwargs)
