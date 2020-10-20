@@ -43,6 +43,18 @@ class Position:
         self._reality = validate_type(reality, [int])
         super().__init__(**kwargs)
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Position):
+            return NotImplemented
+        return (self._latitude == other._latitude
+                and self._longitude == other._longitude
+                and self._altitude == other._altitude
+                and self._continuum == other._continuum
+                and self._reality == other._reality)
+
+    def __hash__(self) -> int:
+        return hash((self.__class__, self._latitude, self._longitude, self._altitude, self._continuum, self._reality))
+
 
 class PositionalRange:
     _latitude_low: float
@@ -127,6 +139,24 @@ class PositionalRange:
         self._continuum_low, self._continuum_high = validate_low_and_high(continuum, continuum_low, continuum_high, [float, int])
         self._reality_low, self._reality_high = validate_low_and_high(reality, reality_low, reality_high, [int])
         super().__init__(**kwargs)
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, PositionalRange):
+            return NotImplemented
+        return (self._latitude_low == other._latitude_low
+                and self._latitude_high == other._latitude_high
+                and self._longitude_low == other._longitude_low
+                and self._longitude_high == other._longitude_high
+                and self._altitude_low == other._altitude_low
+                and self._altitude_high == other._altitude_high
+                and self._continuum_low == other._continuum_low
+                and self._continuum_high == other._continuum_high
+                and self._reality_low == other._reality_low
+                and self._reality_high == other._reality_high)
+
+    def __hash__(self) -> int:
+        return hash((self.__class__, self._latitude_low, self._latitude_high, self._longitude_low, self._longitude_high,
+                     self._altitude_low, self._altitude_high, self._continuum_low, self._continuum_high, self._reality_low, self._reality_high))
 
     def includes(self, position: Position) -> bool:
         if not isinstance(position, Position):

@@ -115,6 +115,66 @@ class TestPosition(TestCase):
         self.assertRaises(AttributeError, ActionContinuum)
         self.assertRaises(AttributeError, ActionReality)
 
+    def test__equality__should_compare_as_same__when_all_dimensions_are_equal(self) -> None:
+        # Arrange
+        def copy_and_set(dictionary, key, val):
+            copy = dict(dictionary)
+            copy[key] = val
+            return copy
+
+        kwargs = {
+            "latitude": anon_float(),
+            "longitude": anon_float(),
+            "altitude": anon_float(),
+            "continuum": anon_float(),
+            "reality": anon_int(),
+        }
+        position_a = Position(**dict(kwargs))
+        position_b = Position(**dict(kwargs))
+        position_c = Position(**copy_and_set(kwargs, "latitude", anon_float()))
+        position_d = Position(**copy_and_set(kwargs, "longitude", anon_float()))
+        position_e = Position(**copy_and_set(kwargs, "altitude", anon_float()))
+        position_f = Position(**copy_and_set(kwargs, "continuum", anon_float()))
+        position_g = Position(**copy_and_set(kwargs, "reality", anon_int()))
+
+        # Act
+        actual_a_equals_b = position_a == position_b
+        actual_a_not_equals_b = position_a != position_b
+        actual_a_equals_c = position_a == position_c
+        actual_a_not_equals_c = position_a != position_c
+        actual_a_equals_d = position_a == position_d
+        actual_a_not_equals_d = position_a != position_d
+        actual_a_equals_e = position_a == position_e
+        actual_a_not_equals_e = position_a != position_e
+        actual_a_equals_f = position_a == position_f
+        actual_a_not_equals_f = position_a != position_f
+        actual_a_equals_g = position_a == position_g
+        actual_a_not_equals_g = position_a != position_g
+
+        # Assert
+        self.assertTrue(actual_a_equals_b)
+        self.assertFalse(actual_a_not_equals_b)
+        self.assertFalse(actual_a_equals_c)
+        self.assertTrue(actual_a_not_equals_c)
+        self.assertFalse(actual_a_equals_d)
+        self.assertTrue(actual_a_not_equals_d)
+        self.assertFalse(actual_a_equals_e)
+        self.assertTrue(actual_a_not_equals_e)
+        self.assertFalse(actual_a_equals_f)
+        self.assertTrue(actual_a_not_equals_f)
+        self.assertFalse(actual_a_equals_g)
+        self.assertTrue(actual_a_not_equals_g)
+
+    def test__hash__should_be_hashable(self) -> None:
+        # Arrange
+        position = anon_position()
+
+        # Act
+        def Action(): _ = {position}
+
+        # Assert
+        Action()
+
 
 # noinspection PyTypeChecker
 class TestPositionalRange(TestCase):
@@ -443,6 +503,101 @@ class TestPositionalRange(TestCase):
 
         # Assert
         self.assertRaises(TypeError, Action)
+
+    def test__equality__should_compare_as_same__when_all_dimensions_are_equal(self) -> None:
+        # Arrange
+        def copy_and_change(dictionary, key_to_change):
+            copy = dict(dictionary)
+            rand_delta = abs(anon_int())
+            if "_low" in key_to_change:
+                copy[key_to_change] = copy[key_to_change.replace("_low", "_high")] - rand_delta
+            else:
+                copy[key_to_change] = copy[key_to_change.replace("_high", "_low")] + rand_delta
+            return copy
+
+        kwargs = {
+            "latitude_low": anon_float(),
+            "longitude_low": anon_float(),
+            "altitude_low": anon_float(),
+            "continuum_low": anon_float(),
+            "reality_low": anon_int(),
+        }
+        kwargs["latitude_high"] = kwargs["latitude_low"] + abs(anon_float())
+        kwargs["longitude_high"] = kwargs["longitude_low"] + abs(anon_float())
+        kwargs["altitude_high"] = kwargs["altitude_low"] + abs(anon_float())
+        kwargs["continuum_high"] = kwargs["continuum_low"] + abs(anon_float())
+        kwargs["reality_high"] = kwargs["reality_low"] + abs(anon_int())
+
+        position_a = PositionalRange(**dict(kwargs))
+        position_b = PositionalRange(**dict(kwargs))
+        position_c = PositionalRange(**copy_and_change(kwargs, "latitude_low"))
+        position_d = PositionalRange(**copy_and_change(kwargs, "latitude_high"))
+        position_e = PositionalRange(**copy_and_change(kwargs, "longitude_low"))
+        position_f = PositionalRange(**copy_and_change(kwargs, "longitude_high"))
+        position_g = PositionalRange(**copy_and_change(kwargs, "altitude_low"))
+        position_h = PositionalRange(**copy_and_change(kwargs, "altitude_high"))
+        position_i = PositionalRange(**copy_and_change(kwargs, "continuum_low"))
+        position_j = PositionalRange(**copy_and_change(kwargs, "continuum_high"))
+        position_k = PositionalRange(**copy_and_change(kwargs, "reality_low"))
+        position_l = PositionalRange(**copy_and_change(kwargs, "reality_high"))
+
+        # Act
+        actual_a_equals_b = position_a == position_b
+        actual_a_not_equals_b = position_a != position_b
+        actual_a_equals_c = position_a == position_c
+        actual_a_not_equals_c = position_a != position_c
+        actual_a_equals_d = position_a == position_d
+        actual_a_not_equals_d = position_a != position_d
+        actual_a_equals_e = position_a == position_e
+        actual_a_not_equals_e = position_a != position_e
+        actual_a_equals_f = position_a == position_f
+        actual_a_not_equals_f = position_a != position_f
+        actual_a_equals_g = position_a == position_g
+        actual_a_not_equals_g = position_a != position_g
+        actual_a_equals_h = position_a == position_h
+        actual_a_not_equals_h = position_a != position_h
+        actual_a_equals_i = position_a == position_i
+        actual_a_not_equals_i = position_a != position_i
+        actual_a_equals_j = position_a == position_j
+        actual_a_not_equals_j = position_a != position_j
+        actual_a_equals_k = position_a == position_k
+        actual_a_not_equals_k = position_a != position_k
+        actual_a_equals_l = position_a == position_l
+        actual_a_not_equals_l = position_a != position_l
+
+        # Assert
+        self.assertTrue(actual_a_equals_b)
+        self.assertFalse(actual_a_not_equals_b)
+        self.assertFalse(actual_a_equals_c)
+        self.assertTrue(actual_a_not_equals_c)
+        self.assertFalse(actual_a_equals_d)
+        self.assertTrue(actual_a_not_equals_d)
+        self.assertFalse(actual_a_equals_e)
+        self.assertTrue(actual_a_not_equals_e)
+        self.assertFalse(actual_a_equals_f)
+        self.assertTrue(actual_a_not_equals_f)
+        self.assertFalse(actual_a_equals_g)
+        self.assertTrue(actual_a_not_equals_g)
+        self.assertFalse(actual_a_equals_h)
+        self.assertTrue(actual_a_not_equals_h)
+        self.assertFalse(actual_a_equals_i)
+        self.assertTrue(actual_a_not_equals_i)
+        self.assertFalse(actual_a_equals_j)
+        self.assertTrue(actual_a_not_equals_j)
+        self.assertFalse(actual_a_equals_k)
+        self.assertTrue(actual_a_not_equals_k)
+        self.assertFalse(actual_a_equals_l)
+        self.assertTrue(actual_a_not_equals_l)
+
+    def test__hash__should_be_hashable(self) -> None:
+        # Arrange
+        positional_range = anon_positional_range()
+
+        # Act
+        def Action(): _ = {positional_range}
+
+        # Assert
+        Action()
 
 
 class _Other:
