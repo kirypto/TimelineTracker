@@ -19,7 +19,7 @@ def anon_identified_entity() -> IdentifiedEntity:
     return IdentifiedEntity(id=anon_prefixed_id())
 
 
-# noinspection PyTypeChecker
+# noinspection PyTypeChecker,PyPropertyAccess
 class TestPrefixedUUID(TestCase):
     def test__init__should_reject_non_alpha_numeric_prefix(self) -> None:
         # Arrange
@@ -51,6 +51,26 @@ class TestPrefixedUUID(TestCase):
 
         # Assert
         self.assertRaises(ValueError, Action)
+
+    def test__prefix__should_not_be_mutable(self) -> None:
+        # Arrange
+        prefixed_id = PrefixedUUID(anon_id_prefix(), uuid4())
+
+        # Act
+        def Action(): prefixed_id.prefix = anon_id_prefix()
+
+        # Assert
+        self.assertRaises(AttributeError, Action)
+
+    def test__uuid__should_not_be_mutable(self) -> None:
+        # Arrange
+        prefixed_id = PrefixedUUID(anon_id_prefix(), uuid4())
+
+        # Act
+        def Action(): prefixed_id.uuid = uuid4()
+
+        # Assert
+        self.assertRaises(AttributeError, Action)
 
     def test__str__should_return_prefixed_id_as_str(self) -> None:
         # Arrange

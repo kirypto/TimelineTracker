@@ -1,5 +1,5 @@
-from uuid import UUID
 from re import match
+from uuid import UUID
 
 from domain.base_entity import BaseEntity
 
@@ -8,6 +8,14 @@ class PrefixedUUID:
     _prefix: str
     _uuid: UUID
     __delimiter: str = "-"
+
+    @property
+    def prefix(self) -> str:
+        return self._prefix
+
+    @property
+    def uuid(self) -> UUID:
+        return self._uuid
 
     def __init__(self, prefix: str, uuid: UUID) -> None:
         if not isinstance(uuid, UUID):
@@ -22,6 +30,9 @@ class PrefixedUUID:
 
     def __str__(self) -> str:
         return f"{self._prefix}{self.__delimiter}{self._uuid}"
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}({repr(self._prefix)}, {repr(self._uuid)})"
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, PrefixedUUID):
