@@ -189,4 +189,22 @@ class PositionalRange:
 
 
 class SpanningEntity:
-    pass
+    _span: PositionalRange
+
+    @property
+    def span(self) -> PositionalRange:
+        return self._span
+
+    def __init__(self, *, span, **kwargs):
+        if not isinstance(span, PositionalRange):
+            raise TypeError(f"Must be a {PositionalRange}")
+        self._span = span
+        super().__init__(**kwargs)
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, SpanningEntity):
+            return NotImplemented
+        return self._span == other._span
+
+    def __hash__(self) -> int:
+        return hash((self.__class__, self._span))
