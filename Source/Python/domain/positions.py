@@ -186,3 +186,7 @@ class PositionalRange:
                 or (a_low <= b_high <= a_high)
                 or (a_low <= b_low and a_high >= b_high)
                 or (b_low <= a_low and b_high >= a_high))
+
+
+class SpanningEntity:
+    pass

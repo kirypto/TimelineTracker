@@ -1,7 +1,7 @@
 from random import choice, randint, uniform
 from unittest import TestCase
 
-from domain.positions import Position, PositionalRange
+from domain.positions import Position, PositionalRange, SpanningEntity
 
 
 def anon_float(a: float = None, b: float = None):
@@ -595,6 +595,82 @@ class TestPositionalRange(TestCase):
 
         # Act
         def Action(): _ = {positional_range}
+
+        # Assert
+        Action()
+
+
+class TestSpanningEntity(TestCase):
+    def test__init__should_initialize_with_provided_value(self) -> None:
+        # Arrange
+        expected = anon_positional_range()
+
+        # Act
+        actual = SpanningEntity(span=expected)
+
+        # Assert
+        self.assertEqual(expected, actual.span)
+
+    def test__init__reject_invalid_typed_span(self) -> None:
+        # Arrange
+        illegal_type = choice([1, True, "nope"])
+
+        # Act
+        def Action(): SpanningEntity(span=illegal_type)
+
+        # Assert
+        self.assertRaises(TypeError, Action)
+
+    def test__init__should_accept_kwargs(self) -> None:
+        # Arrange
+        class TestKwargs(SpanningEntity, _Other):
+            pass
+
+        # Act
+        expected = "other"
+
+        def Action(): return TestKwargs(span=anon_positional_range(), other=expected)
+        actual = Action()
+
+        # Assert
+        self.assertEqual(expected, actual.other)
+
+    def test__description__should_not_be_mutable(self) -> None:
+        # Arrange
+        spanning_entity = SpanningEntity(span=anon_positional_range())
+
+        # Act
+        def Action(): spanning_entity.span = anon_positional_range()
+
+        # Assert
+        self.assertRaises(AttributeError, Action)
+
+    def test__equality__should_correctly_compare_span(self) -> None:
+        # Arrange
+        positional_range_1 = anon_positional_range()
+        positional_range_2 = anon_positional_range()
+        spanning_entity_a = SpanningEntity(span=positional_range_1)
+        spanning_entity_b = SpanningEntity(span=positional_range_1)
+        spanning_entity_c = SpanningEntity(span=positional_range_2)
+
+        # Act
+        actual_a_equals_b = spanning_entity_a == spanning_entity_b
+        actual_a_not_equals_b = spanning_entity_a != spanning_entity_b
+        actual_a_equals_c = spanning_entity_a == spanning_entity_c
+        actual_a_not_equals_c = spanning_entity_a != spanning_entity_c
+
+        # Assert
+        self.assertTrue(actual_a_equals_b)
+        self.assertFalse(actual_a_not_equals_b)
+        self.assertFalse(actual_a_equals_c)
+        self.assertTrue(actual_a_not_equals_c)
+
+    def test__hash__should_be_hashable(self) -> None:
+        # Arrange
+        spanning_entity = SpanningEntity(span=anon_positional_range())
+
+        # Act
+        def Action(): _ = {spanning_entity}
 
         # Assert
         Action()
