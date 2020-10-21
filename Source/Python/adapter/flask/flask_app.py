@@ -5,7 +5,7 @@ from flask_swagger_ui import get_swaggerui_blueprint
 
 
 # File Paths
-_PROJECT_ROOT = Path(__file__).parents[3]
+_PROJECT_ROOT = Path(__file__).parents[4]
 _RESOURCE_FOLDER = _PROJECT_ROOT.joinpath("Source", "Resources")
 
 # Web Paths
