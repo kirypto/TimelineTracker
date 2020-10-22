@@ -1,4 +1,4 @@
-from adapter.request_handlers import LocationsRequestHandler
+from adapter.request_handling.handlers import LocationsRequestHandler
 
 
 class TimelineTrackerApp:
