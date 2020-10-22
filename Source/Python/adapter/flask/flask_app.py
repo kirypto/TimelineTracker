@@ -3,6 +3,9 @@ from pathlib import Path
 from flask import Flask
 from flask_swagger_ui import get_swaggerui_blueprint
 
+from adapter.flask.flask_controller_locations import register_locations_routes
+from adapter.main import TimelineTrackerApp
+
 
 # File Paths
 _PROJECT_ROOT = Path(__file__).parents[4]
@@ -38,4 +41,6 @@ swagger_ui_blueprint = get_swaggerui_blueprint(
 flask_web_app.register_blueprint(swagger_ui_blueprint, url_prefix=_SWAGGER_URL)
 
 if __name__ == '__main__':
+    timeline_tracker_application = TimelineTrackerApp()
+    register_locations_routes(flask_web_app, timeline_tracker_application)
     flask_web_app.run()
