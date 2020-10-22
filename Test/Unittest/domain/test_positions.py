@@ -1,37 +1,9 @@
-from random import choice, randint, uniform
+from random import choice
 from unittest import TestCase
 
+from Test.Unittest.test_helpers.anons import anon_float, anon_int, anon_position, anon_positional_range
 from domain.base_entity import BaseEntity
 from domain.positions import Position, PositionalRange, SpanningEntity
-
-
-def anon_float(a: float = None, b: float = None):
-    start = a if a is not None else -999999.9
-    end = b if b is not None else 999999.9
-    return uniform(start, end)
-
-
-def anon_int(a: int = None, b: int = None):
-    start = a if a is not None else -999999
-    end = b if b is not None else 999999
-    return randint(start, end)
-
-
-def anon_position() -> Position:
-    return Position(latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=anon_float(), reality=anon_int())
-
-
-def anon_positional_range() -> PositionalRange:
-    latitude_low = anon_int()
-    longitude_low = anon_int()
-    altitude_low = anon_int()
-    continuum_low = anon_int()
-    reality_low = anon_int()
-    return PositionalRange(latitude_low=latitude_low, latitude_high=latitude_low + abs(anon_int()),
-                           longitude_low=longitude_low, longitude_high=longitude_low + abs(anon_int()),
-                           altitude_low=altitude_low, altitude_high=altitude_low + abs(anon_int()),
-                           continuum_low=continuum_low, continuum_high=continuum_low + abs(anon_int()),
-                           reality_low=reality_low, reality_high=reality_low + abs(anon_int()))
 
 
 # noinspection PyPropertyAccess

@@ -1,22 +1,10 @@
-from random import choices, choice
-from string import ascii_letters
+from random import choice
 from unittest import TestCase
 from uuid import uuid4, uuid3, uuid1, NAMESPACE_URL, uuid5
 
+from Test.Unittest.test_helpers.anons import anon_id_prefix, anon_prefixed_id, anon_identified_entity
 from domain.base_entity import BaseEntity
 from domain.ids import PrefixedUUID, IdentifiedEntity
-
-
-def anon_id_prefix(num_digits: int = 10) -> str:
-    return "".join(choices(ascii_letters + "_", k=num_digits))
-
-
-def anon_prefixed_id() -> PrefixedUUID:
-    return PrefixedUUID(anon_id_prefix(20), uuid4())
-
-
-def anon_identified_entity() -> IdentifiedEntity:
-    return IdentifiedEntity(id=anon_prefixed_id())
 
 
 # noinspection PyTypeChecker,PyPropertyAccess

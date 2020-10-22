@@ -1,22 +1,9 @@
 from random import choices
-from string import ascii_letters, digits
 from unittest import TestCase
 
+from Test.Unittest.test_helpers.anons import anon_tag_name, anon_tag
 from domain.base_entity import BaseEntity
 from domain.tags import Tag, TaggedEntity
-
-
-def anon_tag_name(num_digits: int = 10) -> str:
-    return "".join(choices(ascii_letters + digits + "-_", k=num_digits))
-
-
-def anon_tag() -> Tag:
-    return Tag(anon_tag_name())
-
-
-def anon_tagged_entity(num_tags: int = 3) -> TaggedEntity:
-    tags = {anon_tag() for _ in range(num_tags)}
-    return TaggedEntity(tags=tags)
 
 
 # noinspection DuplicatedCode

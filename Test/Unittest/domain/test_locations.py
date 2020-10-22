@@ -1,23 +1,12 @@
 from unittest import TestCase
 from uuid import uuid4
 
-from Test.Unittest.domain.test_descriptors import anon_name, anon_description
-from Test.Unittest.domain.test_ids import anon_id_prefix
-from Test.Unittest.domain.test_positions import anon_positional_range
-from Test.Unittest.domain.test_tags import anon_tag
+from Test.Unittest.test_helpers.anons import anon_name, anon_description, anon_id_prefix, anon_location, anon_positional_range, anon_tag
 from domain.descriptors import NamedEntity, DescribedEntity
 from domain.ids import PrefixedUUID, IdentifiedEntity
 from domain.locations import Location
 from domain.positions import SpanningEntity
 from domain.tags import TaggedEntity
-
-
-def anon_location() -> Location:
-    return Location(id=PrefixedUUID(prefix="location", uuid=uuid4()),
-                    span=anon_positional_range(),
-                    name=anon_name(),
-                    description=anon_description(),
-                    tags={anon_tag()})
 
 
 class TestLocation(TestCase):

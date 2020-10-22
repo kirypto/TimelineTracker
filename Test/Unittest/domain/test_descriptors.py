@@ -1,17 +1,9 @@
 from random import choices
-from string import ascii_letters, printable
 from unittest import TestCase
 
+from Test.Unittest.test_helpers.anons import anon_name, anon_description
 from domain.base_entity import BaseEntity
 from domain.descriptors import NamedEntity, DescribedEntity
-
-
-def anon_name(num_chars: int = 10) -> str:
-    return "".join(choices(ascii_letters + "_ ", k=num_chars))
-
-
-def anon_description(num_chars: int = 100) -> str:
-    return "".join(choices(printable, k=num_chars))
 
 
 # noinspection PyPropertyAccess
