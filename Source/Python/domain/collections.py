@@ -22,6 +22,10 @@ class Range(Generic[T]):
     def high(self) -> T:
         return self._high
 
+    @property
+    def type(self) -> type:
+        return type(self._low)
+
     def __init__(self, *, low: T, high: T) -> None:
         if type(low) is not type(high):
             raise TypeError("Arguments 'low' and 'high' must be of the same type")

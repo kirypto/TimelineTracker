@@ -66,9 +66,16 @@ def anon_positional_range() -> PositionalRange:
                            reality_low=reality_low, reality_high=reality_low + abs(anon_int()))
 
 
-def anon_range():
-    low = anon_float()
-    return Range(low=low, high=low + abs(anon_float()))
+def anon_range(of_type: type = float):
+    if of_type is float:
+        low = anon_float()
+        high = low + abs(anon_float())
+    elif of_type is int:
+        low = anon_int()
+        high = low + abs(anon_int())
+    else:
+        raise ValueError(f"Type {type} is not supported")
+    return Range(low=low, high=high)
 
 
 def anon_tag() -> Tag:

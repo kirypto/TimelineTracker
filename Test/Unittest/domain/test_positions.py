@@ -1,7 +1,7 @@
 from random import choice
 from unittest import TestCase
 
-from Test.Unittest.test_helpers.anons import anon_float, anon_int, anon_position, anon_positional_range
+from Test.Unittest.test_helpers.anons import anon_float, anon_int, anon_position, anon_positional_range, anon_range
 from domain.base_entity import BaseEntity
 from domain.positions import Position, PositionalRange, SpanningEntity
 
