@@ -2,6 +2,7 @@ from random import choices, uniform, randint
 from string import ascii_letters, printable, digits
 from uuid import uuid4
 
+from domain.collections import Range
 from domain.ids import PrefixedUUID, IdentifiedEntity
 from domain.locations import Location
 from domain.positions import Position, PositionalRange
@@ -63,6 +64,11 @@ def anon_positional_range() -> PositionalRange:
                            altitude_low=altitude_low, altitude_high=altitude_low + abs(anon_int()),
                            continuum_low=continuum_low, continuum_high=continuum_low + abs(anon_int()),
                            reality_low=reality_low, reality_high=reality_low + abs(anon_int()))
+
+
+def anon_range():
+    low = anon_float()
+    return Range(low=low, high=low + abs(anon_float()))
 
 
 def anon_tag() -> Tag:
