@@ -55,6 +55,54 @@ class TestRange(TestCase):
         self.assertRaises(AttributeError, ActionLow)
         self.assertRaises(AttributeError, ActionHigh)
 
+    def test__includes__should_reject_arguments_of_invalid_types(self) -> None:
+        # Arrange
+        invalid_type = choice(["string", False, True])
+        range_ = anon_range(float)
+
+        # Act
+        def Action(): range_.includes(invalid_type)
+
+        # Assert
+        self.assertRaises(TypeError, Action)
+
+    def test__includes__should_return_true__when_value_is_within_range(self) -> None:
+        # Arrange
+        range_ = anon_range()
+        query_val = anon_float(range_.low + 0.1, range_.high - 0.1)
+
+        # Act
+        actual = range_.includes(query_val)
+
+        # Assert
+        self.assertTrue(actual)
+
+    def test__includes__should_return_true__when_value_is_equal_to_either_range_end(self) -> None:
+        # Arrange
+        range_ = anon_range()
+
+        # Act
+        actual_low = range_.includes(float(range_._low))
+        actual_high = range_.includes(float(range_._high))
+
+        # Assert
+        self.assertTrue(actual_low)
+        self.assertTrue(actual_high)
+
+    def test__includes__should_return_false__when_value_is_above_or_below_range(self) -> None:
+        # Arrange
+        range_ = anon_range()
+        query_val_below = range_.low - abs(anon_float())
+        query_val_above = range_.low - abs(anon_float())
+
+        # Act
+        actual_below = range_.includes(query_val_below)
+        actual_above = range_.includes(query_val_above)
+
+        # Assert
+        self.assertFalse(actual_below)
+        self.assertFalse(actual_above)
+
     def test__equality__should_compare_as_same__when_provided_range_is_equal(self) -> None:
         # Arrange
         low = anon_float()

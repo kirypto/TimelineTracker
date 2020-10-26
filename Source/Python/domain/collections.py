@@ -43,3 +43,8 @@ class Range(Generic[T]):
 
     def __hash__(self) -> int:
         return hash((self.__class__, self._low, self._high))
+
+    def includes(self, value: T) -> bool:
+        if type(value) is not self.type:
+            raise TypeError("Argument 'value' must be of same type as range")
+        return self._low <= value <= self._high
