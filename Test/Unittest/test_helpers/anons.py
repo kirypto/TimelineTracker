@@ -54,16 +54,8 @@ def anon_position() -> Position:
 
 
 def anon_positional_range() -> PositionalRange:
-    latitude_low = anon_int()
-    longitude_low = anon_int()
-    altitude_low = anon_int()
-    continuum_low = anon_int()
-    reality_low = anon_int()
-    return PositionalRange(latitude_low=latitude_low, latitude_high=latitude_low + abs(anon_int()),
-                           longitude_low=longitude_low, longitude_high=longitude_low + abs(anon_int()),
-                           altitude_low=altitude_low, altitude_high=altitude_low + abs(anon_int()),
-                           continuum_low=continuum_low, continuum_high=continuum_low + abs(anon_int()),
-                           reality_low=reality_low, reality_high=reality_low + abs(anon_int()))
+    return PositionalRange(latitude=(anon_range()), longitude=(anon_range()), altitude=(anon_range()), continuum=(anon_range()),
+                           reality=(anon_range(int)))
 
 
 def anon_range(of_type: type = float):
