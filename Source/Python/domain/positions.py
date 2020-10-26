@@ -153,7 +153,7 @@ class SpanningEntity(BaseEntity):
 
     def __init__(self, *, span, **kwargs):
         if not isinstance(span, PositionalRange):
-            raise TypeError(f"Must be a {PositionalRange}")
+            raise TypeError(f"Argument 'span' must be a {PositionalRange}")
         self._span = span
         super().__init__(**kwargs)
 
