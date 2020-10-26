@@ -103,6 +103,70 @@ class TestRange(TestCase):
         self.assertFalse(actual_below)
         self.assertFalse(actual_above)
 
+    def test__intersects__should_reject_arguments_of_invalid_types(self) -> None:
+        # Arrange
+        invalid_type = choice(["string", False, True, anon_float()])
+        range_ = anon_range(float)
+
+        # Act
+        def Action(): range_.intersects(invalid_type)
+
+        # Assert
+        self.assertRaises(TypeError, Action)
+
+    def test__intersects__should_return_true__when_provided_range_partially_overlaps(self) -> None:
+        # Arrange
+        range_ = anon_range()
+        overlap_low = Range(low=range_.low - abs(anon_float()), high=range_.low + abs(anon_float()))
+        overlap_high = Range(low=range_.high - abs(anon_float()), high=range_.high + abs(anon_float()))
+
+        # Act
+        actual_low = range_.intersects(overlap_low)
+        actual_high = range_.intersects(overlap_high)
+
+        # Assert
+        self.assertTrue(actual_low)
+        self.assertTrue(actual_high)
+
+    def test__intersects__should_return_true__when_provided_range_is_contiguous(self) -> None:
+        # Arrange
+        range_ = anon_range()
+        contiguous_low = Range(low=range_.low - abs(anon_float()), high=range_.low)
+        contiguous_high = Range(low=range_.high - abs(anon_float()), high=range_.high)
+
+        # Act
+        actual_low = range_.intersects(contiguous_low)
+        actual_high = range_.intersects(contiguous_high)
+
+        # Assert
+        self.assertTrue(actual_low)
+        self.assertTrue(actual_high)
+
+    def test__intersects__should_return_true__when_provided_range_contained_completely(self) -> None:
+        # Arrange
+        range_ = anon_range()
+        contained_range = Range(low=range_.low + 0.1, high=range_.high - 0.1)
+
+        # Act
+        actual = range_.intersects(contained_range)
+
+        # Assert
+        self.assertTrue(actual)
+
+    def test__intersects__should_return_false__when_provided_range_does_not_overlap(self) -> None:
+        # Arrange
+        range_ = anon_range()
+        out_of_range_below = Range(low=range_.low - abs(anon_float()), high=range_.low - 0.1)
+        out_of_range_above = Range(low=range_.high + 0.1, high=range_.high + abs(anon_float()))
+
+        # Act
+        actual_below = range_.intersects(out_of_range_below)
+        actual_above = range_.intersects(out_of_range_above)
+
+        # Assert
+        self.assertFalse(actual_below)
+        self.assertFalse(actual_above)
+
     def test__equality__should_compare_as_same__when_provided_range_is_equal(self) -> None:
         # Arrange
         low = anon_float()

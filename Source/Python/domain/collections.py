@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Generic, TypeVar, Any
 
 
@@ -48,3 +49,13 @@ class Range(Generic[T]):
         if type(value) is not self.type:
             raise TypeError("Argument 'value' must be of same type as range")
         return self._low <= value <= self._high
+
+    def intersects(self, other: Range[T]):
+        if not isinstance(other, Range):
+            raise TypeError(f"Argument 'other' must be a {self.__class__}")
+        if other.type is not self.type:
+            raise TypeError(f"Argument 'other' must be of same type as queried range")
+        return ((self._low <= other._low <= self._high)
+                or (self._low <= other._high <= self._high)
+                or (self._low <= other._low and self._high >= other._high)
+                or (other._low <= self._low and other._high >= self._high))
