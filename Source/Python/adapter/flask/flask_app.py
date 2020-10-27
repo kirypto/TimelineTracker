@@ -42,12 +42,12 @@ def _create_flask_web_app() -> Flask:
     return flask_web_app
 
 
-def _main():
+def construct_flask_app():
     flask_web_app = _create_flask_web_app()
     timeline_tracker_application = TimelineTrackerApp()
     register_locations_routes(flask_web_app, timeline_tracker_application)
-    flask_web_app.run()
+    return flask_web_app
 
 
 if __name__ == '__main__':
-    _main()
+    construct_flask_app().run()
