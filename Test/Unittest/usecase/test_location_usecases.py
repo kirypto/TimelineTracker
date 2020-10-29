@@ -41,7 +41,7 @@ class TestLocationUsecase(TestCase):
                                                           tags=expected_tags)
 
         # Assert
-        self.assertEquals(expected_span, location.span)
-        self.assertEquals(expected_name, location.name)
-        self.assertEquals(expected_description, location.description)
-        self.assertEquals(expected_tags, location.tags)
+        self.assertEqual(expected_span, location.span)
+        self.assertEqual(expected_name, location.name)
+        self.assertEqual(expected_description, location.description)
+        self.assertEqual(expected_tags, location.tags)
