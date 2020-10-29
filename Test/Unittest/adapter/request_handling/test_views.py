@@ -10,7 +10,7 @@ class TestLocationView(TestCase):
         location = anon_location()
 
         # Act
-        actual = LocationView.to_json_dict(location)
+        actual = LocationView.to_json(location)
 
         # Assert
         self.assertTrue(type(actual) is dict)
@@ -18,7 +18,7 @@ class TestLocationView(TestCase):
     def test__from_json__should_translate_from_json_dict(self) -> None:
         # Arrange
         location = anon_location()
-        json = LocationView.to_json_dict(location)
+        json = LocationView.to_json(location)
 
         # Act
         actual = LocationView.from_json(json)

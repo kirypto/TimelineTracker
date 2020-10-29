@@ -82,7 +82,7 @@ class LocationView:
     }
 
     @staticmethod
-    def to_json_dict(location: Location) -> dict:
+    def to_json(location: Location) -> dict:
         location_attributes = {attribute_name.replace("_", "", 1): value for attribute_name, value in vars(location).items()}
         return {
             attribute_name: _ValueTranslator.to_json(location_attributes[attribute_name])

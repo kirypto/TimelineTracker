@@ -9,4 +9,5 @@ class LocationUseCase:
         location_id = PrefixedUUID("location", uuid4())
         print(f"Created location {location_id}")
         kwargs["id"] = location_id
+
         return Location(**kwargs)
