@@ -1,4 +1,4 @@
-from random import choices
+from random import choices, choice
 from unittest import TestCase
 
 from Test.Unittest.test_helpers.anons import anon_name, anon_description
@@ -8,12 +8,22 @@ from domain.descriptors import NamedEntity, DescribedEntity
 
 # noinspection PyPropertyAccess
 class TestNamedEntity(TestCase):
-    def test__init__should_reject_illegal_characters(self) -> None:
+    def test__init__should_reject_invalid_types(self) -> None:
         # Arrange
-        illegal_name = anon_name(4) + "".join(choices("!@#$%^&*()+={}[]|\\:;"'<>,.?/', k=1))
+        invalid_type = choice(["string", False, True])
 
         # Act
-        def Action(): _ = NamedEntity(name=illegal_name)
+        def Action(): NamedEntity(name=invalid_type)
+
+        # Assert
+        self.assertRaises(TypeError, Action)
+
+    def test__init__should_reject_invalid_characters(self) -> None:
+        # Arrange
+        invalid_name = anon_name(4) + "".join(choices("!@#$%^&*()+={}[]|\\:;"'<>,.?/', k=1))
+
+        # Act
+        def Action(): _ = NamedEntity(name=invalid_name)
 
         # Assert
         self.assertRaises(ValueError, Action)
