@@ -111,7 +111,7 @@ class TestPrefixedUUID(TestCase):
         Action()
 
 
-# noinspection PyPropertyAccess
+# noinspection PyPropertyAccess,PyTypeChecker
 class TestIdentifiedEntity(TestCase):
     def test__init__should_accept_id(self) -> None:
         # Arrange
@@ -135,6 +135,16 @@ class TestIdentifiedEntity(TestCase):
 
         # Assert
         self.assertEqual(expected, actual.other)
+        
+    def test__init__should_reject_invalid_types(self) -> None:
+        # Arrange
+        invalid_type = choice(["string", False, True])
+
+        # Act
+        def Action(): IdentifiedEntity(id=invalid_type)
+        
+        # Assert
+        self.assertRaises(TypeError, Action)
 
     def test__id__should_return_prefixed_id(self) -> None:
         # Arrange
