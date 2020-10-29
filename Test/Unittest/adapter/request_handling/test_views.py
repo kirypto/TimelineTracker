@@ -2,6 +2,7 @@ from unittest import TestCase
 
 from Test.Unittest.test_helpers.anons import anon_location
 from adapter.request_handling.views import LocationView
+from domain.locations import Location
 
 
 class TestLocationView(TestCase):
@@ -21,8 +22,7 @@ class TestLocationView(TestCase):
         json = LocationView.to_json(location)
 
         # Act
-        actual = LocationView.from_json(json)
+        actual = Location(**LocationView.from_json(json))
 
         # Assert
         self.assertEqual(location, actual)
-

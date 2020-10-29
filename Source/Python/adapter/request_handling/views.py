@@ -90,12 +90,13 @@ class LocationView:
         }
 
     @staticmethod
-    def from_json(location_view: dict) -> Location:
+    def from_json(location_view: dict) -> dict:
         def translate_val(attribute_name, value):
             if attribute_name not in LocationView.__attribute_types_by_name:
                 raise ValueError(f"Failed to translate attribute '{attribute_name}'")
             return _ValueTranslator.from_json(value, LocationView.__attribute_types_by_name[attribute_name])
 
-        return Location(**{
-            attribute_name: translate_val(attribute_name, value) for attribute_name, value in location_view.items()
-        })
+        return {
+            attribute_name: translate_val(attribute_name, value)
+            for attribute_name, value in location_view.items()
+        }
