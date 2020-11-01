@@ -1,0 +1,2 @@
+class InMemoryLocationRepository:
+    pass
