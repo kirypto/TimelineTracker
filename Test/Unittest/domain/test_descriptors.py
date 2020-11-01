@@ -6,11 +6,11 @@ from domain.base_entity import BaseEntity
 from domain.descriptors import NamedEntity, DescribedEntity
 
 
-# noinspection PyPropertyAccess
+# noinspection PyPropertyAccess,PyTypeChecker
 class TestNamedEntity(TestCase):
     def test__init__should_reject_invalid_types(self) -> None:
         # Arrange
-        invalid_type = choice(["string", False, True])
+        invalid_type = choice([1.0, False, True])
 
         # Act
         def Action(): NamedEntity(name=invalid_type)
