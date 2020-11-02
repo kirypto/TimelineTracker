@@ -200,12 +200,22 @@ class TestTaggedEntity(TestCase):
         self.assertFalse(actual_a_equals_c)
         self.assertTrue(actual_a_not_equals_c)
 
-    def test__hash__should_be_hashable(self) -> None:
+    def test__hash__should_be_hashable__when_has_no_tags(self) -> None:
         # Arrange
-        tag = anon_tag()
+        tags = TaggedEntity()
 
         # Act
-        def Action(): _ = {tag}
+        def Action(): _ = {tags}
+
+        # Assert
+        Action()
+
+    def test__hash__should_be_hashable__when_has_tags(self) -> None:
+        # Arrange
+        tags = TaggedEntity(tags={anon_tag()})
+
+        # Act
+        def Action(): _ = {tags}
 
         # Assert
         Action()
