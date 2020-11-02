@@ -163,4 +163,4 @@ class SpanningEntity(BaseEntity):
         return self._span == other._span and super().__eq__(other)
 
     def __hash__(self) -> int:
-        return hash((self.__class__, self._span))
+        return hash((self.__class__, self._span, super().__hash__()))

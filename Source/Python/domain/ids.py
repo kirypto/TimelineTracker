@@ -62,4 +62,4 @@ class IdentifiedEntity(BaseEntity):
         return self._id == other._id and super().__eq__(other)
 
     def __hash__(self) -> int:
-        return hash((self.__class__, self._id))
+        return hash((self.__class__, self._id, super().__hash__()))
