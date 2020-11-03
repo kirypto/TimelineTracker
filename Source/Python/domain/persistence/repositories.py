@@ -1,2 +1,19 @@
-class LocationRepository:
-    pass
+from abc import ABC, abstractmethod
+from typing import Optional, Set
+
+from domain.ids import PrefixedUUID
+from domain.locations import Location
+
+
+class LocationRepository(ABC):
+    @abstractmethod
+    def save(self, location: Location) -> None:
+        pass
+
+    @abstractmethod
+    def retrieve(self, location_id: PrefixedUUID) -> Optional[Location]:
+        pass
+
+    @abstractmethod
+    def retrieve_all(self) -> Set[Location]:
+        pass
