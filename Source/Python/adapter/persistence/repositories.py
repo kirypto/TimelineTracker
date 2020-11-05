@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import Set, Optional, Dict
 
 from domain.ids import PrefixedUUID
@@ -18,7 +19,13 @@ class InMemoryLocationRepository(LocationRepository):
         self._locations_by_id[location.id] = location
 
     def retrieve(self, location_id: PrefixedUUID) -> Optional[Location]:
-        pass
+        if not isinstance(location_id, PrefixedUUID):
+            raise TypeError(f"Argument 'location_id' must be of type {PrefixedUUID}")
+
+        return deepcopy(self._locations_by_id.get(location_id, None))
 
     def retrieve_all(self) -> Set[Location]:
-        pass
+        return {
+            deepcopy(location)
+            for location in self._locations_by_id.values()
+        }
