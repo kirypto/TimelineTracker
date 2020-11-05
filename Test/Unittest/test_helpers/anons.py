@@ -1,5 +1,6 @@
 from random import choices, uniform, randint
 from string import ascii_letters, printable, digits
+from typing import Type, Any
 from uuid import uuid4
 
 from domain.collections import Range
@@ -31,6 +32,19 @@ def anon_int(a: int = None, b: int = None):
     start = a if a is not None else -999999
     end = b if b is not None else 999999
     return randint(start, end)
+
+
+def anon_anything(*, not_type: Type) -> Any:
+    random_items = [
+        False,
+        True,
+        anon_name(),
+        anon_tag(),
+        anon_int(),
+        anon_float(),
+        anon_prefixed_id()
+    ]
+    return choices([item for item in random_items if type(item) is not not_type])
 
 
 def anon_location() -> Location:
