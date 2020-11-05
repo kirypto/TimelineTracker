@@ -95,3 +95,12 @@ def anon_tag_name(num_digits: int = 10) -> str:
 def anon_tagged_entity(num_tags: int = 3) -> TaggedEntity:
     tags = {anon_tag() for _ in range(num_tags)}
     return TaggedEntity(tags=tags)
+
+
+def anon_create_location_kwargs():
+    return {
+        "name": anon_name(),
+        "description": anon_description(),
+        "span": anon_positional_range(),
+        "tags": {anon_tag()},
+    }
