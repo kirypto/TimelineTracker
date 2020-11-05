@@ -12,6 +12,9 @@ class InMemoryLocationRepository(LocationRepository):
         self._locations_by_id = {}
 
     def save(self, location: Location) -> None:
+        if not isinstance(location, Location):
+            raise TypeError(f"Argument 'location' must be of type {Location}")
+
         self._locations_by_id[location.id] = location
 
     def retrieve(self, location_id: PrefixedUUID) -> Optional[Location]:
