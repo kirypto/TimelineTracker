@@ -5,7 +5,7 @@ from domain.locations import Location
 
 
 class LocationUseCase:
-    def create_location(self, **kwargs) -> Location:
+    def create(self, **kwargs) -> Location:
         location_id = PrefixedUUID("location", uuid4())
         print(f"Created location {location_id}")
         kwargs["id"] = location_id

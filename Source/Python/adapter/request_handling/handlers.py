@@ -18,7 +18,7 @@ class LocationsRequestHandler:
             return {"error": f"Failed to parse request body: {e}"}, HTTPStatus.BAD_REQUEST
 
         try:
-            location = self._locations_use_case.create_location(**location_kwargs)
+            location = self._locations_use_case.create(**location_kwargs)
         except (TypeError, ValueError) as e:
             return {"error": str(e)}, HTTPStatus.BAD_REQUEST
 
