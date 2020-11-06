@@ -72,6 +72,12 @@ class _ValueTranslator:
         raise TypeError(f"Unsupported type {type_}")
 
 
+class PrefixedUUIDView:
+    @staticmethod
+    def to_json(prefixed_uuid: PrefixedUUID) -> str:
+        return _ValueTranslator.to_json(prefixed_uuid)
+
+
 class LocationView:
     __attribute_types_by_name = {
         "id": PrefixedUUID,

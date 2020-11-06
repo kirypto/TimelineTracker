@@ -1,13 +1,14 @@
 from http import HTTPStatus
-from typing import Tuple
+from typing import Tuple, List
 
-from adapter.request_handling.views import LocationView
+from adapter.persistence.repositories import InMemoryLocationRepository
+from adapter.request_handling.views import LocationView, PrefixedUUIDView
 from usecase.locations_usecases import LocationUseCase
 
 
 class LocationsRequestHandler:
     def __init__(self):
-        self._locations_use_case = LocationUseCase()
+        self._locations_use_case = LocationUseCase(InMemoryLocationRepository())
 
     def locations_post_handler(self, request_body: dict) -> Tuple[dict, int]:
         try:
@@ -23,3 +24,9 @@ class LocationsRequestHandler:
             return {"error": str(e)}, HTTPStatus.BAD_REQUEST
 
         return LocationView.to_json(location), HTTPStatus.CREATED
+
+    def locations_get_all_handler(self) -> Tuple[List[str], int]:
+        locations = self._locations_use_case.retrieve_all()
+
+        return [PrefixedUUIDView.to_json(location.id) for location in locations], HTTPStatus.OK
+
