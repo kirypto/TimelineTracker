@@ -1,6 +1,6 @@
 from random import choices, uniform, randint
 from string import ascii_letters, printable, digits
-from typing import Type, Any
+from typing import Type, Any, Set
 from uuid import uuid4
 
 from domain.collections import Range
@@ -97,10 +97,11 @@ def anon_tagged_entity(num_tags: int = 3) -> TaggedEntity:
     return TaggedEntity(tags=tags)
 
 
-def anon_create_location_kwargs():
+def anon_create_location_kwargs(*, name: str = anon_name(), description: str = anon_description(),
+                                span: PositionalRange = anon_positional_range(), tags: Set[Tag] = None) -> dict:
     return {
-        "name": anon_name(),
-        "description": anon_description(),
-        "span": anon_positional_range(),
-        "tags": {anon_tag()},
+        "name": name,
+        "description": description,
+        "span": span,
+        "tags": tags if tags is not None else {anon_tag()},
     }
