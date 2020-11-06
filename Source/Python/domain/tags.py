@@ -63,4 +63,4 @@ class TaggedEntity(BaseEntity):
         return self._tags == other._tags and super().__eq__(other)
 
     def __hash__(self) -> int:
-        return hash((self.__class__, (hash(tag) for tag in self._tags), super().__hash__()))
+        return hash((self.__class__, frozenset(self._tags), super().__hash__()))
