@@ -2,6 +2,7 @@ from unittest import TestCase
 
 from Test.Unittest.test_helpers.anons import anon_prefixed_id, anon_positional_range, anon_name, anon_description, anon_tag, \
     anon_create_location_kwargs
+from adapter.persistence.repositories import InMemoryLocationRepository
 from usecase.locations_usecases import LocationUseCase
 
 
@@ -9,7 +10,7 @@ class TestLocationUsecase(TestCase):
     location_use_case: LocationUseCase
 
     def setUp(self) -> None:
-        self.location_use_case = LocationUseCase()
+        self.location_use_case = LocationUseCase(InMemoryLocationRepository())
 
     def test__create__should_not_require_id_passed_in(self) -> None:
         # Arrange
