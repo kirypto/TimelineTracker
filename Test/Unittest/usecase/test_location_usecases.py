@@ -1,6 +1,7 @@
 from unittest import TestCase
 
-from Test.Unittest.test_helpers.anons import anon_prefixed_id, anon_positional_range, anon_name, anon_description, anon_tag
+from Test.Unittest.test_helpers.anons import anon_prefixed_id, anon_positional_range, anon_name, anon_description, anon_tag, \
+    anon_create_location_kwargs
 from usecase.locations_usecases import LocationUseCase
 
 
@@ -45,3 +46,25 @@ class TestLocationUsecase(TestCase):
         self.assertEqual(expected_name, location.name)
         self.assertEqual(expected_description, location.description)
         self.assertEqual(expected_tags, location.tags)
+
+    def test__retrieve__should_return_saved(self) -> None:
+        # Arrange
+        expected = self.location_use_case.create(**anon_create_location_kwargs())
+
+        # Act
+        actual = self.location_use_case.retrieve(expected.id)
+
+        # Assert
+        self.assertEqual(expected, actual)
+
+    def test__retrieve_all__should_return_all_saved(self) -> None:
+        # Arrange
+        location_a = self.location_use_case.create(**anon_create_location_kwargs())
+        location_b = self.location_use_case.create(**anon_create_location_kwargs())
+        expected = {location_a, location_b}
+
+        # Act
+        actual = self.location_use_case.retrieve_all()
+
+        # Assert
+        self.assertSetEqual(expected, actual)
