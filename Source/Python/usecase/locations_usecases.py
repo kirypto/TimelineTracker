@@ -4,6 +4,7 @@ from uuid import uuid4
 from domain.ids import PrefixedUUID
 from domain.locations import Location
 from domain.persistence.repositories import LocationRepository
+from domain.tags import Tag
 
 
 class LocationUseCase:
@@ -31,5 +32,19 @@ class LocationUseCase:
 
         return self._location_repository.retrieve(location_id)
 
-    def retrieve_all(self) -> Set[Location]:
-        return self._location_repository.retrieve_all()
+    def retrieve_all(self, *, name: str = None, tagged_with_all: Set[Tag] = None, tagged_with_any: Set[Tag] = None, tagged_with_only: Set[Tag] = None,
+                     tagged_with_none: Set[Tag] = None) -> Set[Location]:
+        def matches_filters(location: Location) -> bool:
+            if name is not None and location.name != name:
+                return False
+            if tagged_with_all is not None and not tagged_with_all.issubset(location.tags):
+                return False
+            if tagged_with_any is not None and not tagged_with_any.intersection(location.tags):
+                return False
+            if tagged_with_only is not None and not tagged_with_only.issuperset(location.tags):
+                return False
+            if tagged_with_none is not None and not tagged_with_none.isdisjoint(location.tags):
+                return False
+            return True
+
+        return {location for location in self._location_repository.retrieve_all() if matches_filters(location)}
