@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Tuple, Dict, Any
+from typing import Tuple, Dict, Union
 
 from adapter.persistence.repositories import InMemoryLocationRepository
 from adapter.request_handling.utils import error_response, parse_optional_tag_query_param
@@ -11,7 +11,7 @@ class LocationsRequestHandler:
     def __init__(self):
         self._locations_use_case = LocationUseCase(InMemoryLocationRepository())
 
-    def locations_post_handler(self, request_body: dict) -> Tuple[Any, int]:
+    def locations_post_handler(self, request_body: dict) -> Tuple[dict, int]:
         try:
             location_kwargs = LocationView.from_json(request_body)
         except KeyError as e:
@@ -26,7 +26,7 @@ class LocationsRequestHandler:
 
         return LocationView.to_json(location), HTTPStatus.CREATED
 
-    def locations_get_all_handler(self, query_params: Dict[str, str]) -> Tuple[Any, int]:
+    def locations_get_all_handler(self, query_params: Dict[str, str]) -> Tuple[Union[list, dict], int]:
         try:
             filters = {
                 "name": query_params.get("name", None),
@@ -41,3 +41,16 @@ class LocationsRequestHandler:
         locations = self._locations_use_case.retrieve_all(**filters)
 
         return [PrefixedUUIDView.to_json(location.id) for location in locations], HTTPStatus.OK
+
+    def location_get_handler(self, location_id: str) -> Tuple[dict, int]:
+        return error_response("Location get not implemented", HTTPStatus.NOT_IMPLEMENTED)
+
+    def location_delete_handler(self, location_id: str) -> Tuple[dict, int]:
+        return error_response("Location delete not implemented", HTTPStatus.NOT_IMPLEMENTED)
+
+    def location_patch_handler(self, location_id: str) -> Tuple[dict, int]:
+        return error_response("Location patch not implemented", HTTPStatus.NOT_IMPLEMENTED)
+
+    def location_timeline_get_handler(self, location_id: str) -> Tuple[dict, int]:
+        return error_response("Location timeline get not implemented", HTTPStatus.NOT_IMPLEMENTED)
+
