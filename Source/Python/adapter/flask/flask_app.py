@@ -50,4 +50,4 @@ def construct_flask_app():
 
 
 if __name__ == '__main__':
-    construct_flask_app().run()
+    construct_flask_app().run(host="localhost")
