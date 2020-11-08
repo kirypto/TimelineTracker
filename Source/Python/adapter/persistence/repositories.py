@@ -31,4 +31,7 @@ class InMemoryLocationRepository(LocationRepository):
         }
 
     def delete(self, location_id: PrefixedUUID) -> None:
-        raise NotImplementedError("Not yet implemented")
+        if location_id not in self._locations_by_id:
+            raise NameError(f"No stored location with id '{location_id}'")
+
+        self._locations_by_id.pop(location_id)
