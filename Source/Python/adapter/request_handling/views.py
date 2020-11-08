@@ -72,10 +72,16 @@ class _ValueTranslator:
         raise TypeError(f"Unsupported type {type_}")
 
 
-class PrefixedUUIDView:
+class LocationIdView:
     @staticmethod
-    def to_json(prefixed_uuid: PrefixedUUID) -> str:
-        return _ValueTranslator.to_json(prefixed_uuid)
+    def to_json(location_id: PrefixedUUID) -> str:
+        return _ValueTranslator.to_json(location_id)
+
+    @staticmethod
+    def from_json(location_id_str: str) -> PrefixedUUID:
+        if not location_id_str.startswith("location-"):
+            raise ValueError(f"Cannot parse location id from '{location_id_str}")
+        return _ValueTranslator.from_json(location_id_str, PrefixedUUID)
 
 
 class LocationView:

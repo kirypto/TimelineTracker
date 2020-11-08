@@ -3,7 +3,7 @@ from typing import Tuple, Dict, Union
 
 from adapter.persistence.repositories import InMemoryLocationRepository
 from adapter.request_handling.utils import error_response, parse_optional_tag_query_param
-from adapter.request_handling.views import LocationView, PrefixedUUIDView
+from adapter.request_handling.views import LocationView, LocationIdView
 from usecase.locations_usecases import LocationUseCase
 
 
@@ -40,7 +40,7 @@ class LocationsRequestHandler:
 
         locations = self._locations_use_case.retrieve_all(**filters)
 
-        return [PrefixedUUIDView.to_json(location.id) for location in locations], HTTPStatus.OK
+        return [LocationIdView.to_json(location.id) for location in locations], HTTPStatus.OK
 
     def location_get_handler(self, location_id: str) -> Tuple[dict, int]:
         return error_response("Location get not implemented", HTTPStatus.NOT_IMPLEMENTED)
