@@ -18,11 +18,13 @@ class InMemoryLocationRepository(LocationRepository):
 
         self._locations_by_id[location.id] = location
 
-    def retrieve(self, location_id: PrefixedUUID) -> Optional[Location]:
+    def retrieve(self, location_id: PrefixedUUID) -> Location:
         if not isinstance(location_id, PrefixedUUID):
             raise TypeError(f"Argument 'location_id' must be of type {PrefixedUUID}")
+        if location_id not in self._locations_by_id:
+            raise NameError(f"No stored location with id '{location_id}'")
 
-        return deepcopy(self._locations_by_id.get(location_id, None))
+        return deepcopy(self._locations_by_id[location_id])
 
     def retrieve_all(self) -> Set[Location]:
         return {

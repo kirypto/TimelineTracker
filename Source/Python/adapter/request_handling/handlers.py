@@ -48,10 +48,10 @@ class LocationsRequestHandler:
         except (TypeError, ValueError) as e:
             return error_response(e, HTTPStatus.BAD_REQUEST)
 
-        location = self._locations_use_case.retrieve(location_id)
-
-        if location is None:
-            return error_response(f"No location found with id '{location_id}'", HTTPStatus.NOT_FOUND)
+        try:
+            location = self._locations_use_case.retrieve(location_id)
+        except NameError as e:
+            return error_response(e, HTTPStatus.NOT_FOUND)
 
         return LocationView.to_json(location), HTTPStatus.OK
 
@@ -63,4 +63,3 @@ class LocationsRequestHandler:
 
     def location_timeline_get_handler(self, location_id_str: str) -> Tuple[dict, int]:
         return error_response("Location timeline get not implemented", HTTPStatus.NOT_IMPLEMENTED)
-

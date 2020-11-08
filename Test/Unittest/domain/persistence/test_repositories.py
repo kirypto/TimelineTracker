@@ -47,14 +47,14 @@ class TestLocationsRepository(ABC):
         # Assert
         self.assertRaises(TypeError, Action)
 
-    def test__retrieve__should_return_none__when_no_stored_location_matches_the_given_id(self) -> None:
+    def test__retrieve__should_raise_exception__when_no_stored_location_matches_the_given_id(self) -> None:
         # Arrange
 
         # Act
-        actual = self.location_repository.retrieve(anon_prefixed_id())
+        def Action(): self.location_repository.retrieve(anon_prefixed_id())
 
         # Assert
-        self.assertIsNone(actual)
+        self.assertRaises(NameError, Action)
 
     def test__retrieve__should_return_saved_location__when_stored_location_with_given_id_exists(self) -> None:
         # Arrange
@@ -98,8 +98,7 @@ class TestLocationsRepository(ABC):
         self.location_repository.delete(location.id)
 
         # Assert
-        actual = self.location_repository.retrieve(location.id)
-        self.assertIsNone(actual)
+        self.assertRaises(NameError, lambda: self.location_repository.retrieve(location.id))
 
     def test__delete__should_raise_exception__when_no_matching_location_stored(self) -> None:
         # Arrange

@@ -11,7 +11,7 @@ class LocationRepository(ABC):
         pass
 
     @abstractmethod
-    def retrieve(self, location_id: PrefixedUUID) -> Optional[Location]:
+    def retrieve(self, location_id: PrefixedUUID) -> Location:
         pass
 
     @abstractmethod

@@ -49,7 +49,7 @@ class TestLocationUsecase(TestCase):
         self.assertEqual(expected_description, location.description)
         self.assertEqual(expected_tags, location.tags)
 
-    def test__retrieve__should_return_saved(self) -> None:
+    def test__retrieve__should_return_saved__when_exists(self) -> None:
         # Arrange
         expected = self.location_use_case.create(**anon_create_location_kwargs())
 
@@ -58,6 +58,15 @@ class TestLocationUsecase(TestCase):
 
         # Assert
         self.assertEqual(expected, actual)
+
+    def test__retrieve__should_raise_exception__when_not_exists(self) -> None:
+        # Arrange
+
+        # Act
+        def Action(): self.location_use_case.retrieve(anon_prefixed_id(prefix="location"))
+
+        # Assert
+        self.assertRaises(NameError, Action)
 
     def test__retrieve_all__should_return_all_saved__when_no_filters_provided(self) -> None:
         # Arrange

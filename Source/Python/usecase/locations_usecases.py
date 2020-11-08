@@ -24,7 +24,7 @@ class LocationUseCase:
 
         return location
 
-    def retrieve(self, location_id: PrefixedUUID) -> Optional[Location]:
+    def retrieve(self, location_id: PrefixedUUID) -> Location:
         if not isinstance(location_id, PrefixedUUID):
             raise TypeError(f"Argument 'location_id' must be of type {PrefixedUUID}")
         if not location_id.prefix == "location":
