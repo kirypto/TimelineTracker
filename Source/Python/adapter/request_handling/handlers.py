@@ -42,15 +42,25 @@ class LocationsRequestHandler:
 
         return [LocationIdView.to_json(location.id) for location in locations], HTTPStatus.OK
 
-    def location_get_handler(self, location_id: str) -> Tuple[dict, int]:
-        return error_response("Location get not implemented", HTTPStatus.NOT_IMPLEMENTED)
+    def location_get_handler(self, location_id_str: str) -> Tuple[dict, int]:
+        try:
+            location_id = LocationIdView.from_json(location_id_str)
+        except (TypeError, ValueError) as e:
+            return error_response(e, HTTPStatus.BAD_REQUEST)
 
-    def location_delete_handler(self, location_id: str) -> Tuple[dict, int]:
+        location = self._locations_use_case.retrieve(location_id)
+
+        if location is None:
+            return error_response(f"No location found with id '{location_id}'", HTTPStatus.NOT_FOUND)
+
+        return LocationView.to_json(location), HTTPStatus.OK
+
+    def location_delete_handler(self, location_id_str: str) -> Tuple[dict, int]:
         return error_response("Location delete not implemented", HTTPStatus.NOT_IMPLEMENTED)
 
-    def location_patch_handler(self, location_id: str) -> Tuple[dict, int]:
+    def location_patch_handler(self, location_id_str: str) -> Tuple[dict, int]:
         return error_response("Location patch not implemented", HTTPStatus.NOT_IMPLEMENTED)
 
-    def location_timeline_get_handler(self, location_id: str) -> Tuple[dict, int]:
+    def location_timeline_get_handler(self, location_id_str: str) -> Tuple[dict, int]:
         return error_response("Location timeline get not implemented", HTTPStatus.NOT_IMPLEMENTED)
 
