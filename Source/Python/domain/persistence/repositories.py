@@ -17,3 +17,7 @@ class LocationRepository(ABC):
     @abstractmethod
     def retrieve_all(self) -> Set[Location]:
         pass
+
+    @abstractmethod
+    def delete(self, location_id: PrefixedUUID) -> None:
+        pass

@@ -88,3 +88,24 @@ class TestLocationsRepository(ABC):
 
         # Assert
         self.assertSetEqual(expected, actual)
+
+    def test__delete__should_delete_location__when_stored(self) -> None:
+        # Arrange
+        location = anon_location()
+        self.location_repository.save(location)
+
+        # Act
+        self.location_repository.delete(location.id)
+
+        # Assert
+        actual = self.location_repository.retrieve(location.id)
+        self.assertIsNone(actual)
+
+    def test__delete__should_raise_exception__when_no_matching_location_stored(self) -> None:
+        # Arrange
+
+        # Act
+        def Action(): self.location_repository.delete(anon_prefixed_id(prefix="location"))
+
+        # Assert
+        self.assertRaises(NameError, Action)

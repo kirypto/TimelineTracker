@@ -29,3 +29,6 @@ class InMemoryLocationRepository(LocationRepository):
             deepcopy(location)
             for location in self._locations_by_id.values()
         }
+
+    def delete(self, location_id: PrefixedUUID) -> None:
+        raise NotImplementedError("Not yet implemented")
