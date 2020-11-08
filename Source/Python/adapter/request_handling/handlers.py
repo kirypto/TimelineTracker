@@ -1,10 +1,9 @@
 from http import HTTPStatus
-from typing import Tuple, Dict, Set, Any, Optional
+from typing import Tuple, Dict, Any
 
 from adapter.persistence.repositories import InMemoryLocationRepository
-from adapter.request_handling.utils import error_response
+from adapter.request_handling.utils import error_response, parse_optional_tag_query_param
 from adapter.request_handling.views import LocationView, PrefixedUUIDView
-from domain.tags import Tag
 from usecase.locations_usecases import LocationUseCase
 
 
@@ -28,18 +27,13 @@ class LocationsRequestHandler:
         return LocationView.to_json(location), HTTPStatus.CREATED
 
     def locations_get_all_handler(self, query_params: Dict[str, str]) -> Tuple[Any, int]:
-        def parse_tag_query_param(tag_query_param: Optional[str]) -> Optional[Set[Tag]]:
-            if tag_query_param is None:
-                return None
-            return {Tag(tag_str) for tag_str in tag_query_param.split(",") if len(tag_str) > 0}
-
         try:
             filters = {
                 "name": query_params.get("name", None),
-                "tagged_with_all": parse_tag_query_param(query_params.get("taggedAll", None)),
-                "tagged_with_any": parse_tag_query_param(query_params.get("taggedAny", None)),
-                "tagged_with_only": parse_tag_query_param(query_params.get("taggedOnly", None)),
-                "tagged_with_none": parse_tag_query_param(query_params.get("taggedNone", None)),
+                "tagged_with_all": parse_optional_tag_query_param(query_params.get("taggedAll", None)),
+                "tagged_with_any": parse_optional_tag_query_param(query_params.get("taggedAny", None)),
+                "tagged_with_only": parse_optional_tag_query_param(query_params.get("taggedOnly", None)),
+                "tagged_with_none": parse_optional_tag_query_param(query_params.get("taggedNone", None)),
             }
         except (TypeError, ValueError, AttributeError) as e:
             return error_response(e, HTTPStatus.BAD_REQUEST)
