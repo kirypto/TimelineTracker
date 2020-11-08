@@ -55,8 +55,18 @@ class LocationsRequestHandler:
 
         return LocationView.to_json(location), HTTPStatus.OK
 
-    def location_delete_handler(self, location_id_str: str) -> Tuple[dict, int]:
-        return error_response("Location delete not implemented", HTTPStatus.NOT_IMPLEMENTED)
+    def location_delete_handler(self, location_id_str: str) -> Tuple[Union[dict, str], int]:
+        try:
+            location_id = LocationIdView.from_json(location_id_str)
+        except (TypeError, ValueError) as e:
+            return error_response(e, HTTPStatus.BAD_REQUEST)
+
+        try:
+            self._locations_use_case.delete(location_id)
+        except NameError as e:
+            return error_response(e, HTTPStatus.NOT_FOUND)
+
+        return "", HTTPStatus.NO_CONTENT
 
     def location_patch_handler(self, location_id_str: str) -> Tuple[dict, int]:
         return error_response("Location patch not implemented", HTTPStatus.NOT_IMPLEMENTED)
