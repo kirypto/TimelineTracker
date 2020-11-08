@@ -166,3 +166,22 @@ class TestLocationUsecase(TestCase):
 
         # Assert
         self.assertSetEqual(expected, actual)
+        
+    def test__delete__should_delete__when_location_exists(self) -> None:
+        # Arrange
+        location = self.location_use_case.create(**anon_create_location_kwargs())
+
+        # Act
+        self.location_use_case.delete(location.id)
+        
+        # Assert
+        self.assertRaises(NameError, lambda: self.location_use_case.retrieve(location.id))
+
+    def test__delete__should_raise_exception__when_not_exits(self) -> None:
+        # Arrange
+
+        # Act
+        def Action(): self.location_use_case.delete(anon_prefixed_id(prefix="location"))
+
+        # Assert
+        self.assertRaises(NameError, Action)

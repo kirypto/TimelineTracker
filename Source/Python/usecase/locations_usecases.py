@@ -48,3 +48,11 @@ class LocationUseCase:
             return True
 
         return {location for location in self._location_repository.retrieve_all() if matches_filters(location)}
+
+    def delete(self, location_id: PrefixedUUID) -> None:
+        if not isinstance(location_id, PrefixedUUID):
+            raise TypeError(f"Argument 'location_id' must be of type {PrefixedUUID}")
+        if not location_id.prefix == "location":
+            raise ValueError("Argument 'location_id' must be prefixed with 'location'")
+
+        return self._location_repository.delete(location_id)
