@@ -20,7 +20,7 @@ class TestNamedEntity(TestCase):
 
     def test__init__should_reject_invalid_characters(self) -> None:
         # Arrange
-        invalid_name = anon_name(4) + "".join(choices("!@#$%^&*()+={}[]|\\:;"'<>,.?/', k=1))
+        invalid_name = anon_name(4) + "".join(choices("!@#$%^&*()+={}[]|\\:;"'<>,?/', k=1))
 
         # Act
         def Action(): _ = NamedEntity(name=invalid_name)

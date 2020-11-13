@@ -13,7 +13,7 @@ class NamedEntity(BaseEntity):
     def __init__(self, *, name: str = "", **kwargs) -> None:
         if not isinstance(name, str):
             raise TypeError(f"Argument 'name' must be of type {str}")
-        if not match(r"^[\w\- ]*$", name):
+        if not match(r"^[\w\-. ]*$", name):
             raise ValueError("Argument 'name' must be contain only alphanumeric, underscore, dash, and space characters")
         self._name = name
         super().__init__(**kwargs)
