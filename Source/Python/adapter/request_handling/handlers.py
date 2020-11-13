@@ -1,5 +1,7 @@
 from http import HTTPStatus
-from typing import Tuple, Dict, Union
+from typing import Tuple, Dict, Union, List, Any
+
+from jsonpatch import JsonPatch, InvalidJsonPatch, PatchOperation, make_patch, JsonPatchTestFailed
 
 from adapter.persistence.repositories import InMemoryLocationRepository
 from adapter.request_handling.utils import error_response, parse_optional_tag_query_param
@@ -13,7 +15,7 @@ class LocationsRequestHandler:
 
     def locations_post_handler(self, request_body: dict) -> Tuple[dict, int]:
         try:
-            location_kwargs = LocationView.from_json(request_body)
+            location_kwargs = LocationView.kwargs_from_json(request_body)
         except KeyError as e:
             return error_response(f"Failed to parse request body: missing attribute {e}", HTTPStatus.BAD_REQUEST)
         except ValueError as e:
@@ -68,8 +70,31 @@ class LocationsRequestHandler:
 
         return "", HTTPStatus.NO_CONTENT
 
-    def location_patch_handler(self, location_id_str: str) -> Tuple[dict, int]:
-        return error_response("Location patch not implemented", HTTPStatus.NOT_IMPLEMENTED)
+    def location_patch_handler(self, location_id_str: str, patch_operations: List[Dict[str, Any]]) -> Tuple[dict, int]:
+        try:
+            location_id = LocationIdView.from_json(location_id_str)
+            patch = JsonPatch([PatchOperation(operation).operation for operation in patch_operations])
+
+            existing_location = self._locations_use_case.retrieve(location_id)
+
+            existing_location_view = LocationView.to_json(existing_location)
+            modified_json_object = patch.apply(existing_location_view)
+            changed_attributes = [change["path"][1:].split("/")[0] for change in (make_patch(existing_location_view, modified_json_object))]
+            delta_kwargs = {
+                kwarg_name: kwarg_value
+                for kwarg_name, kwarg_value in LocationView.kwargs_from_json(modified_json_object).items()
+                if kwarg_name in changed_attributes
+            }
+
+            modified_location = self._locations_use_case.update(location_id, **delta_kwargs)
+        except NameError as e:
+            return error_response(e, HTTPStatus.NOT_FOUND)
+        except (TypeError, ValueError, InvalidJsonPatch) as e:
+            return error_response(e, HTTPStatus.BAD_REQUEST)
+        except JsonPatchTestFailed as e:
+            return error_response(e, HTTPStatus.PRECONDITION_FAILED)
+
+        return LocationView.to_json(modified_location), HTTPStatus.OK
 
     def location_timeline_get_handler(self, location_id_str: str) -> Tuple[dict, int]:
         return error_response("Location timeline get not implemented", HTTPStatus.NOT_IMPLEMENTED)

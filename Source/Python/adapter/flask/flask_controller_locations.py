@@ -26,7 +26,7 @@ def register_locations_routes(flask_web_app: Flask, application: TimelineTracker
 
     @flask_web_app.route("/api/location/<location_id>", methods=["PATCH"])
     def api_location_id__patch(location_id: str):
-        response_body, status_code = application.locations_request_handler.location_patch_handler(location_id)
+        response_body, status_code = application.locations_request_handler.location_patch_handler(location_id, request.json)
         return jsonify(response_body), status_code
 
     @flask_web_app.route("/api/location/<location_id>/timeline", methods=["GET"])

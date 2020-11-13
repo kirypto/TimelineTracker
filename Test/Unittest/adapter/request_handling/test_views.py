@@ -22,7 +22,7 @@ class TestLocationView(TestCase):
         json = LocationView.to_json(location)
 
         # Act
-        actual = Location(**LocationView.from_json(json))
+        actual = Location(**LocationView.kwargs_from_json(json))
 
         # Assert
         self.assertEqual(location, actual)
