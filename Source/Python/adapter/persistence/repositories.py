@@ -1,4 +1,5 @@
 from copy import deepcopy
+from pathlib import Path
 from typing import Set, Dict
 
 from domain.ids import PrefixedUUID
@@ -40,6 +41,19 @@ class InMemoryLocationRepository(LocationRepository):
 
 
 class JsonFileLocationRepository(LocationRepository):
+    _location_repo_path: Path
+
+    def __init__(self, *, json_repositories_directory_root: str) -> None:
+        path = Path(json_repositories_directory_root)
+        if not path.exists() or not path.is_dir():
+            raise ValueError(f"The path '{path}' is not a valid directory and cannot be used.")
+        location_repo_path = path.joinpath("LocationRepo")
+        if not location_repo_path.exists():
+            location_repo_path.mkdir()
+        if not location_repo_path.is_dir():
+            raise ValueError(f"The path '{location_repo_path}' is not a valid directory and cannot be used.")
+        self._location_repo_path = location_repo_path
+
     def save(self, location: Location) -> None:
         raise NotImplementedError("Not yet implemented")
 

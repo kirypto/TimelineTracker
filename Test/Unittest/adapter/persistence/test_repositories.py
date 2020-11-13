@@ -1,3 +1,5 @@
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest import TestCase
 
 from Test.Unittest.domain.persistence.test_repositories import TestLocationsRepository
@@ -16,7 +18,11 @@ class TestInMemoryLocationRepository(TestLocationsRepository, TestCase):
 
 class TestJsonFileLocationRepository(TestLocationsRepository, TestCase):
     def setUp(self) -> None:
-        self._location_repository = JsonFileLocationRepository()
+        self._tmp_directory = TemporaryDirectory()
+        self._location_repository = JsonFileLocationRepository(json_repositories_directory_root=self._tmp_directory.name)
+
+    def tearDown(self) -> None:
+        self._tmp_directory.cleanup()
 
     @property
     def location_repository(self) -> LocationRepository:
