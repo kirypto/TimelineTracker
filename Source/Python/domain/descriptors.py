@@ -24,7 +24,7 @@ class NamedEntity(BaseEntity):
         return self._name == other._name and super().__eq__(other)
 
     def __hash__(self) -> int:
-        return hash((self.__class__, self._name, super().__hash__()))
+        return hash((NamedEntity, self._name, super().__hash__()))
 
 
 class DescribedEntity(BaseEntity):
@@ -46,4 +46,4 @@ class DescribedEntity(BaseEntity):
         return self._description == other._description and super().__eq__(other)
 
     def __hash__(self) -> int:
-        return hash((self.__class__, self._description, super().__hash__()))
+        return hash((DescribedEntity, self._description, super().__hash__()))
