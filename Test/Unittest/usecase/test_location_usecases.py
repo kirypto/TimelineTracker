@@ -185,3 +185,43 @@ class TestLocationUsecase(TestCase):
 
         # Assert
         self.assertRaises(NameError, Action)
+
+    def test__update__should_raise_exception__when_not_exists(self) -> None:
+        # Arrange
+
+        # Act
+        def Action(): self.location_use_case.update(anon_prefixed_id(prefix="location"), name=anon_name())
+
+        # Assert
+        self.assertRaises(NameError, Action)
+        
+    def test__update__should_reject_attempts_to_change_id(self) -> None:
+        # Arrange
+        location = self.location_use_case.create(**anon_create_location_kwargs())
+
+        # Act
+        # noinspection PyArgumentList
+        def Action(): self.location_use_case.update(location.id, id=anon_prefixed_id(prefix="location"))
+
+        # Assert
+        self.assertRaises(TypeError, Action)
+
+    def test__update__should_update_provided_attributes__when_attributes_provided(self) -> None:
+        # Arrange
+        location = self.location_use_case.create(**anon_create_location_kwargs())
+        expected_name = anon_name()
+        expected_description = anon_description()
+        expected_span = anon_positional_range()
+        expected_tags = {anon_tag(), anon_tag()}
+
+        # Act
+        actual_updated_name = self.location_use_case.update(location.id, name=expected_name)
+        actual_updated_description = self.location_use_case.update(location.id, description=expected_description)
+        actual_updated_span = self.location_use_case.update(location.id, span=expected_span)
+        actual_updated_tags = self.location_use_case.update(location.id, tags=expected_tags)
+
+        # Assert
+        self.assertEqual(expected_name, actual_updated_name.name)
+        self.assertEqual(expected_description, actual_updated_description.description)
+        self.assertEqual(expected_span, actual_updated_span.span)
+        self.assertEqual(expected_tags, actual_updated_tags.tags)

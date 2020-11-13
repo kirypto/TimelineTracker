@@ -1,9 +1,10 @@
-from typing import Set, Optional
+from typing import Set
 from uuid import uuid4
 
 from domain.ids import PrefixedUUID
 from domain.locations import Location
 from domain.persistence.repositories import LocationRepository
+from domain.positions import PositionalRange
 from domain.tags import Tag
 
 
@@ -56,3 +57,18 @@ class LocationUseCase:
             raise ValueError("Argument 'location_id' must be prefixed with 'location'")
 
         return self._location_repository.delete(location_id)
+
+    def update(self, location_id: PrefixedUUID, *,
+               name: str = None, description: str = None, span: PositionalRange = None, tags: Set[Tag] = None) -> Location:
+
+        existing_location = self._location_repository.retrieve(location_id)
+
+        updated_location = Location(
+            id=location_id,
+            name=name if name is not None else existing_location.name,
+            description=description if description is not None else existing_location.description,
+            span=span if span is not None else existing_location.span,
+            tags=tags if tags is not None else existing_location.tags,
+        )
+        self._location_repository.save(updated_location)
+        return updated_location
