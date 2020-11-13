@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import Set, Optional, Dict
+from typing import Set, Dict
 
 from domain.ids import PrefixedUUID
 from domain.locations import Location
@@ -37,3 +37,17 @@ class InMemoryLocationRepository(LocationRepository):
             raise NameError(f"No stored location with id '{location_id}'")
 
         self._locations_by_id.pop(location_id)
+
+
+class JsonFileLocationRepository(LocationRepository):
+    def save(self, location: Location) -> None:
+        raise NotImplementedError("Not yet implemented")
+
+    def retrieve(self, location_id: PrefixedUUID) -> Location:
+        raise NotImplementedError("Not yet implemented")
+
+    def retrieve_all(self) -> Set[Location]:
+        raise NotImplementedError("Not yet implemented")
+
+    def delete(self, location_id: PrefixedUUID) -> None:
+        raise NotImplementedError("Not yet implemented")
