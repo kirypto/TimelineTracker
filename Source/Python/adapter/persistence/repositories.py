@@ -9,7 +9,7 @@ from domain.persistence.repositories import LocationRepository
 class InMemoryLocationRepository(LocationRepository):
     _locations_by_id: Dict[PrefixedUUID, Location]
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._locations_by_id = {}
 
     def save(self, location: Location) -> None:

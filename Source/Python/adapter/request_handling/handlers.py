@@ -10,21 +10,17 @@ from usecase.locations_usecases import LocationUseCase
 
 
 class LocationsRequestHandler:
-    def __init__(self):
+    def __init__(self) -> None:
         self._locations_use_case = LocationUseCase(InMemoryLocationRepository())
 
     def locations_post_handler(self, request_body: dict) -> Tuple[dict, int]:
         try:
             location_kwargs = LocationView.kwargs_from_json(request_body)
+            location = self._locations_use_case.create(**location_kwargs)
         except KeyError as e:
             return error_response(f"Failed to parse request body: missing attribute {e}", HTTPStatus.BAD_REQUEST)
-        except ValueError as e:
-            return error_response(f"Failed to parse request body: {e}", HTTPStatus.BAD_REQUEST)
-
-        try:
-            location = self._locations_use_case.create(**location_kwargs)
         except (TypeError, ValueError) as e:
-            return error_response(e, HTTPStatus.BAD_REQUEST)
+            return error_response(f"Failed to parse request body: {e}", HTTPStatus.BAD_REQUEST)
 
         return LocationView.to_json(location), HTTPStatus.CREATED
 
@@ -47,11 +43,9 @@ class LocationsRequestHandler:
     def location_get_handler(self, location_id_str: str) -> Tuple[dict, int]:
         try:
             location_id = LocationIdView.from_json(location_id_str)
+            location = self._locations_use_case.retrieve(location_id)
         except (TypeError, ValueError) as e:
             return error_response(e, HTTPStatus.BAD_REQUEST)
-
-        try:
-            location = self._locations_use_case.retrieve(location_id)
         except NameError as e:
             return error_response(e, HTTPStatus.NOT_FOUND)
 
@@ -60,11 +54,9 @@ class LocationsRequestHandler:
     def location_delete_handler(self, location_id_str: str) -> Tuple[Union[dict, str], int]:
         try:
             location_id = LocationIdView.from_json(location_id_str)
+            self._locations_use_case.delete(location_id)
         except (TypeError, ValueError) as e:
             return error_response(e, HTTPStatus.BAD_REQUEST)
-
-        try:
-            self._locations_use_case.delete(location_id)
         except NameError as e:
             return error_response(e, HTTPStatus.NOT_FOUND)
 
