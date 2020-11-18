@@ -60,7 +60,7 @@ class JsonFileLocationRepository(LocationRepository):
         if not isinstance(location, Location):
             raise TypeError(f"Argument 'location' must be of type {Location}")
 
-        location_file = self._location_repo_path.joinpath(f"{location.id}")
+        location_file = self._location_repo_path.joinpath(f"{location.id}.json")
         if location_file.exists() and not location_file.is_file():
             raise FileExistsError(f"Could not save location {location.id}, an uncontrolled non-file entity exists with the same name and path.")
 
@@ -70,18 +70,23 @@ class JsonFileLocationRepository(LocationRepository):
     def retrieve(self, location_id: PrefixedUUID) -> Location:
         if not isinstance(location_id, PrefixedUUID):
             raise TypeError(f"Argument 'location_id' must be of type {PrefixedUUID}")
-
-        location_file = self._location_repo_path.joinpath(f"{location_id}")
-        if location_file.exists() and not location_file.is_file():
-            raise FileExistsError(f"Could not retrieve location {location_id}, an uncontrolled non-file entity exists with the same name and path.")
-        if not location_file.exists():
-            raise NameError(f"No stored location with id {location_id}")
-
-        location_json = loads(location_file.read_text(encoding="utf8"))
-        return Location(**LocationView.kwargs_from_json(location_json))
+        return self._retrieve_location_from_json_file(str(location_id))
 
     def retrieve_all(self) -> Set[Location]:
-        raise NotImplementedError("Not yet implemented")
+        existing_location_id_strings = [file.name.replace(".json", "") for file in self._location_repo_path.iterdir() if file.is_file()]
+
+        return {self._retrieve_location_from_json_file(location_id_str) for location_id_str in existing_location_id_strings}
 
     def delete(self, location_id: PrefixedUUID) -> None:
         raise NotImplementedError("Not yet implemented")
+
+    def _retrieve_location_from_json_file(self, location_id_str: str) -> Location:
+        location_file = self._location_repo_path.joinpath(f"{location_id_str}.json")
+        if location_file.exists() and not location_file.is_file():
+            raise FileExistsError(f"Could not retrieve location {location_id_str}, an uncontrolled non-file entity exists with the same name and "
+                                  f"path.")
+        if not location_file.exists():
+            raise NameError(f"No stored location with id {location_id_str}")
+
+        location_json = loads(location_file.read_text(encoding="utf8"))
+        return Location(**LocationView.kwargs_from_json(location_json))
