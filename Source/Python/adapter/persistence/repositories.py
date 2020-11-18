@@ -1,5 +1,5 @@
 from copy import deepcopy
-from json import dumps
+from json import dumps, loads
 from pathlib import Path
 from typing import Set, Dict
 
@@ -58,17 +58,27 @@ class JsonFileLocationRepository(LocationRepository):
 
     def save(self, location: Location) -> None:
         if not isinstance(location, Location):
-            raise TypeError(f"Argument 'location' must be of type {Location.__name__}")
+            raise TypeError(f"Argument 'location' must be of type {Location}")
 
         location_file = self._location_repo_path.joinpath(f"{location.id}")
         if location_file.exists() and not location_file.is_file():
-            raise FileExistsError(f"Could not save location {location.id}, an uncontrolled file already existed with the same name and path.")
+            raise FileExistsError(f"Could not save location {location.id}, an uncontrolled non-file entity exists with the same name and path.")
 
         json = LocationView.to_json(location)
         location_file.write_text(dumps(json, indent=4), "utf8")
 
     def retrieve(self, location_id: PrefixedUUID) -> Location:
-        raise NotImplementedError("Not yet implemented")
+        if not isinstance(location_id, PrefixedUUID):
+            raise TypeError(f"Argument 'location_id' must be of type {PrefixedUUID}")
+
+        location_file = self._location_repo_path.joinpath(f"{location_id}")
+        if location_file.exists() and not location_file.is_file():
+            raise FileExistsError(f"Could not retrieve location {location_id}, an uncontrolled non-file entity exists with the same name and path.")
+        if not location_file.exists():
+            raise NameError(f"No stored location with id {location_id}")
+
+        location_json = loads(location_file.read_text(encoding="utf8"))
+        return Location(**LocationView.kwargs_from_json(location_json))
 
     def retrieve_all(self) -> Set[Location]:
         raise NotImplementedError("Not yet implemented")
