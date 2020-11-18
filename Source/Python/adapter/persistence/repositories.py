@@ -78,7 +78,14 @@ class JsonFileLocationRepository(LocationRepository):
         return {self._retrieve_location_from_json_file(location_id_str) for location_id_str in existing_location_id_strings}
 
     def delete(self, location_id: PrefixedUUID) -> None:
-        raise NotImplementedError("Not yet implemented")
+        if not isinstance(location_id, PrefixedUUID):
+            raise TypeError(f"Argument 'location_id' must be of type {PrefixedUUID}")
+
+        location_file = self._location_repo_path.joinpath(f"{location_id}.json")
+        if not location_file.exists():
+            raise NameError(f"No stored location with id {location_id}")
+
+        location_file.unlink()
 
     def _retrieve_location_from_json_file(self, location_id_str: str) -> Location:
         location_file = self._location_repo_path.joinpath(f"{location_id_str}.json")
