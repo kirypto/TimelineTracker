@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from Test.Unittest.test_helpers.anons import anon_location
-from adapter.request_handling.views import LocationView
+from adapter.views import LocationView
 from domain.locations import Location
 
 

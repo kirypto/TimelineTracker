@@ -3,7 +3,7 @@ from json import dumps, loads
 from pathlib import Path
 from typing import Set, Dict
 
-from adapter.request_handling.views import LocationView
+from adapter.views import LocationView
 from domain.ids import PrefixedUUID
 from domain.locations import Location
 from domain.persistence.repositories import LocationRepository
