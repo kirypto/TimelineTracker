@@ -8,6 +8,20 @@ from domain.ids import PrefixedUUID, IdentifiedEntity
 from domain.locations import Location
 from domain.positions import Position, PositionalRange
 from domain.tags import Tag, TaggedEntity
+from domain.travelers import Traveler
+
+
+def anon_anything(*, not_type: Type) -> Any:
+    random_items = [
+        False,
+        True,
+        anon_name(),
+        anon_tag(),
+        anon_int(),
+        anon_float(),
+        anon_prefixed_id()
+    ]
+    return choices([item for item in random_items if type(item) is not not_type])
 
 
 def anon_description(num_chars: int = 100) -> str:
@@ -34,21 +48,8 @@ def anon_int(a: int = None, b: int = None):
     return randint(start, end)
 
 
-def anon_anything(*, not_type: Type) -> Any:
-    random_items = [
-        False,
-        True,
-        anon_name(),
-        anon_tag(),
-        anon_int(),
-        anon_float(),
-        anon_prefixed_id()
-    ]
-    return choices([item for item in random_items if type(item) is not not_type])
-
-
 def anon_location() -> Location:
-    return Location(id=PrefixedUUID(prefix="location", uuid=uuid4()),
+    return Location(id=anon_prefixed_id(prefix="location"),
                     span=anon_positional_range(),
                     name=anon_name(),
                     description=anon_description(),
@@ -95,6 +96,14 @@ def anon_tag_name(num_digits: int = 10) -> str:
 def anon_tagged_entity(num_tags: int = 3) -> TaggedEntity:
     tags = {anon_tag() for _ in range(num_tags)}
     return TaggedEntity(tags=tags)
+
+
+def anon_traveler() -> Traveler:
+    return Traveler(id=anon_prefixed_id(prefix="traveler"),
+                    name=anon_name(),
+                    description=anon_description(),
+                    journey=[anon_position(), anon_position()],
+                    tags={anon_tag()})
 
 
 def anon_create_location_kwargs(*, name: str = anon_name(), description: str = anon_description(),
