@@ -6,7 +6,7 @@ from Test.Unittest.test_helpers.anons import anon_movement_type, \
     anon_positional_move
 from domain.base_entity import BaseEntity
 from domain.collections import Range
-from domain.positions import Position, PositionalRange, SpanningEntity, JourneyingEntity
+from domain.positions import Position, PositionalRange, SpanningEntity, JourneyingEntity, MovementType
 from domain.positions import PositionalMove
 
 
@@ -444,14 +444,16 @@ class TestPositionalMove(TestCase):
             copy[key] = val
             return copy
 
+        movement_type = anon_movement_type()
+        other_movement_type = choice([type_ for type_ in MovementType if type_ != movement_type])
         kwargs = {
             "position": anon_position(),
-            "movement_type": anon_movement_type(),
+            "movement_type": movement_type,
         }
         positional_move_a = PositionalMove(**dict(kwargs))
         positional_move_b = PositionalMove(**dict(kwargs))
         positional_move_c = PositionalMove(**copy_and_set(kwargs, "position", anon_position()))
-        positional_move_d = PositionalMove(**copy_and_set(kwargs, "movement_type", anon_movement_type()))
+        positional_move_d = PositionalMove(**copy_and_set(kwargs, "movement_type", other_movement_type))
 
         # Act
         actual_a_equals_b = positional_move_a == positional_move_b
