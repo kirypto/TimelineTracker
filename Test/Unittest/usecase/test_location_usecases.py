@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from Test.Unittest.test_helpers.anons import anon_prefixed_id, anon_positional_range, anon_name, anon_description, anon_tag, \
     anon_create_location_kwargs
-from adapter.persistence.repositories import InMemoryLocationRepository
+from adapter.persistence.in_memory_repositories import InMemoryLocationRepository
 from usecase.locations_usecases import LocationUseCase
 
 

@@ -1,19 +1,9 @@
-from pathlib import Path
 from tempfile import TemporaryDirectory
-from unittest import TestCase
+from unittest.case import TestCase
 
 from Test.Unittest.domain.persistence.test_repositories import TestLocationsRepository
-from adapter.persistence.repositories import InMemoryLocationRepository, JsonFileLocationRepository
+from adapter.persistence.json_file_repositories import JsonFileLocationRepository
 from domain.persistence.repositories import LocationRepository
-
-
-class TestInMemoryLocationRepository(TestLocationsRepository, TestCase):
-    def setUp(self) -> None:
-        self._location_repository = InMemoryLocationRepository()
-
-    @property
-    def repository(self) -> LocationRepository:
-        return self._location_repository
 
 
 class TestJsonFileLocationRepository(TestLocationsRepository, TestCase):

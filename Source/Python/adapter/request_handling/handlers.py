@@ -3,7 +3,7 @@ from typing import Tuple, Dict, Union, List, Any
 
 from jsonpatch import JsonPatch, InvalidJsonPatch, PatchOperation, make_patch, JsonPatchTestFailed
 
-from adapter.persistence.repositories import InMemoryLocationRepository
+from adapter.persistence.in_memory_repositories import InMemoryLocationRepository
 from adapter.request_handling.utils import error_response, parse_optional_tag_query_param
 from adapter.views import LocationView, LocationIdView
 from usecase.locations_usecases import LocationUseCase
