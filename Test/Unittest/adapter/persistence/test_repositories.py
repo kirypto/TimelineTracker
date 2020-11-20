@@ -12,7 +12,7 @@ class TestInMemoryLocationRepository(TestLocationsRepository, TestCase):
         self._location_repository = InMemoryLocationRepository()
 
     @property
-    def location_repository(self) -> LocationRepository:
+    def repository(self) -> LocationRepository:
         return self._location_repository
 
 
@@ -25,5 +25,5 @@ class TestJsonFileLocationRepository(TestLocationsRepository, TestCase):
         self._tmp_directory.cleanup()
 
     @property
-    def location_repository(self) -> LocationRepository:
+    def repository(self) -> LocationRepository:
         return self._location_repository
