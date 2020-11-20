@@ -151,7 +151,33 @@ class MovementType(Enum):
 
 
 class PositionalMove:
-    pass
+    _position: Position
+    _movement_type: MovementType
+
+    @property
+    def position(self) -> Position:
+        return self._position
+
+    @property
+    def movement_type(self) -> MovementType:
+        return self._movement_type
+
+    def __init__(self, *, position: Position, movement_type: MovementType) -> None:
+        if not isinstance(position, Position):
+            raise TypeError(f"Argument 'position' must be of type {Position}")
+        if not isinstance(movement_type, MovementType):
+            raise TypeError(f"Argument 'movement_type' must be of type {MovementType}")
+        self._position = position
+        self._movement_type = movement_type
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, PositionalMove):
+            return False
+        return (self._position == other._position
+                and self._movement_type == other._movement_type)
+
+    def __hash__(self) -> int:
+        return hash((self.__class__, self._position, self._movement_type))
 
 
 class SpanningEntity(BaseEntity):
