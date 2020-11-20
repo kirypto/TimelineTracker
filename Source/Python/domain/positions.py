@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from enum import Enum
 from typing import Any, List
 
 from domain.base_entity import BaseEntity
@@ -142,6 +143,15 @@ class PositionalRange:
                 or (a_low <= b_high <= a_high)
                 or (a_low <= b_low and a_high >= b_high)
                 or (b_low <= a_low and b_high >= a_high))
+
+
+class MovementType(Enum):
+    IMMEDIATE = 'immediate'
+    INTERPOLATED = 'interpolated'
+
+
+class PositionalMove:
+    pass
 
 
 class SpanningEntity(BaseEntity):

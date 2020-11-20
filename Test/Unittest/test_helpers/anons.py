@@ -1,4 +1,4 @@
-from random import choices, uniform, randint
+from random import choices, uniform, randint, choice
 from string import ascii_letters, printable, digits
 from typing import Type, Any, Set
 from uuid import uuid4
@@ -6,7 +6,7 @@ from uuid import uuid4
 from domain.collections import Range
 from domain.ids import PrefixedUUID, IdentifiedEntity
 from domain.locations import Location
-from domain.positions import Position, PositionalRange
+from domain.positions import Position, PositionalRange, MovementType, PositionalMove
 from domain.tags import Tag, TaggedEntity
 from domain.travelers import Traveler
 
@@ -56,6 +56,10 @@ def anon_location() -> Location:
                     tags={anon_tag()})
 
 
+def anon_movement_type():
+    return choice([t for t in MovementType])
+
+
 def anon_name(num_chars: int = 10) -> str:
     return "".join(choices(ascii_letters + "_. ", k=num_chars))
 
@@ -66,6 +70,10 @@ def anon_prefixed_id(*, prefix: str = anon_id_prefix(20)) -> PrefixedUUID:
 
 def anon_position() -> Position:
     return Position(latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=anon_float(), reality=anon_int())
+
+
+def anon_positional_move():
+    return PositionalMove(position=anon_position(), movement_type=anon_movement_type())
 
 
 def anon_positional_range() -> PositionalRange:
