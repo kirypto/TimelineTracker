@@ -202,5 +202,23 @@ class SpanningEntity(BaseEntity):
         return hash((SpanningEntity, self._span, super().__hash__()))
 
 
-class JourneyingEntity:
-    pass
+class JourneyingEntity(BaseEntity):
+    _journey: List[PositionalMove]
+
+    @property
+    def journey(self) -> List[PositionalMove]:
+        return list(self._journey)
+
+    def __init__(self, journey: List[PositionalMove], **kwargs) -> None:
+        if not isinstance(journey, list) or any([not isinstance(move, PositionalMove) for move in journey]):
+            raise TypeError(f"Argument 'journey' must be a list of {PositionalMove} items")
+        self._journey = journey
+        super().__init__(**kwargs)
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, JourneyingEntity):
+            return False
+        return self._journey == other._journey and super().__eq__(other)
+
+    def __hash__(self):
+        return hash((JourneyingEntity, tuple(self._journey), super().__hash__()))
