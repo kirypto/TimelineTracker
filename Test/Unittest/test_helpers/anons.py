@@ -114,7 +114,7 @@ def anon_traveler() -> Traveler:
     return Traveler(id=anon_prefixed_id(prefix="traveler"),
                     name=anon_name(),
                     description=anon_description(),
-                    journey=[anon_position(), anon_position()],
+                    journey=anon_journey(),
                     tags={anon_tag()})
 
 
