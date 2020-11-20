@@ -21,7 +21,7 @@ def anon_anything(*, not_type: Type = None) -> Any:
         anon_float(),
         anon_prefixed_id()
     ]
-    return choices([item for item in random_items if type(item) is not not_type])
+    return choice([item for item in random_items if type(item) is not not_type])
 
 
 def anon_description(num_chars: int = 100) -> str:
