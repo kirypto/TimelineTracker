@@ -200,3 +200,7 @@ class SpanningEntity(BaseEntity):
 
     def __hash__(self) -> int:
         return hash((SpanningEntity, self._span, super().__hash__()))
+
+
+class JourneyingEntity:
+    pass

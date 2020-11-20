@@ -5,7 +5,7 @@ from Test.Unittest.test_helpers.anons import anon_name, anon_description, anon_i
 from domain.descriptors import NamedEntity, DescribedEntity
 from domain.ids import PrefixedUUID, IdentifiedEntity
 from domain.travelers import Traveler
-from domain.positions import SpanningEntity
+from domain.positions import JourneyingEntity
 from domain.tags import TaggedEntity
 
 
@@ -43,12 +43,12 @@ class TestTraveler(TestCase):
         # Assert
         self.assertTrue(actual)
 
-    def test__isinstance__should_be_traveling(self) -> None:
+    def test__isinstance__should_be_journeying(self) -> None:
         # Arrange
         traveler = anon_traveler()
 
         # Act
-        actual = isinstance(traveler, TravelingEntity)
+        actual = isinstance(traveler, JourneyingEntity)
 
         # Assert
         self.assertTrue(actual)

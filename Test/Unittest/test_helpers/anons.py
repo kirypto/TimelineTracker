@@ -11,7 +11,7 @@ from domain.tags import Tag, TaggedEntity
 from domain.travelers import Traveler
 
 
-def anon_anything(*, not_type: Type) -> Any:
+def anon_anything(*, not_type: Type = None) -> Any:
     random_items = [
         False,
         True,
@@ -46,6 +46,10 @@ def anon_int(a: int = None, b: int = None):
     start = a if a is not None else -999999
     end = b if b is not None else 999999
     return randint(start, end)
+
+
+def anon_journey():
+    return [anon_position() for _ in range(5)]
 
 
 def anon_location() -> Location:

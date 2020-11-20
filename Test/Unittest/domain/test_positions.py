@@ -1,11 +1,13 @@
 from random import choice
 from unittest import TestCase
 
-from Test.Unittest.test_helpers.anons import anon_float, anon_int, anon_position, anon_positional_range, anon_range, anon_movement_type, \
+from Test.Unittest.test_helpers.anons import anon_float, anon_int, anon_position, anon_positional_range, anon_range, anon_journey, anon_anything
+from Test.Unittest.test_helpers.anons import anon_movement_type, \
     anon_positional_move
 from domain.base_entity import BaseEntity
 from domain.collections import Range
-from domain.positions import Position, PositionalRange, SpanningEntity, PositionalMove
+from domain.positions import Position, PositionalRange, SpanningEntity, JourneyingEntity
+from domain.positions import PositionalMove
 
 
 # noinspection PyPropertyAccess
@@ -551,6 +553,84 @@ class TestSpanningEntity(TestCase):
 
         # Act
         def Action(): _ = {spanning_entity}
+
+        # Assert
+        Action()
+
+
+# noinspection PyPropertyAccess
+class TestJourneyingEntity(TestCase):
+    def test__init__should_initialize_with_provided_value(self) -> None:
+        # Arrange
+        expected = anon_journey()
+
+        # Act
+        actual = JourneyingEntity(journey=expected)
+
+        # Assert
+        self.assertEqual(expected, actual.journey)
+
+    def test__init__reject_invalid_typed_args(self) -> None:
+        # Arrange
+        illegal_type = anon_anything()
+
+        # Act
+        def Action(): JourneyingEntity(journey=illegal_type)
+
+        # Assert
+        self.assertRaises(TypeError, Action)
+
+    def test__init__should_accept_kwargs(self) -> None:
+        # Arrange
+        class TestKwargs(JourneyingEntity, _Other):
+            pass
+
+        # Act
+        expected = "other"
+
+        def Action(): return TestKwargs(journey=anon_journey(), other=expected)
+
+        actual = Action()
+
+        # Assert
+        self.assertEqual(expected, actual.other)
+
+    def test__journey__should_not_be_mutable(self) -> None:
+        # Arrange
+        spanning_entity = JourneyingEntity(journey=anon_journey())
+
+        # Act
+        def Action(): spanning_entity.journey = anon_journey()
+
+        # Assert
+        self.assertRaises(AttributeError, Action)
+
+    def test__equality__should_correctly_compare_attributes(self) -> None:
+        # Arrange
+        journey_1 = anon_journey()
+        journey_2 = anon_journey()
+        journeying_entity_a = JourneyingEntity(journey=journey_1)
+        journeying_entity_b = JourneyingEntity(journey=journey_1)
+        journeying_entity_c = JourneyingEntity(journey=journey_2)
+
+        # Act
+        actual_a_equals_b = journeying_entity_a == journeying_entity_b
+        actual_a_not_equals_b = journeying_entity_a != journeying_entity_b
+        actual_a_equals_c = journeying_entity_a == journeying_entity_c
+        actual_a_not_equals_c = journeying_entity_a != journeying_entity_c
+
+        # Assert
+        self.assertTrue(actual_a_equals_b)
+        self.assertFalse(actual_a_not_equals_b)
+        self.assertFalse(actual_a_equals_c)
+        self.assertTrue(actual_a_not_equals_c)
+
+    def test__hash__should_be_hashable(self) -> None:
+        # Arrange
+        journeying_entity = JourneyingEntity(journey=anon_journey())
+
+        # Act
+        def Action(): _ = {journeying_entity}
 
         # Assert
         Action()
