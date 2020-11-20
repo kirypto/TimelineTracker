@@ -3,7 +3,7 @@ from typing import Set, Dict
 
 from domain.ids import PrefixedUUID
 from domain.locations import Location
-from domain.persistence.repositories import LocationRepository
+from domain.persistence.repositories import LocationRepository, TravelerRepository
 
 
 class InMemoryLocationRepository(LocationRepository):
@@ -37,3 +37,7 @@ class InMemoryLocationRepository(LocationRepository):
             raise NameError(f"No stored location with id '{location_id}'")
 
         self._locations_by_id.pop(location_id)
+
+
+class InMemoryTravelerRepository(TravelerRepository):
+    pass
