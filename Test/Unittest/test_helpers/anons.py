@@ -49,7 +49,7 @@ def anon_int(a: int = None, b: int = None):
 
 
 def anon_journey():
-    return [anon_position() for _ in range(5)]
+    return [PositionalMove(position=anon_position(), movement_type=anon_movement_type()) for _ in range(5)]
 
 
 def anon_location() -> Location:
