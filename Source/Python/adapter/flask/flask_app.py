@@ -3,7 +3,7 @@ from pathlib import Path
 from flask import Flask
 from flask_swagger_ui import get_swaggerui_blueprint
 
-from adapter.flask.flask_controller_locations import register_locations_routes
+from adapter.flask.flask_controller_locations import register_locations_routes, register_travelers_routes
 from adapter.main import TimelineTrackerApp
 
 
@@ -46,6 +46,7 @@ def construct_flask_app():
     flask_web_app = _create_flask_web_app()
     timeline_tracker_application = TimelineTrackerApp()
     register_locations_routes(flask_web_app, timeline_tracker_application.locations_request_handler)
+    register_travelers_routes(flask_web_app, timeline_tracker_application.travelers_request_handler)
     return flask_web_app
 
 
