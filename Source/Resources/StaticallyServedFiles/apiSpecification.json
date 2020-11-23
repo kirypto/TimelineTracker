@@ -699,19 +699,19 @@
         "description" : "A unique identifier for a Location",
         "type" : "string",
         "format" : "prefixed-uuid",
-        "example" : "location-abad1dea-0000-4000-0000-000000000000"
+        "example" : "location-abad1dea-0000-4000-8000-000000000000"
       },
       "TravelerId" : {
         "description" : "A unique identifier for a Traveler",
         "type" : "string",
         "format" : "prefixed-uuid",
-        "example" : "traveler-abad1dea-0000-4000-0000-000000000000"
+        "example" : "traveler-abad1dea-0000-4000-8000-000000000000"
       },
       "EventId" : {
         "description" : "A unique identifier for a Event",
         "type" : "string",
         "format" : "prefixed-uuid",
-        "example" : "event-abad1dea-0000-4000-0000-000000000000"
+        "example" : "event-abad1dea-0000-4000-8000-000000000000"
       },
       "LocationIds" : {
         "type" : "array",
