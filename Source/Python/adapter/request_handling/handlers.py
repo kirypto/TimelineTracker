@@ -71,3 +71,29 @@ class LocationsRequestHandler:
     @with_error_response_on_raised_exceptions
     def location_timeline_get_handler(self, location_id_str: str) -> Tuple[dict, int]:
         raise NotImplementedError("Location timeline get not implemented")
+
+
+class TravelersRequestHandler:
+    @with_error_response_on_raised_exceptions
+    def travelers_post_handler(self, request_body: dict) -> Tuple[dict, int]:
+        raise NotImplementedError("travelers post not implemented")
+
+    @with_error_response_on_raised_exceptions
+    def travelers_get_all_handler(self, query_params: Dict[str, str]) -> Tuple[Union[list, dict], int]:
+        raise NotImplementedError("travelers get all not implemented")
+
+    @with_error_response_on_raised_exceptions
+    def traveler_get_handler(self, traveler_id_str: str) -> Tuple[dict, int]:
+        raise NotImplementedError("traveler get not implemented")
+
+    @with_error_response_on_raised_exceptions
+    def traveler_delete_handler(self, traveler_id_str: str) -> Tuple[Union[dict, str], int]:
+        raise NotImplementedError("traveler delete not implemented")
+
+    @with_error_response_on_raised_exceptions
+    def traveler_patch_handler(self, traveler_id_str: str, patch_operations: List[Dict[str, Any]]) -> Tuple[dict, int]:
+        raise NotImplementedError("traveler patch not implemented")
+
+    @with_error_response_on_raised_exceptions
+    def traveler_timeline_get_handler(self, traveler_id_str: str) -> Tuple[dict, int]:
+        raise NotImplementedError("Traveler timeline get not implemented")
