@@ -3,7 +3,7 @@ from flask import request, Flask, jsonify
 from adapter.main import TimelineTrackerApp
 
 
-def register_locations_routes(flask_web_app: Flask, application: TimelineTrackerApp):
+def register_locations_routes(flask_web_app: Flask, application: TimelineTrackerApp) -> None:
     @flask_web_app.route("/api/location", methods=["POST"])
     def api_location__post():
         response_body, status_code = application.locations_request_handler.locations_post_handler(request.json)
