@@ -45,7 +45,7 @@ def _create_flask_web_app() -> Flask:
 def construct_flask_app():
     flask_web_app = _create_flask_web_app()
     timeline_tracker_application = TimelineTrackerApp()
-    register_locations_routes(flask_web_app, timeline_tracker_application)
+    register_locations_routes(flask_web_app, timeline_tracker_application.locations_request_handler)
     return flask_web_app
 
 
