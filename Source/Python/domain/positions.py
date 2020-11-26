@@ -212,6 +212,8 @@ class JourneyingEntity(BaseEntity):
     def __init__(self, journey: List[PositionalMove], **kwargs) -> None:
         if not isinstance(journey, list) or any([not isinstance(move, PositionalMove) for move in journey]):
             raise TypeError(f"Argument 'journey' must be a list of {PositionalMove} items")
+        if not journey:
+            raise ValueError(f"Argument 'journey' must not be empty")
         self._journey = journey
         super().__init__(**kwargs)
 

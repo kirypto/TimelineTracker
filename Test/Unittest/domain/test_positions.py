@@ -574,13 +574,22 @@ class TestJourneyingEntity(TestCase):
 
     def test__init__reject_invalid_typed_args(self) -> None:
         # Arrange
-        illegal_type = anon_anything()
+        illegal_type = anon_anything(not_type=list)
 
         # Act
         def Action(): JourneyingEntity(journey=illegal_type)
 
         # Assert
         self.assertRaises(TypeError, Action)
+
+    def test__init__should_reject_empty_journey(self) -> None:
+        # Arrange
+
+        # Act
+        def Action(): JourneyingEntity(journey=[])
+
+        # Assert
+        self.assertRaises(ValueError, Action)
 
     def test__init__should_accept_kwargs(self) -> None:
         # Arrange
