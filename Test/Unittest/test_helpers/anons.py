@@ -1,6 +1,6 @@
 from random import choices, uniform, randint, choice
 from string import ascii_letters, printable, digits
-from typing import Type, Any, Set
+from typing import Type, Any, Set, List
 from uuid import uuid4
 
 from domain.collections import Range
@@ -48,7 +48,7 @@ def anon_int(a: int = None, b: int = None):
     return randint(start, end)
 
 
-def anon_journey():
+def anon_journey() -> List[PositionalMove]:
     return [PositionalMove(position=anon_position(), movement_type=anon_movement_type()) for _ in range(5)]
 
 
@@ -124,5 +124,15 @@ def anon_create_location_kwargs(*, name: str = anon_name(), description: str = a
         "name": name,
         "description": description,
         "span": span,
+        "tags": tags if tags is not None else {anon_tag()},
+    }
+
+
+def anon_create_traveler_kwargs(*, name: str = anon_name(), description: str = anon_description(),
+                                journey: List[PositionalMove] = None, tags: Set[Tag] = None) -> dict:
+    return {
+        "name": name,
+        "description": description,
+        "journey": journey if journey is not None else anon_journey(),
         "tags": tags if tags is not None else {anon_tag()},
     }
