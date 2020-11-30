@@ -1,8 +1,9 @@
-from typing import Set
+from typing import Set, List
 from uuid import uuid4
 
 from domain.ids import PrefixedUUID
 from domain.persistence.repositories import TravelerRepository
+from domain.positions import PositionalMove
 from domain.tags import Tag
 from domain.travelers import Traveler
 
@@ -39,4 +40,19 @@ class TravelerUseCase:
             return True
 
         return {traveler for traveler in self._traveler_repository.retrieve_all() if matches_filters(traveler)}
+
+    def update(self, traveler_id: PrefixedUUID, *,
+               name: str = None, description: str = None, journey: List[PositionalMove] = None, tags: Set[Tag] = None) -> Traveler:
+
+        existing_traveler = self._traveler_repository.retrieve(traveler_id)
+
+        updated_traveler = Traveler(
+            id=traveler_id,
+            name=name if name is not None else existing_traveler.name,
+            description=description if description is not None else existing_traveler.description,
+            journey=journey if journey is not None else existing_traveler.journey,
+            tags=tags if tags is not None else existing_traveler.tags,
+        )
+        self._traveler_repository.save(updated_traveler)
+        return updated_traveler
 
