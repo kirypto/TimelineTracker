@@ -15,5 +15,9 @@ class TravelerUseCase:
         kwargs["id"] = PrefixedUUID(prefix="traveler", uuid=uuid4())
 
         traveler = Traveler(**kwargs)
+        self._traveler_repository.save(traveler)
         return traveler
+
+    def retrieve(self, traveler_id: PrefixedUUID) -> Traveler:
+        return self._traveler_repository.retrieve(traveler_id)
 
