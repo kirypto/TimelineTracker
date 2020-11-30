@@ -6,7 +6,7 @@ from jsonpatch import JsonPatch, PatchOperation, make_patch
 from adapter.persistence.in_memory_repositories import InMemoryLocationRepository
 from adapter.request_handling.utils import parse_optional_tag_query_param, with_error_response_on_raised_exceptions
 from adapter.views import LocationView, LocationIdView
-from application.location_usecases import LocationUseCase
+from application.location_use_cases import LocationUseCase
 
 
 class LocationsRequestHandler:
