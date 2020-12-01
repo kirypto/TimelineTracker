@@ -8,7 +8,7 @@ from domain.persistence.repositories import LocationRepository, TravelerReposito
 from domain.travelers import Traveler
 
 
-class TestCrudRepository(ABC):
+class TestSRDRepository(ABC):
     assertIsNone: Callable
     assertEqual: Callable
     assertSetEqual: Callable
@@ -124,7 +124,7 @@ class TestCrudRepository(ABC):
         self.assertRaises(NameError, Action)
 
 
-class TestLocationsRepository(TestCrudRepository):
+class TestLocationsRepository(TestSRDRepository):
     @property
     @abstractmethod
     def repository(self) -> LocationRepository:
@@ -137,7 +137,7 @@ class TestLocationsRepository(TestCrudRepository):
         return entity.id
 
 
-class TestTravelerRepository(TestCrudRepository):
+class TestTravelerRepository(TestSRDRepository):
     @property
     @abstractmethod
     def repository(self) -> TravelerRepository:
