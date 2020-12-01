@@ -22,6 +22,9 @@ class TravelerUseCase:
         return traveler
 
     def retrieve(self, traveler_id: PrefixedUUID) -> Traveler:
+        if not traveler_id.prefix == "traveler":
+            raise ValueError("Argument 'traveler_id' must be prefixed with 'traveler'")
+
         return self._traveler_repository.retrieve(traveler_id)
 
     def retrieve_all(self, *, name: str = None, tagged_with_all: Set[Tag] = None, tagged_with_any: Set[Tag] = None, tagged_with_only: Set[Tag] = None,
@@ -56,6 +59,9 @@ class TravelerUseCase:
         self._traveler_repository.save(updated_traveler)
         return updated_traveler
 
-    def delete(self, traveler_id: PrefixedUUID):
+    def delete(self, traveler_id: PrefixedUUID) -> None:
+        if not traveler_id.prefix == "traveler":
+            raise ValueError("Argument 'traveler_id' must be prefixed with 'traveler'")
+
         self._traveler_repository.delete(traveler_id)
 

@@ -26,8 +26,6 @@ class LocationUseCase:
         return location
 
     def retrieve(self, location_id: PrefixedUUID) -> Location:
-        if not isinstance(location_id, PrefixedUUID):
-            raise TypeError(f"Argument 'location_id' must be of type {PrefixedUUID}")
         if not location_id.prefix == "location":
             raise ValueError("Argument 'location_id' must be prefixed with 'location'")
 
@@ -66,8 +64,6 @@ class LocationUseCase:
         return updated_location
 
     def delete(self, location_id: PrefixedUUID) -> None:
-        if not isinstance(location_id, PrefixedUUID):
-            raise TypeError(f"Argument 'location_id' must be of type {PrefixedUUID}")
         if not location_id.prefix == "location":
             raise ValueError("Argument 'location_id' must be prefixed with 'location'")
 

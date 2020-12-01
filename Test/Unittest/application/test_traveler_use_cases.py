@@ -68,6 +68,15 @@ class TestTravelerUsecase(TestCase):
         # Assert
         self.assertRaises(NameError, Action)
 
+    def test__retrieve__should_raise_exception__when_invalid_id_provided(self) -> None:
+        # Arrange
+
+        # Act
+        def Action(): self.traveler_use_case.retrieve(anon_prefixed_id())
+
+        # Assert
+        self.assertRaises(ValueError, Action)
+
     def test__retrieve_all__should_return_all_saved__when_no_filters_provided(self) -> None:
         # Arrange
         traveler_a = self.traveler_use_case.create(**anon_create_traveler_kwargs())
@@ -166,25 +175,6 @@ class TestTravelerUsecase(TestCase):
 
         # Assert
         self.assertSetEqual(expected, actual)
-        
-    def test__delete__should_delete__when_traveler_exists(self) -> None:
-        # Arrange
-        traveler = self.traveler_use_case.create(**anon_create_traveler_kwargs())
-
-        # Act
-        self.traveler_use_case.delete(traveler.id)
-        
-        # Assert
-        self.assertRaises(NameError, lambda: self.traveler_use_case.retrieve(traveler.id))
-
-    def test__delete__should_raise_exception__when_not_exits(self) -> None:
-        # Arrange
-
-        # Act
-        def Action(): self.traveler_use_case.delete(anon_prefixed_id(prefix="traveler"))
-
-        # Assert
-        self.assertRaises(NameError, Action)
 
     def test__update__should_raise_exception__when_not_exists(self) -> None:
         # Arrange
@@ -225,3 +215,31 @@ class TestTravelerUsecase(TestCase):
         self.assertEqual(expected_description, actual_updated_description.description)
         self.assertEqual(expected_journey, actual_updated_journey.journey)
         self.assertEqual(expected_tags, actual_updated_tags.tags)
+
+    def test__delete__should_delete__when_traveler_exists(self) -> None:
+        # Arrange
+        traveler = self.traveler_use_case.create(**anon_create_traveler_kwargs())
+
+        # Act
+        self.traveler_use_case.delete(traveler.id)
+
+        # Assert
+        self.assertRaises(NameError, lambda: self.traveler_use_case.retrieve(traveler.id))
+
+    def test__delete__should_raise_exception__when_not_exits(self) -> None:
+        # Arrange
+
+        # Act
+        def Action(): self.traveler_use_case.delete(anon_prefixed_id(prefix="traveler"))
+
+        # Assert
+        self.assertRaises(NameError, Action)
+    
+    def test__delete__should_raise_exception__when_invalid_id_given(self) -> None:
+        # Arrange
+
+        # Act
+        def Action(): self.traveler_use_case.delete(anon_prefixed_id())
+
+        # Assert
+        self.assertRaises(ValueError, Action)
