@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from logging import error
+from logging import exception
 from typing import Union, Tuple, Optional, Set, Callable
 
 from jsonpatch import InvalidJsonPatch, JsonPatchTestFailed
@@ -22,19 +22,19 @@ def with_error_response_on_raised_exceptions(handler_function: Callable) -> Call
         try:
             return handler_function(*args, **kwargs)
         except NameError as e:
-            error(e)
+            exception(e, exc_info=e)
             return error_response(e, HTTPStatus.NOT_FOUND)
         except (KeyError, TypeError, ValueError, AttributeError, InvalidJsonPatch) as e:
-            error(e)
+            exception(e, exc_info=e)
             return error_response(e, HTTPStatus.BAD_REQUEST)
         except JsonPatchTestFailed as e:
-            error(e)
+            exception(e, exc_info=e)
             return error_response(e, HTTPStatus.PRECONDITION_FAILED)
         except NotImplementedError as e:
-            error(e)
+            exception(e, exc_info=e)
             return error_response(e, HTTPStatus.NOT_IMPLEMENTED)
         except BaseException as e:
-            error(e)
+            exception(e, exc_info=e)
             return error_response(e, HTTPStatus.INTERNAL_SERVER_ERROR)
 
     return inner
