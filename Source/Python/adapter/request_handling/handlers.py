@@ -3,10 +3,11 @@ from typing import Tuple, Dict, Union, List, Any
 
 from jsonpatch import JsonPatch, PatchOperation, make_patch
 
-from adapter.persistence.in_memory_repositories import InMemoryLocationRepository
+from adapter.persistence.in_memory_repositories import InMemoryLocationRepository, InMemoryTravelerRepository
 from adapter.request_handling.utils import parse_optional_tag_query_param, with_error_response_on_raised_exceptions
-from adapter.views import LocationView, LocationIdView
+from adapter.views import LocationView, LocationIdView, TravelerView
 from application.location_use_cases import LocationUseCase
+from application.traveler_use_cases import TravelerUseCase
 
 
 class LocationsRequestHandler:
@@ -74,9 +75,15 @@ class LocationsRequestHandler:
 
 
 class TravelersRequestHandler:
+    def __init__(self) -> None:
+        self._travelers_use_case = TravelerUseCase(InMemoryTravelerRepository())
+
     @with_error_response_on_raised_exceptions
     def travelers_post_handler(self, request_body: dict) -> Tuple[dict, int]:
-        raise NotImplementedError("travelers post not implemented")
+        traveler_kwargs = TravelerView.kwargs_from_json(request_body)
+        traveler = self._travelers_use_case.create(**traveler_kwargs)
+
+        return TravelerView.to_json(traveler), HTTPStatus.CREATED
 
     @with_error_response_on_raised_exceptions
     def travelers_get_all_handler(self, query_params: Dict[str, str]) -> Tuple[Union[list, dict], int]:
