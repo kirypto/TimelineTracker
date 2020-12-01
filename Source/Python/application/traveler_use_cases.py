@@ -56,3 +56,6 @@ class TravelerUseCase:
         self._traveler_repository.save(updated_traveler)
         return updated_traveler
 
+    def delete(self, traveler_id: PrefixedUUID):
+        self._traveler_repository.delete(traveler_id)
+
