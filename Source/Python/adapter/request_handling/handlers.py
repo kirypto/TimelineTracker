@@ -76,18 +76,28 @@ class LocationsRequestHandler:
 
 class TravelersRequestHandler:
     def __init__(self) -> None:
-        self._travelers_use_case = TravelerUseCase(InMemoryTravelerRepository())
+        self._traveler_use_case = TravelerUseCase(InMemoryTravelerRepository())
 
     @with_error_response_on_raised_exceptions
     def travelers_post_handler(self, request_body: dict) -> Tuple[dict, int]:
         traveler_kwargs = TravelerView.kwargs_from_json(request_body)
-        traveler = self._travelers_use_case.create(**traveler_kwargs)
+        traveler = self._traveler_use_case.create(**traveler_kwargs)
 
         return TravelerView.to_json(traveler), HTTPStatus.CREATED
 
     @with_error_response_on_raised_exceptions
     def travelers_get_all_handler(self, query_params: Dict[str, str]) -> Tuple[Union[list, dict], int]:
-        raise NotImplementedError("travelers get all not implemented")
+        filters = {
+            "name": query_params.get("name", None),
+            "tagged_with_all": parse_optional_tag_query_param(query_params.get("taggedAll", None)),
+            "tagged_with_any": parse_optional_tag_query_param(query_params.get("taggedAny", None)),
+            "tagged_with_only": parse_optional_tag_query_param(query_params.get("taggedOnly", None)),
+            "tagged_with_none": parse_optional_tag_query_param(query_params.get("taggedNone", None)),
+        }
+
+        travelers = self._traveler_use_case.retrieve_all(**filters)
+
+        return [LocationIdView.to_json(traveler.id) for traveler in travelers], HTTPStatus.OK
 
     @with_error_response_on_raised_exceptions
     def traveler_get_handler(self, traveler_id_str: str) -> Tuple[dict, int]:
