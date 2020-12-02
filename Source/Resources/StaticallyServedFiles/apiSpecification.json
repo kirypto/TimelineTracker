@@ -606,22 +606,20 @@
           "description" : {
             "type" : "string",
             "example" : "He is captain of the NCC-1701 Starship Enterprise, and leads an ongoing mission to explore strange new worlds, to seek out new life and new civilizations, and to boldly go where no one has gone before."
+          },
+          "journey" : {
+            "$ref" : "#/components/schemas/Journey"
+          },
+          "tags" : {
+            "$ref" : "#/components/schemas/Tags"
           }
         },
-        "required" : [ "name", "description" ]
+        "required" : [ "name", "journey" ]
       },
       "NewTraveler" : {
         "allOf" : [ {
           "$ref" : "#/components/schemas/BaseTraveler"
-        }, {
-          "type" : "object",
-          "properties" : {
-            "initialPosition" : {
-              "$ref" : "#/components/schemas/Position"
-            }
-          }
-        } ],
-        "required" : [ "initialPosition" ]
+        } ]
       },
       "ExistingTraveler" : {
         "allOf" : [ {
@@ -633,16 +631,6 @@
           }
         }, {
           "$ref" : "#/components/schemas/BaseTraveler"
-        }, {
-          "type" : "object",
-          "properties" : {
-            "journey" : {
-              "$ref" : "#/components/schemas/Journey"
-            },
-            "tags" : {
-              "$ref" : "#/components/schemas/Tags"
-            }
-          }
         } ],
         "required" : [ "id", "journey" ]
       },
@@ -751,7 +739,7 @@
             "continuum" : 737194.31,
             "reality" : 1
           },
-          "transition" : "Jump"
+          "movement_type" : "immediate"
         } ]
       },
       "Range" : {
@@ -832,13 +820,13 @@
           "position" : {
             "$ref" : "#/components/schemas/Position"
           },
-          "transition" : {
+          "movement_type" : {
             "type" : "string",
-            "enum" : [ "3DInterpolation", "InstantaneousJump" ],
-            "example" : "IntantaneousJump"
+            "enum" : [ "immediate", "interpolated" ],
+            "example" : "immediate"
           }
         },
-        "required" : [ "position", "transition" ]
+        "required" : [ "position", "movement_type" ]
       },
       "Tag" : {
         "description" : "Alpha-numeric string to allow custom categorization for Travelers, Locations, and Events.",
