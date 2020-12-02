@@ -1,10 +1,8 @@
 from http import HTTPStatus
 from typing import Tuple, Dict, Union, List, Any
 
-from jsonpatch import JsonPatch, PatchOperation, make_patch
-
 from adapter.persistence.in_memory_repositories import InMemoryLocationRepository, InMemoryTravelerRepository
-from adapter.request_handling.utils import parse_optional_tag_query_param, with_error_response_on_raised_exceptions
+from adapter.request_handling.utils import parse_optional_tag_query_param, with_error_response_on_raised_exceptions, process_patch_into_delta_kwargs
 from adapter.views import LocationView, LocationIdView, TravelerView, TravelerIdView
 from application.location_use_cases import LocationUseCase
 from application.traveler_use_cases import TravelerUseCase
@@ -52,19 +50,9 @@ class LocationsRequestHandler:
     @with_error_response_on_raised_exceptions
     def location_patch_handler(self, location_id_str: str, patch_operations: List[Dict[str, Any]]) -> Tuple[dict, int]:
         location_id = LocationIdView.from_json(location_id_str)
-        patch = JsonPatch([PatchOperation(operation).operation for operation in patch_operations])
 
         existing_location = self._location_use_case.retrieve(location_id)
-
-        existing_location_view = LocationView.to_json(existing_location)
-        modified_json_object = patch.apply(existing_location_view)
-        changed_attributes = [change["path"][1:].split("/")[0] for change in make_patch(existing_location_view, modified_json_object)]
-        delta_kwargs = {
-            kwarg_name: kwarg_value
-            for kwarg_name, kwarg_value in LocationView.kwargs_from_json(modified_json_object).items()
-            if kwarg_name in changed_attributes
-        }
-
+        delta_kwargs = process_patch_into_delta_kwargs(existing_location, patch_operations, LocationView)
         modified_location = self._location_use_case.update(location_id, **delta_kwargs)
 
         return LocationView.to_json(modified_location), HTTPStatus.OK
@@ -116,19 +104,9 @@ class TravelersRequestHandler:
     @with_error_response_on_raised_exceptions
     def traveler_patch_handler(self, traveler_id_str: str, patch_operations: List[Dict[str, Any]]) -> Tuple[dict, int]:
         traveler_id = TravelerIdView.from_json(traveler_id_str)
-        patch = JsonPatch([PatchOperation(operation).operation for operation in patch_operations])
 
         existing_traveler = self._traveler_use_case.retrieve(traveler_id)
-
-        existing_traveler_view = TravelerView.to_json(existing_traveler)
-        modified_json_object = patch.apply(existing_traveler_view)
-        changed_attributes = [change["path"][1:].split("/")[0] for change in make_patch(existing_traveler_view, modified_json_object)]
-        delta_kwargs = {
-            kwarg_name: kwarg_value
-            for kwarg_name, kwarg_value in TravelerView.kwargs_from_json(modified_json_object).items()
-            if kwarg_name in changed_attributes
-        }
-
+        delta_kwargs = process_patch_into_delta_kwargs(existing_traveler, patch_operations, TravelerView)
         modified_traveler = self._traveler_use_case.update(traveler_id, **delta_kwargs)
 
         return TravelerView.to_json(modified_traveler), HTTPStatus.OK

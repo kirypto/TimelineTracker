@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from typing import Any, Set, List
 from uuid import UUID
 
@@ -112,7 +113,28 @@ class _ValueTranslator:
         raise TypeError(f"Unsupported type {type_}")
 
 
-class PrefixedIdView:
+class _View(ABC):
+    @staticmethod
+    @abstractmethod
+    def to_json(domain_object: Any) -> Any:
+        pass
+
+
+class PrimitiveView(_View, ABC):
+    @staticmethod
+    @abstractmethod
+    def from_json(json_view: Any) -> Any:
+        pass
+
+
+class DomainConstructedView(_View, ABC):
+    @staticmethod
+    @abstractmethod
+    def kwargs_from_json(json_view: Any) -> Any:
+        pass
+
+
+class PrefixedIdView(PrimitiveView, ABC):
     @staticmethod
     def to_json(location_id: PrefixedUUID) -> str:
         return _ValueTranslator.to_json(location_id)
@@ -134,7 +156,7 @@ class TravelerIdView(PrefixedIdView):
         return _ValueTranslator.from_json(traveler_id_str, PrefixedUUID)
 
 
-class LocationView:
+class LocationView(DomainConstructedView):
     __attribute_types_by_name = {
         "id": PrefixedUUID,
         "name": str,
@@ -164,7 +186,7 @@ class LocationView:
         }
 
 
-class TravelerView:
+class TravelerView(DomainConstructedView):
     __attribute_types_by_name = {
         "id": PrefixedUUID,
         "name": str,
