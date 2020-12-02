@@ -573,9 +573,12 @@
           },
           "span" : {
             "$ref" : "#/components/schemas/PositionalRange"
+          },
+          "tags" : {
+            "$ref" : "#/components/schemas/Tags"
           }
         },
-        "required" : [ "name", "description", "span" ]
+        "required" : [ "name", "span" ]
       },
       "NewLocation" : {
         "allOf" : [ {
