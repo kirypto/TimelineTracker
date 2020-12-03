@@ -49,7 +49,7 @@ def anon_int(a: int = None, b: int = None):
 
 
 def anon_journey() -> List[PositionalMove]:
-    return [PositionalMove(position=anon_position(), movement_type=anon_movement_type()) for _ in range(5)]
+    return [PositionalMove(position=anon_position(), movement_type=MovementType.IMMEDIATE) for _ in range(5)]
 
 
 def anon_location() -> Location:
@@ -72,12 +72,12 @@ def anon_prefixed_id(*, prefix: str = anon_id_prefix(20)) -> PrefixedUUID:
     return PrefixedUUID(prefix, uuid4())
 
 
-def anon_position() -> Position:
-    return Position(latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=anon_float(), reality=anon_int())
+def anon_position(*, reality: int = anon_int()) -> Position:
+    return Position(latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=anon_float(), reality=reality)
 
 
-def anon_positional_move():
-    return PositionalMove(position=anon_position(), movement_type=anon_movement_type())
+def anon_positional_move(*, movement_type: MovementType = anon_movement_type()):
+    return PositionalMove(position=anon_position(), movement_type=movement_type)
 
 
 def anon_positional_range() -> PositionalRange:

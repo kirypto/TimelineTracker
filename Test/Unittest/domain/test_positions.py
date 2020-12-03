@@ -1,5 +1,6 @@
 from random import choice
 from unittest import TestCase
+from unittest.mock import MagicMock, patch
 
 from Test.Unittest.test_helpers.anons import anon_float, anon_int, anon_position, anon_positional_range, anon_range, anon_journey, anon_anything
 from Test.Unittest.test_helpers.anons import anon_movement_type, \
@@ -582,14 +583,17 @@ class TestJourneyingEntity(TestCase):
         # Assert
         self.assertRaises(TypeError, Action)
 
-    def test__init__should_reject_empty_journey(self) -> None:
+    @patch("domain.positions.JourneyingEntity.validate_journey")
+    def test__init__should_reject_invalid_journey(self, validate_journey_mock: MagicMock) -> None:
         # Arrange
+        JourneyingEntity.validate_journey = validate_journey_mock
+        journey = [anon_positional_move(), anon_positional_move()]
 
         # Act
-        def Action(): JourneyingEntity(journey=[])
+        JourneyingEntity(journey=journey)
 
         # Assert
-        self.assertRaises(ValueError, Action)
+        validate_journey_mock.assert_called_once_with(journey)
 
     def test__init__should_accept_kwargs(self) -> None:
         # Arrange
@@ -645,6 +649,39 @@ class TestJourneyingEntity(TestCase):
 
         # Assert
         Action()
+
+    def test__validate_journey__should_reject__when_empty(self) -> None:
+        # Arrange
+
+        # Act
+        def Action(): JourneyingEntity.validate_journey([])
+
+        # Assert
+        self.assertRaises(ValueError, Action)
+
+    def test__validate_journey__should_reject__when_does_not_start_with_immediate_move(self) -> None:
+        # Arrange
+        journey = [PositionalMove(position=anon_position(), movement_type=MovementType.INTERPOLATED)]
+
+        # Act
+        def Action(): JourneyingEntity.validate_journey(journey)
+
+        # Assert
+        self.assertRaises(ValueError, Action)
+        
+    def test__validate_journey__should_reject__when_an_interpolated_move_changes_realities(self) -> None:
+        # Arrange
+        journey = [
+            anon_positional_move(movement_type=MovementType.IMMEDIATE),
+            PositionalMove(position=anon_position(reality=1), movement_type=MovementType.IMMEDIATE),
+            PositionalMove(position=anon_position(reality=2), movement_type=MovementType.INTERPOLATED),
+        ]
+        
+        # Act
+        def Action(): JourneyingEntity.validate_journey(journey)
+
+        # Assert
+        self.assertRaises(ValueError, Action)
 
 
 class _Other(BaseEntity):

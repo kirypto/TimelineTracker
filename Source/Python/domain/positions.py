@@ -212,8 +212,7 @@ class JourneyingEntity(BaseEntity):
     def __init__(self, journey: List[PositionalMove], **kwargs) -> None:
         if not isinstance(journey, list) or any([not isinstance(move, PositionalMove) for move in journey]):
             raise TypeError(f"Argument 'journey' must be a list of {PositionalMove} items")
-        if not journey:
-            raise ValueError(f"Argument 'journey' must not be empty")
+        self.validate_journey(journey)
         self._journey = journey
         super().__init__(**kwargs)
 
@@ -224,3 +223,21 @@ class JourneyingEntity(BaseEntity):
 
     def __hash__(self):
         return hash((JourneyingEntity, tuple(self._journey), super().__hash__()))
+
+    @staticmethod
+    def validate_journey(journey: List[PositionalMove]) -> None:
+        if not journey:
+            raise ValueError(f"Argument 'journey' must not be empty")
+        if journey[0].movement_type != MovementType.IMMEDIATE:
+            raise ValueError(f"Invalid Journey: Initial position in journey must be movement_type={MovementType.IMMEDIATE}")
+        last_position = None
+        for positional_move in journey:
+            if last_position is None:
+                last_position = positional_move.position
+                continue
+            if positional_move.movement_type == MovementType.INTERPOLATED:
+                if positional_move.position.reality != last_position.reality:
+                    raise ValueError(f"Invalid journey: Cannot interpolate across realities. (problematic move was: {positional_move}, which succeeded"
+                                     f" {last_position})")
+            last_position = positional_move.position
+
