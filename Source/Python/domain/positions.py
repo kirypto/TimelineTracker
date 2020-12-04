@@ -237,7 +237,10 @@ class JourneyingEntity(BaseEntity):
                 continue
             if positional_move.movement_type == MovementType.INTERPOLATED:
                 if positional_move.position.reality != last_position.reality:
-                    raise ValueError(f"Invalid journey: Cannot interpolate across realities. (problematic move was: {positional_move}, which succeeded"
-                                     f" {last_position})")
+                    raise ValueError(f"Invalid journey: Cannot interpolate across realities. (problematic move was: {positional_move}, which "
+                                     f"succeeded {last_position})")
+                elif positional_move.position.continuum <= last_position.continuum:
+                    raise ValueError(f"Invalid journey: Cannot interpolate backwards in continuum. (problematic move was: {positional_move}, which "
+                                     f"succeeded {last_position})")
             last_position = positional_move.position
 

@@ -671,12 +671,28 @@ class TestJourneyingEntity(TestCase):
         
     def test__validate_journey__should_reject__when_an_interpolated_move_changes_realities(self) -> None:
         # Arrange
+        continuum_position = anon_float()
         journey = [
             anon_positional_move(movement_type=MovementType.IMMEDIATE),
-            PositionalMove(position=anon_position(reality=1), movement_type=MovementType.IMMEDIATE),
-            PositionalMove(position=anon_position(reality=2), movement_type=MovementType.INTERPOLATED),
+            PositionalMove(position=anon_position(continuum=continuum_position, reality=1), movement_type=MovementType.IMMEDIATE),
+            PositionalMove(position=anon_position(continuum=continuum_position + 1, reality=2), movement_type=MovementType.INTERPOLATED),
         ]
         
+        # Act
+        def Action(): JourneyingEntity.validate_journey(journey)
+
+        # Assert
+        self.assertRaises(ValueError, Action)
+
+    def test__validate_journey__should_reject__when_an_interpolated_move_decreases_in_continuum(self) -> None:
+        # Arrange
+        continuum_position = anon_float()
+        journey = [
+            anon_positional_move(movement_type=MovementType.IMMEDIATE),
+            PositionalMove(position=anon_position(continuum=continuum_position, reality=1), movement_type=MovementType.IMMEDIATE),
+            PositionalMove(position=anon_position(continuum=continuum_position - 1, reality=1), movement_type=MovementType.INTERPOLATED),
+        ]
+
         # Act
         def Action(): JourneyingEntity.validate_journey(journey)
 

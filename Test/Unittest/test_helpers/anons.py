@@ -72,8 +72,8 @@ def anon_prefixed_id(*, prefix: str = anon_id_prefix(20)) -> PrefixedUUID:
     return PrefixedUUID(prefix, uuid4())
 
 
-def anon_position(*, reality: int = anon_int()) -> Position:
-    return Position(latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=anon_float(), reality=reality)
+def anon_position(continuum: float = anon_float(), reality: int = anon_int()) -> Position:
+    return Position(latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=continuum, reality=reality)
 
 
 def anon_positional_move(*, movement_type: MovementType = anon_movement_type()):
