@@ -1,3 +1,4 @@
+from json import loads
 from pathlib import Path
 
 from flask import Flask
@@ -42,13 +43,16 @@ def _create_flask_web_app() -> Flask:
     return flask_web_app
 
 
-def construct_flask_app():
+def construct_flask_app(*, timeline_tracker_app_config: dict):
     flask_web_app = _create_flask_web_app()
-    timeline_tracker_application = TimelineTrackerApp()
+    timeline_tracker_application = TimelineTrackerApp(**timeline_tracker_app_config)
     register_locations_routes(flask_web_app, timeline_tracker_application.locations_request_handler)
     register_travelers_routes(flask_web_app, timeline_tracker_application.travelers_request_handler)
     return flask_web_app
 
 
 if __name__ == '__main__':
-    construct_flask_app().run(host="localhost")
+    import sys
+    config_file = sys.argv[1]
+    config = loads(Path(config_file).read_text())
+    construct_flask_app(**config).run(host="localhost")

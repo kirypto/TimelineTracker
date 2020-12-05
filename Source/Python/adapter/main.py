@@ -1,3 +1,4 @@
+from adapter.factories import RepositoriesFactory
 from adapter.request_handling.handlers import LocationsRequestHandler, TravelersRequestHandler
 
 
@@ -13,6 +14,7 @@ class TimelineTrackerApp:
     def travelers_request_handler(self) -> TravelersRequestHandler:
         return self._travelers_request_handler
 
-    def __init__(self) -> None:
-        self._travelers_request_handler = TravelersRequestHandler()
-        self._locations_request_handler = LocationsRequestHandler()
+    def __init__(self, *, repositories_config: dict) -> None:
+        repositories_factory = RepositoriesFactory(**repositories_config)
+        self._travelers_request_handler = TravelersRequestHandler(repositories_factory.traveler_repo)
+        self._locations_request_handler = LocationsRequestHandler(repositories_factory.location_repo)
