@@ -1,73 +1,83 @@
 from copy import deepcopy
-from typing import Set, Dict
+from typing import Set, Dict, TypeVar, Generic, Type
 
-from domain.ids import PrefixedUUID
+from domain.ids import PrefixedUUID, IdentifiedEntity
 from domain.locations import Location
 from domain.persistence.repositories import LocationRepository, TravelerRepository
 from domain.travelers import Traveler
 
 
-class InMemoryLocationRepository(LocationRepository):
-    _locations_by_id: Dict[PrefixedUUID, Location]
+_T = TypeVar('_T', bound=IdentifiedEntity)
 
-    def __init__(self) -> None:
-        self._locations_by_id = {}
 
-    def save(self, location: Location) -> None:
-        if not isinstance(location, Location):
-            raise TypeError(f"Argument 'location' must be of type {Location}")
+class _InMemoryIdentifiedEntityRepository(Generic[_T]):
+    _entity_type: Type[_T]
+    _entities_by_id: Dict[PrefixedUUID, _T]
 
-        self._locations_by_id[location.id] = location
+    def __init__(self, entity_type: Type[_T]) -> None:
+        self._entity_type = entity_type
+        self._entities_by_id = {}
 
-    def retrieve(self, location_id: PrefixedUUID) -> Location:
-        if not isinstance(location_id, PrefixedUUID):
-            raise TypeError(f"Argument 'location_id' must be of type {PrefixedUUID}")
-        if location_id not in self._locations_by_id:
-            raise NameError(f"No stored location with id '{location_id}'")
+    def save(self, entity: _T) -> None:
+        if not isinstance(entity, self._entity_type):
+            raise TypeError(f"Argument 'entity' must be of type {_T}")
 
-        return deepcopy(self._locations_by_id[location_id])
+        self._entities_by_id[entity.id] = entity
 
-    def retrieve_all(self) -> Set[Location]:
+    def retrieve(self, entity_id: PrefixedUUID) -> _T:
+        if not isinstance(entity_id, PrefixedUUID):
+            raise TypeError(f"Argument 'entity_id' must be of type {PrefixedUUID}")
+        if entity_id not in self._entities_by_id:
+            raise NameError(f"No stored entity with id '{entity_id}'")
+
+        return deepcopy(self._entities_by_id[entity_id])
+
+    def retrieve_all(self) -> Set[_T]:
         return {
-            deepcopy(location)
-            for location in self._locations_by_id.values()
+            deepcopy(entity)
+            for entity in self._entities_by_id.values()
         }
 
-    def delete(self, location_id: PrefixedUUID) -> None:
-        if location_id not in self._locations_by_id:
-            raise NameError(f"No stored location with id '{location_id}'")
+    def delete(self, entity_id: PrefixedUUID) -> None:
+        if entity_id not in self._entities_by_id:
+            raise NameError(f"No stored entity with id '{entity_id}'")
 
-        self._locations_by_id.pop(location_id)
+        self._entities_by_id.pop(entity_id)
+
+
+class InMemoryLocationRepository(LocationRepository):
+    _inner_repo: _InMemoryIdentifiedEntityRepository
+
+    def __init__(self) -> None:
+        self._inner_repo = _InMemoryIdentifiedEntityRepository(Location)
+
+    def save(self, location: Location) -> None:
+        self._inner_repo.save(location)
+
+    def retrieve(self, location_id: PrefixedUUID) -> Location:
+        return self._inner_repo.retrieve(location_id)
+
+    def retrieve_all(self) -> Set[Location]:
+        return self._inner_repo.retrieve_all()
+
+    def delete(self, location_id: PrefixedUUID) -> None:
+        return self._inner_repo.delete(location_id)
 
 
 class InMemoryTravelerRepository(TravelerRepository):
-    _travelers_by_id: Dict[PrefixedUUID, Traveler]
+    _inner_repo: _InMemoryIdentifiedEntityRepository
 
     def __init__(self) -> None:
-        self._travelers_by_id = {}
+        self._inner_repo = _InMemoryIdentifiedEntityRepository(Traveler)
 
     def save(self, traveler: Traveler) -> None:
-        if not isinstance(traveler, Traveler):
-            raise TypeError(f"Argument 'traveler' must be of type {Traveler}")
-
-        self._travelers_by_id[traveler.id] = traveler
+        self._inner_repo.save(traveler)
 
     def retrieve(self, traveler_id: PrefixedUUID) -> Traveler:
-        if not isinstance(traveler_id, PrefixedUUID):
-            raise TypeError(f"Argument 'traveler_id' must be of type {PrefixedUUID}")
-        if traveler_id not in self._travelers_by_id:
-            raise NameError(f"No stored traveler with id '{traveler_id}'")
-
-        return deepcopy(self._travelers_by_id[traveler_id])
+        return self._inner_repo.retrieve(traveler_id)
 
     def retrieve_all(self) -> Set[Traveler]:
-        return {
-            deepcopy(traveler)
-            for traveler in self._travelers_by_id.values()
-        }
+        return self._inner_repo.retrieve_all()
 
     def delete(self, traveler_id: PrefixedUUID) -> None:
-        if traveler_id not in self._travelers_by_id:
-            raise NameError(f"No stored traveler with id '{traveler_id}'")
-
-        self._travelers_by_id.pop(traveler_id)
+        return self._inner_repo.delete(traveler_id)
