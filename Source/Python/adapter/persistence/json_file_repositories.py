@@ -17,10 +17,6 @@ class _JsonFileIdentifiedEntityRepository(Generic[_T]):
     _entity_type: Type[_T]
     _entity_view_type: Type[DomainConstructedView]
 
-    @property
-    def repo_path(self) -> Path:
-        return self._repo_path
-
     def __init__(self, repo_name: str, entity_type: Type[_T], entity_view_type: Type[DomainConstructedView], *,
                  json_repositories_directory_root: str) -> None:
         root_repos_path = Path(json_repositories_directory_root)
