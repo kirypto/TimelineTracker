@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from enum import Enum
 from typing import Any, List
 
 from domain.base_entity import BaseEntity
@@ -144,6 +145,41 @@ class PositionalRange:
                 or (b_low <= a_low and b_high >= a_high))
 
 
+class MovementType(Enum):
+    IMMEDIATE = 'immediate'
+    INTERPOLATED = 'interpolated'
+
+
+class PositionalMove:
+    _position: Position
+    _movement_type: MovementType
+
+    @property
+    def position(self) -> Position:
+        return self._position
+
+    @property
+    def movement_type(self) -> MovementType:
+        return self._movement_type
+
+    def __init__(self, *, position: Position, movement_type: MovementType) -> None:
+        if not isinstance(position, Position):
+            raise TypeError(f"Argument 'position' must be of type {Position}")
+        if not isinstance(movement_type, MovementType):
+            raise TypeError(f"Argument 'movement_type' must be of type {MovementType}")
+        self._position = position
+        self._movement_type = movement_type
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, PositionalMove):
+            return False
+        return (self._position == other._position
+                and self._movement_type == other._movement_type)
+
+    def __hash__(self) -> int:
+        return hash((self.__class__, self._position, self._movement_type))
+
+
 class SpanningEntity(BaseEntity):
     _span: PositionalRange
 
@@ -164,3 +200,47 @@ class SpanningEntity(BaseEntity):
 
     def __hash__(self) -> int:
         return hash((SpanningEntity, self._span, super().__hash__()))
+
+
+class JourneyingEntity(BaseEntity):
+    _journey: List[PositionalMove]
+
+    @property
+    def journey(self) -> List[PositionalMove]:
+        return list(self._journey)
+
+    def __init__(self, journey: List[PositionalMove], **kwargs) -> None:
+        if not isinstance(journey, list) or any([not isinstance(move, PositionalMove) for move in journey]):
+            raise TypeError(f"Argument 'journey' must be a list of {PositionalMove} items")
+        self.validate_journey(journey)
+        self._journey = journey
+        super().__init__(**kwargs)
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, JourneyingEntity):
+            return False
+        return self._journey == other._journey and super().__eq__(other)
+
+    def __hash__(self):
+        return hash((JourneyingEntity, tuple(self._journey), super().__hash__()))
+
+    @staticmethod
+    def validate_journey(journey: List[PositionalMove]) -> None:
+        if not journey:
+            raise ValueError(f"Argument 'journey' must not be empty")
+        if journey[0].movement_type != MovementType.IMMEDIATE:
+            raise ValueError(f"Invalid Journey: Initial position in journey must be movement_type={MovementType.IMMEDIATE}")
+        last_position = None
+        for positional_move in journey:
+            if last_position is None:
+                last_position = positional_move.position
+                continue
+            if positional_move.movement_type == MovementType.INTERPOLATED:
+                if positional_move.position.reality != last_position.reality:
+                    raise ValueError(f"Invalid journey: Cannot interpolate across realities. (problematic move was: {positional_move}, which "
+                                     f"succeeded {last_position})")
+                elif positional_move.position.continuum <= last_position.continuum:
+                    raise ValueError(f"Invalid journey: Cannot interpolate backwards in continuum. (problematic move was: {positional_move}, which "
+                                     f"succeeded {last_position})")
+            last_position = positional_move.position
+

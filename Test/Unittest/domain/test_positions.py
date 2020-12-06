@@ -1,10 +1,14 @@
 from random import choice
 from unittest import TestCase
+from unittest.mock import MagicMock, patch
 
-from Test.Unittest.test_helpers.anons import anon_float, anon_int, anon_position, anon_positional_range, anon_range
+from Test.Unittest.test_helpers.anons import anon_float, anon_int, anon_position, anon_positional_range, anon_range, anon_journey, anon_anything
+from Test.Unittest.test_helpers.anons import anon_movement_type, \
+    anon_positional_move
 from domain.base_entity import BaseEntity
 from domain.collections import Range
-from domain.positions import Position, PositionalRange, SpanningEntity
+from domain.positions import Position, PositionalRange, SpanningEntity, JourneyingEntity, MovementType
+from domain.positions import PositionalMove
 
 
 # noinspection PyPropertyAccess
@@ -407,6 +411,78 @@ class TestPositionalRange(TestCase):
         Action()
 
 
+# noinspection PyTypeChecker
+class TestPositionalMove(TestCase):
+    def test__init__should_initialize_from_provided_args(self) -> None:
+        # Arrange
+        expected_position = anon_position()
+        expected_movement_type = anon_movement_type()
+
+        # Act
+        actual = PositionalMove(position=expected_position, movement_type=expected_movement_type)
+
+        # Assert
+        self.assertEqual(expected_position, actual.position)
+        self.assertEqual(expected_movement_type, actual.movement_type)
+
+    def test__init__should_reject_invalid_types(self) -> None:
+        # Arrange
+        invalid_type = choice(["string", False, True])
+
+        # Act
+        def InvalidPosition(): PositionalMove(position=invalid_type, movement_type=anon_movement_type())
+
+        def InvalidMovementType(): PositionalMove(movement_type=invalid_type, position=anon_position())
+
+        # Assert
+        self.assertRaises(TypeError, InvalidPosition)
+        self.assertRaises(TypeError, InvalidMovementType)
+
+    def test__equality__should_compare_as_same__when_all_attributes_are_equal(self) -> None:
+        # Arrange
+        def copy_and_set(dictionary, key, val):
+            copy = dict(dictionary)
+            copy[key] = val
+            return copy
+
+        movement_type = anon_movement_type()
+        other_movement_type = choice([type_ for type_ in MovementType if type_ != movement_type])
+        kwargs = {
+            "position": anon_position(),
+            "movement_type": movement_type,
+        }
+        positional_move_a = PositionalMove(**dict(kwargs))
+        positional_move_b = PositionalMove(**dict(kwargs))
+        positional_move_c = PositionalMove(**copy_and_set(kwargs, "position", anon_position()))
+        positional_move_d = PositionalMove(**copy_and_set(kwargs, "movement_type", other_movement_type))
+
+        # Act
+        actual_a_equals_b = positional_move_a == positional_move_b
+        actual_a_not_equals_b = positional_move_a != positional_move_b
+        actual_a_equals_c = positional_move_a == positional_move_c
+        actual_a_not_equals_c = positional_move_a != positional_move_c
+        actual_a_equals_d = positional_move_a == positional_move_d
+        actual_a_not_equals_d = positional_move_a != positional_move_d
+
+        # Assert
+        self.assertTrue(actual_a_equals_b)
+        self.assertFalse(actual_a_not_equals_b)
+        self.assertFalse(actual_a_equals_c)
+        self.assertTrue(actual_a_not_equals_c)
+        self.assertFalse(actual_a_equals_d)
+        self.assertTrue(actual_a_not_equals_d)
+
+    def test__hash__should_be_hashable(self) -> None:
+        # Arrange
+        positional_move = anon_positional_move()
+
+        # Act
+        def Action(): _ = {positional_move}
+
+        # Assert
+        Action()
+
+
 # noinspection PyPropertyAccess
 class TestSpanningEntity(TestCase):
     def test__init__should_initialize_with_provided_value(self) -> None:
@@ -483,6 +559,145 @@ class TestSpanningEntity(TestCase):
 
         # Assert
         Action()
+
+
+# noinspection PyPropertyAccess
+class TestJourneyingEntity(TestCase):
+    def test__init__should_initialize_with_provided_value(self) -> None:
+        # Arrange
+        expected = anon_journey()
+
+        # Act
+        actual = JourneyingEntity(journey=expected)
+
+        # Assert
+        self.assertEqual(expected, actual.journey)
+
+    def test__init__reject_invalid_typed_args(self) -> None:
+        # Arrange
+        illegal_type = anon_anything(not_type=list)
+
+        # Act
+        def Action(): JourneyingEntity(journey=illegal_type)
+
+        # Assert
+        self.assertRaises(TypeError, Action)
+
+    @patch("domain.positions.JourneyingEntity.validate_journey")
+    def test__init__should_reject_invalid_journey(self, validate_journey_mock: MagicMock) -> None:
+        # Arrange
+        JourneyingEntity.validate_journey = validate_journey_mock
+        journey = [anon_positional_move(), anon_positional_move()]
+
+        # Act
+        JourneyingEntity(journey=journey)
+
+        # Assert
+        validate_journey_mock.assert_called_once_with(journey)
+
+    def test__init__should_accept_kwargs(self) -> None:
+        # Arrange
+        class TestKwargs(JourneyingEntity, _Other):
+            pass
+
+        # Act
+        expected = "other"
+
+        def Action(): return TestKwargs(journey=anon_journey(), other=expected)
+
+        actual = Action()
+
+        # Assert
+        self.assertEqual(expected, actual.other)
+
+    def test__journey__should_not_be_mutable(self) -> None:
+        # Arrange
+        spanning_entity = JourneyingEntity(journey=anon_journey())
+
+        # Act
+        def Action(): spanning_entity.journey = anon_journey()
+
+        # Assert
+        self.assertRaises(AttributeError, Action)
+
+    def test__equality__should_correctly_compare_attributes(self) -> None:
+        # Arrange
+        journey_1 = anon_journey()
+        journey_2 = anon_journey()
+        journeying_entity_a = JourneyingEntity(journey=journey_1)
+        journeying_entity_b = JourneyingEntity(journey=journey_1)
+        journeying_entity_c = JourneyingEntity(journey=journey_2)
+
+        # Act
+        actual_a_equals_b = journeying_entity_a == journeying_entity_b
+        actual_a_not_equals_b = journeying_entity_a != journeying_entity_b
+        actual_a_equals_c = journeying_entity_a == journeying_entity_c
+        actual_a_not_equals_c = journeying_entity_a != journeying_entity_c
+
+        # Assert
+        self.assertTrue(actual_a_equals_b)
+        self.assertFalse(actual_a_not_equals_b)
+        self.assertFalse(actual_a_equals_c)
+        self.assertTrue(actual_a_not_equals_c)
+
+    def test__hash__should_be_hashable(self) -> None:
+        # Arrange
+        journeying_entity = JourneyingEntity(journey=anon_journey())
+
+        # Act
+        def Action(): _ = {journeying_entity}
+
+        # Assert
+        Action()
+
+    def test__validate_journey__should_reject__when_empty(self) -> None:
+        # Arrange
+
+        # Act
+        def Action(): JourneyingEntity.validate_journey([])
+
+        # Assert
+        self.assertRaises(ValueError, Action)
+
+    def test__validate_journey__should_reject__when_does_not_start_with_immediate_move(self) -> None:
+        # Arrange
+        journey = [PositionalMove(position=anon_position(), movement_type=MovementType.INTERPOLATED)]
+
+        # Act
+        def Action(): JourneyingEntity.validate_journey(journey)
+
+        # Assert
+        self.assertRaises(ValueError, Action)
+        
+    def test__validate_journey__should_reject__when_an_interpolated_move_changes_realities(self) -> None:
+        # Arrange
+        continuum_position = anon_float()
+        journey = [
+            anon_positional_move(movement_type=MovementType.IMMEDIATE),
+            PositionalMove(position=anon_position(continuum=continuum_position, reality=1), movement_type=MovementType.IMMEDIATE),
+            PositionalMove(position=anon_position(continuum=continuum_position + 1, reality=2), movement_type=MovementType.INTERPOLATED),
+        ]
+        
+        # Act
+        def Action(): JourneyingEntity.validate_journey(journey)
+
+        # Assert
+        self.assertRaises(ValueError, Action)
+
+    def test__validate_journey__should_reject__when_an_interpolated_move_decreases_in_continuum(self) -> None:
+        # Arrange
+        continuum_position = anon_float()
+        journey = [
+            anon_positional_move(movement_type=MovementType.IMMEDIATE),
+            PositionalMove(position=anon_position(continuum=continuum_position, reality=1), movement_type=MovementType.IMMEDIATE),
+            PositionalMove(position=anon_position(continuum=continuum_position - 1, reality=1), movement_type=MovementType.INTERPOLATED),
+        ]
+
+        # Act
+        def Action(): JourneyingEntity.validate_journey(journey)
+
+        # Assert
+        self.assertRaises(ValueError, Action)
 
 
 class _Other(BaseEntity):

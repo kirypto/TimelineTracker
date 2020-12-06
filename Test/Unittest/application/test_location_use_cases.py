@@ -3,8 +3,8 @@ from unittest import TestCase
 
 from Test.Unittest.test_helpers.anons import anon_prefixed_id, anon_positional_range, anon_name, anon_description, anon_tag, \
     anon_create_location_kwargs
-from adapter.persistence.repositories import InMemoryLocationRepository
-from usecase.locations_usecases import LocationUseCase
+from adapter.persistence.in_memory_repositories import InMemoryLocationRepository
+from application.location_use_cases import LocationUseCase
 
 
 class TestLocationUsecase(TestCase):
@@ -67,6 +67,15 @@ class TestLocationUsecase(TestCase):
 
         # Assert
         self.assertRaises(NameError, Action)
+
+    def test__retrieve__should_raise_exception__when_invalid_id_provided(self) -> None:
+        # Arrange
+
+        # Act
+        def Action(): self.location_use_case.retrieve(anon_prefixed_id())
+
+        # Assert
+        self.assertRaises(ValueError, Action)
 
     def test__retrieve_all__should_return_all_saved__when_no_filters_provided(self) -> None:
         # Arrange
@@ -166,25 +175,6 @@ class TestLocationUsecase(TestCase):
 
         # Assert
         self.assertSetEqual(expected, actual)
-        
-    def test__delete__should_delete__when_location_exists(self) -> None:
-        # Arrange
-        location = self.location_use_case.create(**anon_create_location_kwargs())
-
-        # Act
-        self.location_use_case.delete(location.id)
-        
-        # Assert
-        self.assertRaises(NameError, lambda: self.location_use_case.retrieve(location.id))
-
-    def test__delete__should_raise_exception__when_not_exits(self) -> None:
-        # Arrange
-
-        # Act
-        def Action(): self.location_use_case.delete(anon_prefixed_id(prefix="location"))
-
-        # Assert
-        self.assertRaises(NameError, Action)
 
     def test__update__should_raise_exception__when_not_exists(self) -> None:
         # Arrange
@@ -225,3 +215,31 @@ class TestLocationUsecase(TestCase):
         self.assertEqual(expected_description, actual_updated_description.description)
         self.assertEqual(expected_span, actual_updated_span.span)
         self.assertEqual(expected_tags, actual_updated_tags.tags)
+
+    def test__delete__should_delete__when_location_exists(self) -> None:
+        # Arrange
+        location = self.location_use_case.create(**anon_create_location_kwargs())
+
+        # Act
+        self.location_use_case.delete(location.id)
+
+        # Assert
+        self.assertRaises(NameError, lambda: self.location_use_case.retrieve(location.id))
+
+    def test__delete__should_raise_exception__when_not_exits(self) -> None:
+        # Arrange
+
+        # Act
+        def Action(): self.location_use_case.delete(anon_prefixed_id(prefix="location"))
+
+        # Assert
+        self.assertRaises(NameError, Action)
+
+    def test__delete__should_raise_exception__when_invalid_id_provided(self) -> None:
+        # Arrange
+
+        # Act
+        def Action(): self.location_use_case.delete(anon_prefixed_id())
+
+        # Assert
+        self.assertRaises(ValueError, Action)
