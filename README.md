@@ -2,6 +2,8 @@
 
 Tool for tracking events and time lines.
 
+[__Project Setup__](Wiki/setup.md)
+
 #### See Also
 
 - [Application Design](Wiki/applicationDesign.md)
