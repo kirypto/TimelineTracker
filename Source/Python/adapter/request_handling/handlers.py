@@ -5,12 +5,11 @@ from adapter.request_handling.utils import parse_optional_tag_query_param, with_
 from adapter.views import LocationView, LocationIdView, TravelerView, TravelerIdView
 from application.location_use_cases import LocationUseCase
 from application.traveler_use_cases import TravelerUseCase
-from domain.persistence.repositories import TravelerRepository, LocationRepository
 
 
 class LocationsRequestHandler:
-    def __init__(self, location_repository: LocationRepository) -> None:
-        self._location_use_case = LocationUseCase(location_repository)
+    def __init__(self, location_use_case: LocationUseCase) -> None:
+        self._location_use_case = location_use_case
 
     @with_error_response_on_raised_exceptions
     def locations_post_handler(self, request_body: dict) -> Tuple[dict, int]:
@@ -63,8 +62,8 @@ class LocationsRequestHandler:
 
 
 class TravelersRequestHandler:
-    def __init__(self, traveler_repository: TravelerRepository) -> None:
-        self._traveler_use_case = TravelerUseCase(traveler_repository)
+    def __init__(self, traveler_use_case: TravelerUseCase) -> None:
+        self._traveler_use_case = traveler_use_case
 
     @with_error_response_on_raised_exceptions
     def travelers_post_handler(self, request_body: dict) -> Tuple[dict, int]:

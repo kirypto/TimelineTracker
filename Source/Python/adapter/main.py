@@ -1,5 +1,7 @@
 from adapter.factories import RepositoriesFactory
 from adapter.request_handling.handlers import LocationsRequestHandler, TravelersRequestHandler
+from application.location_use_cases import LocationUseCase
+from application.traveler_use_cases import TravelerUseCase
 
 
 class TimelineTrackerApp:
@@ -16,5 +18,7 @@ class TimelineTrackerApp:
 
     def __init__(self, *, repositories_config: dict) -> None:
         repositories_factory = RepositoriesFactory(**repositories_config)
-        self._travelers_request_handler = TravelersRequestHandler(repositories_factory.traveler_repo)
-        self._locations_request_handler = LocationsRequestHandler(repositories_factory.location_repo)
+        location_use_case = LocationUseCase(repositories_factory.location_repo)
+        traveler_use_case = TravelerUseCase(repositories_factory.traveler_repo)
+        self._travelers_request_handler = TravelersRequestHandler(traveler_use_case)
+        self._locations_request_handler = LocationsRequestHandler(location_use_case)
