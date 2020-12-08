@@ -110,11 +110,11 @@ def anon_tagged_entity(num_tags: int = 3) -> TaggedEntity:
     return TaggedEntity(tags=tags)
 
 
-def anon_traveler(*, name: str = anon_name(), tags: Set[Tag] = None) -> Traveler:
+def anon_traveler(*, name: str = anon_name(), tags: Set[Tag] = None, journey: List[PositionalMove] = None) -> Traveler:
     return Traveler(id=anon_prefixed_id(prefix="traveler"),
                     name=name,
                     description=anon_description(),
-                    journey=anon_journey(),
+                    journey=journey if journey is not None else anon_journey(),
                     tags=tags if tags is not None else {anon_tag()})
 
 
