@@ -81,7 +81,7 @@ class TravelersRequestHandler:
 
     @with_error_response_on_raised_exceptions
     def travelers_get_all_handler(self, query_params: Dict[str, str]) -> Tuple[Union[list, dict], int]:
-        supported_filters = {"nameIs", "nameHas", "taggedAll", "taggedAny", "taggedOnly", "taggedNone"}
+        supported_filters = {"nameIs", "nameHas", "taggedAll", "taggedAny", "taggedOnly", "taggedNone", "journeyIntersects", "journeyIncludes"}
         if not set(query_params.keys()).issubset(supported_filters):
             raise ValueError(f"Unsupported filter(s): {', '.join(query_params.keys() - supported_filters)}")
         filters = {
@@ -91,6 +91,8 @@ class TravelersRequestHandler:
             "tagged_any": parse_optional_tag_set_query_param(query_params.get("taggedAny", None)),
             "tagged_only": parse_optional_tag_set_query_param(query_params.get("taggedOnly", None)),
             "tagged_none": parse_optional_tag_set_query_param(query_params.get("taggedNone", None)),
+            "journey_intersects": parse_optional_positional_range_query_param(query_params.get("journeyIntersects", None)),
+            "journey_includes": parse_optional_position_query_param(query_params.get("journeyIncludes", None)),
         }
 
         travelers = self._traveler_use_case.retrieve_all(**filters)

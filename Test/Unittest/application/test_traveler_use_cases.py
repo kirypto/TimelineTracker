@@ -117,6 +117,20 @@ class TestTravelerUsecase(TestCase):
         self.assertEqual(expected_output, actual)
         filter_tagged_entities_mock.assert_called_once_with(expected_input)
 
+    @patch("application.filtering_use_cases.FilteringUseCase.filter_journeying_entities")
+    def test__retrieve_all__should_delegate_to_filter_journeying_entities__when_filtering_necessary(self, filter_journeying_entities_mock: MagicMock) -> None:
+        # Arrange
+        expected_output = {anon_traveler()}
+        filter_journeying_entities_mock.return_value = expected_output, {}
+        expected_input = {self.traveler_use_case.create(**anon_create_traveler_kwargs())}
+
+        # Act
+        actual = self.traveler_use_case.retrieve_all()
+
+        # Assert
+        filter_journeying_entities_mock.assert_called_once_with(expected_input)
+        self.assertEqual(expected_output, actual)
+
     def test__retrieve_all__should_raise_exception__when_unsupported_filter_provided(self) -> None:
         # Arrange
 
@@ -134,7 +148,7 @@ class TestTravelerUsecase(TestCase):
 
         # Assert
         self.assertRaises(NameError, Action)
-        
+
     def test__update__should_reject_attempts_to_change_id(self) -> None:
         # Arrange
         traveler = self.traveler_use_case.create(**anon_create_traveler_kwargs())
@@ -184,7 +198,7 @@ class TestTravelerUsecase(TestCase):
 
         # Assert
         self.assertRaises(NameError, Action)
-    
+
     def test__delete__should_raise_exception__when_invalid_id_given(self) -> None:
         # Arrange
 

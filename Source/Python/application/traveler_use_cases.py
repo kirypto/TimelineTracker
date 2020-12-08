@@ -32,10 +32,11 @@ class TravelerUseCase:
         all_travelers = self._traveler_repository.retrieve_all()
         name_filtered_travelers, kwargs = FilteringUseCase.filter_named_entities(all_travelers, **kwargs)
         tag_filtered_travelers, kwargs = FilteringUseCase.filter_tagged_entities(name_filtered_travelers, **kwargs)
+        journey_filtered_travelers, kwargs = FilteringUseCase.filter_journeying_entities(tag_filtered_travelers, **kwargs)
         if kwargs:
             raise ValueError(f"Unknown filters: {','.join(kwargs)}")
 
-        return tag_filtered_travelers
+        return journey_filtered_travelers
 
     def update(self, traveler_id: PrefixedUUID, *,
                name: str = None, description: str = None, journey: List[PositionalMove] = None, tags: Set[Tag] = None) -> Traveler:
