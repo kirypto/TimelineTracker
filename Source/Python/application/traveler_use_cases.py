@@ -1,6 +1,7 @@
 from typing import Set, List
 from uuid import uuid4
 
+from application.filtering_use_cases import FilteringUseCase
 from domain.ids import PrefixedUUID
 from domain.persistence.repositories import TravelerRepository
 from domain.positions import PositionalMove
@@ -27,22 +28,14 @@ class TravelerUseCase:
 
         return self._traveler_repository.retrieve(traveler_id)
 
-    def retrieve_all(self, *, name: str = None, tagged_with_all: Set[Tag] = None, tagged_with_any: Set[Tag] = None, tagged_with_only: Set[Tag] = None,
-                     tagged_with_none: Set[Tag] = None) -> Set[Traveler]:
-        def matches_filters(traveler: Traveler) -> bool:
-            if name is not None and traveler.name != name:
-                return False
-            if tagged_with_all is not None and not tagged_with_all.issubset(traveler.tags):
-                return False
-            if tagged_with_any is not None and not tagged_with_any.intersection(traveler.tags):
-                return False
-            if tagged_with_only is not None and not tagged_with_only.issuperset(traveler.tags):
-                return False
-            if tagged_with_none is not None and not tagged_with_none.isdisjoint(traveler.tags):
-                return False
-            return True
+    def retrieve_all(self, **kwargs) -> Set[Traveler]:
+        all_travelers = self._traveler_repository.retrieve_all()
+        name_filtered_travelers, kwargs = FilteringUseCase.filter_named_entities(all_travelers, **kwargs)
+        tag_filtered_travelers, kwargs = FilteringUseCase.filter_tagged_entities(name_filtered_travelers, **kwargs)
+        if kwargs:
+            raise ValueError(f"Unknown filters: {','.join(kwargs)}")
 
-        return {traveler for traveler in self._traveler_repository.retrieve_all() if matches_filters(traveler)}
+        return tag_filtered_travelers
 
     def update(self, traveler_id: PrefixedUUID, *,
                name: str = None, description: str = None, journey: List[PositionalMove] = None, tags: Set[Tag] = None) -> Traveler:

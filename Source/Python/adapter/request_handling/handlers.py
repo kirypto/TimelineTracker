@@ -20,12 +20,16 @@ class LocationsRequestHandler:
 
     @with_error_response_on_raised_exceptions
     def locations_get_all_handler(self, query_params: Dict[str, str]) -> Tuple[Union[list, dict], int]:
+        supported_filters = {"nameIs", "nameHas", "taggedAll", "taggedAny", "taggedOnly", "taggedNone"}
+        if not set(query_params.keys()).issubset(supported_filters):
+            raise ValueError(f"Unsupported filter(s): {', '.join(query_params.keys() - supported_filters)}")
         filters = {
-            "name": query_params.get("name", None),
-            "tagged_with_all": parse_optional_tag_query_param(query_params.get("taggedAll", None)),
-            "tagged_with_any": parse_optional_tag_query_param(query_params.get("taggedAny", None)),
-            "tagged_with_only": parse_optional_tag_query_param(query_params.get("taggedOnly", None)),
-            "tagged_with_none": parse_optional_tag_query_param(query_params.get("taggedNone", None)),
+            "name_is": query_params.get("nameIs", None),
+            "name_has": query_params.get("nameHas", None),
+            "tagged_all": parse_optional_tag_query_param(query_params.get("taggedAll", None)),
+            "tagged_any": parse_optional_tag_query_param(query_params.get("taggedAny", None)),
+            "tagged_only": parse_optional_tag_query_param(query_params.get("taggedOnly", None)),
+            "tagged_none": parse_optional_tag_query_param(query_params.get("taggedNone", None)),
         }
 
         locations = self._location_use_case.retrieve_all(**filters)
@@ -74,12 +78,16 @@ class TravelersRequestHandler:
 
     @with_error_response_on_raised_exceptions
     def travelers_get_all_handler(self, query_params: Dict[str, str]) -> Tuple[Union[list, dict], int]:
+        supported_filters = {"nameIs", "nameHas", "taggedAll", "taggedAny", "taggedOnly", "taggedNone"}
+        if not set(query_params.keys()).issubset(supported_filters):
+            raise ValueError(f"Unsupported filter(s): {', '.join(query_params.keys() - supported_filters)}")
         filters = {
-            "name": query_params.get("name", None),
-            "tagged_with_all": parse_optional_tag_query_param(query_params.get("taggedAll", None)),
-            "tagged_with_any": parse_optional_tag_query_param(query_params.get("taggedAny", None)),
-            "tagged_with_only": parse_optional_tag_query_param(query_params.get("taggedOnly", None)),
-            "tagged_with_none": parse_optional_tag_query_param(query_params.get("taggedNone", None)),
+            "name_is": query_params.get("nameIs", None),
+            "name_has": query_params.get("nameHas", None),
+            "tagged_all": parse_optional_tag_query_param(query_params.get("taggedAll", None)),
+            "tagged_any": parse_optional_tag_query_param(query_params.get("taggedAny", None)),
+            "tagged_only": parse_optional_tag_query_param(query_params.get("taggedOnly", None)),
+            "tagged_none": parse_optional_tag_query_param(query_params.get("taggedNone", None)),
         }
 
         travelers = self._traveler_use_case.retrieve_all(**filters)

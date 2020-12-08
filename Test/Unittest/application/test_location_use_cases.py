@@ -1,8 +1,9 @@
 from random import choice
 from unittest import TestCase
+from unittest.mock import patch, MagicMock
 
 from Test.Unittest.test_helpers.anons import anon_prefixed_id, anon_positional_range, anon_name, anon_description, anon_tag, \
-    anon_create_location_kwargs
+    anon_create_location_kwargs, anon_location, anon_anything
 from adapter.persistence.in_memory_repositories import InMemoryLocationRepository
 from application.location_use_cases import LocationUseCase
 
@@ -89,92 +90,42 @@ class TestLocationUsecase(TestCase):
         # Assert
         self.assertSetEqual(expected, actual)
 
-    def test__retrieve_all__should_return_all_matching_filters__when_name_filter_provided(self) -> None:
+    @patch("application.filtering_use_cases.FilteringUseCase.filter_named_entities")
+    def test__retrieve_all__should_delegate_to_filter_named_entities__when_filtering_necessary(self, filter_named_entities_mock: MagicMock) -> None:
         # Arrange
-        name = anon_name()
-        location_a_kwargs = anon_create_location_kwargs(name=name)
-        location_b_kwargs = anon_create_location_kwargs(name=name)
-        location_a = self.location_use_case.create(**location_a_kwargs)
-        location_b = self.location_use_case.create(**location_b_kwargs)
-        expected = {location_a, location_b}
+        expected_output = {anon_location()}
+        filter_named_entities_mock.return_value = expected_output, {}
+        expected_input = {self.location_use_case.create(**anon_create_location_kwargs())}
 
         # Act
-        actual = self.location_use_case.retrieve_all(name=name)
-
+        actual = self.location_use_case.retrieve_all()
+        
         # Assert
-        self.assertSetEqual(expected, actual)
+        self.assertEqual(expected_output, actual)
+        filter_named_entities_mock.assert_called_once_with(expected_input)
 
-    def test__retrieve_all__should_return_all_matching_filters__when_tagged_with_all_filter_provided(self) -> None:
+    @patch("application.filtering_use_cases.FilteringUseCase.filter_tagged_entities")
+    def test__retrieve_all__should_delegate_to_filter_tagged_entities__when_filtering_necessary(self, filter_tagged_entities_mock: MagicMock) -> None:
         # Arrange
-        query_tag_1 = anon_tag()
-        query_tag_2 = anon_tag()
-        other_tag = anon_tag()
-        location_with_additional = self.location_use_case.create(**anon_create_location_kwargs(tags={query_tag_1, query_tag_2, other_tag}))
-        location_with_all_queried = self.location_use_case.create(**anon_create_location_kwargs(tags={query_tag_1, query_tag_2}))
-        self.location_use_case.create(**anon_create_location_kwargs(tags={choice([query_tag_1, query_tag_2])}))  # location with only one
-        self.location_use_case.create(**anon_create_location_kwargs(tags={other_tag}))  # location with other tag
-        self.location_use_case.create(**anon_create_location_kwargs(tags=set()))  # location without any tags
-        expected = {location_with_additional, location_with_all_queried}
+        expected_output = {anon_location()}
+        filter_tagged_entities_mock.return_value = expected_output, {}
+        expected_input = {self.location_use_case.create(**anon_create_location_kwargs())}
 
         # Act
-        actual = self.location_use_case.retrieve_all(tagged_with_all={query_tag_1, query_tag_2})
+        actual = self.location_use_case.retrieve_all()
 
         # Assert
-        self.assertSetEqual(expected, actual)
+        self.assertEqual(expected_output, actual)
+        filter_tagged_entities_mock.assert_called_once_with(expected_input)
 
-    def test__retrieve_all__should_return_all_matching_filters__when_tagged_with_any_filter_provided(self) -> None:
+    def test__retrieve_all__should_raise_exception__when_unsupported_filter_provided(self) -> None:
         # Arrange
-        query_tag_1 = anon_tag()
-        query_tag_2 = anon_tag()
-        other_tag = anon_tag()
-        location_with_additional = self.location_use_case.create(**anon_create_location_kwargs(tags={query_tag_1, query_tag_2, other_tag}))
-        location_with_all_queried = self.location_use_case.create(**anon_create_location_kwargs(tags={query_tag_1, query_tag_2}))
-        location_with_only_one = self.location_use_case.create(**anon_create_location_kwargs(tags={choice([query_tag_1, query_tag_2])}))
-        self.location_use_case.create(**anon_create_location_kwargs(tags={other_tag}))  # location with other tag
-        self.location_use_case.create(**anon_create_location_kwargs(tags=set()))  # location without any tags
-        expected = {location_with_additional, location_with_all_queried, location_with_only_one}
 
         # Act
-        actual = self.location_use_case.retrieve_all(tagged_with_any={query_tag_1, query_tag_2})
+        def Action(): self.location_use_case.retrieve_all(unsupported_filter=anon_anything())
 
         # Assert
-        self.assertSetEqual(expected, actual)
-
-    def test__retrieve_all__should_return_all_matching_filters__when_tagged_with_only_filter_provided(self) -> None:
-        # Arrange
-        query_tag_1 = anon_tag()
-        query_tag_2 = anon_tag()
-        other_tag = anon_tag()
-        self.location_use_case.create(**anon_create_location_kwargs(tags={query_tag_1, query_tag_2, other_tag}))  # location with additional
-        location_with_all_queried = self.location_use_case.create(**anon_create_location_kwargs(tags={query_tag_1, query_tag_2}))
-        location_with_only_one = self.location_use_case.create(**anon_create_location_kwargs(tags={choice([query_tag_1, query_tag_2])}))
-        self.location_use_case.create(**anon_create_location_kwargs(tags={other_tag}))  # location with other tag
-        location_without_tags = self.location_use_case.create(**anon_create_location_kwargs(tags=set()))
-        expected = {location_with_all_queried, location_with_only_one, location_without_tags}
-
-        # Act
-        actual = self.location_use_case.retrieve_all(tagged_with_only={query_tag_1, query_tag_2})
-
-        # Assert
-        self.assertSetEqual(expected, actual)
-
-    def test__retrieve_all__should_return_all_matching_filters__when_tagged_with_none_filter_provided(self) -> None:
-        # Arrange
-        query_tag_1 = anon_tag()
-        query_tag_2 = anon_tag()
-        other_tag = anon_tag()
-        self.location_use_case.create(**anon_create_location_kwargs(tags={query_tag_1, query_tag_2, other_tag}))  # location with additional
-        self.location_use_case.create(**anon_create_location_kwargs(tags={query_tag_1, query_tag_2}))  # location with all queried
-        self.location_use_case.create(**anon_create_location_kwargs(tags={choice([query_tag_1, query_tag_2])}))  # location with only one
-        location_with_other_tag = self.location_use_case.create(**anon_create_location_kwargs(tags={other_tag}))
-        location_without_tags = self.location_use_case.create(**anon_create_location_kwargs(tags=set()))
-        expected = {location_with_other_tag, location_without_tags}
-
-        # Act
-        actual = self.location_use_case.retrieve_all(tagged_with_none={query_tag_1, query_tag_2})
-
-        # Assert
-        self.assertSetEqual(expected, actual)
+        self.assertRaises(ValueError, Action)
 
     def test__update__should_raise_exception__when_not_exists(self) -> None:
         # Arrange

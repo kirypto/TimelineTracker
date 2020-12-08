@@ -1,6 +1,7 @@
 from typing import Set
 from uuid import uuid4
 
+from application.filtering_use_cases import FilteringUseCase
 from domain.ids import PrefixedUUID
 from domain.locations import Location
 from domain.persistence.repositories import LocationRepository
@@ -31,22 +32,14 @@ class LocationUseCase:
 
         return self._location_repository.retrieve(location_id)
 
-    def retrieve_all(self, *, name: str = None, tagged_with_all: Set[Tag] = None, tagged_with_any: Set[Tag] = None, tagged_with_only: Set[Tag] = None,
-                     tagged_with_none: Set[Tag] = None) -> Set[Location]:
-        def matches_filters(location: Location) -> bool:
-            if name is not None and location.name != name:
-                return False
-            if tagged_with_all is not None and not tagged_with_all.issubset(location.tags):
-                return False
-            if tagged_with_any is not None and not tagged_with_any.intersection(location.tags):
-                return False
-            if tagged_with_only is not None and not tagged_with_only.issuperset(location.tags):
-                return False
-            if tagged_with_none is not None and not tagged_with_none.isdisjoint(location.tags):
-                return False
-            return True
+    def retrieve_all(self, **kwargs) -> Set[Location]:
+        all_locations = self._location_repository.retrieve_all()
+        name_filtered_locations, kwargs = FilteringUseCase.filter_named_entities(all_locations, **kwargs)
+        tag_filtered_locations, kwargs = FilteringUseCase.filter_tagged_entities(name_filtered_locations, **kwargs)
+        if kwargs:
+            raise ValueError(f"Unknown filters: {','.join(kwargs)}")
 
-        return {location for location in self._location_repository.retrieve_all() if matches_filters(location)}
+        return tag_filtered_locations
 
     def update(self, location_id: PrefixedUUID, *,
                name: str = None, description: str = None, span: PositionalRange = None, tags: Set[Tag] = None) -> Location:
