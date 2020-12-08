@@ -3,7 +3,9 @@ from unittest import TestCase
 
 from Test.Unittest.test_helpers.anons import anon_traveler, anon_location, anon_tag, anon_anything
 from application.filtering_use_cases import FilteringUseCase
+from domain.collections import Range
 from domain.descriptors import NamedEntity
+from domain.positions import SpanningEntity, PositionalRange, Position
 from domain.tags import TaggedEntity, Tag
 
 
@@ -105,7 +107,7 @@ class TestFilteringUseCase(TestCase):
 
         # Assert
         self.assertEqual(expected, actual)
-    
+
     def test__filter_tagged_entity__should_filter_down_to_matching__when_tagged_none_provided(self) -> None:
         # Arrange
         expected: Set[TaggedEntity] = {anon_traveler(tags={Tag("tag1"), anon_tag()}), anon_location(tags=set())}
@@ -114,6 +116,54 @@ class TestFilteringUseCase(TestCase):
 
         # Act
         actual, _ = FilteringUseCase.filter_tagged_entities(all_tagged_entities, tagged_none={Tag("tag2")})
+
+        # Assert
+        self.assertEqual(expected, actual)
+
+    def test__filter_spanning_entity__should_pass_through_unused_kwargs(self) -> None:
+        # Arrange
+
+        # Act
+        _, actual = FilteringUseCase.filter_spanning_entities(set(), other_kwarg=anon_anything())
+
+        # Assert
+        self.assertIn("other_kwarg", actual)
+
+    def test__filter_spanning_entities__should_pass_through_all__when_no_filters_provided(self) -> None:
+        # Arrange
+        expected: Set[SpanningEntity] = {anon_location(), anon_location()}
+
+        # Act
+        actual, _ = FilteringUseCase.filter_spanning_entities(expected)
+
+        # Assert
+        self.assertEqual(expected, actual)
+
+    def test__filter_spanning_entity__should_filter_down_to_matching__when_span_includes_provided(self) -> None:
+        # Arrange
+        positional_range = PositionalRange(latitude=Range(low=0, high=1), longitude=Range(low=0, high=1), altitude=Range(low=0, high=1),
+                                           continuum=Range(low=0, high=1), reality=Range(low=0, high=1))
+        expected: Set[SpanningEntity] = {anon_location(span=positional_range)}
+        all_spanning_entities = {anon_location()}
+        all_spanning_entities |= expected
+        position_filter = Position(latitude=0, longitude=0, altitude=0, continuum=0, reality=0)
+
+        # Act
+        actual, _ = FilteringUseCase.filter_spanning_entities(all_spanning_entities, span_includes=position_filter)
+
+        # Assert
+        self.assertEqual(expected, actual)
+
+    def test__filter_spanning_entity__should_filter_down_to_matching__when_span_intersects_provided(self) -> None:
+        # Arrange
+        positional_range = PositionalRange(latitude=Range(low=0, high=1), longitude=Range(low=0, high=1), altitude=Range(low=0, high=1),
+                                           continuum=Range(low=0, high=1), reality=Range(low=0, high=1))
+        expected: Set[SpanningEntity] = {anon_location(span=positional_range)}
+        all_spanning_entities = {anon_location()}
+        all_spanning_entities |= expected
+
+        # Act
+        actual, _ = FilteringUseCase.filter_spanning_entities(all_spanning_entities, span_intersects=positional_range)
 
         # Assert
         self.assertEqual(expected, actual)

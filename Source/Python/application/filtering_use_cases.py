@@ -1,11 +1,13 @@
 from typing import Set, Tuple, TypeVar
 
 from domain.descriptors import NamedEntity
+from domain.positions import Position, PositionalRange, SpanningEntity
 from domain.tags import TaggedEntity, Tag
 
 
 T_NE = TypeVar("T_NE", bound=NamedEntity)
 T_TE = TypeVar("T_TE", bound=TaggedEntity)
+T_SE = TypeVar("T_SE", bound=SpanningEntity)
 
 
 class FilteringUseCase:
@@ -39,3 +41,17 @@ class FilteringUseCase:
             return True
 
         return {entity for entity in tagged_entities if matches_filters(entity)}, kwargs
+
+    @staticmethod
+    def filter_spanning_entities(spanning_entities, *, span_includes: Position = None, span_intersects: PositionalRange = None, **kwargs
+                                 ) -> Tuple[Set[T_SE], dict]:
+
+        def matches_filters(entity: T_SE) -> bool:
+            entity_span: PositionalRange = entity.span
+            if span_includes is not None and not entity_span.includes(span_includes):
+                return False
+            if span_intersects is not None and not entity_span.intersects(span_intersects):
+                return False
+            return True
+
+        return {entity for entity in spanning_entities if matches_filters(entity)}, kwargs

@@ -60,14 +60,6 @@ def anon_name(num_chars: int = 10) -> str:
     return "".join(choices(ascii_letters + "_. ", k=num_chars))
 
 
-def anon_location(*, name: str = anon_name(), tags: Set[Tag] = None) -> Location:
-    return Location(id=anon_prefixed_id(prefix="location"),
-                    span=anon_positional_range(),
-                    name=name,
-                    description=anon_description(),
-                    tags=tags if tags is not None else {anon_tag()})
-
-
 def anon_prefixed_id(*, prefix: str = anon_id_prefix(20)) -> PrefixedUUID:
     return PrefixedUUID(prefix, uuid4())
 
@@ -80,11 +72,6 @@ def anon_positional_move(*, movement_type: MovementType = anon_movement_type()):
     return PositionalMove(position=anon_position(), movement_type=movement_type)
 
 
-def anon_positional_range() -> PositionalRange:
-    return PositionalRange(latitude=(anon_range()), longitude=(anon_range()), altitude=(anon_range()), continuum=(anon_range()),
-                           reality=(anon_range(int)))
-
-
 def anon_range(of_type: type = float):
     if of_type is float:
         low = anon_float()
@@ -95,6 +82,19 @@ def anon_range(of_type: type = float):
     else:
         raise ValueError(f"Type {type} is not supported")
     return Range(low=low, high=high)
+
+
+def anon_positional_range() -> PositionalRange:
+    return PositionalRange(latitude=(anon_range()), longitude=(anon_range()), altitude=(anon_range()), continuum=(anon_range()),
+                           reality=(anon_range(int)))
+
+
+def anon_location(*, name: str = anon_name(), tags: Set[Tag] = None, span: PositionalRange = anon_positional_range()) -> Location:
+    return Location(id=anon_prefixed_id(prefix="location"),
+                    span=span,
+                    name=name,
+                    description=anon_description(),
+                    tags=tags if tags is not None else {anon_tag()})
 
 
 def anon_tag() -> Tag:
