@@ -52,20 +52,20 @@ def anon_journey() -> List[PositionalMove]:
     return [PositionalMove(position=anon_position(), movement_type=MovementType.IMMEDIATE) for _ in range(5)]
 
 
-def anon_location() -> Location:
-    return Location(id=anon_prefixed_id(prefix="location"),
-                    span=anon_positional_range(),
-                    name=anon_name(),
-                    description=anon_description(),
-                    tags={anon_tag()})
-
-
 def anon_movement_type():
     return choice([t for t in MovementType])
 
 
 def anon_name(num_chars: int = 10) -> str:
     return "".join(choices(ascii_letters + "_. ", k=num_chars))
+
+
+def anon_location(*, name: str = anon_name(), tags: Set[Tag] = None) -> Location:
+    return Location(id=anon_prefixed_id(prefix="location"),
+                    span=anon_positional_range(),
+                    name=name,
+                    description=anon_description(),
+                    tags=tags if tags is not None else {anon_tag()})
 
 
 def anon_prefixed_id(*, prefix: str = anon_id_prefix(20)) -> PrefixedUUID:
@@ -110,12 +110,12 @@ def anon_tagged_entity(num_tags: int = 3) -> TaggedEntity:
     return TaggedEntity(tags=tags)
 
 
-def anon_traveler() -> Traveler:
+def anon_traveler(*, name: str = anon_name(), tags: Set[Tag] = None) -> Traveler:
     return Traveler(id=anon_prefixed_id(prefix="traveler"),
-                    name=anon_name(),
+                    name=name,
                     description=anon_description(),
                     journey=anon_journey(),
-                    tags={anon_tag()})
+                    tags=tags if tags is not None else {anon_tag()})
 
 
 def anon_create_location_kwargs(*, name: str = anon_name(), description: str = anon_description(),
