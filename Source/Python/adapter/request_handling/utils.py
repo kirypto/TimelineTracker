@@ -1,10 +1,12 @@
 from http import HTTPStatus
+from json import loads
 from logging import exception
 from typing import Union, Tuple, Optional, Set, Callable, Any, List, Dict, Type
 
 from jsonpatch import InvalidJsonPatch, JsonPatchTestFailed, JsonPatch, PatchOperation, make_patch
 
-from adapter.views import DomainConstructedView
+from adapter.views import DomainConstructedView, ValueTranslator
+from domain.positions import PositionalRange, Position
 from domain.tags import Tag
 
 
@@ -12,10 +14,22 @@ def error_response(message: Union[str, BaseException], status_code: int) -> Tupl
     return {"error": str(message)}, status_code
 
 
-def parse_optional_tag_query_param(tag_query_param: Optional[str]) -> Optional[Set[Tag]]:
-    if tag_query_param is None:
+def parse_optional_tag_set_query_param(tags_query_param: Optional[str]) -> Optional[Set[Tag]]:
+    if tags_query_param is None:
         return None
-    return {Tag(tag_str) for tag_str in tag_query_param.split(",") if len(tag_str) > 0}
+    return {ValueTranslator.from_json(tag_str, Tag) for tag_str in tags_query_param.split(",") if len(tag_str) > 0}
+
+
+def parse_optional_positional_range_query_param(positional_range_query_param: Optional[str]) -> Optional[PositionalRange]:
+    if positional_range_query_param is None:
+        return None
+    return ValueTranslator.from_json(loads(positional_range_query_param), PositionalRange)
+
+
+def parse_optional_position_query_param(position_query_param: Optional[str]) -> Optional[Position]:
+    if position_query_param is None:
+        return None
+    return ValueTranslator.from_json(loads(position_query_param), Position)
 
 
 def with_error_response_on_raised_exceptions(handler_function: Callable) -> Callable:
@@ -41,7 +55,8 @@ def with_error_response_on_raised_exceptions(handler_function: Callable) -> Call
     return inner
 
 
-def process_patch_into_delta_kwargs(existing_object: Any, patch_operations: List[Dict[str, Any]], view_type: Type[DomainConstructedView]) -> Dict[str, Any]:
+def process_patch_into_delta_kwargs(existing_object: Any, patch_operations: List[Dict[str, Any]], view_type: Type[DomainConstructedView]) -> Dict[
+    str, Any]:
     patch = JsonPatch([PatchOperation(operation).operation for operation in patch_operations])
 
     existing_object_view = view_type.to_json(existing_object)

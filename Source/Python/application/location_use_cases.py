@@ -36,10 +36,11 @@ class LocationUseCase:
         all_locations = self._location_repository.retrieve_all()
         name_filtered_locations, kwargs = FilteringUseCase.filter_named_entities(all_locations, **kwargs)
         tag_filtered_locations, kwargs = FilteringUseCase.filter_tagged_entities(name_filtered_locations, **kwargs)
+        span_filtered_locations, kwargs = FilteringUseCase.filter_spanning_entities(tag_filtered_locations, **kwargs)
         if kwargs:
             raise ValueError(f"Unknown filters: {','.join(kwargs)}")
 
-        return tag_filtered_locations
+        return span_filtered_locations
 
     def update(self, location_id: PrefixedUUID, *,
                name: str = None, description: str = None, span: PositionalRange = None, tags: Set[Tag] = None) -> Location:

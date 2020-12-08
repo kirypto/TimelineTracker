@@ -101,8 +101,8 @@ class TestLocationUsecase(TestCase):
         actual = self.location_use_case.retrieve_all()
         
         # Assert
-        self.assertEqual(expected_output, actual)
         filter_named_entities_mock.assert_called_once_with(expected_input)
+        self.assertEqual(expected_output, actual)
 
     @patch("application.filtering_use_cases.FilteringUseCase.filter_tagged_entities")
     def test__retrieve_all__should_delegate_to_filter_tagged_entities__when_filtering_necessary(self, filter_tagged_entities_mock: MagicMock) -> None:
@@ -115,8 +115,22 @@ class TestLocationUsecase(TestCase):
         actual = self.location_use_case.retrieve_all()
 
         # Assert
-        self.assertEqual(expected_output, actual)
         filter_tagged_entities_mock.assert_called_once_with(expected_input)
+        self.assertEqual(expected_output, actual)
+
+    @patch("application.filtering_use_cases.FilteringUseCase.filter_spanning_entities")
+    def test__retrieve_all__should_delegate_to_filter_spanning_entities__when_filtering_necessary(self, filter_spanning_entities_mock: MagicMock) -> None:
+        # Arrange
+        expected_output = {anon_location()}
+        filter_spanning_entities_mock.return_value = expected_output, {}
+        expected_input = {self.location_use_case.create(**anon_create_location_kwargs())}
+
+        # Act
+        actual = self.location_use_case.retrieve_all()
+
+        # Assert
+        filter_spanning_entities_mock.assert_called_once_with(expected_input)
+        self.assertEqual(expected_output, actual)
 
     def test__retrieve_all__should_raise_exception__when_unsupported_filter_provided(self) -> None:
         # Arrange
