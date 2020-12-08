@@ -1,4 +1,4 @@
-from typing import Set
+from typing import Set, Tuple
 
 from domain.descriptors import NamedEntity
 from domain.tags import TaggedEntity, Tag
@@ -6,7 +6,8 @@ from domain.tags import TaggedEntity, Tag
 
 class FilteringUseCase:
     @staticmethod
-    def filter_named_entities(named_entities: Set[NamedEntity], *, name_is: str = None, name_has: str = None) -> Set[NamedEntity]:
+    def filter_named_entities(named_entities: Set[NamedEntity], *, name_is: str = None, name_has: str = None, **kwargs
+                              ) -> Tuple[Set[NamedEntity], dict]:
         def matches_filters(entity: NamedEntity) -> bool:
             if name_is is not None and name_is != entity.name:
                 return False
@@ -14,14 +15,14 @@ class FilteringUseCase:
                 return False
             return True
 
-        return {entity for entity in named_entities if matches_filters(entity)}
+        return {entity for entity in named_entities if matches_filters(entity)}, kwargs
 
     @staticmethod
     def filter_tagged_entities(tagged_entities: Set[TaggedEntity], *,
                                tagged_all: Set[Tag] = None,
                                tagged_any: Set[Tag] = None,
                                tagged_only: Set[Tag] = None,
-                               tagged_none: Set[Tag] = None) -> Set[TaggedEntity]:
+                               tagged_none: Set[Tag] = None, **kwargs) -> Tuple[Set[TaggedEntity], dict]:
         def matches_filters(entity: TaggedEntity) -> bool:
             if tagged_all is not None and not tagged_all.issubset(entity.tags):
                 return False
@@ -33,4 +34,4 @@ class FilteringUseCase:
                 return False
             return True
 
-        return {entity for entity in tagged_entities if matches_filters(entity)}
+        return {entity for entity in tagged_entities if matches_filters(entity)}, kwargs
