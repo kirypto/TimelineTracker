@@ -28,7 +28,7 @@ def anon_description(num_chars: int = 100) -> str:
     return "".join(choices(printable, k=num_chars))
 
 
-def anon_float(a: float = None, b: float = None):
+def anon_float(a: float = None, b: float = None) -> float:
     start = a if a is not None else -999999.9
     end = b if b is not None else 999999.9
     return uniform(start, end)
@@ -42,7 +42,7 @@ def anon_identified_entity() -> IdentifiedEntity:
     return IdentifiedEntity(id=anon_prefixed_id())
 
 
-def anon_int(a: int = None, b: int = None):
+def anon_int(a: int = None, b: int = None) -> int:
     start = a if a is not None else -999999
     end = b if b is not None else 999999
     return randint(start, end)
@@ -52,7 +52,7 @@ def anon_journey() -> List[PositionalMove]:
     return [PositionalMove(position=anon_position(), movement_type=MovementType.IMMEDIATE) for _ in range(5)]
 
 
-def anon_movement_type():
+def anon_movement_type() -> MovementType:
     return choice([t for t in MovementType])
 
 
@@ -68,11 +68,11 @@ def anon_position(continuum: float = anon_float(), reality: int = anon_int()) ->
     return Position(latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=continuum, reality=reality)
 
 
-def anon_positional_move(*, movement_type: MovementType = anon_movement_type()):
+def anon_positional_move(*, movement_type: MovementType = anon_movement_type()) -> PositionalMove:
     return PositionalMove(position=anon_position(), movement_type=movement_type)
 
 
-def anon_range(of_type: type = float):
+def anon_range(of_type: type = float) -> Range:
     if of_type is float:
         low = anon_float()
         high = low + abs(anon_float())

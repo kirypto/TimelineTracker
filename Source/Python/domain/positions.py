@@ -187,7 +187,7 @@ class SpanningEntity(BaseEntity):
     def span(self) -> PositionalRange:
         return self._span
 
-    def __init__(self, *, span, **kwargs):
+    def __init__(self, *, span, **kwargs) -> None:
         if not isinstance(span, PositionalRange):
             raise TypeError(f"Argument 'span' must be a {PositionalRange}")
         self._span = span
@@ -221,7 +221,7 @@ class JourneyingEntity(BaseEntity):
             return False
         return self._journey == other._journey and super().__eq__(other)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((JourneyingEntity, tuple(self._journey), super().__hash__()))
 
     @staticmethod

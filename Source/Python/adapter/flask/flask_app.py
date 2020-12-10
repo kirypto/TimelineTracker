@@ -37,7 +37,7 @@ def _create_flask_web_app() -> Flask:
 
     # Setup web path root
     @flask_web_app.route('/')
-    def hello_world():
+    def web_root():
         return 'It Works!  <a href="/api/docs"> API </a>'
 
     return flask_web_app

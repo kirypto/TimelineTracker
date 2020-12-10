@@ -50,7 +50,7 @@ class Range(Generic[T]):
             raise TypeError("Argument 'value' must be of same type as range")
         return self._low <= value <= self._high
 
-    def intersects(self, other: Range[T]):
+    def intersects(self, other: Range[T]) -> bool:
         if not isinstance(other, Range):
             raise TypeError(f"Argument 'other' must be a {self.__class__}")
         if other.type is not self.type:
