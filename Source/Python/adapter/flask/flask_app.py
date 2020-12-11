@@ -1,9 +1,8 @@
-from json import loads
 from pathlib import Path
 
-from ruamel.yaml import load, YAML
 from flask import Flask
 from flask_swagger_ui import get_swaggerui_blueprint
+from ruamel.yaml import YAML
 
 from adapter.flask.flask_controllers import register_locations_routes, register_travelers_routes
 from adapter.main import TimelineTrackerApp
