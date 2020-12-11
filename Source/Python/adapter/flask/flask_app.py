@@ -1,6 +1,7 @@
 from json import loads
 from pathlib import Path
 
+from ruamel.yaml import load, YAML
 from flask import Flask
 from flask_swagger_ui import get_swaggerui_blueprint
 
@@ -43,16 +44,17 @@ def _create_flask_web_app() -> Flask:
     return flask_web_app
 
 
-def construct_flask_app(*, timeline_tracker_app_config: dict):
+def run_app(*, timeline_tracker_app_config: dict, flask_run_config: dict):
     flask_web_app = _create_flask_web_app()
     timeline_tracker_application = TimelineTrackerApp(**timeline_tracker_app_config)
     register_locations_routes(flask_web_app, timeline_tracker_application.locations_request_handler)
     register_travelers_routes(flask_web_app, timeline_tracker_application.travelers_request_handler)
-    return flask_web_app
+
+    flask_web_app.run(**flask_run_config)
 
 
 if __name__ == '__main__':
     import sys
     config_file = sys.argv[1]
-    config = loads(Path(config_file).read_text())
-    construct_flask_app(**config).run(host="localhost")
+    config: dict = YAML(typ="safe").load(Path(config_file))
+    run_app(**config)
