@@ -20,6 +20,7 @@ class TestValueTranslator(TestCase):
         # Assert
         self.assertEqual(expected, str(tag))
 
+
 class TestLocationView(TestCase):
     def test__to_json__should_translate_to_json_dict(self) -> None:
         # Arrange

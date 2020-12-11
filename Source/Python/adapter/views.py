@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Set, List
+from typing import Any, Set, List, Generic, TypeVar, Type
 from uuid import UUID
 
 from domain.collections import Range
@@ -10,12 +10,15 @@ from domain.tags import Tag
 from domain.travelers import Traveler
 
 
-class ValueTranslator:
+T = TypeVar("T")
+
+
+class ValueTranslator(Generic[T]):
     __pass_through_types = [int, float, bool, str]
     __to_str_types = [PrefixedUUID, Tag]
 
     @staticmethod
-    def to_json(value: Any) -> Any:
+    def to_json(value: T) -> Any:
         if type(value) in ValueTranslator.__pass_through_types:
             return value
         if type(value) in ValueTranslator.__to_str_types:
@@ -55,7 +58,7 @@ class ValueTranslator:
         raise TypeError(f"Unsupported type {type(value)}")
 
     @staticmethod
-    def from_json(value: Any, type_: type) -> Any:
+    def from_json(value: Any, type_: Type[T]) -> T:
         try:
             if type_ in ValueTranslator.__pass_through_types:
                 return type_(value)
