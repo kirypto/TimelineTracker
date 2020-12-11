@@ -1,5 +1,5 @@
 from random import choices, uniform, randint, choice
-from string import ascii_letters, printable, digits
+from string import ascii_letters, printable, digits, ascii_lowercase
 from typing import Type, Any, Set, List
 from uuid import uuid4
 
@@ -102,7 +102,7 @@ def anon_tag() -> Tag:
 
 
 def anon_tag_name(num_digits: int = 10) -> str:
-    return "".join(choices(ascii_letters + digits + "-_", k=num_digits))
+    return "".join(choices(ascii_lowercase + digits + "-_", k=num_digits))
 
 
 def anon_tagged_entity(num_tags: int = 3) -> TaggedEntity:

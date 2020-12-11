@@ -89,7 +89,7 @@ class ValueTranslator:
                 return {ValueTranslator.from_json(tag, Tag) for tag in tags_json}
             if type_ is Tag:
                 tag_raw: str = value
-                return Tag(tag_raw)
+                return Tag(tag_raw.lower())
             if type_ is List[PositionalMove]:
                 movements_json: list = value
                 return [ValueTranslator.from_json(move, PositionalMove) for move in movements_json]
