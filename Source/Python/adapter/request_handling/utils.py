@@ -3,7 +3,7 @@ from json import loads
 from logging import exception
 from typing import Union, Tuple, Optional, Set, Callable, Any, List, Dict, Type
 
-from jsonpatch import InvalidJsonPatch, JsonPatchTestFailed, JsonPatch, PatchOperation, make_patch
+from jsonpatch import InvalidJsonPatch, JsonPatchTestFailed, JsonPatch, PatchOperation, make_patch, JsonPatchConflict
 
 from adapter.views import DomainConstructedView, ValueTranslator
 from domain.positions import PositionalRange, Position
@@ -42,7 +42,7 @@ def with_error_response_on_raised_exceptions(handler_function: Callable) -> Call
         except (KeyError, TypeError, ValueError, AttributeError, InvalidJsonPatch) as e:
             exception(e, exc_info=e)
             return error_response(e, HTTPStatus.BAD_REQUEST)
-        except JsonPatchTestFailed as e:
+        except (JsonPatchTestFailed, JsonPatchConflict) as e:
             exception(e, exc_info=e)
             return error_response(e, HTTPStatus.PRECONDITION_FAILED)
         except NotImplementedError as e:
@@ -55,20 +55,23 @@ def with_error_response_on_raised_exceptions(handler_function: Callable) -> Call
     return inner
 
 
-def process_patch_into_delta_kwargs(existing_object: Any, patch_operations: List[Dict[str, Any]], view_type: Type[DomainConstructedView]) -> Dict[
-    str, Any]:
+def process_patch_into_delta_kwargs(existing_object: Any, patch_operations: List[Dict[str, Any]], view_type: Type[DomainConstructedView]) \
+        -> Dict[str, Any]:
     patch = JsonPatch([PatchOperation(operation).operation for operation in patch_operations])
 
     existing_object_view = view_type.to_json(existing_object)
     modified_object_view = patch.apply(existing_object_view)
 
-    names_of_modified_attributes = [
-        change["path"][1:].split("/")[0]  # The JsonPatch object's 'path', extract only first delimited portion. Ex: '/foo/bar/0' -> 'foo'
-        for change in make_patch(existing_object_view, modified_object_view)  # Use make_patch to determine the differences
-    ]
-    delta_kwargs = {
-        kwarg_name: kwarg_value
-        for kwarg_name, kwarg_value in view_type.kwargs_from_json(modified_object_view).items()
-        if kwarg_name in names_of_modified_attributes
-    }
+    modified_object_kwargs = view_type.kwargs_from_json(modified_object_view)
+
+    delta_kwargs = {}
+    for difference in make_patch(existing_object_view, modified_object_view):  # Use make_patch to determine the differences
+        modified_attribute_path = difference["path"][1:].split("/")
+        modified_attribute_name = modified_attribute_path[0]
+        if len(modified_attribute_path) == 1:
+            # Removing attribute entirely
+            delta_kwargs[modified_attribute_name] = None
+        else:
+            # Modification of attribute
+            delta_kwargs[modified_attribute_name] = modified_object_kwargs[modified_attribute_name]
     return delta_kwargs

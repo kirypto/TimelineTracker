@@ -187,7 +187,7 @@ class LocationView(DomainConstructedView):
     def kwargs_from_json(location_view: dict) -> dict:
         def translate_val(attribute_name, value):
             if attribute_name not in LocationView.__attribute_types_by_name:
-                raise ValueError(f"Failed to translate attribute '{attribute_name}'")
+                raise ValueError(f"Failed to translate attribute '{attribute_name}' when constructing {Location.__name__}")
             return ValueTranslator.from_json(value, LocationView.__attribute_types_by_name[attribute_name])
 
         return {

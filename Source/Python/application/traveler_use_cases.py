@@ -38,17 +38,17 @@ class TravelerUseCase:
 
         return journey_filtered_travelers
 
-    def update(self, traveler_id: PrefixedUUID, *,
-               name: str = None, description: str = None, journey: List[PositionalMove] = None, tags: Set[Tag] = None) -> Traveler:
-
+    def update(self, traveler_id: PrefixedUUID, **kwargs) -> Traveler:
+        if "id" in kwargs:
+            raise ValueError(f"Cannot update 'id' attribute of {Traveler.__name__}")
         existing_traveler = self._traveler_repository.retrieve(traveler_id)
-
         updated_traveler = Traveler(
             id=traveler_id,
-            name=name if name is not None else existing_traveler.name,
-            description=description if description is not None else existing_traveler.description,
-            journey=journey if journey is not None else existing_traveler.journey,
-            tags=tags if tags is not None else existing_traveler.tags,
+            name=kwargs.pop("name") if "name" in kwargs else existing_traveler.name,
+            description=kwargs.pop("description") if "description" in kwargs else existing_traveler.description,
+            journey=kwargs.pop("journey") if "journey" in kwargs else existing_traveler.journey,
+            tags=kwargs.pop("tags") if "tags" in kwargs else existing_traveler.tags,
+            **kwargs
         )
         self._traveler_repository.save(updated_traveler)
         return updated_traveler

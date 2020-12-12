@@ -189,7 +189,7 @@ class SpanningEntity(BaseEntity):
 
     def __init__(self, *, span, **kwargs) -> None:
         if not isinstance(span, PositionalRange):
-            raise TypeError(f"Argument 'span' must be a {PositionalRange}")
+            raise TypeError(f"Argument 'span' must be a {PositionalRange.__name__}")
         self._span = span
         super().__init__(**kwargs)
 
@@ -211,7 +211,7 @@ class JourneyingEntity(BaseEntity):
 
     def __init__(self, journey: List[PositionalMove], **kwargs) -> None:
         if not isinstance(journey, list) or any([not isinstance(move, PositionalMove) for move in journey]):
-            raise TypeError(f"Argument 'journey' must be a list of {PositionalMove} items")
+            raise TypeError(f"Argument 'journey' must be a list of {PositionalMove.__name__}s")
         self.validate_journey(journey)
         self._journey = journey
         super().__init__(**kwargs)
