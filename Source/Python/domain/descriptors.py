@@ -12,14 +12,14 @@ class NamedEntity(BaseEntity):
 
     def __init__(self, *, name: str, **kwargs) -> None:
         if name is None:
-            raise ValueError(f"Argument 'name' cannot be {None}")
+            raise ValueError(f"{self.__class__.__name__} attribute 'name' cannot be {None}")
         if not isinstance(name, str):
-            raise TypeError(f"Argument 'name' must be of type {str}")
+            raise TypeError(f"{self.__class__.__name__} attribute 'name' must be of type {str}")
         name = name.strip()
         if len(name) == 0:
-            raise ValueError("Argument 'name' cannot be empty")
+            raise ValueError(f"{self.__class__.__name__} attribute 'name' cannot be empty")
         if not match(r"^[\w\-. ]*$", name):
-            raise ValueError("Argument 'name' must be contain only alphanumeric, underscore, dash, and space characters")
+            raise ValueError(f"{self.__class__.__name__} attribute 'name' must be contain only alphanumeric, underscore, dash, and space characters")
         self._name = name
         super().__init__(**kwargs)
 
@@ -41,9 +41,9 @@ class DescribedEntity(BaseEntity):
 
     def __init__(self, *, description: str = "", **kwargs) -> None:
         if description is None:
-            raise ValueError(f"Argument 'description' cannot be {None}")
+            raise ValueError(f"{self.__class__.__name__} attribute 'description' cannot be {None}")
         if not isinstance(description, str):
-            raise ValueError("Argument 'description' must be a string")
+            raise ValueError(f"{self.__class__.__name__} attribute 'description' must be a string")
         self._description = description
         super().__init__(**kwargs)
 

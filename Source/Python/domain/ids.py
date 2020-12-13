@@ -52,7 +52,7 @@ class IdentifiedEntity(BaseEntity):
 
     def __init__(self, *, id: PrefixedUUID, **kwargs) -> None:
         if not isinstance(id, PrefixedUUID):
-            raise TypeError(f"Argument 'id' must be a {PrefixedUUID}")
+            raise TypeError(f"{self.__class__.__name__} attribute 'id' must be a {PrefixedUUID}")
         self._id = id
         super().__init__(**kwargs)
 

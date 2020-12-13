@@ -29,9 +29,9 @@ class Range(Generic[T]):
 
     def __init__(self, low: T, high: T) -> None:
         if type(low) is not type(high):
-            raise TypeError("Arguments 'low' and 'high' must be of the same type")
+            raise TypeError(f"{self.__class__.__name__} attributes 'low' and 'high' must be of the same type")
         if not _is_comparable_type(low):
-            raise TypeError("Arguments must be of a comparable type")
+            raise TypeError(f"{self.__class__.__name__} attributes 'low' and 'high' must be of a comparable types")
         self._low = min(low, high)
         self._high = max(low, high)
 
