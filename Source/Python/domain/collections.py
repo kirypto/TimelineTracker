@@ -27,15 +27,13 @@ class Range(Generic[T]):
     def type(self) -> type:
         return type(self._low)
 
-    def __init__(self, *, low: T, high: T) -> None:
+    def __init__(self, low: T, high: T) -> None:
         if type(low) is not type(high):
             raise TypeError("Arguments 'low' and 'high' must be of the same type")
         if not _is_comparable_type(low):
             raise TypeError("Arguments must be of a comparable type")
-        if low > high:
-            raise ValueError("Argument 'low' must be less than or equal to 'high'")
-        self._low = low
-        self._high = high
+        self._low = min(low, high)
+        self._high = max(low, high)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Range):

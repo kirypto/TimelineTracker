@@ -141,8 +141,8 @@ class TestFilteringUseCase(TestCase):
 
     def test__filter_spanning_entity__should_filter_down_to_matching__when_span_includes_provided(self) -> None:
         # Arrange
-        positional_range = PositionalRange(latitude=Range(low=0, high=1), longitude=Range(low=0, high=1), altitude=Range(low=0, high=1),
-                                           continuum=Range(low=0, high=1), reality=Range(low=0, high=1))
+        positional_range = PositionalRange(latitude=Range(0, 1), longitude=Range(0, 1), altitude=Range(0, 1),
+                                           continuum=Range(0, 1), reality=Range(0, 1))
         expected: Set[SpanningEntity] = {anon_location(span=positional_range)}
         all_spanning_entities = {anon_location()}
         all_spanning_entities |= expected
@@ -156,8 +156,8 @@ class TestFilteringUseCase(TestCase):
 
     def test__filter_spanning_entity__should_filter_down_to_matching__when_span_intersects_provided(self) -> None:
         # Arrange
-        positional_range = PositionalRange(latitude=Range(low=0, high=1), longitude=Range(low=0, high=1), altitude=Range(low=0, high=1),
-                                           continuum=Range(low=0, high=1), reality=Range(low=0, high=1))
+        positional_range = PositionalRange(latitude=Range(0, 1), longitude=Range(0, 1), altitude=Range(0, 1),
+                                           continuum=Range(0, 1), reality=Range(0, 1))
         expected: Set[SpanningEntity] = {anon_location(span=positional_range)}
         all_spanning_entities = {anon_location()}
         all_spanning_entities |= expected
@@ -202,8 +202,8 @@ class TestFilteringUseCase(TestCase):
 
     def test__filter_journeying_entity__should_filter_down_to_matching__when_journey_intersects_provided(self) -> None:
         # Arrange
-        positional_range = PositionalRange(latitude=Range(low=0, high=1), longitude=Range(low=0, high=1), altitude=Range(low=0, high=1),
-                                           continuum=Range(low=0, high=1), reality=Range(low=0, high=1))
+        positional_range = PositionalRange(latitude=Range(0, 1), longitude=Range(0, 1), altitude=Range(0, 1),
+                                           continuum=Range(0, 1), reality=Range(0, 1))
         position = Position(latitude=0, longitude=0, altitude=0, continuum=0, reality=0)
         expected: Set[JourneyingEntity] = {anon_traveler(journey=[PositionalMove(position=position, movement_type=MovementType.IMMEDIATE)])}
         all_journeying_entities = {anon_traveler()}
