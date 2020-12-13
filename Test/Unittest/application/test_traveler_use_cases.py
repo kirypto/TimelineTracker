@@ -17,7 +17,7 @@ class TestTravelerUsecase(TestCase):
         # Arrange
 
         # Act
-        traveler = self.traveler_use_case.create(journey=anon_journey())
+        traveler = self.traveler_use_case.create(name=anon_name(), journey=anon_journey())
 
         # Assert
         self.assertTrue(hasattr(traveler, "id"))
@@ -27,7 +27,7 @@ class TestTravelerUsecase(TestCase):
         undesired_id = anon_prefixed_id()
 
         # Act
-        traveler = self.traveler_use_case.create(id=undesired_id, journey=anon_journey())
+        traveler = self.traveler_use_case.create(id=undesired_id, name=anon_name(), journey=anon_journey())
 
         # Assert
         self.assertNotEqual(undesired_id, traveler.id)
@@ -158,7 +158,7 @@ class TestTravelerUsecase(TestCase):
         def Action(): self.traveler_use_case.update(traveler.id, id=anon_prefixed_id(prefix="traveler"))
 
         # Assert
-        self.assertRaises(TypeError, Action)
+        self.assertRaises(ValueError, Action)
 
     def test__update__should_update_provided_attributes__when_attributes_provided(self) -> None:
         # Arrange

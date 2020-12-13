@@ -18,7 +18,7 @@ class TestLocationUsecase(TestCase):
         # Arrange
 
         # Act
-        location = self.location_use_case.create(span=anon_positional_range())
+        location = self.location_use_case.create(name=anon_name(), span=anon_positional_range())
 
         # Assert
         self.assertTrue(hasattr(location, "id"))
@@ -28,7 +28,7 @@ class TestLocationUsecase(TestCase):
         undesired_id = anon_prefixed_id()
 
         # Act
-        location = self.location_use_case.create(id=undesired_id, span=anon_positional_range())
+        location = self.location_use_case.create(id=undesired_id, name=anon_name(), span=anon_positional_range())
 
         # Assert
         self.assertNotEqual(undesired_id, location.id)
@@ -159,7 +159,7 @@ class TestLocationUsecase(TestCase):
         def Action(): self.location_use_case.update(location.id, id=anon_prefixed_id(prefix="location"))
 
         # Assert
-        self.assertRaises(TypeError, Action)
+        self.assertRaises(ValueError, Action)
 
     def test__update__should_update_provided_attributes__when_attributes_provided(self) -> None:
         # Arrange
