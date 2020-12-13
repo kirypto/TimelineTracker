@@ -14,7 +14,7 @@ T = TypeVar("T")
 
 
 class ValueTranslator(Generic[T]):
-    __pass_through_types = [int, float, bool, str]
+    __pass_through_types = [int, float, bool]
     __to_str_types = [PrefixedUUID, Tag]
 
     @staticmethod
@@ -23,6 +23,8 @@ class ValueTranslator(Generic[T]):
             return value
         if type(value) in ValueTranslator.__to_str_types:
             return str(value)
+        if type(value) is str:
+            return value
         if type(value) in {set, list}:
             return [ValueTranslator.to_json(inner_val) for inner_val in value]
         if type(value) is Range:
@@ -62,6 +64,10 @@ class ValueTranslator(Generic[T]):
         try:
             if type_ in ValueTranslator.__pass_through_types:
                 return type_(value)
+            if type_ is str:
+                if type(value) is not str:
+                    raise ValueError(f"Expected a str, got {type(value)}")
+                return value
             if type_ is PrefixedUUID:
                 prefixed_uuid_raw: str = value
                 prefix, uuid = prefixed_uuid_raw.split("-", 1)
