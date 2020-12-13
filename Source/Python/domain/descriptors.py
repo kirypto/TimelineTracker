@@ -10,11 +10,14 @@ class NamedEntity(BaseEntity):
     def name(self) -> str:
         return self._name
 
-    def __init__(self, *, name: str = "", **kwargs) -> None:
+    def __init__(self, *, name: str, **kwargs) -> None:
         if name is None:
             raise ValueError(f"Argument 'name' cannot be {None}")
         if not isinstance(name, str):
             raise TypeError(f"Argument 'name' must be of type {str}")
+        name = name.strip()
+        if len(name) == 0:
+            raise ValueError("Argument 'name' cannot be empty")
         if not match(r"^[\w\-. ]*$", name):
             raise ValueError("Argument 'name' must be contain only alphanumeric, underscore, dash, and space characters")
         self._name = name
