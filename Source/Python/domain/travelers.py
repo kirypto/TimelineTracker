@@ -5,7 +5,7 @@ from domain.tags import TaggedEntity
 
 
 class Traveler(IdentifiedEntity, NamedEntity, DescribedEntity, JourneyingEntity, TaggedEntity):
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         if "id" in kwargs and isinstance(kwargs["id"], PrefixedUUID):
             id: PrefixedUUID = kwargs["id"]
             if not id.prefix == "traveler":

@@ -27,15 +27,13 @@ class Range(Generic[T]):
     def type(self) -> type:
         return type(self._low)
 
-    def __init__(self, *, low: T, high: T) -> None:
+    def __init__(self, low: T, high: T) -> None:
         if type(low) is not type(high):
-            raise TypeError("Arguments 'low' and 'high' must be of the same type")
+            raise TypeError(f"{self.__class__.__name__} attributes 'low' and 'high' must be of the same type")
         if not _is_comparable_type(low):
-            raise TypeError("Arguments must be of a comparable type")
-        if low > high:
-            raise ValueError("Argument 'low' must be less than or equal to 'high'")
-        self._low = low
-        self._high = high
+            raise TypeError(f"{self.__class__.__name__} attributes 'low' and 'high' must be of a comparable types")
+        self._low = min(low, high)
+        self._high = max(low, high)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Range):
@@ -50,7 +48,7 @@ class Range(Generic[T]):
             raise TypeError("Argument 'value' must be of same type as range")
         return self._low <= value <= self._high
 
-    def intersects(self, other: Range[T]):
+    def intersects(self, other: Range[T]) -> bool:
         if not isinstance(other, Range):
             raise TypeError(f"Argument 'other' must be a {self.__class__}")
         if other.type is not self.type:

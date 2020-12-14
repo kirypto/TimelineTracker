@@ -1,30 +1,45 @@
-## Project Setup
+# Application Setup
 
-### Requirements
+## Requirements
 
-- Python
-- Flask (python)
-- venv
+- Python >= 3.7
+- Python Modules as laid out in `requirements.txt`
 
-### Running the API
+## App Configuration
 
-- Setup a python `venv`.
-- Install python Flask.
-- Set `FLASK_APP` env var to point at `./Source/Adapter/flask_app.py`.
-- Run `./venv/Scripts/python -m flask run`.
-- Alternatively, run `./runFlaskServer.ps1` which sets the env var and runs the
-flask command above.
+- Create a configuration file, the following can be used as an example:
 
-### Running Tests
+```yaml
+---
+# Configuration for the Timeline Tracker Application
+timeline_tracker_app_config: {
+  repositories_config: {
+    # Repository type supports 'json' or 'memory'
+    # - If 'json' type is specified, the json_repository_directory_root must also be configured
+    repository_type: memory,
+    #    json_repositories_directory_root: "/path/to/repo/root"
+  }
+}
 
-- Tests are written using `unittest` and are located in `Test > unittest`
-- The `./Source/Python` directory must be added to the `PYTHONPATH` environment
-variable.
-   - In PyCharm, right click the folder and select _'mark directory as -> source
-   root'_.
-   - In PowerShell, run `$Env:PYTHONPATH += ./Source/Python`.
-- To run the tests:
-   - From PyCharm, right click the test folder and select _'create unittests in
-   unittests'_ and change the working directory to the project root.
-   - From PowerShell, run `python -m unittest discover -s .\Test\unittest\ 
-   -t .`.
+# Configuration for the Python Flask service running the application
+flask_run_config: {
+  host: localhost,
+  port: 1337,
+}
+```
+
+## Running the API
+
+__In PyCharm__
+
+- Select `flask_app.py` as the primary script.
+- Specify the above configuration file path as the first argument _(parameter)_.
+- Set the following environment variables:`PYTHONUNBUFFERED=1;FLASK_ENV=development`
+
+## Running Tests
+
+__In PyCharm__
+
+- Ensure the `Source/Python` directory is marked as a source root
+- Select the `Test/Unittest` directory to create the PyCharm Unittest run config
+- Modify the working directory parameter to point at the main project root.

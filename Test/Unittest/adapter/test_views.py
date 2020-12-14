@@ -1,8 +1,24 @@
+from random import choices
+from string import ascii_uppercase
 from unittest import TestCase
 
 from Test.Unittest.test_helpers.anons import anon_location
-from adapter.views import LocationView
+from adapter.views import LocationView, ValueTranslator
 from domain.locations import Location
+from domain.tags import Tag
+
+
+class TestValueTranslator(TestCase):
+    def test__from_json__should_convert_tags_to_lower_case(self) -> None:
+        # Arrange
+        uppercase_tag = ''.join(choices(ascii_uppercase, k=10))
+        expected = uppercase_tag.lower()
+
+        # Act
+        tag = ValueTranslator.from_json(uppercase_tag, Tag)
+
+        # Assert
+        self.assertEqual(expected, str(tag))
 
 
 class TestLocationView(TestCase):

@@ -1,6 +1,7 @@
 from typing import Set
 from uuid import uuid4
 
+from application.filtering_use_cases import FilteringUseCase
 from domain.ids import PrefixedUUID
 from domain.locations import Location
 from domain.persistence.repositories import LocationRepository
@@ -31,34 +32,27 @@ class LocationUseCase:
 
         return self._location_repository.retrieve(location_id)
 
-    def retrieve_all(self, *, name: str = None, tagged_with_all: Set[Tag] = None, tagged_with_any: Set[Tag] = None, tagged_with_only: Set[Tag] = None,
-                     tagged_with_none: Set[Tag] = None) -> Set[Location]:
-        def matches_filters(location: Location) -> bool:
-            if name is not None and location.name != name:
-                return False
-            if tagged_with_all is not None and not tagged_with_all.issubset(location.tags):
-                return False
-            if tagged_with_any is not None and not tagged_with_any.intersection(location.tags):
-                return False
-            if tagged_with_only is not None and not tagged_with_only.issuperset(location.tags):
-                return False
-            if tagged_with_none is not None and not tagged_with_none.isdisjoint(location.tags):
-                return False
-            return True
+    def retrieve_all(self, **kwargs) -> Set[Location]:
+        all_locations = self._location_repository.retrieve_all()
+        name_filtered_locations, kwargs = FilteringUseCase.filter_named_entities(all_locations, **kwargs)
+        tag_filtered_locations, kwargs = FilteringUseCase.filter_tagged_entities(name_filtered_locations, **kwargs)
+        span_filtered_locations, kwargs = FilteringUseCase.filter_spanning_entities(tag_filtered_locations, **kwargs)
+        if kwargs:
+            raise ValueError(f"Unknown filters: {','.join(kwargs)}")
 
-        return {location for location in self._location_repository.retrieve_all() if matches_filters(location)}
+        return span_filtered_locations
 
-    def update(self, location_id: PrefixedUUID, *,
-               name: str = None, description: str = None, span: PositionalRange = None, tags: Set[Tag] = None) -> Location:
-
+    def update(self, location_id: PrefixedUUID, **kwargs) -> Location:
+        if "id" in kwargs:
+            raise ValueError(f"Cannot update 'id' attribute of {Location.__name__}")
         existing_location = self._location_repository.retrieve(location_id)
-
         updated_location = Location(
             id=location_id,
-            name=name if name is not None else existing_location.name,
-            description=description if description is not None else existing_location.description,
-            span=span if span is not None else existing_location.span,
-            tags=tags if tags is not None else existing_location.tags,
+            name=kwargs.pop("name") if "name" in kwargs else existing_location.name,
+            description=kwargs.pop("description") if "description" in kwargs else existing_location.description,
+            span=kwargs.pop("span") if "span" in kwargs else existing_location.span,
+            tags=kwargs.pop("tags") if "tags" in kwargs else existing_location.tags,
+            **kwargs
         )
         self._location_repository.save(updated_location)
         return updated_location

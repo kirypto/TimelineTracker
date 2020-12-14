@@ -28,14 +28,14 @@ class TestNamedEntity(TestCase):
         # Assert
         self.assertRaises(ValueError, Action)
 
-    def test__init__should_default_to_empty_string(self) -> None:
+    def test__init__should_reject_empty_string(self) -> None:
         # Arrange
 
         # Act
-        actual = NamedEntity()
+        def Action(): _ = NamedEntity(name="   ")
 
         # Assert
-        self.assertEqual("", actual.name)
+        self.assertRaises(ValueError, Action)
 
     def test__init__should_initialize_with_provided_value(self) -> None:
         # Arrange

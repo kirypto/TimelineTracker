@@ -1,5 +1,5 @@
 from random import choices, uniform, randint, choice
-from string import ascii_letters, printable, digits
+from string import ascii_letters, printable, digits, ascii_lowercase
 from typing import Type, Any, Set, List
 from uuid import uuid4
 
@@ -28,7 +28,7 @@ def anon_description(num_chars: int = 100) -> str:
     return "".join(choices(printable, k=num_chars))
 
 
-def anon_float(a: float = None, b: float = None):
+def anon_float(a: float = None, b: float = None) -> float:
     start = a if a is not None else -999999.9
     end = b if b is not None else 999999.9
     return uniform(start, end)
@@ -42,7 +42,7 @@ def anon_identified_entity() -> IdentifiedEntity:
     return IdentifiedEntity(id=anon_prefixed_id())
 
 
-def anon_int(a: int = None, b: int = None):
+def anon_int(a: int = None, b: int = None) -> int:
     start = a if a is not None else -999999
     end = b if b is not None else 999999
     return randint(start, end)
@@ -52,15 +52,7 @@ def anon_journey() -> List[PositionalMove]:
     return [PositionalMove(position=anon_position(), movement_type=MovementType.IMMEDIATE) for _ in range(5)]
 
 
-def anon_location() -> Location:
-    return Location(id=anon_prefixed_id(prefix="location"),
-                    span=anon_positional_range(),
-                    name=anon_name(),
-                    description=anon_description(),
-                    tags={anon_tag()})
-
-
-def anon_movement_type():
+def anon_movement_type() -> MovementType:
     return choice([t for t in MovementType])
 
 
@@ -76,16 +68,11 @@ def anon_position(continuum: float = anon_float(), reality: int = anon_int()) ->
     return Position(latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=continuum, reality=reality)
 
 
-def anon_positional_move(*, movement_type: MovementType = anon_movement_type()):
+def anon_positional_move(*, movement_type: MovementType = anon_movement_type()) -> PositionalMove:
     return PositionalMove(position=anon_position(), movement_type=movement_type)
 
 
-def anon_positional_range() -> PositionalRange:
-    return PositionalRange(latitude=(anon_range()), longitude=(anon_range()), altitude=(anon_range()), continuum=(anon_range()),
-                           reality=(anon_range(int)))
-
-
-def anon_range(of_type: type = float):
+def anon_range(of_type: type = float) -> Range:
     if of_type is float:
         low = anon_float()
         high = low + abs(anon_float())
@@ -97,12 +84,25 @@ def anon_range(of_type: type = float):
     return Range(low=low, high=high)
 
 
+def anon_positional_range() -> PositionalRange:
+    return PositionalRange(latitude=(anon_range()), longitude=(anon_range()), altitude=(anon_range()), continuum=(anon_range()),
+                           reality=(anon_range(int)))
+
+
+def anon_location(*, name: str = anon_name(), tags: Set[Tag] = None, span: PositionalRange = anon_positional_range()) -> Location:
+    return Location(id=anon_prefixed_id(prefix="location"),
+                    span=span,
+                    name=name,
+                    description=anon_description(),
+                    tags=tags if tags is not None else {anon_tag()})
+
+
 def anon_tag() -> Tag:
     return Tag(anon_tag_name())
 
 
 def anon_tag_name(num_digits: int = 10) -> str:
-    return "".join(choices(ascii_letters + digits + "-_", k=num_digits))
+    return "".join(choices(ascii_lowercase + digits + "-_", k=num_digits))
 
 
 def anon_tagged_entity(num_tags: int = 3) -> TaggedEntity:
@@ -110,12 +110,12 @@ def anon_tagged_entity(num_tags: int = 3) -> TaggedEntity:
     return TaggedEntity(tags=tags)
 
 
-def anon_traveler() -> Traveler:
+def anon_traveler(*, name: str = anon_name(), tags: Set[Tag] = None, journey: List[PositionalMove] = None) -> Traveler:
     return Traveler(id=anon_prefixed_id(prefix="traveler"),
-                    name=anon_name(),
+                    name=name,
                     description=anon_description(),
-                    journey=anon_journey(),
-                    tags={anon_tag()})
+                    journey=journey if journey is not None else anon_journey(),
+                    tags=tags if tags is not None else {anon_tag()})
 
 
 def anon_create_location_kwargs(*, name: str = anon_name(), description: str = anon_description(),

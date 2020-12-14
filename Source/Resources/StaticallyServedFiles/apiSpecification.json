@@ -53,12 +53,20 @@
         "tags" : [ "Locations" ],
         "parameters" : [ {
           "in" : "query",
-          "name" : "name",
-          "description" : "Filters to Locations with the queried name",
+          "name" : "nameIs",
+          "description" : "Filters to only include Locations which have a name equal to the specified value",
           "schema" : {
             "type" : "string"
           },
           "example" : "The Great Pyramid"
+        }, {
+          "in" : "query",
+          "name" : "nameHas",
+          "description" : "Filters to only include Locations which have a name that contains the specified value",
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Pyramid"
         }, {
           "in" : "query",
           "name" : "taggedAll",
@@ -182,7 +190,7 @@
         "tags" : [ "Locations" ],
         "parameters" : [ {
           "in" : "query",
-          "name" : "eventsTaggedAll",
+          "name" : "taggedAll",
           "description" : "Comma separated list of tags. Filters timeline to include events which have all of the specified tags.",
           "schema" : {
             "type" : "string"
@@ -190,7 +198,7 @@
           "example" : "important,unimportant"
         }, {
           "in" : "query",
-          "name" : "eventsTaggedAny",
+          "name" : "taggedAny",
           "description" : "Comma separated list of tags. Filters timeline to include events which have at least one of the specified tags.",
           "schema" : {
             "type" : "string"
@@ -198,7 +206,7 @@
           "example" : "important,unimportant"
         }, {
           "in" : "query",
-          "name" : "eventsTaggedOnly",
+          "name" : "taggedOnly",
           "description" : "Comma separated list of tags. Filters timeline to include events which are only tagged with the specified tags _(or a subset of them)_.",
           "schema" : {
             "type" : "string"
@@ -206,7 +214,7 @@
           "example" : "important,unimportant"
         }, {
           "in" : "query",
-          "name" : "eventsTaggedNone",
+          "name" : "taggedNone",
           "description" : "Comma separated list of tags. Filters timeline to include events which have none of the of the specified tags.",
           "schema" : {
             "type" : "string"
@@ -263,12 +271,20 @@
         "tags" : [ "Travelers" ],
         "parameters" : [ {
           "in" : "query",
-          "name" : "name",
-          "description" : "Filters to Travelers with the queried name",
+          "name" : "nameIs",
+          "description" : "Filters to only include Travelers which have a name equal to the specified value",
           "schema" : {
             "type" : "string"
           },
           "example" : "James T. Kirk"
+        }, {
+          "in" : "query",
+          "name" : "nameHas",
+          "description" : "Filters to only include Travelers which have a name that contains the specified value",
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Kirk"
         }, {
           "in" : "query",
           "name" : "taggedAll",
@@ -392,7 +408,7 @@
         "tags" : [ "Travelers" ],
         "parameters" : [ {
           "in" : "query",
-          "name" : "eventsTaggedAll",
+          "name" : "taggedAll",
           "description" : "Comma separated list of tags. Filters timeline to include events which have all of the specified tags.",
           "schema" : {
             "type" : "string"
@@ -400,7 +416,7 @@
           "example" : "important,unimportant"
         }, {
           "in" : "query",
-          "name" : "eventsTaggedAny",
+          "name" : "taggedAny",
           "description" : "Comma separated list of tags. Filters timeline to include events which have at least one of the specified tags.",
           "schema" : {
             "type" : "string"
@@ -408,7 +424,7 @@
           "example" : "important,unimportant"
         }, {
           "in" : "query",
-          "name" : "eventsTaggedOnly",
+          "name" : "taggedOnly",
           "description" : "Comma separated list of tags. Filters timeline to include events which are only tagged with the specified tags _(or a subset of them)_.",
           "schema" : {
             "type" : "string"
@@ -416,7 +432,7 @@
           "example" : "important,unimportant"
         }, {
           "in" : "query",
-          "name" : "eventsTaggedNone",
+          "name" : "taggedNone",
           "description" : "Comma separated list of tags. Filters timeline to include events which have none of the of the specified tags.",
           "schema" : {
             "type" : "string"
@@ -473,12 +489,52 @@
         "tags" : [ "Events" ],
         "parameters" : [ {
           "in" : "query",
-          "name" : "name",
-          "description" : "Filters to Events with the queried name",
+          "name" : "nameIs",
+          "description" : "Filters to only include Events which have a name equal to the specified value",
           "schema" : {
             "type" : "string"
           },
           "example" : "Skirmish in the market"
+        }, {
+          "in" : "query",
+          "name" : "nameHas",
+          "description" : "Filters to only include Events which have a name that contains the specified value",
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "Skirmish"
+        }, {
+          "in" : "query",
+          "name" : "taggedAll",
+          "description" : "Comma separated list of tags. Filters to only include Events which have all of the specified tags.",
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "important,unimportant"
+        }, {
+          "in" : "query",
+          "name" : "taggedAny",
+          "description" : "Comma separated list of tags. Filters to only include Events which have at least one of the specified tags.",
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "important,unimportant"
+        }, {
+          "in" : "query",
+          "name" : "taggedOnly",
+          "description" : "Comma separated list of tags. Filters to only include Events which are only tagged with the specified tags _(or a subset of them)_.",
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "important,unimportant"
+        }, {
+          "in" : "query",
+          "name" : "taggedNone",
+          "description" : "Comma separated list of tags. Filters to only include Events which have none of the of the specified tags.",
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "important,unimportant"
         } ],
         "responses" : {
           "200" : {
