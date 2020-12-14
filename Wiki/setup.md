@@ -1,10 +1,14 @@
-## Development Setup
+# Application Setup
 
-### Requirements
+## Requirements
 
 - Python >= 3.7
 - Python Modules as laid out in `requirements.txt`
+
+## App Configuration
+
 - Create a configuration file, the following can be used as an example:
+
 ```yaml
 ---
 # Configuration for the Timeline Tracker Application
@@ -24,16 +28,18 @@ flask_run_config: {
 }
 ```
 
-### Running the API
+## Running the API
 
 __In PyCharm__
+
 - Select `flask_app.py` as the primary script.
 - Specify the above configuration file path as the first argument _(parameter)_.
 - Set the following environment variables:`PYTHONUNBUFFERED=1;FLASK_ENV=development`
 
-### Running Tests
+## Running Tests
 
 __In PyCharm__
+
 - Ensure the `Source/Python` directory is marked as a source root
 - Select the `Test/Unittest` directory to create the PyCharm Unittest run config
 - Modify the working directory parameter to point at the main project root.
