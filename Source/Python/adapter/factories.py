@@ -15,7 +15,7 @@ class RepositoriesFactory:
     @property
     def traveler_repo(self) -> TravelerRepository:
         return self._traveler_repo
-    
+
     @property
     def event_repo(self) -> EventRepository:
         return self._event_repo

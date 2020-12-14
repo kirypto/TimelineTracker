@@ -173,6 +173,14 @@ class TravelerIdView(PrefixedIdView):
         return ValueTranslator.from_json(traveler_id_str, PrefixedUUID)
 
 
+class EventIdView(PrefixedIdView):
+    @staticmethod
+    def from_json(event_id_str: str) -> PrefixedUUID:
+        if not event_id_str.startswith("event-"):
+            raise ValueError(f"Cannot parse event id from '{event_id_str}")
+        return ValueTranslator.from_json(event_id_str, PrefixedUUID)
+
+
 class LocationView(DomainConstructedView):
     __attribute_types_by_name = {
         "id": PrefixedUUID,
