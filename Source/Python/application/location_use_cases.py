@@ -5,8 +5,6 @@ from application.filtering_use_cases import FilteringUseCase
 from domain.ids import PrefixedUUID
 from domain.locations import Location
 from domain.persistence.repositories import LocationRepository
-from domain.positions import PositionalRange
-from domain.tags import Tag
 
 
 class LocationUseCase:

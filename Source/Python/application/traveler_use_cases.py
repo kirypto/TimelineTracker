@@ -1,11 +1,9 @@
-from typing import Set, List
+from typing import Set
 from uuid import uuid4
 
 from application.filtering_use_cases import FilteringUseCase
 from domain.ids import PrefixedUUID
 from domain.persistence.repositories import TravelerRepository
-from domain.positions import PositionalMove
-from domain.tags import Tag
 from domain.travelers import Traveler
 
 

@@ -142,3 +142,13 @@ def anon_create_traveler_kwargs(*, name: str = anon_name(), description: str = a
         "journey": journey if journey is not None else anon_journey(),
         "tags": tags if tags is not None else {anon_tag()},
     }
+
+
+def anon_create_event_kwargs(*, name: str = anon_name(), description: str = anon_description(),
+                             span: PositionalRange = anon_positional_range(), tags: Set[Tag] = None) -> dict:
+    return {
+        "name": name,
+        "description": description,
+        "span": span,
+        "tags": tags if tags is not None else {anon_tag()},
+    }
