@@ -34,9 +34,10 @@ it visits. A traveler can interact with other travelers and locations.
 - `Location`: a place of significance that traveler's can come to and leave
 from.
    - A location has a description, which provides details about the location.
-   - A location has a positional range that covers specified what area it covers
+   - A location has a span, which is the positional range that specifies what
+   area the location exists within.
    in each dimension. Most locations will consist of an area that spans 4 of the
-   5 dimensions: it's 3-dimensional area and the time range from when it was
+   5 dimensions: it's 3-dimensional area, and the time range from when it was
    constructed to when it will be no more. It's range in the 5th dimension is
    still a range but is likely only one point in that dimension _(the low and
    high values are equal)_.
@@ -45,15 +46,18 @@ from.
 - `Event`: An interaction, connection, or other thing which happens at a place
 to and optionally includes travelers.
    - An event has a description, which summarizes the details of what occurs.
-   - An event has either a positional range, which is the multi-dimensional span
-   over which the event occurs.
-   - An event has a set of travelers. Most events have at least one traveler,
-indicating that the event affected or included those travelers. Events without
-any travelers are supported but must still have a position or location _(for
-example a natural disaster in a remote area)_.
-   - An event has a set of locations showing which locations were affected by
-   the event. This set can have 0 or more locations, but each location's span
-   must intersect with the event's span at least partially.
+   - An event has a span, which is the positional range that specifies what area
+   the event effects.
+   - An event has a set of zero or more traveler ids that identify which _(if
+   any)_ travelers were affected by the event. To be valid, the referenced
+   travelers must have a position in their respective journeys within the span
+   of the event. Some events may not affect any travelers at all, for example
+   a natural disaster in a remote area.
+   - An event has a set of zero or more location ids what identify which _(if
+   any)_ location were affected by the event. To be valid, the referenced
+   locations' spans must intersect with the span of the event. Some events may
+   not affect any locations, such as meeting between travelers out in the
+   wilderness.
    - An event can have zero or more tags, which are strings to allow easy
    identification and other utilities such as filtering and querying.
 
@@ -64,10 +68,9 @@ assist in retrieving desired items.
    - Tags can be filtered as follows:
       - `All`: Only items which have each of the given tags will be returned.
       - `Any`: Items which have at least one of the given tags will be returned.
-      - `Only`: Items which have only the given tags will be returned. Items with
-      a subset of the given tags will be returned.
-      - `None`: Items which do not have any of the of the given tags will be
-      returned.
+      - `Only`: Items which have only the given tags will be returned. Items 
+      with a subset of the given tags will be returned.
+      - `None`: Items which do not have any of the given tags will be returned.
    - Multiple filters can be used simultaneously. Non-intersecting filters
    _(such as combining `only=A` and `none=A`)_ will result in an empty list.
    - Because having an empty tag set is valid, the `Only` filters treats
