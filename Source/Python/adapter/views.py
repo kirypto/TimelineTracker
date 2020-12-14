@@ -3,6 +3,7 @@ from typing import Any, Set, List, Generic, TypeVar, Type
 from uuid import UUID
 
 from domain.collections import Range
+from domain.events import Event
 from domain.ids import PrefixedUUID
 from domain.locations import Location
 from domain.positions import PositionalRange, PositionalMove, Position, MovementType
@@ -229,4 +230,34 @@ class TravelerView(DomainConstructedView):
         return {
             attribute_name: translate_val(attribute_name, value)
             for attribute_name, value in traveler_view.items()
+        }
+
+
+class EventView(DomainConstructedView):
+    __attribute_types_by_name = {
+        "id": PrefixedUUID,
+        "name": str,
+        "description": str,
+        "span": PositionalRange,
+        "tags": Set[Tag]
+    }
+
+    @staticmethod
+    def to_json(event: Event) -> dict:
+        event_attributes = {attribute_name.replace("_", "", 1): value for attribute_name, value in vars(event).items()}
+        return {
+            attribute_name: ValueTranslator.to_json(event_attributes[attribute_name])
+            for attribute_name in EventView.__attribute_types_by_name.keys()
+        }
+
+    @staticmethod
+    def kwargs_from_json(event_view: dict) -> dict:
+        def translate_val(attribute_name, value):
+            if attribute_name not in EventView.__attribute_types_by_name:
+                raise ValueError(f"Failed to translate attribute '{attribute_name}' when constructing {Event.__name__}")
+            return ValueTranslator.from_json(value, EventView.__attribute_types_by_name[attribute_name])
+
+        return {
+            attribute_name: translate_val(attribute_name, value)
+            for attribute_name, value in event_view.items()
         }

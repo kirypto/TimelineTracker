@@ -58,7 +58,7 @@ def anon_movement_type() -> MovementType:
 
 
 def anon_name(num_chars: int = 10) -> str:
-    return "".join(choices(ascii_letters + "_. ", k=num_chars))
+    return ("".join(choices(ascii_letters + "_. ", k=num_chars))).strip()
 
 
 def anon_prefixed_id(*, prefix: str = anon_id_prefix(20)) -> PrefixedUUID:

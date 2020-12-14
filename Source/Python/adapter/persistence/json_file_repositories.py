@@ -2,10 +2,11 @@ from json import dumps, loads
 from pathlib import Path
 from typing import Set, Type, Generic, TypeVar
 
-from adapter.views import LocationView, TravelerView, DomainConstructedView
+from adapter.views import LocationView, TravelerView, DomainConstructedView, EventView
+from domain.events import Event
 from domain.ids import PrefixedUUID, IdentifiedEntity
 from domain.locations import Location
-from domain.persistence.repositories import LocationRepository, TravelerRepository
+from domain.persistence.repositories import LocationRepository, TravelerRepository, EventRepository
 from domain.travelers import Traveler
 
 
@@ -112,3 +113,22 @@ class JsonFileTravelerRepository(TravelerRepository):
 
     def delete(self, traveler_id: PrefixedUUID) -> None:
         self._inner_repo.delete(traveler_id)
+
+
+class JsonFileEventRepository(EventRepository):
+    _inner_repo: _JsonFileIdentifiedEntityRepository[Event]
+
+    def __init__(self, **kwargs) -> None:
+        self._inner_repo = _JsonFileIdentifiedEntityRepository("EventRepo", Event, EventView, **kwargs)
+
+    def save(self, event: Event) -> None:
+        self._inner_repo.save(event)
+
+    def retrieve(self, event_id: PrefixedUUID) -> Event:
+        return self._inner_repo.retrieve(event_id)
+
+    def retrieve_all(self) -> Set[Event]:
+        return self._inner_repo.retrieve_all()
+
+    def delete(self, event_id: PrefixedUUID) -> None:
+        self._inner_repo.delete(event_id)
