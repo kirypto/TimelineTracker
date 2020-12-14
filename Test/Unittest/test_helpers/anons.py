@@ -4,6 +4,7 @@ from typing import Type, Any, Set, List
 from uuid import uuid4
 
 from domain.collections import Range
+from domain.events import Event
 from domain.ids import PrefixedUUID, IdentifiedEntity
 from domain.locations import Location
 from domain.positions import Position, PositionalRange, MovementType, PositionalMove
@@ -116,6 +117,11 @@ def anon_traveler(*, name: str = anon_name(), tags: Set[Tag] = None, journey: Li
                     description=anon_description(),
                     journey=journey if journey is not None else anon_journey(),
                     tags=tags if tags is not None else {anon_tag()})
+
+
+def anon_event() -> Event:
+    return Event(id=anon_prefixed_id(prefix="event"), name=anon_name(), description=anon_description(), span=anon_positional_range(),
+                 tags={anon_tag()})
 
 
 def anon_create_location_kwargs(*, name: str = anon_name(), description: str = anon_description(),
