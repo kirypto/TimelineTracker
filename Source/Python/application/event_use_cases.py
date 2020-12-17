@@ -28,14 +28,7 @@ class EventUseCase:
         kwargs["id"] = PrefixedUUID("event", uuid4())
         event = Event(**kwargs)
 
-        for affected_location_id in event.affected_locations:
-            location = self._location_repository.retrieve(affected_location_id)
-            if not location.span.intersects(event.span):
-                raise ValueError(f"Event's span does not intersect with {affected_location_id}'s span")
-        for affected_traveler_id in event.affected_travelers:
-            traveler = self._traveler_repository.retrieve(affected_traveler_id)
-            if not any([event.span.includes(positional_move.position) for positional_move in traveler.journey]):
-                raise ValueError(f"Event's span does not intersect with {affected_traveler_id}'s journey")
+        self._validate_affected_entities(event)
 
         self._event_repository.save(event)
 
@@ -70,14 +63,7 @@ class EventUseCase:
             affected_travelers=kwargs.pop("affected_travelers") if "affected_travelers" in kwargs else existing_event.affected_travelers,
             **kwargs)
 
-        for affected_location_id in updated_event.affected_locations:
-            location = self._location_repository.retrieve(affected_location_id)
-            if not location.span.intersects(updated_event.span):
-                raise ValueError(f"Event's span does not intersect with {affected_location_id}'s span")
-        for affected_traveler_id in updated_event.affected_travelers:
-            traveler = self._traveler_repository.retrieve(affected_traveler_id)
-            if not any([updated_event.span.includes(positional_move.position) for positional_move in traveler.journey]):
-                raise ValueError(f"Event's span does not intersect with {affected_traveler_id}'s journey")
+        self._validate_affected_entities(updated_event)
 
         self._event_repository.save(updated_event)
         return updated_event
@@ -87,3 +73,15 @@ class EventUseCase:
             raise ValueError("Argument 'event_id' must be prefixed with 'event'")
 
         return self._event_repository.delete(event_id)
+
+    def _validate_affected_entities(self, updated_event):
+
+        for affected_location_id in updated_event.affected_locations:
+            location = self._location_repository.retrieve(affected_location_id)
+            if not location.span.intersects(updated_event.span):
+                raise ValueError(f"Event's span does not intersect with {affected_location_id}'s span")
+
+        for affected_traveler_id in updated_event.affected_travelers:
+            traveler = self._traveler_repository.retrieve(affected_traveler_id)
+            if not any([updated_event.span.includes(positional_move.position) for positional_move in traveler.journey]):
+                raise ValueError(f"Event's span does not intersect with {affected_traveler_id}'s journey")
