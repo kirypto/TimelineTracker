@@ -74,8 +74,7 @@ class EventUseCase:
 
         return self._event_repository.delete(event_id)
 
-    def _validate_affected_entities(self, updated_event):
-
+    def _validate_affected_entities(self, updated_event: Event) -> None:
         for affected_location_id in updated_event.affected_locations:
             location = self._location_repository.retrieve(affected_location_id)
             if not location.span.intersects(updated_event.span):
