@@ -119,9 +119,11 @@ def anon_traveler(*, name: str = anon_name(), tags: Set[Tag] = None, journey: Li
                     tags=tags if tags is not None else {anon_tag()})
 
 
-def anon_event() -> Event:
-    return Event(affected_locations={anon_prefixed_id(prefix="location")}, affected_travelers={anon_prefixed_id(prefix="traveler")},
-                 id=anon_prefixed_id(prefix="event"), name=anon_name(), description=anon_description(), span=anon_positional_range(),
+def anon_event(*, affected_locations: Set[PrefixedUUID] = frozenset([anon_prefixed_id(prefix="location")]),
+               affected_travelers: Set[PrefixedUUID] = frozenset([anon_prefixed_id(prefix="traveler")]),
+               span: PositionalRange = anon_positional_range()) -> Event:
+    return Event(affected_locations=affected_locations, affected_travelers=affected_travelers,
+                 id=anon_prefixed_id(prefix="event"), name=anon_name(), description=anon_description(), span=span,
                  tags={anon_tag()})
 
 
