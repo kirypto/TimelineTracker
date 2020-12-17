@@ -2,16 +2,20 @@ from unittest import TestCase
 from unittest.mock import patch, MagicMock
 
 from Test.Unittest.test_helpers.anons import anon_journey, anon_prefixed_id, anon_name, anon_description, anon_tag, \
-    anon_create_traveler_kwargs, anon_traveler, anon_anything
-from adapter.persistence.in_memory_repositories import InMemoryTravelerRepository
+    anon_create_traveler_kwargs, anon_traveler, anon_anything, anon_positional_range, anon_event
+from adapter.persistence.in_memory_repositories import InMemoryTravelerRepository, InMemoryEventRepository
 from application.traveler_use_cases import TravelerUseCase
+from domain.persistence.repositories import EventRepository
+from domain.positions import PositionalMove, MovementType, Position
 
 
 class TestTravelerUsecase(TestCase):
+    event_repository: EventRepository
     traveler_use_case: TravelerUseCase
 
     def setUp(self) -> None:
-        self.traveler_use_case = TravelerUseCase(InMemoryTravelerRepository())
+        self.event_repository = InMemoryEventRepository()
+        self.traveler_use_case = TravelerUseCase(InMemoryTravelerRepository(), self.event_repository)
 
     def test__create__should_not_require_id_passed_in(self) -> None:
         # Arrange
@@ -160,6 +164,23 @@ class TestTravelerUsecase(TestCase):
         # Assert
         self.assertRaises(ValueError, Action)
 
+    def test__update__should_reject_attempts_to_change_journey_causing_it_to_no_longer_intersect_linked_events(self) -> None:
+        # Arrange
+        span = anon_positional_range()
+        journey = [PositionalMove(
+            position=Position(latitude=span.latitude.low, longitude=span.longitude.low, altitude=span.altitude.low, continuum=span.continuum.low,
+                              reality=span.reality.low),
+            movement_type=MovementType.IMMEDIATE)]
+        traveler = self.traveler_use_case.create(**anon_create_traveler_kwargs(journey=journey))
+        self.event_repository.save(anon_event(affected_travelers={traveler.id}, span=span))
+
+        # Act
+        # noinspection PyArgumentList
+        def Action(): self.traveler_use_case.update(traveler.id, journey=anon_journey())
+
+        # Assert
+        self.assertRaises(ValueError, Action)
+
     def test__update__should_update_provided_attributes__when_attributes_provided(self) -> None:
         # Arrange
         traveler = self.traveler_use_case.create(**anon_create_traveler_kwargs())
@@ -207,3 +228,15 @@ class TestTravelerUsecase(TestCase):
 
         # Assert
         self.assertRaises(ValueError, Action)
+
+    def test__delete__should_reject_attempts_to_delete_travelers_that_are_linked_to_an_event(self) -> None:
+        # Arrange
+        traveler = self.traveler_use_case.create(**anon_create_traveler_kwargs())
+        self.event_repository.save(anon_event(affected_travelers={traveler.id}))
+
+        # Act
+        def Action(): self.traveler_use_case.delete(traveler.id)
+
+        # Assert
+        self.assertRaises(ValueError, Action)
+

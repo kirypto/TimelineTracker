@@ -70,7 +70,7 @@ class LocationUseCase:
 
         return self._location_repository.delete(location_id)
 
-    def _validate_no_linked_events_for_delete(self, location_id) -> None:
+    def _validate_no_linked_events_for_delete(self, location_id: PrefixedUUID) -> None:
         all_events = self._event_repository.retrieve_all()
         linked_event_ids = [str(event.id) for event in all_events if location_id in event.affected_locations]
         if linked_event_ids:
