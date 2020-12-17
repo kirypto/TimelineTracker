@@ -2,16 +2,22 @@ from unittest import TestCase
 from unittest.mock import patch, MagicMock
 
 from Test.Unittest.test_helpers.anons import anon_prefixed_id, anon_positional_range, anon_name, anon_description, anon_tag, \
-    anon_create_event_kwargs, anon_event, anon_anything
-from adapter.persistence.in_memory_repositories import InMemoryEventRepository
+    anon_create_event_kwargs, anon_event, anon_anything, anon_location, anon_traveler
+from adapter.persistence.in_memory_repositories import InMemoryEventRepository, InMemoryLocationRepository, InMemoryTravelerRepository
 from application.event_use_cases import EventUseCase
+from domain.persistence.repositories import TravelerRepository, LocationRepository
+from domain.positions import PositionalMove, MovementType, Position
 
 
 class TestEventUsecase(TestCase):
     event_use_case: EventUseCase
+    location_repository: LocationRepository
+    traveler_repository: TravelerRepository
 
     def setUp(self) -> None:
-        self.event_use_case = EventUseCase(InMemoryEventRepository())
+        self.location_repository = InMemoryLocationRepository()
+        self.traveler_repository = InMemoryTravelerRepository()
+        self.event_use_case = EventUseCase(self.location_repository, self.traveler_repository, InMemoryEventRepository())
 
     def test__create__should_not_require_id_passed_in(self) -> None:
         # Arrange
@@ -32,7 +38,7 @@ class TestEventUsecase(TestCase):
         # Assert
         self.assertNotEqual(undesired_id, event.id)
 
-    def test__create__should_use_provided_args(self) -> None:
+    def test__create__should_use_provided_args__when_affected_travelers_and_locations_not_provided(self) -> None:
         # Arrange
         expected_span = anon_positional_range()
         expected_name = anon_name()
@@ -41,13 +47,58 @@ class TestEventUsecase(TestCase):
 
         # Act
         event = self.event_use_case.create(span=expected_span, name=expected_name, description=expected_description,
-                                           tags=expected_tags)
+                                           tags=expected_tags, affected_locations=set(), affected_travelers=set())
 
         # Assert
         self.assertEqual(expected_span, event.span)
         self.assertEqual(expected_name, event.name)
         self.assertEqual(expected_description, event.description)
-        self.assertEqual(expected_tags, event.tags)
+        self.assertSetEqual(expected_tags, event.tags)
+        self.assertSetEqual(set(), event.affected_locations)
+        self.assertSetEqual(set(), event.affected_travelers)
+
+    def test__create__should_use_provided_args__when_affected_travelers_and_locations_intersect_events(self) -> None:
+        # Arrange
+        span = anon_positional_range()
+        location = anon_location(span=span)
+        journey = [PositionalMove(
+            position=Position(latitude=span.latitude.low, longitude=span.longitude.low, altitude=span.altitude.low, continuum=span.continuum.low,
+                              reality=span.reality.low), movement_type=MovementType.IMMEDIATE)]
+        traveler = anon_traveler(journey=journey)
+        self.location_repository.save(location)
+        self.traveler_repository.save(traveler)
+
+        # Act
+        event = self.event_use_case.create(span=span, name=anon_name(), description=anon_description(), tags={anon_tag()},
+                                           affected_travelers={traveler.id}, affected_locations={location.id})
+
+        # Assert
+        self.assertSetEqual({location.id}, event.affected_locations)
+        self.assertSetEqual({traveler.id}, event.affected_travelers)
+
+    def test__create__should_reject_affected_locations_that_do_not_intersect_event(self) -> None:
+        # Arrange
+        location = anon_location()
+        self.location_repository.save(location)
+
+        # Act
+        def Action(): self.event_use_case.create(span=anon_positional_range(), name=anon_name(), description=anon_description(), tags={anon_tag()},
+                                                 affected_locations={location.id})
+
+        # Assert
+        self.assertRaises(ValueError, Action)
+
+    def test__create__should_reject_affected_travelers_that_do_not_intersect_event(self) -> None:
+        # Arrange
+        traveler = anon_traveler()
+        self.traveler_repository.save(traveler)
+
+        # Act
+        def Action(): self.event_use_case.create(span=anon_positional_range(), name=anon_name(), description=anon_description(), tags={anon_tag()},
+                                                 affected_travelers={traveler.id})
+
+        # Assert
+        self.assertRaises(ValueError, Action)
 
     def test__retrieve__should_return_saved__when_exists(self) -> None:
         # Arrange
@@ -157,6 +208,30 @@ class TestEventUsecase(TestCase):
         # Act
         # noinspection PyArgumentList
         def Action(): self.event_use_case.update(event.id, id=anon_prefixed_id(prefix="event"))
+
+        # Assert
+        self.assertRaises(ValueError, Action)
+
+    def test__update__should_reject_affected_locations_that_do_not_intersect_event(self) -> None:
+        # Arrange
+        event = self.event_use_case.create(**anon_create_event_kwargs())
+        location = anon_location()
+        self.location_repository.save(location)
+
+        # Act
+        def Action(): self.event_use_case.update(event.id, affected_locations={location.id})
+
+        # Assert
+        self.assertRaises(ValueError, Action)
+
+    def test__update__should_reject_affected_travelers_that_do_not_intersect_event(self) -> None:
+        # Arrange
+        event = self.event_use_case.create(**anon_create_event_kwargs())
+        traveler = anon_traveler()
+        self.traveler_repository.save(traveler)
+
+        # Act
+        def Action(): self.event_use_case.update(event.id, affected_travelers={traveler.id})
 
         # Assert
         self.assertRaises(ValueError, Action)

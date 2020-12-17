@@ -145,11 +145,14 @@ def anon_create_traveler_kwargs(*, name: str = anon_name(), description: str = a
     }
 
 
-def anon_create_event_kwargs(*, name: str = anon_name(), description: str = anon_description(),
-                             span: PositionalRange = anon_positional_range(), tags: Set[Tag] = None) -> dict:
+def anon_create_event_kwargs(*, name: str = anon_name(), description: str = anon_description(), span: PositionalRange = anon_positional_range(),
+                             tags: Set[Tag] = frozenset([anon_tag()]), affected_locations: Set[PrefixedUUID] = frozenset(),
+                             affected_travelers: Set[PrefixedUUID] = frozenset()) -> dict:
     return {
         "name": name,
         "description": description,
         "span": span,
-        "tags": tags if tags is not None else {anon_tag()},
+        "tags": set(tags),
+        "affected_locations": set(affected_locations),
+        "affected_travelers": set(affected_travelers),
     }

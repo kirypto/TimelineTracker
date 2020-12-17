@@ -26,7 +26,7 @@ class TimelineTrackerApp:
         repositories_factory = RepositoriesFactory(**repositories_config)
         location_use_case = LocationUseCase(repositories_factory.location_repo)
         traveler_use_case = TravelerUseCase(repositories_factory.traveler_repo)
-        event_use_case = EventUseCase(repositories_factory.event_repo)
+        event_use_case = EventUseCase(repositories_factory.location_repo, repositories_factory.traveler_repo, repositories_factory.event_repo)
         self._travelers_request_handler = TravelersRequestHandler(traveler_use_case)
         self._locations_request_handler = LocationsRequestHandler(location_use_case)
         self._event_request_handler = EventsRequestHandler(event_use_case)
