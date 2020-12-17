@@ -44,14 +44,10 @@ class EventUseCase:
         if "id" in kwargs:
             raise ValueError(f"Cannot update 'id' attribute of {Event.__name__}")
         existing_event = self._event_repository.retrieve(event_id)
-        updated_event = Event(
-            id=event_id,
-            name=kwargs.pop("name") if "name" in kwargs else existing_event.name,
-            description=kwargs.pop("description") if "description" in kwargs else existing_event.description,
-            span=kwargs.pop("span") if "span" in kwargs else existing_event.span,
-            tags=kwargs.pop("tags") if "tags" in kwargs else existing_event.tags,
-            **kwargs
-        )
+        updated_event = Event(id=event_id, name=kwargs.pop("name") if "name" in kwargs else existing_event.name,
+                              description=kwargs.pop("description") if "description" in kwargs else existing_event.description,
+                              span=kwargs.pop("span") if "span" in kwargs else existing_event.span,
+                              tags=kwargs.pop("tags") if "tags" in kwargs else existing_event.tags, **kwargs)
         self._event_repository.save(updated_event)
         return updated_event
 

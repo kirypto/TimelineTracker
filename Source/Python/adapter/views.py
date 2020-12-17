@@ -69,6 +69,9 @@ class ValueTranslator(Generic[T]):
                 if type(value) is not str:
                     raise ValueError(f"Expected a str, got {type(value)}")
                 return value
+            if type_ is Set[PrefixedUUID]:
+                ids_json: list = value
+                return {ValueTranslator.from_json(id_, PrefixedUUID) for id_ in ids_json}
             if type_ is PrefixedUUID:
                 prefixed_uuid_raw: str = value
                 prefix, uuid = prefixed_uuid_raw.split("-", 1)
@@ -247,7 +250,9 @@ class EventView(DomainConstructedView):
         "name": str,
         "description": str,
         "span": PositionalRange,
-        "tags": Set[Tag]
+        "tags": Set[Tag],
+        "affected_travelers": Set[PrefixedUUID],
+        "affected_locations": Set[PrefixedUUID],
     }
 
     @staticmethod

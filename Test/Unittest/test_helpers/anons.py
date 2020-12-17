@@ -120,7 +120,8 @@ def anon_traveler(*, name: str = anon_name(), tags: Set[Tag] = None, journey: Li
 
 
 def anon_event() -> Event:
-    return Event(id=anon_prefixed_id(prefix="event"), name=anon_name(), description=anon_description(), span=anon_positional_range(),
+    return Event(affected_locations={anon_prefixed_id(prefix="location")}, affected_travelers={anon_prefixed_id(prefix="traveler")},
+                 id=anon_prefixed_id(prefix="event"), name=anon_name(), description=anon_description(), span=anon_positional_range(),
                  tags={anon_tag()})
 
 
