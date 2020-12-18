@@ -1,9 +1,10 @@
 from copy import deepcopy
 from typing import Set, Dict, TypeVar, Generic, Type
 
+from domain.events import Event
 from domain.ids import PrefixedUUID, IdentifiedEntity
 from domain.locations import Location
-from domain.persistence.repositories import LocationRepository, TravelerRepository
+from domain.persistence.repositories import LocationRepository, TravelerRepository, EventRepository
 from domain.travelers import Traveler
 
 
@@ -81,3 +82,22 @@ class InMemoryTravelerRepository(TravelerRepository):
 
     def delete(self, traveler_id: PrefixedUUID) -> None:
         return self._inner_repo.delete(traveler_id)
+
+
+class InMemoryEventRepository(EventRepository):
+    _inner_repo: _InMemoryIdentifiedEntityRepository
+
+    def __init__(self) -> None:
+        self._inner_repo = _InMemoryIdentifiedEntityRepository(Event)
+
+    def save(self, event: Event) -> None:
+        self._inner_repo.save(event)
+
+    def retrieve(self, event_id: PrefixedUUID) -> Event:
+        return self._inner_repo.retrieve(event_id)
+
+    def retrieve_all(self) -> Set[Event]:
+        return self._inner_repo.retrieve_all()
+
+    def delete(self, event_id: PrefixedUUID) -> None:
+        return self._inner_repo.delete(event_id)

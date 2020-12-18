@@ -1,18 +1,20 @@
-from random import choice
 from unittest import TestCase
 from unittest.mock import patch, MagicMock
 
 from Test.Unittest.test_helpers.anons import anon_prefixed_id, anon_positional_range, anon_name, anon_description, anon_tag, \
-    anon_create_location_kwargs, anon_location, anon_anything
-from adapter.persistence.in_memory_repositories import InMemoryLocationRepository
+    anon_create_location_kwargs, anon_location, anon_anything, anon_event
+from adapter.persistence.in_memory_repositories import InMemoryLocationRepository, InMemoryEventRepository
 from application.location_use_cases import LocationUseCase
+from domain.persistence.repositories import EventRepository
 
 
 class TestLocationUsecase(TestCase):
+    event_repository: EventRepository
     location_use_case: LocationUseCase
 
     def setUp(self) -> None:
-        self.location_use_case = LocationUseCase(InMemoryLocationRepository())
+        self.event_repository = InMemoryEventRepository()
+        self.location_use_case = LocationUseCase(InMemoryLocationRepository(), self.event_repository)
 
     def test__create__should_not_require_id_passed_in(self) -> None:
         # Arrange
@@ -161,6 +163,19 @@ class TestLocationUsecase(TestCase):
         # Assert
         self.assertRaises(ValueError, Action)
 
+    def test__update__should_reject_attempts_to_change_span_causing_it_to_no_longer_intersect_linked_events(self) -> None:
+        # Arrange
+        span = anon_positional_range()
+        location = self.location_use_case.create(**anon_create_location_kwargs(span=span))
+        self.event_repository.save(anon_event(affected_locations={location.id}, span=span))
+
+        # Act
+        # noinspection PyArgumentList
+        def Action(): self.location_use_case.update(location.id, span=anon_positional_range())
+
+        # Assert
+        self.assertRaises(ValueError, Action)
+
     def test__update__should_update_provided_attributes__when_attributes_provided(self) -> None:
         # Arrange
         location = self.location_use_case.create(**anon_create_location_kwargs())
@@ -191,7 +206,7 @@ class TestLocationUsecase(TestCase):
         # Assert
         self.assertRaises(NameError, lambda: self.location_use_case.retrieve(location.id))
 
-    def test__delete__should_raise_exception__when_not_exits(self) -> None:
+    def test__delete__should_reject_ids_that_do_not_exist(self) -> None:
         # Arrange
 
         # Act
@@ -200,11 +215,22 @@ class TestLocationUsecase(TestCase):
         # Assert
         self.assertRaises(NameError, Action)
 
-    def test__delete__should_raise_exception__when_invalid_id_provided(self) -> None:
+    def test__delete__should_reject_invalid_ids(self) -> None:
         # Arrange
 
         # Act
         def Action(): self.location_use_case.delete(anon_prefixed_id())
+
+        # Assert
+        self.assertRaises(ValueError, Action)
+
+    def test__delete__should_reject_attempts_to_delete_locations_that_are_linked_to_an_event(self) -> None:
+        # Arrange
+        location = self.location_use_case.create(**anon_create_location_kwargs())
+        self.event_repository.save(anon_event(affected_locations={location.id}))
+
+        # Act
+        def Action(): self.location_use_case.delete(location.id)
 
         # Assert
         self.assertRaises(ValueError, Action)

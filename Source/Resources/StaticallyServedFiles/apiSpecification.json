@@ -708,10 +708,10 @@
           "span" : {
             "$ref" : "#/components/schemas/PositionalRange"
           },
-          "locations" : {
+          "affected_locations" : {
             "$ref" : "#/components/schemas/LocationIds"
           },
-          "travelers" : {
+          "affected_travelers" : {
             "$ref" : "#/components/schemas/TravelerIds"
           },
           "tags" : {

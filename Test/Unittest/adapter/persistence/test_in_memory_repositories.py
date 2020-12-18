@@ -1,8 +1,8 @@
 from unittest import TestCase
 
-from Test.Unittest.domain.persistence.test_repositories import TestLocationsRepository, TestTravelerRepository
-from adapter.persistence.in_memory_repositories import InMemoryLocationRepository, InMemoryTravelerRepository
-from domain.persistence.repositories import LocationRepository, TravelerRepository
+from Test.Unittest.domain.persistence.test_repositories import TestLocationsRepository, TestTravelerRepository, TestEventRepository
+from adapter.persistence.in_memory_repositories import InMemoryLocationRepository, InMemoryTravelerRepository, InMemoryEventRepository
+from domain.persistence.repositories import LocationRepository, TravelerRepository, EventRepository
 
 
 class TestInMemoryLocationRepository(TestLocationsRepository, TestCase):
@@ -21,3 +21,12 @@ class TestInMemoryTravelerRepository(TestTravelerRepository, TestCase):
     @property
     def repository(self) -> TravelerRepository:
         return self._traveler_repository
+
+
+class TestInMemoryEventRepository(TestEventRepository, TestCase):
+    def setUp(self) -> None:
+        self._event_repository = InMemoryEventRepository()
+
+    @property
+    def repository(self) -> EventRepository:
+        return self._event_repository

@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
 from typing import Callable, Any
 
-from Test.Unittest.test_helpers.anons import anon_location, anon_anything, anon_traveler
+from Test.Unittest.test_helpers.anons import anon_location, anon_anything, anon_traveler, anon_event
+from domain.events import Event
 from domain.ids import PrefixedUUID
 from domain.locations import Location
-from domain.persistence.repositories import LocationRepository, TravelerRepository
+from domain.persistence.repositories import LocationRepository, TravelerRepository, EventRepository
 from domain.travelers import Traveler
 
 
@@ -147,4 +148,17 @@ class TestTravelerRepository(TestSRDRepository):
         return anon_traveler()
 
     def get_entity_identifier(self, entity: Traveler) -> PrefixedUUID:
+        return entity.id
+
+
+class TestEventRepository(TestSRDRepository):
+    @property
+    @abstractmethod
+    def repository(self) -> EventRepository:
+        pass
+
+    def anon_entity(self) -> Event:
+        return anon_event()
+
+    def get_entity_identifier(self, entity: Event) -> PrefixedUUID:
         return entity.id

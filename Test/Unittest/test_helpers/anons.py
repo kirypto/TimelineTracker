@@ -4,6 +4,7 @@ from typing import Type, Any, Set, List
 from uuid import uuid4
 
 from domain.collections import Range
+from domain.events import Event
 from domain.ids import PrefixedUUID, IdentifiedEntity
 from domain.locations import Location
 from domain.positions import Position, PositionalRange, MovementType, PositionalMove
@@ -57,7 +58,7 @@ def anon_movement_type() -> MovementType:
 
 
 def anon_name(num_chars: int = 10) -> str:
-    return "".join(choices(ascii_letters + "_. ", k=num_chars))
+    return ("".join(choices(ascii_letters + "_. ", k=num_chars))).strip()
 
 
 def anon_prefixed_id(*, prefix: str = anon_id_prefix(20)) -> PrefixedUUID:
@@ -118,6 +119,14 @@ def anon_traveler(*, name: str = anon_name(), tags: Set[Tag] = None, journey: Li
                     tags=tags if tags is not None else {anon_tag()})
 
 
+def anon_event(*, affected_locations: Set[PrefixedUUID] = frozenset([anon_prefixed_id(prefix="location")]),
+               affected_travelers: Set[PrefixedUUID] = frozenset([anon_prefixed_id(prefix="traveler")]),
+               span: PositionalRange = anon_positional_range()) -> Event:
+    return Event(affected_locations=affected_locations, affected_travelers=affected_travelers,
+                 id=anon_prefixed_id(prefix="event"), name=anon_name(), description=anon_description(), span=span,
+                 tags={anon_tag()})
+
+
 def anon_create_location_kwargs(*, name: str = anon_name(), description: str = anon_description(),
                                 span: PositionalRange = anon_positional_range(), tags: Set[Tag] = None) -> dict:
     return {
@@ -135,4 +144,17 @@ def anon_create_traveler_kwargs(*, name: str = anon_name(), description: str = a
         "description": description,
         "journey": journey if journey is not None else anon_journey(),
         "tags": tags if tags is not None else {anon_tag()},
+    }
+
+
+def anon_create_event_kwargs(*, name: str = anon_name(), description: str = anon_description(), span: PositionalRange = anon_positional_range(),
+                             tags: Set[Tag] = frozenset([anon_tag()]), affected_locations: Set[PrefixedUUID] = frozenset(),
+                             affected_travelers: Set[PrefixedUUID] = frozenset()) -> dict:
+    return {
+        "name": name,
+        "description": description,
+        "span": span,
+        "tags": set(tags),
+        "affected_locations": set(affected_locations),
+        "affected_travelers": set(affected_travelers),
     }

@@ -4,19 +4,21 @@ from uuid import uuid4
 from application.filtering_use_cases import FilteringUseCase
 from domain.ids import PrefixedUUID
 from domain.locations import Location
-from domain.persistence.repositories import LocationRepository
-from domain.positions import PositionalRange
-from domain.tags import Tag
+from domain.persistence.repositories import LocationRepository, EventRepository
 
 
 class LocationUseCase:
     _location_repository: LocationRepository
+    _event_repository: EventRepository
 
-    def __init__(self, location_repository: LocationRepository) -> None:
+    def __init__(self, location_repository: LocationRepository, event_repository: EventRepository) -> None:
         if not isinstance(location_repository, LocationRepository):
             raise TypeError(f"Argument 'location_repository' must be of type {LocationRepository}")
+        if not isinstance(event_repository, EventRepository):
+            raise TypeError(f"Argument 'event_repository' must be of type {EventRepository}")
 
         self._location_repository = location_repository
+        self._event_repository = event_repository
 
     def create(self, **kwargs) -> Location:
         kwargs["id"] = PrefixedUUID("location", uuid4())
@@ -54,6 +56,9 @@ class LocationUseCase:
             tags=kwargs.pop("tags") if "tags" in kwargs else existing_location.tags,
             **kwargs
         )
+
+        self._validate_linked_events_still_intersect_for_update(updated_location)
+
         self._location_repository.save(updated_location)
         return updated_location
 
@@ -61,4 +66,20 @@ class LocationUseCase:
         if not location_id.prefix == "location":
             raise ValueError("Argument 'location_id' must be prefixed with 'location'")
 
+        self._validate_no_linked_events_for_delete(location_id)
+
         return self._location_repository.delete(location_id)
+
+    def _validate_no_linked_events_for_delete(self, location_id: PrefixedUUID) -> None:
+        all_events = self._event_repository.retrieve_all()
+        linked_event_ids = [str(event.id) for event in all_events if location_id in event.affected_locations]
+        if linked_event_ids:
+            raise ValueError(f"Cannot delete location, currently linked to the following Events {','.join(linked_event_ids)}")
+
+    def _validate_linked_events_still_intersect_for_update(self, updated_location: Location) -> None:
+        all_events = self._event_repository.retrieve_all()
+        linked_events = [event for event in all_events if updated_location.id in event.affected_locations]
+        for linked_event in linked_events:
+            if not linked_event.span.intersects(updated_location.span):
+                raise ValueError(f"Cannot modify location, currently linked to Event {linked_event.id} and the modification would cause them to no "
+                                 f"longer intersect")
