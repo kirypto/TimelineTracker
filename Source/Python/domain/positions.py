@@ -91,9 +91,9 @@ class PositionalRange:
                  **kwargs):
         def _validate_range(argument_name: str, range_: Range, acceptable_types: List[type]):
             if not isinstance(range_, Range):
-                raise TypeError(f"Argument '{argument_name}' must be a {Range}")
+                raise TypeError(f"{self.__class__.__name__} attribute '{argument_name}' must be a {Range.__name__}")
             if range_.type not in acceptable_types:
-                raise TypeError(f"Argument '{argument_name}' must be a Range of one of {acceptable_types}")
+                raise TypeError(f"{self.__class__.__name__} attribute '{argument_name}' must be a {Range.__name__} of one of {acceptable_types}")
             return Range(low=acceptable_types[0](range_.low), high=acceptable_types[0](range_.high))
 
         self._latitude = _validate_range("latitude", latitude, [float, int])
@@ -164,9 +164,9 @@ class PositionalMove:
 
     def __init__(self, *, position: Position, movement_type: MovementType) -> None:
         if not isinstance(position, Position):
-            raise TypeError(f"Argument 'position' must be of type {Position}")
+            raise TypeError(f"{self.__class__.__name__} attribute 'position' must be of type {Position}")
         if not isinstance(movement_type, MovementType):
-            raise TypeError(f"Argument 'movement_type' must be of type {MovementType}")
+            raise TypeError(f"{self.__class__.__name__} attribute 'movement_type' must be of type {MovementType}")
         self._position = position
         self._movement_type = movement_type
 
@@ -187,9 +187,9 @@ class SpanningEntity(BaseEntity):
     def span(self) -> PositionalRange:
         return self._span
 
-    def __init__(self, *, span, **kwargs):
+    def __init__(self, *, span, **kwargs) -> None:
         if not isinstance(span, PositionalRange):
-            raise TypeError(f"Argument 'span' must be a {PositionalRange}")
+            raise TypeError(f"{self.__class__.__name__} attribute 'span' must be a {PositionalRange.__name__}")
         self._span = span
         super().__init__(**kwargs)
 
@@ -211,7 +211,7 @@ class JourneyingEntity(BaseEntity):
 
     def __init__(self, journey: List[PositionalMove], **kwargs) -> None:
         if not isinstance(journey, list) or any([not isinstance(move, PositionalMove) for move in journey]):
-            raise TypeError(f"Argument 'journey' must be a list of {PositionalMove} items")
+            raise TypeError(f"{self.__class__.__name__} attribute 'journey' must be a list of {PositionalMove.__name__}s")
         self.validate_journey(journey)
         self._journey = journey
         super().__init__(**kwargs)
@@ -221,7 +221,7 @@ class JourneyingEntity(BaseEntity):
             return False
         return self._journey == other._journey and super().__eq__(other)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((JourneyingEntity, tuple(self._journey), super().__hash__()))
 
     @staticmethod
@@ -243,4 +243,3 @@ class JourneyingEntity(BaseEntity):
                     raise ValueError(f"Invalid journey: Cannot interpolate backwards in continuum. (problematic move was: {positional_move}, which "
                                      f"succeeded {last_position})")
             last_position = positional_move.position
-

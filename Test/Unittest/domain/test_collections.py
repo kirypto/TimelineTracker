@@ -6,49 +6,53 @@ from domain.collections import Range
 
 
 class TestRange(TestCase):
+    def test__init__should_reject_when_low_and_high_args_are_of_different_types(self) -> None:
+        # Arrange
+        non_float_type = choice(["string", False, True, 0])
+
+        # Act
+        # noinspection PyTypeChecker
+        def DifferentTypeLow(): Range(non_float_type, anon_float())
+
+        def DifferentTypeHigh(): Range(anon_float(), non_float_type)
+
+        # Assert
+        self.assertRaises(TypeError, DifferentTypeLow)
+        self.assertRaises(TypeError, DifferentTypeHigh)
+        
     def test__init__should_initialize_from_provided_args(self) -> None:
         # Arrange
         expected_low = anon_float()
         expected_high = expected_low + abs(anon_float())
 
         # Act
-        actual = Range(low=expected_low, high=expected_high)
+        actual = Range(expected_low, expected_high)
 
         # Assert
         self.assertEqual(expected_low, actual.low)
         self.assertEqual(expected_high, actual.high)
 
-    def test__init__should_reject_when_low_and_high_args_are_of_different_types(self) -> None:
+    def test__init__should_use_smaller_arg_as_low_and_larger_as_high__when_provided_out_of_order(self) -> None:
         # Arrange
-        non_float_type = choice(["string", False, True, 0])
+        expected_low = anon_float()
+        expected_high = expected_low + abs(anon_float())
 
         # Act
-        def DifferentTypeLow(): Range(low=non_float_type, high=anon_float())
-
-        def DifferentTypeHigh(): Range(low=anon_float(), high=non_float_type)
+        actual = Range(expected_high, expected_low)
 
         # Assert
-        self.assertRaises(TypeError, DifferentTypeLow)
-        self.assertRaises(TypeError, DifferentTypeHigh)
-
-    def test__init__should_reject_low_values_greater_than_high(self) -> None:
-        # Arrange
-        low = anon_float()
-        high = low - abs(anon_float())
-
-        # Act
-        def Action(): Range(low=low, high=high)
-
-        # Assert
-        self.assertRaises(ValueError, Action)
+        self.assertEqual(expected_low, actual.low)
+        self.assertEqual(expected_high, actual.high)
 
     def test__properties__should_not_be_mutable(self) -> None:
         # Arrange
         range_ = anon_range()
 
         # Act
+        # noinspection PyPropertyAccess
         def ActionLow(): range_.low = anon_float()
 
+        # noinspection PyPropertyAccess
         def ActionHigh(): range_.high = anon_float()
 
         # Assert
@@ -109,6 +113,7 @@ class TestRange(TestCase):
         range_ = anon_range(float)
 
         # Act
+        # noinspection PyTypeChecker
         def Action(): range_.intersects(invalid_type)
 
         # Assert
@@ -117,8 +122,8 @@ class TestRange(TestCase):
     def test__intersects__should_return_true__when_provided_range_partially_overlaps(self) -> None:
         # Arrange
         range_ = anon_range()
-        overlap_low = Range(low=range_.low - abs(anon_float()), high=range_.low + abs(anon_float()))
-        overlap_high = Range(low=range_.high - abs(anon_float()), high=range_.high + abs(anon_float()))
+        overlap_low = Range(range_.low - abs(anon_float()), range_.low + abs(anon_float()))
+        overlap_high = Range(range_.high - abs(anon_float()), range_.high + abs(anon_float()))
 
         # Act
         actual_low = range_.intersects(overlap_low)
@@ -131,8 +136,8 @@ class TestRange(TestCase):
     def test__intersects__should_return_true__when_provided_range_is_contiguous(self) -> None:
         # Arrange
         range_ = anon_range()
-        contiguous_low = Range(low=range_.low - abs(anon_float()), high=range_.low)
-        contiguous_high = Range(low=range_.high - abs(anon_float()), high=range_.high)
+        contiguous_low = Range(range_.low - abs(anon_float()), range_.low)
+        contiguous_high = Range(range_.high - abs(anon_float()), range_.high)
 
         # Act
         actual_low = range_.intersects(contiguous_low)
@@ -145,7 +150,7 @@ class TestRange(TestCase):
     def test__intersects__should_return_true__when_provided_range_contained_completely(self) -> None:
         # Arrange
         range_ = anon_range()
-        contained_range = Range(low=range_.low + 0.1, high=range_.high - 0.1)
+        contained_range = Range(range_.low + 0.1, range_.high - 0.1)
 
         # Act
         actual = range_.intersects(contained_range)
@@ -156,8 +161,8 @@ class TestRange(TestCase):
     def test__intersects__should_return_false__when_provided_range_does_not_overlap(self) -> None:
         # Arrange
         range_ = anon_range()
-        out_of_range_below = Range(low=range_.low - abs(anon_float()), high=range_.low - 0.1)
-        out_of_range_above = Range(low=range_.high + 0.1, high=range_.high + abs(anon_float()))
+        out_of_range_below = Range(range_.low - abs(anon_float()), range_.low - 0.1)
+        out_of_range_above = Range(range_.high + 0.1, range_.high + abs(anon_float()))
 
         # Act
         actual_below = range_.intersects(out_of_range_below)
@@ -171,10 +176,10 @@ class TestRange(TestCase):
         # Arrange
         low = anon_float()
         high = low + abs(anon_float())
-        position_a = Range(low=low, high=high)
-        position_b = Range(low=low, high=high)
-        position_c = Range(low=low, high=high + abs(anon_float()))
-        position_d = Range(low=low - abs(anon_float()), high=high)
+        position_a = Range(low, high)
+        position_b = Range(low, high)
+        position_c = Range(low, high + abs(anon_float()))
+        position_d = Range(low - abs(anon_float()), high)
 
         # Act
         actual_a_equals_b = position_a == position_b

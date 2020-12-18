@@ -219,7 +219,7 @@ class TestPositionalRange(TestCase):
         low = anon_int()
         high = low + abs(anon_int())
         within = anon_float(low, high)
-        range_ = Range(low=low, high=high)
+        range_ = Range(low, high)
         positional_range = PositionalRange(latitude=range_, longitude=range_, altitude=range_, continuum=range_, reality=range_)
         position = Position(latitude=low, longitude=high, altitude=within, continuum=within, reality=anon_int(low, high))
 
@@ -233,7 +233,7 @@ class TestPositionalRange(TestCase):
         # Arrange
         low = anon_int()
         high = low + abs(anon_int())
-        range_ = Range(low=low, high=high)
+        range_ = Range(low, high)
         positional_range = PositionalRange(latitude=range_, longitude=range_, altitude=range_, continuum=range_, reality=range_)
         out_of_range_values = [low - 1, high + 1]
         out_of_range_latitude = Position(latitude=choice(out_of_range_values), longitude=low, altitude=low, continuum=low, reality=low)
@@ -260,7 +260,7 @@ class TestPositionalRange(TestCase):
         # Arrange
         low = anon_int()
         high = low + abs(anon_int())
-        range_ = Range(low=low, high=high)
+        range_ = Range(low, high)
         positional_range = PositionalRange(latitude=range_, longitude=range_, altitude=range_, continuum=range_, reality=range_)
         invalid_type = choice([True, 1.0, "nope", positional_range])
 
@@ -274,13 +274,13 @@ class TestPositionalRange(TestCase):
         # Arrange
         low = anon_int()
         high = low + abs(anon_int())
-        range_ = Range(low=low, high=high)
+        range_ = Range(low, high)
         positional_range = PositionalRange(latitude=range_, longitude=range_, altitude=range_, continuum=range_, reality=range_)
-        other = PositionalRange(latitude=Range(low=high, high=high + 1),
-                                longitude=Range(low=low - 1, high=low),
-                                altitude=Range(low=high - 1, high=high + 1),
-                                continuum=Range(low=low - 1, high=low + 1),
-                                reality=Range(low=low - 1, high=high + 1))
+        other = PositionalRange(latitude=Range(high, high + 1),
+                                longitude=Range(low - 1, low),
+                                altitude=Range(high - 1, high + 1),
+                                continuum=Range(low - 1, low + 1),
+                                reality=Range(low - 1, high + 1))
 
         # Act
         actual = positional_range.intersects(other)
@@ -292,13 +292,13 @@ class TestPositionalRange(TestCase):
         # Arrange
         low = anon_int()
         high = low + abs(anon_int())
-        range_ = Range(low=low, high=high)
+        range_ = Range(low, high)
         positional_range = PositionalRange(latitude=range_, longitude=range_, altitude=range_, continuum=range_, reality=range_)
-        other = PositionalRange(latitude=Range(low=low + 1, high=high - 1),
-                                longitude=Range(low=low + 1, high=high - 1),
-                                altitude=Range(low=low + 1, high=high - 1),
-                                continuum=Range(low=low + 1, high=high - 1),
-                                reality=Range(low=low + 1, high=high - 1))
+        other = PositionalRange(latitude=Range(low + 1, high - 1),
+                                longitude=Range(low + 1, high - 1),
+                                altitude=Range(low + 1, high - 1),
+                                continuum=Range(low + 1, high - 1),
+                                reality=Range(low + 1, high - 1))
 
         # Act
         actual = positional_range.intersects(other)
@@ -310,9 +310,9 @@ class TestPositionalRange(TestCase):
         # Arrange
         low = anon_int()
         high = low + abs(anon_int())
-        range_ = Range(low=low, high=high)
+        range_ = Range(low, high)
         positional_range = PositionalRange(latitude=range_, longitude=range_, altitude=range_, continuum=range_, reality=range_)
-        out_of_bound_ranges = [Range(low=low - abs(anon_int()), high=low - 1), Range(low=high + 1, high=high + abs(anon_int()))]
+        out_of_bound_ranges = [Range(low - abs(anon_int()), low - 1), Range(high + 1, high + abs(anon_int()))]
         out_of_range_latitude = PositionalRange(latitude=choice(out_of_bound_ranges),
                                                 longitude=range_, altitude=range_, continuum=range_, reality=range_)
         out_of_range_longitude = PositionalRange(longitude=choice(out_of_bound_ranges),

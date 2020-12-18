@@ -1,21 +1,24 @@
 from typing import Set
 from uuid import uuid4
 
+from application.filtering_use_cases import FilteringUseCase
 from domain.ids import PrefixedUUID
 from domain.locations import Location
-from domain.persistence.repositories import LocationRepository
-from domain.positions import PositionalRange
-from domain.tags import Tag
+from domain.persistence.repositories import LocationRepository, EventRepository
 
 
 class LocationUseCase:
     _location_repository: LocationRepository
+    _event_repository: EventRepository
 
-    def __init__(self, location_repository: LocationRepository) -> None:
+    def __init__(self, location_repository: LocationRepository, event_repository: EventRepository) -> None:
         if not isinstance(location_repository, LocationRepository):
             raise TypeError(f"Argument 'location_repository' must be of type {LocationRepository}")
+        if not isinstance(event_repository, EventRepository):
+            raise TypeError(f"Argument 'event_repository' must be of type {EventRepository}")
 
         self._location_repository = location_repository
+        self._event_repository = event_repository
 
     def create(self, **kwargs) -> Location:
         kwargs["id"] = PrefixedUUID("location", uuid4())
@@ -31,35 +34,31 @@ class LocationUseCase:
 
         return self._location_repository.retrieve(location_id)
 
-    def retrieve_all(self, *, name: str = None, tagged_with_all: Set[Tag] = None, tagged_with_any: Set[Tag] = None, tagged_with_only: Set[Tag] = None,
-                     tagged_with_none: Set[Tag] = None) -> Set[Location]:
-        def matches_filters(location: Location) -> bool:
-            if name is not None and location.name != name:
-                return False
-            if tagged_with_all is not None and not tagged_with_all.issubset(location.tags):
-                return False
-            if tagged_with_any is not None and not tagged_with_any.intersection(location.tags):
-                return False
-            if tagged_with_only is not None and not tagged_with_only.issuperset(location.tags):
-                return False
-            if tagged_with_none is not None and not tagged_with_none.isdisjoint(location.tags):
-                return False
-            return True
+    def retrieve_all(self, **kwargs) -> Set[Location]:
+        all_locations = self._location_repository.retrieve_all()
+        name_filtered_locations, kwargs = FilteringUseCase.filter_named_entities(all_locations, **kwargs)
+        tag_filtered_locations, kwargs = FilteringUseCase.filter_tagged_entities(name_filtered_locations, **kwargs)
+        span_filtered_locations, kwargs = FilteringUseCase.filter_spanning_entities(tag_filtered_locations, **kwargs)
+        if kwargs:
+            raise ValueError(f"Unknown filters: {','.join(kwargs)}")
 
-        return {location for location in self._location_repository.retrieve_all() if matches_filters(location)}
+        return span_filtered_locations
 
-    def update(self, location_id: PrefixedUUID, *,
-               name: str = None, description: str = None, span: PositionalRange = None, tags: Set[Tag] = None) -> Location:
-
+    def update(self, location_id: PrefixedUUID, **kwargs) -> Location:
+        if "id" in kwargs:
+            raise ValueError(f"Cannot update 'id' attribute of {Location.__name__}")
         existing_location = self._location_repository.retrieve(location_id)
-
         updated_location = Location(
             id=location_id,
-            name=name if name is not None else existing_location.name,
-            description=description if description is not None else existing_location.description,
-            span=span if span is not None else existing_location.span,
-            tags=tags if tags is not None else existing_location.tags,
+            name=kwargs.pop("name") if "name" in kwargs else existing_location.name,
+            description=kwargs.pop("description") if "description" in kwargs else existing_location.description,
+            span=kwargs.pop("span") if "span" in kwargs else existing_location.span,
+            tags=kwargs.pop("tags") if "tags" in kwargs else existing_location.tags,
+            **kwargs
         )
+
+        self._validate_linked_events_still_intersect_for_update(updated_location)
+
         self._location_repository.save(updated_location)
         return updated_location
 
@@ -67,4 +66,20 @@ class LocationUseCase:
         if not location_id.prefix == "location":
             raise ValueError("Argument 'location_id' must be prefixed with 'location'")
 
+        self._validate_no_linked_events_for_delete(location_id)
+
         return self._location_repository.delete(location_id)
+
+    def _validate_no_linked_events_for_delete(self, location_id: PrefixedUUID) -> None:
+        all_events = self._event_repository.retrieve_all()
+        linked_event_ids = [str(event.id) for event in all_events if location_id in event.affected_locations]
+        if linked_event_ids:
+            raise ValueError(f"Cannot delete location, currently linked to the following Events {','.join(linked_event_ids)}")
+
+    def _validate_linked_events_still_intersect_for_update(self, updated_location: Location) -> None:
+        all_events = self._event_repository.retrieve_all()
+        linked_events = [event for event in all_events if updated_location.id in event.affected_locations]
+        for linked_event in linked_events:
+            if not linked_event.span.intersects(updated_location.span):
+                raise ValueError(f"Cannot modify location, currently linked to Event {linked_event.id} and the modification would cause them to no "
+                                 f"longer intersect")

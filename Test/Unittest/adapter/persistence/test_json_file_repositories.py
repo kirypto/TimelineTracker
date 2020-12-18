@@ -1,9 +1,9 @@
 from tempfile import TemporaryDirectory
 from unittest.case import TestCase
 
-from Test.Unittest.domain.persistence.test_repositories import TestLocationsRepository, TestTravelerRepository
-from adapter.persistence.json_file_repositories import JsonFileLocationRepository, JsonFileTravelerRepository
-from domain.persistence.repositories import LocationRepository, TravelerRepository
+from Test.Unittest.domain.persistence.test_repositories import TestLocationsRepository, TestTravelerRepository, TestEventRepository
+from adapter.persistence.json_file_repositories import JsonFileLocationRepository, JsonFileTravelerRepository, JsonFileEventRepository
+from domain.persistence.repositories import LocationRepository, TravelerRepository, EventRepository
 
 
 class TestJsonFileLocationRepository(TestLocationsRepository, TestCase):
@@ -30,3 +30,16 @@ class TestJsonFileTravelerRepository(TestTravelerRepository, TestCase):
     @property
     def repository(self) -> TravelerRepository:
         return self._location_repository
+
+
+class TestJsonFileEventRepository(TestEventRepository, TestCase):
+    def setUp(self) -> None:
+        self._tmp_directory = TemporaryDirectory()
+        self._event_repository = JsonFileEventRepository(json_repositories_directory_root=self._tmp_directory.name)
+
+    def tearDown(self) -> None:
+        self._tmp_directory.cleanup()
+
+    @property
+    def repository(self) -> EventRepository:
+        return self._event_repository
