@@ -20,9 +20,7 @@ class Event(IdentifiedEntity, NamedEntity, DescribedEntity, SpanningEntity, Tagg
 
     def __init__(self, *, affected_locations: Set[PrefixedUUID] = frozenset(), affected_travelers: Set[PrefixedUUID] = frozenset(), **kwargs) -> None:
         if "id" in kwargs:
-            id: PrefixedUUID = kwargs["id"]
-            if not id.prefix == "event":
-                raise ValueError("id must begin with 'event'")
+            self.validate_id(kwargs["id"])
         super().__init__(**kwargs)
         self._affected_locations = set(affected_locations)
         self._affected_travelers = set(affected_travelers)
@@ -36,3 +34,10 @@ class Event(IdentifiedEntity, NamedEntity, DescribedEntity, SpanningEntity, Tagg
 
     def __hash__(self) -> int:
         return hash((Event, frozenset(self._affected_locations), frozenset(self._affected_travelers), super().__hash__()))
+
+    @classmethod
+    def validate_id(cls, id: PrefixedUUID) -> None:
+        if not isinstance(id, PrefixedUUID):
+            raise ValueError(f"{Event.__name__}'s 'id' attribute must be a {PrefixedUUID.__name__}")
+        if not id.prefix == "event":
+            raise ValueError(f"{Event.__name__}'s 'id' must be prefixed with 'event'")
