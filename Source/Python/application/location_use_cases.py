@@ -71,14 +71,12 @@ class LocationUseCase:
         return self._location_repository.delete(location_id)
 
     def _validate_no_linked_events_for_delete(self, location_id: PrefixedUUID) -> None:
-        all_events = self._event_repository.retrieve_all()
-        linked_event_ids = [str(event.id) for event in all_events if location_id in event.affected_locations]
+        linked_event_ids = [str(event.id) for event in self._event_repository.retrieve_all(location_id=location_id)]
         if linked_event_ids:
             raise ValueError(f"Cannot delete location, currently linked to the following Events {','.join(linked_event_ids)}")
 
     def _validate_linked_events_still_intersect_for_update(self, updated_location: Location) -> None:
-        all_events = self._event_repository.retrieve_all()
-        linked_events = [event for event in all_events if updated_location.id in event.affected_locations]
+        linked_events = self._event_repository.retrieve_all(location_id=updated_location.id)
         for linked_event in linked_events:
             if not linked_event.span.intersects(updated_location.span):
                 raise ValueError(f"Cannot modify location, currently linked to Event {linked_event.id} and the modification would cause them to no "
