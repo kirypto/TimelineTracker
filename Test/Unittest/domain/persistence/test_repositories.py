@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
 from typing import Callable, Any
 
-from Test.Unittest.test_helpers.anons import anon_location, anon_anything, anon_traveler, anon_event
+from Test.Unittest.test_helpers.anons import anon_location, anon_anything, anon_traveler, anon_event, anon_positional_range
 from domain.events import Event
 from domain.ids import PrefixedUUID
 from domain.locations import Location
 from domain.persistence.repositories import LocationRepository, TravelerRepository, EventRepository
+from domain.positions import PositionalMove, Position, MovementType
 from domain.travelers import Traveler
 
 
@@ -162,3 +163,61 @@ class TestEventRepository(TestSRDRepository):
 
     def get_entity_identifier(self, entity: Event) -> PrefixedUUID:
         return entity.id
+
+    def test__retrieve_all__should_return_events_affecting_location__when_location_id_provided(self) -> None:
+        # Arrange
+        span = anon_positional_range()
+        location = anon_location(span=span)
+        linked_event = anon_event(span=span, affected_locations={location.id})
+        other_event = anon_event()
+        self.repository.save(linked_event)
+        self.repository.save(other_event)
+        expected = {linked_event}
+
+        # Act
+        actual = self.repository.retrieve_all(location_id=location.id)
+
+        # Assert
+        self.assertSetEqual(expected, actual)
+
+    def test__retrieve_all__should_return_events_affecting_traveler__when_traveler_id_provided(self) -> None:
+        # Arrange
+        span = anon_positional_range()
+        journey = [PositionalMove(
+            position=Position(latitude=span.latitude.low, longitude=span.longitude.low, altitude=span.altitude.low, continuum=span.continuum.low,
+                              reality=span.reality.low), movement_type=MovementType.IMMEDIATE)]
+        traveler = anon_traveler(journey=journey)
+        linked_event = anon_event(span=span, affected_travelers={traveler.id})
+        other_event = anon_event()
+        self.repository.save(linked_event)
+        self.repository.save(other_event)
+        expected = {linked_event}
+
+        # Act
+        actual = self.repository.retrieve_all(traveler_id=traveler.id)
+
+        # Assert
+        self.assertSetEqual(expected, actual)
+
+    def test__retrieve_all__should_return_events_affecting_location_and_traveler__when_location_and_traveler_id_provided(self) -> None:
+        # Arrange
+        span = anon_positional_range()
+        journey = [PositionalMove(
+            position=Position(latitude=span.latitude.low, longitude=span.longitude.low, altitude=span.altitude.low, continuum=span.continuum.low,
+                              reality=span.reality.low), movement_type=MovementType.IMMEDIATE)]
+        traveler = anon_traveler(journey=journey)
+        location = anon_location(span=span)
+
+        linked_event_traveler_only = anon_event(span=span, affected_travelers={traveler.id})
+        linked_event_location_only = anon_event(span=span, affected_locations={location.id})
+        linked_event_both = anon_event(span=span, affected_travelers={traveler.id}, affected_locations={location.id})
+        self.repository.save(linked_event_traveler_only)
+        self.repository.save(linked_event_location_only)
+        self.repository.save(linked_event_both)
+        expected = {linked_event_both}
+
+        # Act
+        actual = self.repository.retrieve_all(traveler_id=traveler.id, location_id=location.id)
+
+        # Assert
+        self.assertSetEqual(expected, actual)
