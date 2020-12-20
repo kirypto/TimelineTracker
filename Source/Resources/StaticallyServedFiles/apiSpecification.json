@@ -258,7 +258,7 @@
         "tags" : [ "Travelers" ],
         "requestBody" : {
           "required" : true,
-          "description" : "*Notes*\n- *When POSTing a Traveler, providing an id is not required as it will\nbe generated. If one is provided it will be ignored.*\n",
+          "description" : "*Notes*\n- *When POSTing a Traveler, providing an id is not required as it will\nbe generated. If one is provided it will be ignored.*\n- *The strings `-INF` and `INF` can be provided in place of numbers and will be treated as negative and positive infinity respectively.*\n",
           "content" : {
             "application/json" : {
               "schema" : {
@@ -333,6 +333,22 @@
             "type" : "string"
           },
           "example" : "important,unimportant"
+        }, {
+          "in" : "query",
+          "name" : "journeyIncludes",
+          "description" : "Position object. Filters to only include travelers which visited the specified position.",
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "{\"latitude\":0,\"longitude\":0,\"altitude\":0,\"continuum\":0,\"reality\":0}"
+        }, {
+          "in" : "query",
+          "name" : "journeyIntersects",
+          "description" : "PositionalRange object. Filters to only include travelers which have visited the specified positional range.",
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "{\"latitude\":0,\"longitude\":0,\"altitude\":{\"low\":0,\"high\":\"INF\"},\"continuum\":\"ALL\",\"reality\":0}"
         } ],
         "responses" : {
           "200" : {
