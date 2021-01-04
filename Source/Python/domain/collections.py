@@ -57,3 +57,6 @@ class Range(Generic[T]):
                 or (self._low <= other._high <= self._high)
                 or (self._low <= other._low and self._high >= other._high)
                 or (other._low <= self._low and other._high >= self._high))
+
+    def __str__(self) -> str:
+        return f"[{self.low},{self.high}]"
