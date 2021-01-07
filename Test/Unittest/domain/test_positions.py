@@ -71,6 +71,17 @@ class TestPosition(TestCase):
         self.assertRaises(TypeError, InvalidContinuum)
         self.assertRaises(TypeError, InvalidReality)
 
+    def test__init__should_reject_reality_of_non_whole_number(self) -> None:
+        # Arrange
+
+        # Act
+        def InvalidReality(): Position(reality=anon_float(),
+                                       latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=anon_float())
+
+        # Assert
+        self.assertRaises(ValueError, InvalidReality)
+
+
     def test__properties__should_not_be_mutable(self) -> None:
         # Arrange
         position = Position(latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=anon_float(), reality=anon_int())
@@ -213,6 +224,28 @@ class TestPositionalRange(TestCase):
         self.assertRaises(TypeError, InvalidAltitude)
         self.assertRaises(TypeError, InvalidContinuum)
         self.assertRaises(TypeError, InvalidReality)
+
+    def test__init__should_reject_reality_range_with_non_whole_numbers(self) -> None:
+        # Arrange
+        float_val = anon_float()
+        non_whole_number_range_low = Range(float_val, float(int(float_val + 1)))
+        non_whole_number_range_high = Range(float(int(float_val - 1)), float_val)
+        non_whole_number_range_both = Range(float_val, float_val + 1)
+
+        # Act
+        def InvalidRealityLow(): PositionalRange(reality=non_whole_number_range_low,
+                                                 latitude=anon_range(), longitude=anon_range(), altitude=anon_range(), continuum=anon_range())
+
+        def InvalidRealityHigh(): PositionalRange(reality=non_whole_number_range_high,
+                                                  latitude=anon_range(), longitude=anon_range(), altitude=anon_range(), continuum=anon_range())
+
+        def InvalidRealityBoth(): PositionalRange(reality=non_whole_number_range_both,
+                                                  latitude=anon_range(), longitude=anon_range(), altitude=anon_range(), continuum=anon_range())
+
+        # Assert
+        self.assertRaises(ValueError, InvalidRealityLow)
+        self.assertRaises(ValueError, InvalidRealityHigh)
+        self.assertRaises(ValueError, InvalidRealityBoth)
 
     def test__includes__should_return_true__when_provided_position_is_within_positional_range(self) -> None:
         # Arrange
@@ -668,7 +701,7 @@ class TestJourneyingEntity(TestCase):
 
         # Assert
         self.assertRaises(ValueError, Action)
-        
+
     def test__validate_journey__should_reject__when_an_interpolated_move_changes_realities(self) -> None:
         # Arrange
         continuum_position = anon_float()
@@ -677,7 +710,7 @@ class TestJourneyingEntity(TestCase):
             PositionalMove(position=anon_position(continuum=continuum_position, reality=1), movement_type=MovementType.IMMEDIATE),
             PositionalMove(position=anon_position(continuum=continuum_position + 1, reality=2), movement_type=MovementType.INTERPOLATED),
         ]
-        
+
         # Act
         def Action(): JourneyingEntity.validate_journey(journey)
 
