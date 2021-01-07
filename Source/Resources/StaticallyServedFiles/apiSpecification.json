@@ -24,7 +24,7 @@
         "tags" : [ "Locations" ],
         "requestBody" : {
           "required" : true,
-          "description" : "*Notes*\n- *When POSTing a Location, providing an id is not required as it will\nbe generated. If one is provided it will be ignored.*\n- *For each of the ranges making up the span field, either the range\nobject or a single value can be provided. If a sinlge value is\nprovided, it will be used as both the lower and higher value of the\nrange.*\n",
+          "description" : "*Notes*\n- *When POSTing a Location, providing an id is not required as it will\nbe generated. If one is provided it will be ignored.*\n- *`-Infinity` and `Infinity` can be provided in place of numbers and will be translated to negative and positive infinity respectively.*\n",
           "content" : {
             "application/json" : {
               "schema" : {
@@ -99,6 +99,22 @@
             "type" : "string"
           },
           "example" : "important,unimportant"
+        }, {
+          "in" : "query",
+          "name" : "spanIncludes",
+          "description" : "Position object. Filters to only include locations which have a span that includes the specified position.",
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "{\"latitude\":0,\"longitude\":0,\"altitude\":0,\"continuum\":0,\"reality\":0}"
+        }, {
+          "in" : "query",
+          "name" : "spanIntersects",
+          "description" : "PositionalRange object. Filters to only include locations which have a span that intersects the specified positional range.",
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "{\"latitude\":0,\"longitude\":0,\"altitude\":{\"low\":0,\"high\":Infinity},\"continuum\":\"ALL\",\"reality\":0}"
         } ],
         "responses" : {
           "200" : {
@@ -253,7 +269,7 @@
         },
         "responses" : {
           "201" : {
-            "description" : "Successfully created  \n*Notes*\n- *When first created, the journey will be empty.*\n",
+            "description" : "Successfully created\n*Notes*\n- *When first created, the journey will be empty.*\n",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -317,6 +333,22 @@
             "type" : "string"
           },
           "example" : "important,unimportant"
+        }, {
+          "in" : "query",
+          "name" : "journeyIncludes",
+          "description" : "Position object. Filters to only include travelers which visited the specified position.",
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "{\"latitude\":0,\"longitude\":0,\"altitude\":0,\"continuum\":0,\"reality\":0}"
+        }, {
+          "in" : "query",
+          "name" : "journeyIntersects",
+          "description" : "PositionalRange object. Filters to only include travelers which have visited the specified positional range.",
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "{\"latitude\":0,\"longitude\":0,\"altitude\":{\"low\":0,\"high\":Infinity},\"continuum\":\"ALL\",\"reality\":0}"
         } ],
         "responses" : {
           "200" : {
@@ -616,7 +648,7 @@
   "components" : {
     "schemas" : {
       "BaseLocation" : {
-        "description" : "A place of significance that travelers can visit and events can occur at which cover a multi-dimensional area.  \nMost locations will consist of an area that spans 4 of the 5 dimensions;\n- Ranges for dimensions 1-3 representing the physical area.\n- A range for dimension 4 representing the time range from when it was constructed to when it will be no more. \n- A instantaneous range for dimension 5 _(lower and higher values are the same)_.\n",
+        "description" : "A place of significance that travelers can visit and events can occur at which cover a multi-dimensional area.\nMost locations will consist of an area that spans 4 of the 5 dimensions;\n- Ranges for dimensions 1-3 representing the physical area.\n- A range for dimension 4 representing the time range from when it was constructed to when it will be no more.\n- A instantaneous range for dimension 5 _(lower and higher values are the same)_.\n",
         "type" : "object",
         "properties" : {
           "name" : {
