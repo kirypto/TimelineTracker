@@ -258,7 +258,7 @@
         "tags" : [ "Travelers" ],
         "requestBody" : {
           "required" : true,
-          "description" : "*Notes*\n- *When POSTing a Traveler, providing an id is not required as it will\nbe generated. If one is provided it will be ignored.*\n- *`-Infinity` and `Infinity` can be provided in place of numbers and will be translated to negative and positive infinity respectively.*\n",
+          "description" : "*Notes*\n- *When POSTing a Traveler, providing an id is not required as it will\nbe generated. If one is provided it will be ignored.*\n",
           "content" : {
             "application/json" : {
               "schema" : {
