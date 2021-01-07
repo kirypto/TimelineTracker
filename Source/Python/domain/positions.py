@@ -64,6 +64,9 @@ class Position:
     def __hash__(self) -> int:
         return hash((self.__class__, self._latitude, self._longitude, self._altitude, self._continuum, self._reality))
 
+    def __str__(self) -> str:
+        return f"({self._latitude},{self._longitude},{self._altitude},{self._continuum},{self._reality})"
+
 
 class PositionalRange:
     _latitude: Range[float]
@@ -125,6 +128,9 @@ class PositionalRange:
 
     def __hash__(self) -> int:
         return hash((self.__class__, self._latitude, self._longitude, self._altitude, self._continuum, self._reality))
+
+    def __str__(self) -> str:
+        return f"({self._latitude},{self._longitude},{self._altitude},{self._continuum},{self._reality})"
 
     def includes(self, position: Position) -> bool:
         if not isinstance(position, Position):
