@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Any, Set, List, Generic, TypeVar, Type
+from math import isinf
+from typing import Any, Set, List, Generic, TypeVar, Type, Union
 from uuid import UUID
 
 from domain.collections import Range
@@ -12,6 +13,16 @@ from domain.travelers import Traveler
 
 
 T = TypeVar("T")
+
+
+def _translate_reality_to_json(reality: Union[Range[float], float]) -> Any:
+    if type(reality) is float:
+        return reality if isinf(reality) else int(reality)
+    else:
+        return {
+            "low": _translate_reality_to_json(reality.low),
+            "high": _translate_reality_to_json(reality.high),
+        }
 
 
 class ValueTranslator(Generic[T]):
@@ -38,7 +49,7 @@ class ValueTranslator(Generic[T]):
                 "longitude": ValueTranslator.to_json(positional_range.longitude),
                 "altitude": ValueTranslator.to_json(positional_range.altitude),
                 "continuum": ValueTranslator.to_json(positional_range.continuum),
-                "reality": ValueTranslator.to_json(positional_range.reality),
+                "reality": _translate_reality_to_json(positional_range.reality),
             }
         if type(value) is Position:
             position: Position = value
@@ -47,7 +58,7 @@ class ValueTranslator(Generic[T]):
                 "longitude": ValueTranslator.to_json(position.longitude),
                 "altitude": ValueTranslator.to_json(position.altitude),
                 "continuum": ValueTranslator.to_json(position.continuum),
-                "reality": ValueTranslator.to_json(position.reality),
+                "reality": _translate_reality_to_json(position.reality),
             }
         if type(value) is PositionalMove:
             positional_move: PositionalMove = value
@@ -83,19 +94,13 @@ class ValueTranslator(Generic[T]):
                     "longitude": ValueTranslator.from_json(positional_range_json["longitude"], Range[float]),
                     "altitude": ValueTranslator.from_json(positional_range_json["altitude"], Range[float]),
                     "continuum": ValueTranslator.from_json(positional_range_json["continuum"], Range[float]),
-                    "reality": ValueTranslator.from_json(positional_range_json["reality"], Range[int]),
+                    "reality": ValueTranslator.from_json(positional_range_json["reality"], Range[float]),
                 })
             if type_ is Range[float]:
                 range_json: dict = value
                 return Range(**{
                     "low": ValueTranslator.from_json(range_json["low"], float),
                     "high": ValueTranslator.from_json(range_json["high"], float),
-                })
-            if type_ is Range[int]:
-                range_json: dict = value
-                return Range(**{
-                    "low": ValueTranslator.from_json(range_json["low"], int),
-                    "high": ValueTranslator.from_json(range_json["high"], int),
                 })
             if type_ is Set[Tag]:
                 tags_json: list = value
@@ -119,7 +124,7 @@ class ValueTranslator(Generic[T]):
                     "longitude": ValueTranslator.from_json(position_json["longitude"], float),
                     "altitude": ValueTranslator.from_json(position_json["altitude"], float),
                     "continuum": ValueTranslator.from_json(position_json["continuum"], float),
-                    "reality": ValueTranslator.from_json(position_json["reality"], int),
+                    "reality": ValueTranslator.from_json(position_json["reality"], float),
                 })
             if type_ is MovementType:
                 movement_type_raw: str = value

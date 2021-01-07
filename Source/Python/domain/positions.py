@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from enum import Enum
+from math import isinf, isnan
 from typing import Any, List
 
 from domain.base_entity import BaseEntity
@@ -38,6 +39,8 @@ class Position:
         def validate_type(argument_name, value, acceptable_types):
             if type(value) not in acceptable_types:
                 raise TypeError(f"{self.__class__.__name__} attribute '{argument_name}' must be one of types {acceptable_types}, was {type(value)}")
+            if isinf(value) or isnan(value):
+                raise ValueError(f"{self.__class__.__name__} attribute '{argument_name}' cannot be +/-Infinity or NaN, was {value}")
             return acceptable_types[0](value)
 
         self._latitude = validate_type("latitude", latitude, [float, int])
@@ -96,6 +99,8 @@ class PositionalRange:
                 raise TypeError(f"{self.__class__.__name__} attribute '{argument_name}' must be a {Range.__name__}")
             if range_.type not in acceptable_types:
                 raise TypeError(f"{self.__class__.__name__} attribute '{argument_name}' must be a {Range.__name__} of one of {acceptable_types}")
+            if isnan(range_.low) or isnan(range_.high):
+                raise ValueError(f"{self.__class__.__name__} attribute '{argument_name}' contained NaN")
             return Range(low=acceptable_types[0](range_.low), high=acceptable_types[0](range_.high))
 
         self._latitude = _validate_range("latitude", latitude, [float, int])
@@ -103,7 +108,8 @@ class PositionalRange:
         self._altitude = _validate_range("altitude", altitude, [float, int])
         self._continuum = _validate_range("continuum", continuum, [float, int])
         self._reality = _validate_range("reality", reality, [float, int])
-        if not self._reality.low.is_integer() or not self._reality.high.is_integer():
+        if (not (self._reality.low.is_integer() or isinf(self._reality.low)) or
+                not (self._reality.high.is_integer() or isinf(self._reality.high))):
             raise ValueError(f"{self.__class__.__name__} attribute 'reality' must be a range Range of two whole numbers, was {self._reality}")
 
         super().__init__(**kwargs)
