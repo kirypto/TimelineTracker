@@ -1,6 +1,6 @@
 from random import choices, uniform, randint, choice
 from string import ascii_letters, printable, digits, ascii_lowercase
-from typing import Type, Any, Set, List
+from typing import Type, Any, Set, List, TypeVar
 from uuid import uuid4
 
 from domain.collections import Range
@@ -10,6 +10,13 @@ from domain.locations import Location
 from domain.positions import Position, PositionalRange, MovementType, PositionalMove
 from domain.tags import Tag, TaggedEntity
 from domain.travelers import Traveler
+
+
+_T = TypeVar("_T")
+
+
+def _coalesce(obj: _T, fallback: _T) -> _T:
+    return obj if obj is not None else fallback
 
 
 def anon_anything(*, not_type: Type = None) -> Any:
@@ -61,16 +68,17 @@ def anon_name(num_chars: int = 10) -> str:
     return ("".join(choices(ascii_letters + "_. ", k=num_chars))).strip()
 
 
-def anon_prefixed_id(*, prefix: str = anon_id_prefix(20)) -> PrefixedUUID:
-    return PrefixedUUID(prefix, uuid4())
+def anon_prefixed_id(*, prefix: str = None) -> PrefixedUUID:
+    return PrefixedUUID(_coalesce(prefix, anon_id_prefix(20)), uuid4())
 
 
-def anon_position(continuum: float = anon_float(), reality: int = anon_int()) -> Position:
-    return Position(latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=continuum, reality=reality)
+def anon_position(continuum: float = None, reality: int = None) -> Position:
+    return Position(latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=_coalesce(continuum, anon_float()),
+                    reality=_coalesce(reality, anon_int()))
 
 
-def anon_positional_move(*, movement_type: MovementType = anon_movement_type()) -> PositionalMove:
-    return PositionalMove(position=anon_position(), movement_type=movement_type)
+def anon_positional_move(*, movement_type: MovementType = None) -> PositionalMove:
+    return PositionalMove(position=anon_position(), movement_type=_coalesce(movement_type, anon_movement_type()))
 
 
 def anon_range(of_type: type = float) -> Range:
@@ -85,17 +93,21 @@ def anon_range(of_type: type = float) -> Range:
     return Range(low=low, high=high)
 
 
-def anon_positional_range() -> PositionalRange:
-    return PositionalRange(latitude=(anon_range()), longitude=(anon_range()), altitude=(anon_range()), continuum=(anon_range()),
-                           reality=(anon_range(int)))
+def anon_positional_range(*, continuum: Range[float] = None) -> PositionalRange:
+    return PositionalRange(
+        latitude=(anon_range()),
+        longitude=(anon_range()),
+        altitude=(anon_range()),
+        continuum=_coalesce(continuum, anon_range()),
+        reality=(anon_range(int)))
 
 
-def anon_location(*, name: str = anon_name(), tags: Set[Tag] = None, span: PositionalRange = anon_positional_range()) -> Location:
-    return Location(id=anon_prefixed_id(prefix="location"),
-                    span=span,
-                    name=name,
+def anon_location(*, id: PrefixedUUID = None, name: str = None, tags: Set[Tag] = None, span: PositionalRange = None) -> Location:
+    return Location(id=_coalesce(id, anon_prefixed_id(prefix="location")),
+                    span=_coalesce(span, anon_positional_range()),
+                    name=_coalesce(name, anon_name()),
                     description=anon_description(),
-                    tags=tags if tags is not None else {anon_tag()})
+                    tags=_coalesce(tags, {anon_tag()}))
 
 
 def anon_tag() -> Tag:
@@ -111,50 +123,50 @@ def anon_tagged_entity(num_tags: int = 3) -> TaggedEntity:
     return TaggedEntity(tags=tags)
 
 
-def anon_traveler(*, name: str = anon_name(), tags: Set[Tag] = None, journey: List[PositionalMove] = None) -> Traveler:
+def anon_traveler(*, name: str = None, tags: Set[Tag] = None, journey: List[PositionalMove] = None) -> Traveler:
     return Traveler(id=anon_prefixed_id(prefix="traveler"),
-                    name=name,
+                    name=_coalesce(name, anon_name()),
                     description=anon_description(),
-                    journey=journey if journey is not None else anon_journey(),
-                    tags=tags if tags is not None else {anon_tag()})
+                    journey=_coalesce(journey, anon_journey()),
+                    tags=_coalesce(tags, {anon_tag()}))
 
 
-def anon_event(*, affected_locations: Set[PrefixedUUID] = frozenset([anon_prefixed_id(prefix="location")]),
-               affected_travelers: Set[PrefixedUUID] = frozenset([anon_prefixed_id(prefix="traveler")]),
-               span: PositionalRange = anon_positional_range()) -> Event:
-    return Event(affected_locations=affected_locations, affected_travelers=affected_travelers,
-                 id=anon_prefixed_id(prefix="event"), name=anon_name(), description=anon_description(), span=span,
-                 tags={anon_tag()})
+def anon_event(*, affected_locations: Set[PrefixedUUID] = None, affected_travelers: Set[PrefixedUUID] = None, span: PositionalRange = None) -> Event:
+    return Event(
+        affected_locations=_coalesce(affected_locations, {anon_prefixed_id(prefix="location")}),
+        affected_travelers=_coalesce(affected_travelers, {anon_prefixed_id(prefix="traveler")}),
+        id=anon_prefixed_id(prefix="event"), name=anon_name(), description=anon_description(),
+        span=_coalesce(span, anon_positional_range()),
+        tags={anon_tag()})
 
 
-def anon_create_location_kwargs(*, name: str = anon_name(), description: str = anon_description(),
-                                span: PositionalRange = anon_positional_range(), tags: Set[Tag] = None) -> dict:
+def anon_create_location_kwargs(*, name: str = None, description: str = None, span: PositionalRange = None, tags: Set[Tag] = None) -> dict:
     return {
-        "name": name,
-        "description": description,
-        "span": span,
-        "tags": tags if tags is not None else {anon_tag()},
+        "name": _coalesce(name, anon_name()),
+        "description": _coalesce(description, anon_description()),
+        "span": _coalesce(span, anon_positional_range()),
+        "tags": _coalesce(tags, {anon_tag()}),
     }
 
 
-def anon_create_traveler_kwargs(*, name: str = anon_name(), description: str = anon_description(),
-                                journey: List[PositionalMove] = None, tags: Set[Tag] = None) -> dict:
+def anon_create_traveler_kwargs(
+        *, name: str = None, description: str = None, journey: List[PositionalMove] = None, tags: Set[Tag] = None) -> dict:
     return {
-        "name": name,
-        "description": description,
-        "journey": journey if journey is not None else anon_journey(),
-        "tags": tags if tags is not None else {anon_tag()},
+        "name": _coalesce(name, anon_name()),
+        "description": _coalesce(description, anon_description()),
+        "journey": _coalesce(journey, anon_journey()),
+        "tags": _coalesce(tags, {anon_tag()}),
     }
 
 
-def anon_create_event_kwargs(*, name: str = anon_name(), description: str = anon_description(), span: PositionalRange = anon_positional_range(),
-                             tags: Set[Tag] = frozenset([anon_tag()]), affected_locations: Set[PrefixedUUID] = frozenset(),
-                             affected_travelers: Set[PrefixedUUID] = frozenset()) -> dict:
+def anon_create_event_kwargs(
+        *, name: str = None, description: str = None, span: PositionalRange = None, tags: Set[Tag] = None,
+        affected_locations: Set[PrefixedUUID] = None, affected_travelers: Set[PrefixedUUID] = None) -> dict:
     return {
-        "name": name,
-        "description": description,
-        "span": span,
-        "tags": set(tags),
-        "affected_locations": set(affected_locations),
-        "affected_travelers": set(affected_travelers),
+        "name": _coalesce(name, anon_name()),
+        "description": _coalesce(description, anon_description()),
+        "span": _coalesce(span, anon_positional_range()),
+        "tags": _coalesce(tags, {anon_tag()}),
+        "affected_locations": _coalesce(affected_locations, set()),
+        "affected_travelers": _coalesce(affected_travelers, set()),
     }
