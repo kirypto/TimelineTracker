@@ -81,15 +81,12 @@ def anon_positional_move(*, movement_type: MovementType = None) -> PositionalMov
     return PositionalMove(position=anon_position(), movement_type=_coalesce(movement_type, anon_movement_type()))
 
 
-def anon_range(of_type: type = float) -> Range:
-    if of_type is float:
-        low = anon_float()
-        high = low + abs(anon_float())
-    elif of_type is int:
-        low = anon_int()
-        high = low + abs(anon_int())
-    else:
-        raise ValueError(f"Type {type} is not supported")
+def anon_range(*, whole_numbers: bool = False) -> Range:
+    low = anon_float()
+    high = low + abs(anon_float())
+    if whole_numbers:
+        low = float(int(low))
+        high = float(int(low))
     return Range(low=low, high=high)
 
 
@@ -99,7 +96,7 @@ def anon_positional_range(*, continuum: Range[float] = None) -> PositionalRange:
         longitude=(anon_range()),
         altitude=(anon_range()),
         continuum=_coalesce(continuum, anon_range()),
-        reality=(anon_range(int)))
+        reality=(anon_range(whole_numbers=True)))
 
 
 def anon_location(*, id: PrefixedUUID = None, name: str = None, tags: Set[Tag] = None, span: PositionalRange = None) -> Location:

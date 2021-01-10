@@ -62,7 +62,7 @@ class TestRange(TestCase):
     def test__includes__should_reject_arguments_of_invalid_types(self) -> None:
         # Arrange
         invalid_type = choice(["string", False, True])
-        range_ = anon_range(float)
+        range_ = anon_range()
 
         # Act
         def Action(): range_.includes(invalid_type)
@@ -110,7 +110,7 @@ class TestRange(TestCase):
     def test__intersects__should_reject_arguments_of_invalid_types(self) -> None:
         # Arrange
         invalid_type = choice(["string", False, True, anon_float()])
-        range_ = anon_range(float)
+        range_ = anon_range()
 
         # Act
         # noinspection PyTypeChecker
