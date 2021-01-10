@@ -130,8 +130,8 @@ def anon_traveler(*, name: str = None, tags: Set[Tag] = None, journey: List[Posi
 
 def anon_event(*, affected_locations: Set[PrefixedUUID] = None, affected_travelers: Set[PrefixedUUID] = None, span: PositionalRange = None) -> Event:
     return Event(
-        affected_locations=_coalesce(affected_locations, {anon_prefixed_id(prefix="location")}),
-        affected_travelers=_coalesce(affected_travelers, {anon_prefixed_id(prefix="traveler")}),
+        affected_locations=_coalesce(affected_locations, set()),
+        affected_travelers=_coalesce(affected_travelers, set()),
         id=anon_prefixed_id(prefix="event"), name=anon_name(), description=anon_description(),
         span=_coalesce(span, anon_positional_range()),
         tags={anon_tag()})
