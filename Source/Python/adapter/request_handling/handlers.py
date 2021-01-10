@@ -3,15 +3,20 @@ from typing import Tuple, Dict, Union, List, Any
 
 from adapter.request_handling.utils import parse_optional_tag_set_query_param, with_error_response_on_raised_exceptions, \
     process_patch_into_delta_kwargs, parse_optional_positional_range_query_param, parse_optional_position_query_param
-from adapter.views import LocationView, LocationIdView, TravelerView, TravelerIdView, EventView, EventIdView
+from adapter.views import LocationView, LocationIdView, TravelerView, TravelerIdView, EventView, EventIdView, ValueTranslator
 from application.event_use_cases import EventUseCase
 from application.location_use_cases import LocationUseCase
+from application.timeline_use_cases import TimelineUseCase
 from application.traveler_use_cases import TravelerUseCase
 
 
 class LocationsRequestHandler:
-    def __init__(self, location_use_case: LocationUseCase) -> None:
+    _location_use_case: LocationUseCase
+    _timeline_use_case: TimelineUseCase
+
+    def __init__(self, location_use_case: LocationUseCase, timeline_use_case: TimelineUseCase) -> None:
         self._location_use_case = location_use_case
+        self._timeline_use_case = timeline_use_case
 
     @with_error_response_on_raised_exceptions
     def locations_post_handler(self, request_body: dict) -> Tuple[dict, int]:
@@ -65,13 +70,21 @@ class LocationsRequestHandler:
         return LocationView.to_json(modified_location), HTTPStatus.OK
 
     @with_error_response_on_raised_exceptions
-    def location_timeline_get_handler(self, location_id_str: str) -> Tuple[dict, int]:
-        raise NotImplementedError("Location timeline get not implemented")
+    def location_timeline_get_handler(self, location_id_str: str) -> Tuple[List[str], int]:
+        location_id = LocationIdView.from_json(location_id_str)
+
+        timeline = self._timeline_use_case.construct_location_timeline(location_id)
+
+        return ValueTranslator.to_json(timeline), HTTPStatus.OK
 
 
 class TravelersRequestHandler:
-    def __init__(self, traveler_use_case: TravelerUseCase) -> None:
+    _traveler_use_case: TravelerUseCase
+    _timeline_use_case: TimelineUseCase
+
+    def __init__(self, traveler_use_case: TravelerUseCase, timeline_use_case: TimelineUseCase) -> None:
         self._traveler_use_case = traveler_use_case
+        self._timeline_use_case = timeline_use_case
 
     @with_error_response_on_raised_exceptions
     def travelers_post_handler(self, request_body: dict) -> Tuple[dict, int]:
@@ -125,8 +138,12 @@ class TravelersRequestHandler:
         return TravelerView.to_json(modified_traveler), HTTPStatus.OK
 
     @with_error_response_on_raised_exceptions
-    def traveler_timeline_get_handler(self, traveler_id_str: str) -> Tuple[dict, int]:
-        raise NotImplementedError("Traveler timeline get not implemented")
+    def traveler_timeline_get_handler(self, traveler_id_str: str) -> Tuple[List[Union[str, dict]], int]:
+        traveler_id = TravelerIdView.from_json(traveler_id_str)
+
+        timeline = self._timeline_use_case.construct_traveler_timeline(traveler_id)
+
+        return ValueTranslator.to_json(timeline), HTTPStatus.OK
 
 
 class EventsRequestHandler:
