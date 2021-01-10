@@ -67,6 +67,10 @@ class Position:
     def __str__(self) -> str:
         return f"({self._latitude},{self._longitude},{self._altitude},{self._continuum},{self._reality})"
 
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}({repr(self._latitude)},{repr(self._longitude)},{repr(self._altitude)},{repr(self._continuum)}," \
+               f"{repr(self._reality)})"
+
 
 class PositionalRange:
     _latitude: Range[float]
@@ -132,6 +136,10 @@ class PositionalRange:
     def __str__(self) -> str:
         return f"({self._latitude},{self._longitude},{self._altitude},{self._continuum},{self._reality})"
 
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}({repr(self._latitude)},{repr(self._longitude)},{repr(self._altitude)},{repr(self._continuum)}," \
+               f"{repr(self._reality)})"
+
     def includes(self, position: Position) -> bool:
         if not isinstance(position, Position):
             raise TypeError(f"Argument must be of type {Position.__name__}")
@@ -168,6 +176,9 @@ class MovementType(Enum):
 
     def __str__(self) -> str:
         return self.value
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}({repr(self.value)})"
 
 
 class PositionalMove:
