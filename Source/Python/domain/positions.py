@@ -166,6 +166,9 @@ class MovementType(Enum):
     IMMEDIATE = 'immediate'
     INTERPOLATED = 'interpolated'
 
+    def __str__(self) -> str:
+        return self.value
+
 
 class PositionalMove:
     _position: Position
@@ -195,6 +198,9 @@ class PositionalMove:
 
     def __hash__(self) -> int:
         return hash((self.__class__, self._position, self._movement_type))
+
+    def __str__(self) -> str:
+        return f"{self._movement_type}@{self._position}"
 
 
 class SpanningEntity(BaseEntity):
@@ -256,7 +262,10 @@ class JourneyingEntity(BaseEntity):
                 if positional_move.position.reality != last_position.reality:
                     raise ValueError(f"Invalid journey: Cannot interpolate across realities. (problematic move was: {positional_move}, which "
                                      f"succeeded {last_position})")
-                elif positional_move.position.continuum <= last_position.continuum:
+                elif positional_move.position.continuum == last_position.continuum:
+                    raise ValueError(f"Invalid journey: Cannot interpolate when continuum values are identical. (problematic move was: "
+                                     f"{positional_move}, which succeeded {last_position})")
+                elif positional_move.position.continuum < last_position.continuum:
                     raise ValueError(f"Invalid journey: Cannot interpolate backwards in continuum. (problematic move was: {positional_move}, which "
                                      f"succeeded {last_position})")
             last_position = positional_move.position
