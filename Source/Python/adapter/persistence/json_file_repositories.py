@@ -125,6 +125,11 @@ class JsonFileEventRepository(EventRepository):
         self._inner_repo = _JsonFileIdentifiedEntityRepository("EventRepo", Event, EventView, **kwargs)
         self._event_ids_by_location_id = defaultdict(set)
         self._event_ids_by_traveler_id = defaultdict(set)
+        for event in self._inner_repo.retrieve_all():
+            for location_id in event.affected_locations:
+                self._event_ids_by_location_id[location_id].add(event.id)
+            for traveler_id in event.affected_travelers:
+                self._event_ids_by_traveler_id[traveler_id].add(event.id)
 
     def save(self, event: Event) -> None:
         self._inner_repo.save(event)
