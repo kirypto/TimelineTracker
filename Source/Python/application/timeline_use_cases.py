@@ -1,5 +1,6 @@
 from typing import List, Union, Set
 
+from application.filtering_use_cases import FilteringUseCase
 from domain.collections import Range
 from domain.events import Event
 from domain.ids import PrefixedUUID
@@ -17,19 +18,27 @@ class TimelineUseCase:
         self._traveler_repository = traveler_repository
         self._event_repository = event_repository
 
-    def construct_location_timeline(self, location_id: PrefixedUUID) -> List[PrefixedUUID]:
+    def construct_location_timeline(self, location_id: PrefixedUUID, **filter_kwargs) -> List[PrefixedUUID]:
         def get_continuum(e: Event) -> Range:
             return e.span.continuum
 
         self._location_repository.retrieve(location_id)
         events = self._event_repository.retrieve_all(location_id=location_id)
 
+        events, filter_kwargs = FilteringUseCase.filter_tagged_entities(events, **filter_kwargs)
+        if filter_kwargs:
+            raise ValueError(f"Unknown filters: {','.join(filter_kwargs)}")
+
         events_ordered_by_continuum = sorted(events, key=get_continuum)
         return [event.id for event in events_ordered_by_continuum]
 
-    def construct_traveler_timeline(self, traveler_id: PrefixedUUID) -> List[Union[PrefixedUUID, Position]]:
+    def construct_traveler_timeline(self, traveler_id: PrefixedUUID, **filter_kwargs) -> List[Union[PrefixedUUID, Position]]:
         traveler = self._traveler_repository.retrieve(traveler_id)
         events = self._event_repository.retrieve_all(traveler_id=traveler_id)
+
+        events, filter_kwargs = FilteringUseCase.filter_tagged_entities(events, **filter_kwargs)
+        if filter_kwargs:
+            raise ValueError(f"Unknown filters: {','.join(filter_kwargs)}")
 
         already_applicable_events: Set[Event] = set([])
         timeline: List[Union[PrefixedUUID, Position]] = []

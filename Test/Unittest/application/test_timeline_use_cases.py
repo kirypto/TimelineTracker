@@ -1,6 +1,7 @@
 from math import inf
 from random import shuffle
 from unittest import TestCase
+from unittest.mock import patch, MagicMock
 
 from Test.Unittest.test_helpers.anons import anon_prefixed_id, anon_event, anon_positional_range, anon_location, anon_traveler
 from adapter.persistence.in_memory_repositories import InMemoryLocationRepository, InMemoryTravelerRepository, InMemoryEventRepository
@@ -62,6 +63,28 @@ class TestTimelineUseCase(TestCase):
 
         # Assert
         self.assertListEqual(expected_timeline, actual)
+
+    @patch("application.filtering_use_cases.FilteringUseCase.filter_tagged_entities")
+    def test__construct_location_timeline__should_delegate_to_filter_tagged_entities__when_filtering_necessary(
+            self, filter_tagged_entities_mock: MagicMock) -> None:
+        # Arrange
+        span = anon_positional_range()
+        location = anon_location(span=span)
+        event = anon_event(span=span, affected_locations={location.id})
+
+        self.location_repository.save(location)
+        self.event_repository.save(event)
+
+        filter_tagged_entities_mock.return_value = {event}, {}
+        expected_input = {event}
+        expected_output = [event.id]
+
+        # Act
+        actual = self.timeline_use_case.construct_location_timeline(location.id)
+
+        # Assert
+        filter_tagged_entities_mock.assert_called_once_with(expected_input)
+        self.assertEqual(expected_output, actual)
 
     def test__construct_traveler_timeline__should_reject_nonexistent_traveler(self) -> None:
         # Arrange
@@ -213,3 +236,27 @@ class TestTimelineUseCase(TestCase):
 
         # Assert
         self.assertListEqual(expected_timeline, actual)
+
+    @patch("application.filtering_use_cases.FilteringUseCase.filter_tagged_entities")
+    def test__construct_traveler_timeline__should_delegate_to_filter_tagged_entities__when_filtering_necessary(
+            self, filter_tagged_entities_mock: MagicMock) -> None:
+        # Arrange
+        span = anon_positional_range()
+        position = Position(latitude=span.latitude.low, longitude=span.longitude.low, altitude=span.altitude.low, continuum=span.continuum.low,
+                            reality=span.reality.low)
+        traveler = anon_traveler(journey=[PositionalMove(position=position, movement_type=MovementType.IMMEDIATE)])
+        event = anon_event(span=span, affected_travelers={traveler.id})
+
+        self.traveler_repository.save(traveler)
+        self.event_repository.save(event)
+
+        filter_tagged_entities_mock.return_value = {event}, {}
+        expected_input = {event}
+        expected_output = [position, event.id]
+
+        # Act
+        actual = self.timeline_use_case.construct_traveler_timeline(traveler.id)
+
+        # Assert
+        filter_tagged_entities_mock.assert_called_once_with(expected_input)
+        self.assertEqual(expected_output, actual)
