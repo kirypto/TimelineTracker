@@ -7,7 +7,12 @@ from domain.tags import TaggedEntity
 class Location(IdentifiedEntity, NamedEntity, DescribedEntity, SpanningEntity, TaggedEntity):
     def __init__(self, **kwargs) -> None:
         if "id" in kwargs:
-            id: PrefixedUUID = kwargs["id"]
-            if not id.prefix == "location":
-                raise ValueError("id must begin with 'location'")
+            self.validate_id(kwargs["id"])
         super().__init__(**kwargs)
+
+    @classmethod
+    def validate_id(cls, id: PrefixedUUID) -> None:
+        if not isinstance(id, PrefixedUUID):
+            raise ValueError(f"{Location.__name__}'s 'id' attribute must be a {PrefixedUUID.__name__}")
+        if not id.prefix == "location":
+            raise ValueError(f"{Location.__name__}'s 'id' must be prefixed with 'location'")

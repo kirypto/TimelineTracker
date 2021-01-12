@@ -1,3 +1,4 @@
+from collections import defaultdict
 from copy import deepcopy
 from typing import Set, Dict, TypeVar, Generic, Type
 
@@ -86,18 +87,42 @@ class InMemoryTravelerRepository(TravelerRepository):
 
 class InMemoryEventRepository(EventRepository):
     _inner_repo: _InMemoryIdentifiedEntityRepository
+    _event_ids_by_location_id: Dict[PrefixedUUID, Set[PrefixedUUID]]
+    _event_ids_by_traveler_id: Dict[PrefixedUUID, Set[PrefixedUUID]]
 
     def __init__(self) -> None:
         self._inner_repo = _InMemoryIdentifiedEntityRepository(Event)
+        self._event_ids_by_location_id = defaultdict(set)
+        self._event_ids_by_traveler_id = defaultdict(set)
 
     def save(self, event: Event) -> None:
         self._inner_repo.save(event)
+        for location_id in event.affected_locations:
+            self._event_ids_by_location_id[location_id].add(event.id)
+        for traveler_id in event.affected_travelers:
+            self._event_ids_by_traveler_id[traveler_id].add(event.id)
 
     def retrieve(self, event_id: PrefixedUUID) -> Event:
         return self._inner_repo.retrieve(event_id)
 
-    def retrieve_all(self) -> Set[Event]:
-        return self._inner_repo.retrieve_all()
+    def retrieve_all(self, *, location_id: PrefixedUUID = None, traveler_id: PrefixedUUID = None) -> Set[Event]:
+        if location_id is None and traveler_id is None:
+            # Neither filter provided, return all
+            return self._inner_repo.retrieve_all()
+
+        events_linked_to_provided_location_id = self._event_ids_by_location_id.get(location_id, set())
+        events_linked_to_provided_traveler_id = self._event_ids_by_traveler_id.get(traveler_id, set())
+        if location_id is not None and traveler_id is not None:
+            # Both filters provided, return events linked to both
+            desired_event_ids = events_linked_to_provided_location_id.intersection(events_linked_to_provided_traveler_id)
+        else:
+            # Only on filter provided, return events linked to that one (union with empty set)
+            desired_event_ids = events_linked_to_provided_location_id.union(events_linked_to_provided_traveler_id)
+        return {self.retrieve(event_id) for event_id in desired_event_ids}
 
     def delete(self, event_id: PrefixedUUID) -> None:
-        return self._inner_repo.delete(event_id)
+        self._inner_repo.delete(event_id)
+        for location_id in self._event_ids_by_location_id:
+            self._event_ids_by_location_id[location_id].remove(event_id)
+        for traveler_id in self._event_ids_by_traveler_id:
+            self._event_ids_by_traveler_id[traveler_id].remove(event_id)

@@ -32,7 +32,7 @@ def register_locations_routes(flask_web_app: Flask, locations_request_handler: L
 
     @flask_web_app.route("/api/location/<location_id>/timeline", methods=["GET"])
     def api_location_id_timeline__get(location_id: str):
-        response_body, status_code = locations_request_handler.location_timeline_get_handler(location_id)
+        response_body, status_code = locations_request_handler.location_timeline_get_handler(location_id, dict(request.args))
         return dumps(response_body, indent=2), status_code
 
 
@@ -64,7 +64,7 @@ def register_travelers_routes(flask_web_app: Flask, travelers_request_handler: T
 
     @flask_web_app.route("/api/traveler/<traveler_id>/timeline", methods=["GET"])
     def api_traveler_id_timeline__get(traveler_id: str):
-        response_body, status_code = travelers_request_handler.traveler_timeline_get_handler(traveler_id)
+        response_body, status_code = travelers_request_handler.traveler_timeline_get_handler(traveler_id, dict(request.args))
         return dumps(response_body, indent=2), status_code
 
 

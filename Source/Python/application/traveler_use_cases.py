@@ -70,14 +70,12 @@ class TravelerUseCase:
         self._traveler_repository.delete(traveler_id)
 
     def _validate_no_linked_events_for_delete(self, traveler_id: PrefixedUUID) -> None:
-        all_events = self._event_repository.retrieve_all()
-        linked_event_ids = [str(event.id) for event in all_events if traveler_id in event.affected_travelers]
+        linked_event_ids = [str(event.id) for event in self._event_repository.retrieve_all(traveler_id=traveler_id)]
         if linked_event_ids:
             raise ValueError(f"Cannot delete traveler, currently linked to the following Events {','.join(linked_event_ids)}")
 
     def _validate_linked_events_still_intersect_for_update(self, updated_traveler: Traveler) -> None:
-        all_events = self._event_repository.retrieve_all()
-        linked_events = [event for event in all_events if updated_traveler.id in event.affected_travelers]
+        linked_events = self._event_repository.retrieve_all(traveler_id=updated_traveler.id)
         for linked_event in linked_events:
             if not any([linked_event.span.includes(move.position) for move in updated_traveler.journey]):
                 raise ValueError(f"Cannot modify traveler, currently linked to Event {linked_event.id} and the modification would cause them to no "

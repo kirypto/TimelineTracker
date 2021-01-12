@@ -3,15 +3,20 @@ from typing import Tuple, Dict, Union, List, Any
 
 from adapter.request_handling.utils import parse_optional_tag_set_query_param, with_error_response_on_raised_exceptions, \
     process_patch_into_delta_kwargs, parse_optional_positional_range_query_param, parse_optional_position_query_param
-from adapter.views import LocationView, LocationIdView, TravelerView, TravelerIdView, EventView, EventIdView
+from adapter.views import LocationView, LocationIdView, TravelerView, TravelerIdView, EventView, EventIdView, ValueTranslator
 from application.event_use_cases import EventUseCase
 from application.location_use_cases import LocationUseCase
+from application.timeline_use_cases import TimelineUseCase
 from application.traveler_use_cases import TravelerUseCase
 
 
 class LocationsRequestHandler:
-    def __init__(self, location_use_case: LocationUseCase) -> None:
+    _location_use_case: LocationUseCase
+    _timeline_use_case: TimelineUseCase
+
+    def __init__(self, location_use_case: LocationUseCase, timeline_use_case: TimelineUseCase) -> None:
         self._location_use_case = location_use_case
+        self._timeline_use_case = timeline_use_case
 
     @with_error_response_on_raised_exceptions
     def locations_post_handler(self, request_body: dict) -> Tuple[dict, int]:
@@ -23,7 +28,7 @@ class LocationsRequestHandler:
     @with_error_response_on_raised_exceptions
     def locations_get_all_handler(self, query_params: Dict[str, str]) -> Tuple[Union[list, dict], int]:
         supported_filters = {"nameIs", "nameHas", "taggedAll", "taggedAny", "taggedOnly", "taggedNone", "spanIncludes", "spanIntersects"}
-        if not set(query_params.keys()).issubset(supported_filters):
+        if not supported_filters.issuperset(query_params.keys()):
             raise ValueError(f"Unsupported filter(s): {', '.join(query_params.keys() - supported_filters)}")
         filters = {
             "name_is": query_params.get("nameIs", None),
@@ -65,13 +70,30 @@ class LocationsRequestHandler:
         return LocationView.to_json(modified_location), HTTPStatus.OK
 
     @with_error_response_on_raised_exceptions
-    def location_timeline_get_handler(self, location_id_str: str) -> Tuple[dict, int]:
-        raise NotImplementedError("Location timeline get not implemented")
+    def location_timeline_get_handler(self, location_id_str: str, query_params: Dict[str, str]) -> Tuple[List[str], int]:
+        supported_filters = {"taggedAll", "taggedAny", "taggedOnly", "taggedNone"}
+        if not supported_filters.issuperset(query_params.keys()):
+            raise ValueError(f"Unsupported filter(s): {', '.join(query_params.keys() - supported_filters)}")
+        filters = {
+            "tagged_all": parse_optional_tag_set_query_param(query_params.get("taggedAll", None)),
+            "tagged_any": parse_optional_tag_set_query_param(query_params.get("taggedAny", None)),
+            "tagged_only": parse_optional_tag_set_query_param(query_params.get("taggedOnly", None)),
+            "tagged_none": parse_optional_tag_set_query_param(query_params.get("taggedNone", None)),
+        }
+        location_id = LocationIdView.from_json(location_id_str)
+
+        timeline = self._timeline_use_case.construct_location_timeline(location_id, **filters)
+
+        return ValueTranslator.to_json(timeline), HTTPStatus.OK
 
 
 class TravelersRequestHandler:
-    def __init__(self, traveler_use_case: TravelerUseCase) -> None:
+    _traveler_use_case: TravelerUseCase
+    _timeline_use_case: TimelineUseCase
+
+    def __init__(self, traveler_use_case: TravelerUseCase, timeline_use_case: TimelineUseCase) -> None:
         self._traveler_use_case = traveler_use_case
+        self._timeline_use_case = timeline_use_case
 
     @with_error_response_on_raised_exceptions
     def travelers_post_handler(self, request_body: dict) -> Tuple[dict, int]:
@@ -83,7 +105,7 @@ class TravelersRequestHandler:
     @with_error_response_on_raised_exceptions
     def travelers_get_all_handler(self, query_params: Dict[str, str]) -> Tuple[Union[list, dict], int]:
         supported_filters = {"nameIs", "nameHas", "taggedAll", "taggedAny", "taggedOnly", "taggedNone", "journeyIntersects", "journeyIncludes"}
-        if not set(query_params.keys()).issubset(supported_filters):
+        if not supported_filters.issuperset(query_params.keys()):
             raise ValueError(f"Unsupported filter(s): {', '.join(query_params.keys() - supported_filters)}")
         filters = {
             "name_is": query_params.get("nameIs", None),
@@ -125,8 +147,21 @@ class TravelersRequestHandler:
         return TravelerView.to_json(modified_traveler), HTTPStatus.OK
 
     @with_error_response_on_raised_exceptions
-    def traveler_timeline_get_handler(self, traveler_id_str: str) -> Tuple[dict, int]:
-        raise NotImplementedError("Traveler timeline get not implemented")
+    def traveler_timeline_get_handler(self, traveler_id_str: str, query_params: Dict[str, str]) -> Tuple[List[Union[str, dict]], int]:
+        supported_filters = {"taggedAll", "taggedAny", "taggedOnly", "taggedNone"}
+        if not supported_filters.issuperset(query_params.keys()):
+            raise ValueError(f"Unsupported filter(s): {', '.join(query_params.keys() - supported_filters)}")
+        filters = {
+            "tagged_all": parse_optional_tag_set_query_param(query_params.get("taggedAll", None)),
+            "tagged_any": parse_optional_tag_set_query_param(query_params.get("taggedAny", None)),
+            "tagged_only": parse_optional_tag_set_query_param(query_params.get("taggedOnly", None)),
+            "tagged_none": parse_optional_tag_set_query_param(query_params.get("taggedNone", None)),
+        }
+        traveler_id = TravelerIdView.from_json(traveler_id_str)
+
+        timeline = self._timeline_use_case.construct_traveler_timeline(traveler_id, **filters)
+
+        return ValueTranslator.to_json(timeline), HTTPStatus.OK
 
 
 class EventsRequestHandler:
@@ -143,7 +178,7 @@ class EventsRequestHandler:
     @with_error_response_on_raised_exceptions
     def events_get_all_handler(self, query_params: Dict[str, str]) -> Tuple[Union[list, dict], int]:
         supported_filters = {"nameIs", "nameHas", "taggedAll", "taggedAny", "taggedOnly", "taggedNone", "spanIncludes", "spanIntersects"}
-        if not set(query_params.keys()).issubset(supported_filters):
+        if not supported_filters.issuperset(query_params.keys()):
             raise ValueError(f"Unsupported filter(s): {', '.join(query_params.keys() - supported_filters)}")
         filters = {
             "name_is": query_params.get("nameIs", None),
