@@ -269,7 +269,7 @@
         },
         "responses" : {
           "201" : {
-            "description" : "Successfully created\n*Notes*\n- *When first created, the journey will be empty.*\n",
+            "description" : "Successfully created\n",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -415,6 +415,43 @@
         "responses" : {
           "200" : {
             "description" : "Successfully modified",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ExistingTraveler"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/traveler/{travelerId}/journey" : {
+      "parameters" : [ {
+        "in" : "path",
+        "name" : "travelerId",
+        "schema" : {
+          "$ref" : "#/components/schemas/TravelerId"
+        },
+        "required" : true
+      } ],
+      "post" : {
+        "summary" : "Appends to the specified Traveler's journey",
+        "description" : "Appends a new PositionalTransition to the end of the specidied Traveler's journey.\n",
+        "tags" : [ "Travelers" ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PositionalTransition"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Successfully appended\n",
             "content" : {
               "application/json" : {
                 "schema" : {
