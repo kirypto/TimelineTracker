@@ -5,7 +5,7 @@ from domain.collections import Range
 from domain.events import Event
 from domain.ids import PrefixedUUID
 from domain.persistence.repositories import LocationRepository, EventRepository, TravelerRepository
-from domain.positions import Position, MovementType
+from domain.positions import MovementType, PositionalMove
 
 
 class TimelineUseCase:
@@ -32,7 +32,7 @@ class TimelineUseCase:
         events_ordered_by_continuum = sorted(events, key=get_continuum)
         return [event.id for event in events_ordered_by_continuum]
 
-    def construct_traveler_timeline(self, traveler_id: PrefixedUUID, **filter_kwargs) -> List[Union[PrefixedUUID, Position]]:
+    def construct_traveler_timeline(self, traveler_id: PrefixedUUID, **filter_kwargs) -> List[Union[PrefixedUUID, PositionalMove]]:
         traveler = self._traveler_repository.retrieve(traveler_id)
         events = self._event_repository.retrieve_all(traveler_id=traveler_id)
 
@@ -41,9 +41,9 @@ class TimelineUseCase:
             raise ValueError(f"Unknown filters: {','.join(filter_kwargs)}")
 
         already_applicable_events: Set[Event] = set([])
-        timeline: List[Union[PrefixedUUID, Position]] = []
-        for positional_move in traveler.journey:
-            curr_position = positional_move.position
+        timeline: List[Union[PrefixedUUID, PositionalMove]] = []
+        for curr_positional_move in traveler.journey:
+            curr_position = curr_positional_move.position
 
             already_applicable_events = {event for event in already_applicable_events if event.span.includes(curr_position)}
             newly_applicable_events: Set[Event] = {
@@ -52,12 +52,12 @@ class TimelineUseCase:
             }
             already_applicable_events.update(newly_applicable_events)
 
-            if positional_move.movement_type == MovementType.IMMEDIATE:
-                timeline.append(curr_position)
+            if curr_positional_move.movement_type == MovementType.IMMEDIATE:
+                timeline.append(curr_positional_move)
                 timeline.extend(map(lambda event: event.id, newly_applicable_events))
             else:
                 timeline.extend(map(lambda event: event.id, newly_applicable_events))
-                timeline.append(curr_position)
+                timeline.append(curr_positional_move)
 
         return timeline
 

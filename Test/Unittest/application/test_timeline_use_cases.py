@@ -98,11 +98,17 @@ class TestTimelineUseCase(TestCase):
 
     def test__construct_traveler_timeline__should_return_same_event_multiple_times_when_travelers_journey_intersects_it_multiple_times(self) -> None:
         # Arrange
-        initially_on_ground = Position(latitude=1, longitude=1, altitude=0, continuum=1, reality=0)
-        jumping_upward = Position(latitude=1, longitude=1, altitude=5, continuum=2, reality=0)
-        jump_peak = Position(latitude=1, longitude=1, altitude=10, continuum=3, reality=0)
-        falling_downward = Position(latitude=1, longitude=1, altitude=5, continuum=4, reality=0)
-        back_on_ground = Position(latitude=1, longitude=1, altitude=0, continuum=5, reality=0)
+
+        initially_on_ground = PositionalMove(position=Position(latitude=1, longitude=1, altitude=0, continuum=1, reality=0),
+                                             movement_type=MovementType.IMMEDIATE)
+        jumping_upward = PositionalMove(position=Position(latitude=1, longitude=1, altitude=5, continuum=2, reality=0),
+                                        movement_type=MovementType.INTERPOLATED)
+        jump_peak = PositionalMove(position=Position(latitude=1, longitude=1, altitude=10, continuum=3, reality=0),
+                                   movement_type=MovementType.INTERPOLATED)
+        falling_downward = PositionalMove(position=Position(latitude=1, longitude=1, altitude=5, continuum=4, reality=0),
+                                          movement_type=MovementType.INTERPOLATED)
+        back_on_ground = PositionalMove(position=Position(latitude=1, longitude=1, altitude=0, continuum=5, reality=0),
+                                        movement_type=MovementType.INTERPOLATED)
 
         near_ground_span = PositionalRange(latitude=Range(-2, 2), longitude=Range(-2, 2), altitude=Range(-2, 2), continuum=Range(0, 5),
                                            reality=Range(0, 0))
@@ -110,11 +116,11 @@ class TestTimelineUseCase(TestCase):
                                       reality=Range(0, 0))
 
         traveler = anon_traveler(journey=[
-            PositionalMove(position=initially_on_ground, movement_type=MovementType.IMMEDIATE),
-            PositionalMove(position=jumping_upward, movement_type=MovementType.INTERPOLATED),
-            PositionalMove(position=jump_peak, movement_type=MovementType.INTERPOLATED),
-            PositionalMove(position=falling_downward, movement_type=MovementType.INTERPOLATED),
-            PositionalMove(position=back_on_ground, movement_type=MovementType.INTERPOLATED),
+            initially_on_ground,
+            jumping_upward,
+            jump_peak,
+            falling_downward,
+            back_on_ground,
         ])
         on_ground_event = anon_event(span=near_ground_span, affected_travelers={traveler.id})
         in_air_event = anon_event(span=in_air_span, affected_travelers={traveler.id})
@@ -142,14 +148,16 @@ class TestTimelineUseCase(TestCase):
 
     def test__construct_traveler_timeline__should_put_affecting_events_after_the_position__when_movement_type_is_immediate(self) -> None:
         # Arrange
-        outside_affected_area = Position(latitude=1, longitude=1, altitude=0, continuum=1, reality=0)
-        inside_affected_area = Position(latitude=5, longitude=1, altitude=0, continuum=2, reality=0)
+        outside_affected_area = PositionalMove(position=Position(latitude=1, longitude=1, altitude=0, continuum=1, reality=0),
+                                               movement_type=MovementType.IMMEDIATE)
+        inside_affected_area = PositionalMove(position=Position(latitude=5, longitude=1, altitude=0, continuum=2, reality=0),
+                                              movement_type=MovementType.IMMEDIATE)
 
         affected_area = PositionalRange(latitude=Range(4, 6), longitude=Range(1, 1), altitude=Range(0, 0), continuum=Range(0, 3), reality=Range(0, 0))
 
         traveler = anon_traveler(journey=[
-            PositionalMove(position=outside_affected_area, movement_type=MovementType.IMMEDIATE),
-            PositionalMove(position=inside_affected_area, movement_type=MovementType.IMMEDIATE),
+            outside_affected_area,
+            inside_affected_area,
         ])
         event = anon_event(span=affected_area, affected_travelers={traveler.id})
 
@@ -170,14 +178,16 @@ class TestTimelineUseCase(TestCase):
 
     def test__construct_traveler_timeline__should_put_affecting_events_before_the_position__when_movement_type_is_interpolated(self) -> None:
         # Arrange
-        outside_affected_area = Position(latitude=1, longitude=1, altitude=0, continuum=1, reality=0)
-        inside_affected_area = Position(latitude=5, longitude=1, altitude=0, continuum=2, reality=0)
+        outside_affected_area = PositionalMove(position=Position(latitude=1, longitude=1, altitude=0, continuum=1, reality=0),
+                                               movement_type=MovementType.IMMEDIATE)
+        inside_affected_area = PositionalMove(position=Position(latitude=5, longitude=1, altitude=0, continuum=2, reality=0),
+                                              movement_type=MovementType.INTERPOLATED)
 
         affected_area = PositionalRange(latitude=Range(4, 6), longitude=Range(1, 1), altitude=Range(0, 0), continuum=Range(0, 3), reality=Range(0, 0))
 
         traveler = anon_traveler(journey=[
-            PositionalMove(position=outside_affected_area, movement_type=MovementType.IMMEDIATE),
-            PositionalMove(position=inside_affected_area, movement_type=MovementType.INTERPOLATED),
+            outside_affected_area,
+            inside_affected_area,
         ])
         event = anon_event(span=affected_area, affected_travelers={traveler.id})
 
@@ -204,16 +214,22 @@ class TestTimelineUseCase(TestCase):
         pos_4_inside_affected_area_a = Position(latitude=5, longitude=1, altitude=0, continuum=4, reality=0)
         pos_5_outside_affected_area = Position(latitude=1, longitude=1, altitude=0, continuum=5, reality=0)
         pos_6_inside_affected_area_b = Position(latitude=6, longitude=1, altitude=0, continuum=6, reality=0)
+        pos_mov_1_outside_affected_area = PositionalMove(position=pos_1_outside_affected_area, movement_type=MovementType.IMMEDIATE)
+        pos_mov_2_inside_affected_area_a = PositionalMove(position=pos_2_inside_affected_area_a, movement_type=MovementType.INTERPOLATED)
+        pos_mov_3_inside_affected_area_b = PositionalMove(position=pos_3_inside_affected_area_b, movement_type=MovementType.INTERPOLATED)
+        pos_mov_4_inside_affected_area_a = PositionalMove(position=pos_4_inside_affected_area_a, movement_type=MovementType.IMMEDIATE)
+        pos_mov_5_outside_affected_area = PositionalMove(position=pos_5_outside_affected_area, movement_type=MovementType.INTERPOLATED)
+        pos_mov_6_inside_affected_area_b = PositionalMove(position=pos_6_inside_affected_area_b, movement_type=MovementType.INTERPOLATED)
 
         affected_area = PositionalRange(latitude=Range(4, 6), longitude=Range(1, 1), altitude=Range(0, 0), continuum=Range(0, 6), reality=Range(0, 0))
 
         traveler = anon_traveler(journey=[
-            PositionalMove(position=pos_1_outside_affected_area, movement_type=MovementType.IMMEDIATE),
-            PositionalMove(position=pos_2_inside_affected_area_a, movement_type=MovementType.INTERPOLATED),
-            PositionalMove(position=pos_3_inside_affected_area_b, movement_type=MovementType.INTERPOLATED),
-            PositionalMove(position=pos_4_inside_affected_area_a, movement_type=MovementType.IMMEDIATE),
-            PositionalMove(position=pos_5_outside_affected_area, movement_type=MovementType.INTERPOLATED),
-            PositionalMove(position=pos_6_inside_affected_area_b, movement_type=MovementType.INTERPOLATED),
+            pos_mov_1_outside_affected_area,
+            pos_mov_2_inside_affected_area_a,
+            pos_mov_3_inside_affected_area_b,
+            pos_mov_4_inside_affected_area_a,
+            pos_mov_5_outside_affected_area,
+            pos_mov_6_inside_affected_area_b,
         ])
         event = anon_event(span=affected_area, affected_travelers={traveler.id})
 
@@ -221,14 +237,14 @@ class TestTimelineUseCase(TestCase):
         self.event_repository.save(event)
 
         expected_timeline = [
-            pos_1_outside_affected_area,
+            pos_mov_1_outside_affected_area,
             event.id,
-            pos_2_inside_affected_area_a,
-            pos_3_inside_affected_area_b,
-            pos_4_inside_affected_area_a,
-            pos_5_outside_affected_area,
+            pos_mov_2_inside_affected_area_a,
+            pos_mov_3_inside_affected_area_b,
+            pos_mov_4_inside_affected_area_a,
+            pos_mov_5_outside_affected_area,
             event.id,
-            pos_6_inside_affected_area_b,
+            pos_mov_6_inside_affected_area_b,
         ]
 
         # Act
@@ -244,7 +260,8 @@ class TestTimelineUseCase(TestCase):
         span = anon_positional_range()
         position = Position(latitude=span.latitude.low, longitude=span.longitude.low, altitude=span.altitude.low, continuum=span.continuum.low,
                             reality=span.reality.low)
-        traveler = anon_traveler(journey=[PositionalMove(position=position, movement_type=MovementType.IMMEDIATE)])
+        positional_move = PositionalMove(position=position, movement_type=MovementType.IMMEDIATE)
+        traveler = anon_traveler(journey=[positional_move])
         event = anon_event(span=span, affected_travelers={traveler.id})
 
         self.traveler_repository.save(traveler)
@@ -252,7 +269,7 @@ class TestTimelineUseCase(TestCase):
 
         filter_tagged_entities_mock.return_value = {event}, {}
         expected_input = {event}
-        expected_output = [position, event.id]
+        expected_output = [positional_move, event.id]
 
         # Act
         actual = self.timeline_use_case.construct_traveler_timeline(traveler.id)
