@@ -110,8 +110,8 @@ class InMemoryEventRepository(EventRepository):
             # Neither filter provided, return all
             return self._inner_repo.retrieve_all()
 
-        events_linked_to_provided_location_id = self._event_ids_by_location_id[location_id] if location_id is not None else set()
-        events_linked_to_provided_traveler_id = self._event_ids_by_traveler_id[traveler_id] if traveler_id is not None else set()
+        events_linked_to_provided_location_id = self._event_ids_by_location_id.get(location_id, set())
+        events_linked_to_provided_traveler_id = self._event_ids_by_traveler_id.get(traveler_id, set())
         if location_id is not None and traveler_id is not None:
             # Both filters provided, return events linked to both
             desired_event_ids = events_linked_to_provided_location_id.intersection(events_linked_to_provided_traveler_id)
