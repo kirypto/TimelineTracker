@@ -437,14 +437,14 @@
       } ],
       "post" : {
         "summary" : "Appends to the specified Traveler's journey",
-        "description" : "Appends a new PositionalTransition to the end of the specidied Traveler's journey.\n",
+        "description" : "Appends a new PositionalMove to the end of the specidied Traveler's journey.\n",
         "tags" : [ "Travelers" ],
         "requestBody" : {
           "required" : true,
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/PositionalTransition"
+                "$ref" : "#/components/schemas/PositionalMove"
               }
             }
           }
@@ -840,7 +840,7 @@
       "TravelerTimeline" : {
         "type" : "array",
         "items" : {
-          "$ref" : "#/components/schemas/PositionalTransitionOrEventId"
+          "$ref" : "#/components/schemas/PositionalMoveOrEventId"
         }
       },
       "LocationTimeline" : {
@@ -853,7 +853,7 @@
         "description" : "A sequence of positional transitions.",
         "type" : "array",
         "items" : {
-          "$ref" : "#/components/schemas/PositionalTransition"
+          "$ref" : "#/components/schemas/PositionalMove"
         },
         "example" : [ {
           "position" : {
@@ -937,7 +937,7 @@
         },
         "required" : [ "latitude", "longitude", "altitude", "continuum", "reality" ]
       },
-      "PositionalTransition" : {
+      "PositionalMove" : {
         "description" : "A combination of a position and a type of transition which describe how the transition from the previous position to this position is made.\n- 3DInterpolation => The position smoothly interpolates the position in dimensions 1 through 3. The position's 4th and 5th dimension values must be identical to the previous point.\n- InstantaneousJump => The earlier position is used to \"infill\" all possible queries between two points in a sequence until the latter position is reached, at which time the latter position is instantaneously used.\n",
         "type" : "object",
         "properties" : {
@@ -963,10 +963,10 @@
           "$ref" : "#/components/schemas/Tag"
         }
       },
-      "PositionalTransitionOrEventId" : {
+      "PositionalMoveOrEventId" : {
         "type" : "object",
         "oneOf" : [ {
-          "$ref" : "#/components/schemas/PositionalTransition"
+          "$ref" : "#/components/schemas/PositionalMove"
         }, {
           "$ref" : "#/components/schemas/EventId"
         } ]
