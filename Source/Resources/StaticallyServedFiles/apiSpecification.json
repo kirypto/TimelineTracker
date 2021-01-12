@@ -582,7 +582,7 @@
         }
       }
     },
-    "/api/events/{eventId}" : {
+    "/api/event/{eventId}" : {
       "parameters" : [ {
         "in" : "path",
         "name" : "eventId",
@@ -803,7 +803,7 @@
       "TravelerTimeline" : {
         "type" : "array",
         "items" : {
-          "$ref" : "#/components/schemas/PositionOrEventId"
+          "$ref" : "#/components/schemas/PositionalTransitionOrEventId"
         }
       },
       "LocationTimeline" : {
@@ -926,10 +926,10 @@
           "$ref" : "#/components/schemas/Tag"
         }
       },
-      "PositionOrEventId" : {
+      "PositionalTransitionOrEventId" : {
         "type" : "object",
         "oneOf" : [ {
-          "$ref" : "#/components/schemas/Position"
+          "$ref" : "#/components/schemas/PositionalTransition"
         }, {
           "$ref" : "#/components/schemas/EventId"
         } ]
