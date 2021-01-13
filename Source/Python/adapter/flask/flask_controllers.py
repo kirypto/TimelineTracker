@@ -23,19 +23,16 @@ def register_locations_routes(flask_web_app: Flask, locations_request_handler: L
         response_body, status_code = locations_request_handler.locations_get_all_handler(dict(request.args))
         return dumps(response_body, indent=2), status_code
 
-    @flask_web_app.route("/api/location/<location_id>", methods=[_HTTPMethod.Get])
-    def api_location_id__get(location_id: str):
-        response_body, status_code = locations_request_handler.location_get_handler(location_id)
-        return dumps(response_body, indent=2), status_code
-
-    @flask_web_app.route("/api/location/<location_id>", methods=[_HTTPMethod.Delete])
-    def api_location_id__delete(location_id: str):
-        response_body, status_code = locations_request_handler.location_delete_handler(location_id)
-        return dumps(response_body, indent=2), status_code
-
-    @flask_web_app.route("/api/location/<location_id>", methods=[_HTTPMethod.Patch])
-    def api_location_id__patch(location_id: str):
-        response_body, status_code = locations_request_handler.location_patch_handler(location_id, request.json)
+    @flask_web_app.route("/api/location/<location_id>", methods=[_HTTPMethod.Get, _HTTPMethod.Patch, _HTTPMethod.Delete])
+    def api_location_id__get_patch_post(location_id: str):
+        if request.method == _HTTPMethod.Get:
+            response_body, status_code = locations_request_handler.location_get_handler(location_id)
+        elif request.method == _HTTPMethod.Patch:
+            response_body, status_code = locations_request_handler.location_patch_handler(location_id, request.json)
+        elif request.method == _HTTPMethod.Delete:
+            response_body, status_code = locations_request_handler.location_delete_handler(location_id)
+        else:
+            raise ValueError(f"Route does not support {request.method}")
         return dumps(response_body, indent=2), status_code
 
     @flask_web_app.route("/api/location/<location_id>/timeline", methods=[_HTTPMethod.Get])
@@ -55,19 +52,16 @@ def register_travelers_routes(flask_web_app: Flask, travelers_request_handler: T
         response_body, status_code = travelers_request_handler.travelers_get_all_handler(dict(request.args))
         return dumps(response_body, indent=2), status_code
 
-    @flask_web_app.route("/api/traveler/<traveler_id>", methods=[_HTTPMethod.Get])
-    def api_traveler_id__get(traveler_id: str):
-        response_body, status_code = travelers_request_handler.traveler_get_handler(traveler_id)
-        return dumps(response_body, indent=2), status_code
-
-    @flask_web_app.route("/api/traveler/<traveler_id>", methods=[_HTTPMethod.Delete])
-    def api_traveler_id__delete(traveler_id: str):
-        response_body, status_code = travelers_request_handler.traveler_delete_handler(traveler_id)
-        return dumps(response_body, indent=2), status_code
-
-    @flask_web_app.route("/api/traveler/<traveler_id>", methods=[_HTTPMethod.Patch])
-    def api_traveler_id__patch(traveler_id: str):
-        response_body, status_code = travelers_request_handler.traveler_patch_handler(traveler_id, request.json)
+    @flask_web_app.route("/api/traveler/<traveler_id>", methods=[_HTTPMethod.Get, _HTTPMethod.Patch, _HTTPMethod.Delete])
+    def api_traveler_id__get_patch_post(traveler_id: str):
+        if request.method == _HTTPMethod.Get:
+            response_body, status_code = travelers_request_handler.traveler_get_handler(traveler_id)
+        elif request.method == _HTTPMethod.Patch:
+            response_body, status_code = travelers_request_handler.traveler_patch_handler(traveler_id, request.json)
+        elif request.method == _HTTPMethod.Delete:
+            response_body, status_code = travelers_request_handler.traveler_delete_handler(traveler_id)
+        else:
+            raise ValueError(f"Route does not support {request.method}")
         return dumps(response_body, indent=2), status_code
 
     @flask_web_app.route("/api/traveler/<traveler_id>/timeline", methods=[_HTTPMethod.Get])
@@ -87,17 +81,14 @@ def register_events_routes(flask_web_app: Flask, events_request_handler: EventsR
         response_body, status_code = events_request_handler.events_get_all_handler(dict(request.args))
         return dumps(response_body, indent=2), status_code
 
-    @flask_web_app.route("/api/event/<event_id>", methods=[_HTTPMethod.Get])
-    def api_event_id__get(event_id: str):
-        response_body, status_code = events_request_handler.event_get_handler(event_id)
-        return dumps(response_body, indent=2), status_code
-
-    @flask_web_app.route("/api/event/<event_id>", methods=[_HTTPMethod.Delete])
-    def api_event_id__delete(event_id: str):
-        response_body, status_code = events_request_handler.event_delete_handler(event_id)
-        return dumps(response_body, indent=2), status_code
-
-    @flask_web_app.route("/api/event/<event_id>", methods=[_HTTPMethod.Patch])
-    def api_event_id__patch(event_id: str):
-        response_body, status_code = events_request_handler.event_patch_handler(event_id, request.json)
+    @flask_web_app.route("/api/event/<event_id>", methods=[_HTTPMethod.Get, _HTTPMethod.Patch, _HTTPMethod.Delete])
+    def api_event_id__get_patch_post(event_id: str):
+        if request.method == _HTTPMethod.Get:
+            response_body, status_code = events_request_handler.event_get_handler(event_id)
+        elif request.method == _HTTPMethod.Patch:
+            response_body, status_code = events_request_handler.event_patch_handler(event_id, request.json)
+        elif request.method == _HTTPMethod.Delete:
+            response_body, status_code = events_request_handler.event_delete_handler(event_id)
+        else:
+            raise ValueError(f"Route does not support {request.method}")
         return dumps(response_body, indent=2), status_code
