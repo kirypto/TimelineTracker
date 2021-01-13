@@ -66,7 +66,7 @@ def register_travelers_routes(flask_web_app: Flask, travelers_request_handler: T
 
     @flask_web_app.route("/api/traveler/<traveler_id>/journey", methods=[_HTTPMethod.Post])
     def api_traveler_id_journey__post(traveler_id: str):
-        response_body, status_code = travelers_request_handler.traveler_journey_post_handler(traveler_id)
+        response_body, status_code = travelers_request_handler.traveler_journey_post_handler(traveler_id, request.json)
         return dumps(response_body, indent=2), status_code
 
     @flask_web_app.route("/api/traveler/<traveler_id>/timeline", methods=[_HTTPMethod.Get])

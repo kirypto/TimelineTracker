@@ -1,3 +1,4 @@
+from copy import deepcopy
 from http import HTTPStatus
 from typing import Tuple, Dict, Union, List, Any
 
@@ -8,6 +9,7 @@ from application.event_use_cases import EventUseCase
 from application.location_use_cases import LocationUseCase
 from application.timeline_use_cases import TimelineUseCase
 from application.traveler_use_cases import TravelerUseCase
+from domain.positions import PositionalMove
 
 
 class LocationsRequestHandler:
@@ -147,8 +149,18 @@ class TravelersRequestHandler:
         return TravelerView.to_json(modified_traveler), HTTPStatus.OK
 
     @with_error_response_on_raised_exceptions
-    def traveler_journey_post_handler(self, traveler_id: str) -> Tuple[dict, int]:
-        raise NotImplementedError("Traveler journey post not yet implemented")
+    def traveler_journey_post_handler(self, traveler_id_str: str, new_positional_move_json: dict) -> Tuple[dict, int]:
+        traveler_id = TravelerIdView.from_json(traveler_id_str)
+        new_positional_move = ValueTranslator.from_json(new_positional_move_json, PositionalMove)
+
+        existing_traveler = self._traveler_use_case.retrieve(traveler_id)
+
+        appended_journey = deepcopy(existing_traveler.journey)
+        appended_journey.append(new_positional_move)
+
+        modified_traveler = self._traveler_use_case.update(traveler_id, journey=appended_journey)
+
+        return TravelerView.to_json(modified_traveler), HTTPStatus.OK
 
     @with_error_response_on_raised_exceptions
     def traveler_timeline_get_handler(self, traveler_id_str: str, query_params: Dict[str, str]) -> Tuple[List[Union[str, dict]], int]:
