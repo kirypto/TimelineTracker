@@ -147,6 +147,10 @@ class TravelersRequestHandler:
         return TravelerView.to_json(modified_traveler), HTTPStatus.OK
 
     @with_error_response_on_raised_exceptions
+    def traveler_journey_post_handler(self, traveler_id: str) -> Tuple[dict, int]:
+        raise NotImplementedError("Traveler journey post not yet implemented")
+
+    @with_error_response_on_raised_exceptions
     def traveler_timeline_get_handler(self, traveler_id_str: str, query_params: Dict[str, str]) -> Tuple[List[Union[str, dict]], int]:
         supported_filters = {"taggedAll", "taggedAny", "taggedOnly", "taggedNone"}
         if not supported_filters.issuperset(query_params.keys()):
