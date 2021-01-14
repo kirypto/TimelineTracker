@@ -1,6 +1,6 @@
 from random import choices, uniform, randint, choice
 from string import ascii_letters, printable, digits, ascii_lowercase
-from typing import Type, Any, Set, List, TypeVar
+from typing import Type, Any, Set, List, TypeVar, Dict
 from uuid import uuid4
 
 from domain.collections import Range
@@ -58,6 +58,21 @@ def anon_int(a: int = None, b: int = None) -> int:
 
 def anon_journey() -> List[PositionalMove]:
     return [PositionalMove(position=anon_position(), movement_type=MovementType.IMMEDIATE) for _ in range(5)]
+
+
+def anon_metadata_key() -> str:
+    return "".join(choices("_-" + ascii_letters + digits, k=10))
+
+
+def anon_metadata_value() -> str:
+    return "".join(choices(printable, k=50))
+
+
+def anon_metadata() -> Dict[str, str]:
+    return {
+        anon_metadata_key(): anon_metadata_value()
+        for _ in range(anon_int(1, 3))
+    }
 
 
 def anon_movement_type() -> MovementType:
