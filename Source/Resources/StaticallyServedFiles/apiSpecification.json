@@ -701,6 +701,9 @@
           },
           "tags" : {
             "$ref" : "#/components/schemas/Tags"
+          },
+          "metadata" : {
+            "$ref" : "#/components/schemas/Metadata"
           }
         },
         "required" : [ "name", "span" ]
@@ -740,6 +743,9 @@
           },
           "tags" : {
             "$ref" : "#/components/schemas/Tags"
+          },
+          "metadata" : {
+            "$ref" : "#/components/schemas/Metadata"
           }
         },
         "required" : [ "name", "journey" ]
@@ -785,6 +791,9 @@
           },
           "tags" : {
             "$ref" : "#/components/schemas/Tags"
+          },
+          "metadata" : {
+            "$ref" : "#/components/schemas/Metadata"
           }
         },
         "required" : [ "name", "span" ]
@@ -951,6 +960,14 @@
           }
         },
         "required" : [ "position", "movement_type" ]
+      },
+      "Metadata" : {
+        "type" : "object",
+        "description" : "Generic metadata key-value map consisting of string data. \n- Metadata keys must be contain only alphanumeric, underscore, and dash characters.\n- Metadata values can be any string.\n",
+        "example" : {
+          "key1" : "Value A",
+          "key2" : "Value B"
+        }
       },
       "Tag" : {
         "description" : "Alpha-numeric string to allow custom categorization for Travelers, Locations, and Events.",
