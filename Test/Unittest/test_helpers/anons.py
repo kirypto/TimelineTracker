@@ -114,12 +114,17 @@ def anon_positional_range(*, continuum: Range[float] = None) -> PositionalRange:
         reality=(anon_range(whole_numbers=True)))
 
 
-def anon_location(*, id: PrefixedUUID = None, name: str = None, tags: Set[Tag] = None, span: PositionalRange = None) -> Location:
-    return Location(id=_coalesce(id, anon_prefixed_id(prefix="location")),
-                    span=_coalesce(span, anon_positional_range()),
-                    name=_coalesce(name, anon_name()),
-                    description=anon_description(),
-                    tags=_coalesce(tags, {anon_tag()}))
+def anon_location(
+        *, id: PrefixedUUID = None, name: str = None, tags: Set[Tag] = None, span: PositionalRange = None,
+        metadata: Dict[str, str] = None) -> Location:
+    return Location(
+        id=_coalesce(id, anon_prefixed_id(prefix="location")),
+        span=_coalesce(span, anon_positional_range()),
+        name=_coalesce(name, anon_name()),
+        description=anon_description(),
+        tags=_coalesce(tags, {anon_tag()}),
+        metadata=_coalesce(metadata, anon_metadata()),
+    )
 
 
 def anon_tag() -> Tag:
@@ -152,12 +157,14 @@ def anon_event(*, affected_locations: Set[PrefixedUUID] = None, affected_travele
         tags={anon_tag()})
 
 
-def anon_create_location_kwargs(*, name: str = None, description: str = None, span: PositionalRange = None, tags: Set[Tag] = None) -> dict:
+def anon_create_location_kwargs(
+        *, name: str = None, description: str = None, span: PositionalRange = None, tags: Set[Tag] = None, metadata: Dict[str, str] = None) -> dict:
     return {
         "name": _coalesce(name, anon_name()),
         "description": _coalesce(description, anon_description()),
         "span": _coalesce(span, anon_positional_range()),
         "tags": _coalesce(tags, {anon_tag()}),
+        "metadata": _coalesce(metadata, anon_metadata()),
     }
 
 

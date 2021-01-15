@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from math import isinf
-from typing import Any, Set, List, Generic, TypeVar, Type, Union
+from typing import Any, Set, List, Generic, TypeVar, Type, Union, Dict
 from uuid import UUID
 
 from domain.collections import Range
@@ -39,6 +39,11 @@ class ValueTranslator(Generic[T]):
             return value
         if type(value) in {set, list}:
             return [ValueTranslator.to_json(inner_val) for inner_val in value]
+        if type(value) is dict:
+            return {
+                ValueTranslator.to_json(key): ValueTranslator.to_json(val)
+                for key, val in value.items()
+            }
         if type(value) is Range:
             range_: Range = value
             return {"low": range_.low, "high": range_.high}
@@ -129,6 +134,12 @@ class ValueTranslator(Generic[T]):
             if type_ is MovementType:
                 movement_type_raw: str = value
                 return MovementType(movement_type_raw)
+            if type_ is Dict[str, str]:
+                string_dict: Dict[str, str] = value
+                return {
+                    ValueTranslator.from_json(key, str): ValueTranslator.from_json(val, str)
+                    for key, val in string_dict.items()
+                }
         except BaseException as e:
             if type(type_) is type:
                 name = type_.__name__
@@ -195,7 +206,8 @@ class LocationView(DomainConstructedView):
         "name": str,
         "description": str,
         "span": PositionalRange,
-        "tags": Set[Tag]
+        "tags": Set[Tag],
+        "metadata": Dict[str, str]
     }
 
     @staticmethod
