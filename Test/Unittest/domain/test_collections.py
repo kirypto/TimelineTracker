@@ -1,4 +1,5 @@
-from random import choice
+from math import inf
+from random import choice, shuffle
 from unittest import TestCase
 
 from Test.Unittest.test_helpers.anons import anon_float, anon_range
@@ -19,7 +20,7 @@ class TestRange(TestCase):
         # Assert
         self.assertRaises(TypeError, DifferentTypeLow)
         self.assertRaises(TypeError, DifferentTypeHigh)
-        
+
     def test__init__should_initialize_from_provided_args(self) -> None:
         # Arrange
         expected_low = anon_float()
@@ -62,7 +63,7 @@ class TestRange(TestCase):
     def test__includes__should_reject_arguments_of_invalid_types(self) -> None:
         # Arrange
         invalid_type = choice(["string", False, True])
-        range_ = anon_range(float)
+        range_ = anon_range()
 
         # Act
         def Action(): range_.includes(invalid_type)
@@ -110,7 +111,7 @@ class TestRange(TestCase):
     def test__intersects__should_reject_arguments_of_invalid_types(self) -> None:
         # Arrange
         invalid_type = choice(["string", False, True, anon_float()])
-        range_ = anon_range(float)
+        range_ = anon_range()
 
         # Act
         # noinspection PyTypeChecker
@@ -196,6 +197,33 @@ class TestRange(TestCase):
         self.assertTrue(actual_a_not_equals_c)
         self.assertFalse(actual_a_equals_d)
         self.assertTrue(actual_a_not_equals_d)
+
+    def test__comparison__should_be_able_to_ordered(self) -> None:
+        # Arrange
+        expected_order = [
+            Range(-inf, -10.),
+            Range(-inf, -5.),
+            Range(-inf, inf),
+            Range(-4., -4.),
+            Range(-4., 4.),
+            Range(-1., -1.),
+            Range(-1., 0.),
+            Range(-1., 1.),
+            Range(0., 0.),
+            Range(0., 1.),
+            Range(1., 1.),
+            Range(4., 4.),
+            Range(5., inf),
+            Range(10., inf),
+        ]
+        randomized = list(expected_order)
+        shuffle(randomized)
+
+        # Act
+        actual = sorted(randomized)
+
+        # Assert
+        self.assertListEqual(expected_order, actual)
 
     def test__hash__should_be_hashable(self) -> None:
         # Arrange

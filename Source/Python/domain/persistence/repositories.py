@@ -53,7 +53,7 @@ class EventRepository(ABC):
         pass
 
     @abstractmethod
-    def retrieve_all(self) -> Set[Event]:
+    def retrieve_all(self, *, location_id: PrefixedUUID = None, traveler_id: PrefixedUUID = None) -> Set[Event]:
         pass
 
     @abstractmethod

@@ -2,8 +2,8 @@
 
 ### Domain Objects
 
-- `Position`: a multi-dimensional point. Currently intended to support up to
-the 5th dimension:
+- `Position`: a multi-dimensional point. Positions are currently intended to
+support up to the 5th dimension:
    - Dimensions 1-3: typical coordinate system consisting of longitude,
    latitude, and altitude.
    - Dimension 4: 'time' or 'duration', the time that the position is tied to
@@ -90,12 +90,20 @@ a Traveler or Location throughout its existence.
    - The timeline of a traveler would certainly include positions and events, as
    each position in a traveler's journey would be included.
       - Events referenced in a traveler's timeline will be listed at the
-      earliest position that the event is applicable.
+      earliest position that the event is applicable. This means the event may
+      show in the timeline immediately prior to the journeyed position, which
+      would be the case whenever the movement type to that position is
+      interpolated. If the movement type is immediate _(for example some form of
+      teleportation)_, then the event would appear immediately after the
+      journeyed location.
       - Events may also appear multiple times in a traveler's timeline, as a
       traveler could leave and re-enter the event's span.
-      - A traveler's timeline will always begin and end positions, with a
-      combination of events and positions between.
-   - Events included in a retrieved timeline can be filtered according to those
+      - A traveler's timeline will always begin with a position, as events 
+      cannot affect a traveler which has not yet been anywhere.
+      - A traveler's timeline may end with either an event or a position. This
+      is because the movement type (immediate vs interpolated) affects whether
+      the event appears before or after the journeyed position _(see above)_. 
+   - Events included in a retrieved timeline can be filtered according to the
    event's tags.
 
 ### See Also

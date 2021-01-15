@@ -8,7 +8,7 @@ from adapter.flask.flask_controllers import register_locations_routes, register_
 from adapter.main import TimelineTrackerApp
 
 
-def _create_flask_web_app() -> Flask:
+def _create_flask_web_app(version: str) -> Flask:
     # File Paths
     _PROJECT_ROOT = Path(__file__).parents[4]
     _RESOURCE_FOLDER = _PROJECT_ROOT.joinpath("Source", "Resources")
@@ -36,16 +36,17 @@ def _create_flask_web_app() -> Flask:
     flask_web_app.register_blueprint(swagger_ui_blueprint, url_prefix=_SWAGGER_URL)
 
     # Setup web path root
-    @flask_web_app.route('/')
+    @flask_web_app.route("/")
     def web_root():
-        return 'It Works!  <a href="/api/docs"> API </a>'
+        return f"It Works!  <a href=\"/api/docs\"> API {version} </a>"
 
     return flask_web_app
 
 
 def _run_app(*, timeline_tracker_app_config: dict, flask_run_config: dict):
-    flask_web_app = _create_flask_web_app()
     timeline_tracker_application = TimelineTrackerApp(**timeline_tracker_app_config)
+
+    flask_web_app = _create_flask_web_app(timeline_tracker_application.version)
     register_locations_routes(flask_web_app, timeline_tracker_application.locations_request_handler)
     register_travelers_routes(flask_web_app, timeline_tracker_application.travelers_request_handler)
     register_events_routes(flask_web_app, timeline_tracker_application.event_request_handler)
@@ -53,7 +54,7 @@ def _run_app(*, timeline_tracker_app_config: dict, flask_run_config: dict):
     flask_web_app.run(**flask_run_config)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
     config_file = sys.argv[1]
     config: dict = YAML(typ="safe").load(Path(config_file))

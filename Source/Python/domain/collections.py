@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+from functools import total_ordering
 from typing import Generic, TypeVar, Any
 
 
@@ -11,6 +13,7 @@ def _is_comparable_type(var: Any) -> bool:
             and (class_.__lt__ != object.__lt__ or class_.__gt__ != object.__gt__))
 
 
+@total_ordering
 class Range(Generic[T]):
     _low: T
     _high: T
@@ -36,12 +39,26 @@ class Range(Generic[T]):
         self._high = max(low, high)
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Range):
-            return False
+        if not isinstance(other, Range) or self.type != other.type:
+            raise ValueError(f"Cannot compare with {other}")
         return self._low == other._low and self._high == other._high
+
+    def __lt__(self, other: Range[T]) -> bool:
+        if not isinstance(other, Range) or self.type != other.type:
+            raise ValueError(f"Cannot compare with {other}")
+        if self._low != other._low:
+            return self._low < other._low
+        else:
+            return self._high < other._high
 
     def __hash__(self) -> int:
         return hash((self.__class__, self._low, self._high))
+
+    def __str__(self) -> str:
+        return f"[{self._low},{self._high}]"
+
+    def __repr__(self) -> str:
+        return f"{Range.__name__}({repr(self._low)},{repr(self._high)})"
 
     def includes(self, value: T) -> bool:
         if type(value) is not self.type:
@@ -57,6 +74,3 @@ class Range(Generic[T]):
                 or (self._low <= other._high <= self._high)
                 or (self._low <= other._low and self._high >= other._high)
                 or (other._low <= self._low and other._high >= self._high))
-
-    def __str__(self) -> str:
-        return f"[{self.low},{self.high}]"

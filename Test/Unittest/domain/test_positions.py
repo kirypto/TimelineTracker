@@ -81,7 +81,6 @@ class TestPosition(TestCase):
         # Assert
         self.assertRaises(ValueError, InvalidReality)
 
-
     def test__properties__should_not_be_mutable(self) -> None:
         # Arrange
         position = Position(latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=anon_float(), reality=anon_int())
@@ -173,7 +172,7 @@ class TestPositionalRange(TestCase):
         expected_longitude = anon_range()
         expected_altitude = anon_range()
         expected_continuum = anon_range()
-        expected_reality = anon_range(int)
+        expected_reality = anon_range(whole_numbers=True)
 
         # Act
         actual = PositionalRange(latitude=expected_latitude, longitude=expected_longitude, altitude=expected_altitude, continuum=expected_continuum,
@@ -192,7 +191,8 @@ class TestPositionalRange(TestCase):
             pass
 
         # Act
-        actual = KwargsTest(latitude=anon_range(), longitude=anon_range(), altitude=anon_range(), continuum=anon_range(), reality=anon_range(int),
+        actual = KwargsTest(latitude=anon_range(), longitude=anon_range(), altitude=anon_range(), continuum=anon_range(),
+                            reality=anon_range(whole_numbers=True),
                             other="other")
 
         # Assert
@@ -204,16 +204,20 @@ class TestPositionalRange(TestCase):
 
         # Act
         def InvalidLatitude(): PositionalRange(latitude=invalid_type,
-                                               longitude=anon_range(), altitude=anon_range(), continuum=anon_range(), reality=anon_range(int))
+                                               longitude=anon_range(), altitude=anon_range(), continuum=anon_range(),
+                                               reality=anon_range(whole_numbers=True))
 
         def InvalidLongitude(): PositionalRange(longitude=invalid_type,
-                                                latitude=anon_range(), altitude=anon_range(), continuum=anon_range(), reality=anon_range(int))
+                                                latitude=anon_range(), altitude=anon_range(), continuum=anon_range(),
+                                                reality=anon_range(whole_numbers=True))
 
         def InvalidAltitude(): PositionalRange(altitude=invalid_type,
-                                               latitude=anon_range(), longitude=anon_range(), continuum=anon_range(), reality=anon_range(int))
+                                               latitude=anon_range(), longitude=anon_range(), continuum=anon_range(),
+                                               reality=anon_range(whole_numbers=True))
 
         def InvalidContinuum(): PositionalRange(continuum=invalid_type,
-                                                latitude=anon_range(), longitude=anon_range(), altitude=anon_range(), reality=anon_range(int))
+                                                latitude=anon_range(), longitude=anon_range(), altitude=anon_range(),
+                                                reality=anon_range(whole_numbers=True))
 
         def InvalidReality(): PositionalRange(reality=invalid_type,
                                               latitude=anon_range(), longitude=anon_range(), altitude=anon_range(), continuum=anon_range())
@@ -395,7 +399,7 @@ class TestPositionalRange(TestCase):
             "longitude": anon_range(),
             "altitude": anon_range(),
             "continuum": anon_range(),
-            "reality": anon_range(int),
+            "reality": anon_range(whole_numbers=True),
         }
         position_a = PositionalRange(**dict(kwargs))
         position_b = PositionalRange(**dict(kwargs))
@@ -403,7 +407,7 @@ class TestPositionalRange(TestCase):
         position_d = PositionalRange(**copy_and_set(kwargs, "longitude", anon_range()))
         position_e = PositionalRange(**copy_and_set(kwargs, "altitude", anon_range()))
         position_f = PositionalRange(**copy_and_set(kwargs, "continuum", anon_range()))
-        position_g = PositionalRange(**copy_and_set(kwargs, "reality", anon_range(int)))
+        position_g = PositionalRange(**copy_and_set(kwargs, "reality", anon_range(whole_numbers=True)))
 
         # Act
         actual_a_equals_b = position_a == position_b
