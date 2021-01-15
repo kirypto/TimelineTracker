@@ -2,11 +2,12 @@ from typing import Set
 
 from domain.descriptors import NamedEntity, DescribedEntity
 from domain.ids import IdentifiedEntity, PrefixedUUID
+from domain.metadata import MetadataEntity
 from domain.positions import SpanningEntity
 from domain.tags import TaggedEntity
 
 
-class Event(IdentifiedEntity, NamedEntity, DescribedEntity, SpanningEntity, TaggedEntity):
+class Event(IdentifiedEntity, NamedEntity, DescribedEntity, SpanningEntity, TaggedEntity, MetadataEntity):
     _affected_locations: Set[PrefixedUUID]
     _affected_travelers: Set[PrefixedUUID]
 
