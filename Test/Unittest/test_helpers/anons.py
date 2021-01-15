@@ -140,21 +140,28 @@ def anon_tagged_entity(num_tags: int = 3) -> TaggedEntity:
     return TaggedEntity(tags=tags)
 
 
-def anon_traveler(*, name: str = None, tags: Set[Tag] = None, journey: List[PositionalMove] = None) -> Traveler:
-    return Traveler(id=anon_prefixed_id(prefix="traveler"),
-                    name=_coalesce(name, anon_name()),
-                    description=anon_description(),
-                    journey=_coalesce(journey, anon_journey()),
-                    tags=_coalesce(tags, {anon_tag()}))
+def anon_traveler(*, name: str = None, tags: Set[Tag] = None, journey: List[PositionalMove] = None, metadata: Dict[str, str] = None) -> Traveler:
+    return Traveler(
+        id=anon_prefixed_id(prefix="traveler"),
+        name=_coalesce(name, anon_name()),
+        description=anon_description(),
+        journey=_coalesce(journey, anon_journey()),
+        tags=_coalesce(tags, {anon_tag()}),
+        metadata=_coalesce(metadata, anon_metadata())
+    )
 
 
-def anon_event(*, affected_locations: Set[PrefixedUUID] = None, affected_travelers: Set[PrefixedUUID] = None, span: PositionalRange = None) -> Event:
+def anon_event(
+        *, affected_locations: Set[PrefixedUUID] = None, affected_travelers: Set[PrefixedUUID] = None, span: PositionalRange = None,
+        metadata: Dict[str, str] = None) -> Event:
     return Event(
         affected_locations=_coalesce(affected_locations, set()),
         affected_travelers=_coalesce(affected_travelers, set()),
         id=anon_prefixed_id(prefix="event"), name=anon_name(), description=anon_description(),
         span=_coalesce(span, anon_positional_range()),
-        tags={anon_tag()})
+        tags={anon_tag()},
+        metadata=_coalesce(metadata, anon_metadata())
+    )
 
 
 def anon_create_location_kwargs(
@@ -169,18 +176,20 @@ def anon_create_location_kwargs(
 
 
 def anon_create_traveler_kwargs(
-        *, name: str = None, description: str = None, journey: List[PositionalMove] = None, tags: Set[Tag] = None) -> dict:
+        *, name: str = None, description: str = None, journey: List[PositionalMove] = None, tags: Set[Tag] = None,
+        metadata: Dict[str, str] = None) -> dict:
     return {
         "name": _coalesce(name, anon_name()),
         "description": _coalesce(description, anon_description()),
         "journey": _coalesce(journey, anon_journey()),
         "tags": _coalesce(tags, {anon_tag()}),
+        "metadata": _coalesce(metadata, anon_metadata()),
     }
 
 
 def anon_create_event_kwargs(
         *, name: str = None, description: str = None, span: PositionalRange = None, tags: Set[Tag] = None,
-        affected_locations: Set[PrefixedUUID] = None, affected_travelers: Set[PrefixedUUID] = None) -> dict:
+        affected_locations: Set[PrefixedUUID] = None, affected_travelers: Set[PrefixedUUID] = None, metadata: Dict[str, str] = None) -> dict:
     return {
         "name": _coalesce(name, anon_name()),
         "description": _coalesce(description, anon_description()),
@@ -188,4 +197,5 @@ def anon_create_event_kwargs(
         "tags": _coalesce(tags, {anon_tag()}),
         "affected_locations": _coalesce(affected_locations, set()),
         "affected_travelers": _coalesce(affected_travelers, set()),
+        "metadata": _coalesce(metadata, anon_metadata()),
     }

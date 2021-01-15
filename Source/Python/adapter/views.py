@@ -207,7 +207,7 @@ class LocationView(DomainConstructedView):
         "description": str,
         "span": PositionalRange,
         "tags": Set[Tag],
-        "metadata": Dict[str, str]
+        "metadata": Dict[str, str],
     }
 
     @staticmethod
@@ -237,7 +237,8 @@ class TravelerView(DomainConstructedView):
         "name": str,
         "description": str,
         "journey": List[PositionalMove],
-        "tags": Set[Tag]
+        "tags": Set[Tag],
+        "metadata": Dict[str, str],
     }
 
     @staticmethod
@@ -270,6 +271,7 @@ class EventView(DomainConstructedView):
         "tags": Set[Tag],
         "affected_travelers": Set[PrefixedUUID],
         "affected_locations": Set[PrefixedUUID],
+        "metadata": Dict[str, str],
     }
 
     @staticmethod
