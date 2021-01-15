@@ -4,12 +4,18 @@ from application.event_use_cases import EventUseCase
 from application.location_use_cases import LocationUseCase
 from application.timeline_use_cases import TimelineUseCase
 from application.traveler_use_cases import TravelerUseCase
+from _version import __version__
 
 
 class TimelineTrackerApp:
+    _version: str
     _locations_request_handler: LocationsRequestHandler
     _travelers_request_handler: TravelersRequestHandler
     _event_request_handler: EventsRequestHandler
+
+    @property
+    def version(self) -> str:
+        return __version__
 
     @property
     def locations_request_handler(self) -> LocationsRequestHandler:
