@@ -108,5 +108,4 @@ a Traveler or Location throughout its existence.
 
 ### See Also
 
-- [**Application Design**](./applicationDesign.md)
 - [**API Design**](./apiDesign.md)
