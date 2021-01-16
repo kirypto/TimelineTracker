@@ -13,6 +13,7 @@ Timeline Tracker API conforms to the following:
 - [RFC 7231 Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content][rfc7231]
 - [OpenAPI Specification Version 3.0.3][openAPI3.0.3]
 - [YAML Ain’t Markup Language (YAML™) Version 1.2][yaml1.2]
+- [Semantic Versioning 2.0.0][semver2.0.0]
 
 ### See Also
 
@@ -24,3 +25,4 @@ Timeline Tracker API conforms to the following:
 [rfc7231]: https://tools.ietf.org/html/rfc7231#section-4.2.2
 [yaml1.2]: https://yaml.org/spec/1.2/spec.html
 [openAPI3.0.3]: https://swagger.io/specification/
+[semver2.0.0]: https://semver.org/spec/v2.0.0.html
