@@ -2,3 +2,4 @@ Flask~=1.1.2
 jsonpatch~=1.26
 flask-swagger-ui~=3.36.0
 ruamel.yaml~=0.16.12
+flask-unittest~=0.1.1

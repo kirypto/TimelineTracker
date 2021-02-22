@@ -44,6 +44,12 @@ def _create_flask_web_app(version: str) -> Flask:
 
 
 def _run_app(*, timeline_tracker_app_config: dict, flask_run_config: dict):
+    timeline_tracker_flask_app = _create_timeline_tracker_flask_app(timeline_tracker_app_config)
+
+    timeline_tracker_flask_app.run(**flask_run_config)
+
+
+def _create_timeline_tracker_flask_app(timeline_tracker_app_config):
     timeline_tracker_application = TimelineTrackerApp(**timeline_tracker_app_config)
 
     flask_web_app = _create_flask_web_app(timeline_tracker_application.version)
@@ -51,7 +57,7 @@ def _run_app(*, timeline_tracker_app_config: dict, flask_run_config: dict):
     register_travelers_routes(flask_web_app, timeline_tracker_application.travelers_request_handler)
     register_events_routes(flask_web_app, timeline_tracker_application.event_request_handler)
 
-    flask_web_app.run(**flask_run_config)
+    return flask_web_app
 
 
 if __name__ == "__main__":
