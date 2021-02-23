@@ -59,6 +59,7 @@ class EventUseCase:
             description=kwargs.pop("description") if "description" in kwargs else existing_event.description,
             span=kwargs.pop("span") if "span" in kwargs else existing_event.span,
             tags=kwargs.pop("tags") if "tags" in kwargs else existing_event.tags,
+            metadata=kwargs.pop("metadata") if "metadata" in kwargs else existing_event.metadata,
             affected_locations=kwargs.pop("affected_locations") if "affected_locations" in kwargs else existing_event.affected_locations,
             affected_travelers=kwargs.pop("affected_travelers") if "affected_travelers" in kwargs else existing_event.affected_travelers,
             **kwargs)
