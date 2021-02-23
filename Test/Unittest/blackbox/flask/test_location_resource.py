@@ -103,7 +103,7 @@ class LocationResourceTest(ClientTestCase):
         expected_json = parse_json(response.data)
         location_id = expected_json["id"]
         expected_json["name"] = "New Name"
-        patch = [{"op": "replace", "path": "/description", "value": "New Name"}]
+        patch = [{"op": "replace", "path": "/name", "value": "New Name"}]
 
         # Act
         actual = client.patch(f"/api/location/{location_id}", json=patch)
