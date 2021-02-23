@@ -133,7 +133,7 @@ class TravelersRequestHandler:
 
     @with_error_response_on_raised_exceptions
     def traveler_delete_handler(self, traveler_id_str: str) -> Tuple[Union[dict, str], int]:
-        traveler_id = LocationIdView.from_json(traveler_id_str)
+        traveler_id = TravelerIdView.from_json(traveler_id_str)
         self._traveler_use_case.delete(traveler_id)
 
         return "", HTTPStatus.NO_CONTENT
