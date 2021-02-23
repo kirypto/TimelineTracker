@@ -53,6 +53,7 @@ class TravelerUseCase:
             description=kwargs.pop("description") if "description" in kwargs else existing_traveler.description,
             journey=kwargs.pop("journey") if "journey" in kwargs else existing_traveler.journey,
             tags=kwargs.pop("tags") if "tags" in kwargs else existing_traveler.tags,
+            metadata=kwargs.pop("metadata") if "metadata" in kwargs else existing_traveler.metadata,
             **kwargs
         )
 
