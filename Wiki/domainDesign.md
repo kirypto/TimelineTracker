@@ -105,7 +105,3 @@ a Traveler or Location throughout its existence.
       the event appears before or after the journeyed position _(see above)_. 
    - Events included in a retrieved timeline can be filtered according to the
    event's tags.
-
-### See Also
-
-- [**API Design**](./apiDesign.md)
