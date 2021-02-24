@@ -4,20 +4,19 @@
 
 Timeline Tracker is a tool developed to assist in planning and organizing TTRPG campaigns, fictional narratives, or any other creative
 writing project. This tool can help you manage the people, places, items, events, and lore of constructed worlds. The initial motivation for
-this project came from my need to track and manage the plenitude of ideas that I have for a TTRPG campaign that I am running. 
+this project came from my need to track and manage the plenitude of ideas that I have for a TTRPG campaign that I am running.
 
 See [Resource Details](Wiki/resourceDetails.md) for in-depth explanation on how information can be stored and retrieved using Timeline
 Tracker API.
 
 ## API Specification
 
-The Timeline Tracker API specification is written making use of SwaggerHub web
-tool and can be viewed here:
+The Timeline Tracker API specification is written making use of SwaggerHub web tool and can be viewed here:
 [Timeline Tracker API Specification v0.1.0][swaggerHubTimelineTrackerSpec].
 
 ## Project Development
 
-Instructions for setting up Timeline Tracker API either for development or usage can be found here: [__Project Setup__](Wiki/setup.md).
+Instructions for setting up Timeline Tracker API either for development or usage can be found here: [__Project Setup__](Wiki/projectSetup.md).
 
 ## Project Standards
 
@@ -35,9 +34,15 @@ This project conforms to the following standards:
 - [Domain Design](Wiki/domainDesign.md)
   
 [swaggerHubTimelineTrackerSpec]: https://app.swaggerhub.com/apis-docs/kirypto/TimelineTracker/0.1.0
+
 [rfc6902]: https://tools.ietf.org/html/rfc6902
+
 [rfc8259]: https://tools.ietf.org/html/rfc8259
+
 [rfc7231]: https://tools.ietf.org/html/rfc7231#section-4.2.2
+
 [yaml1.2]: https://yaml.org/spec/1.2/spec.html
+
 [openAPI3.0.3]: https://swagger.io/specification/
+
 [semver2.0.0]: https://semver.org/spec/v2.0.0.html
