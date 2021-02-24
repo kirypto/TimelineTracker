@@ -29,10 +29,6 @@ This project conforms to the following standards:
 - [YAML Ain’t Markup Language (YAML™) Version 1.2][yaml1.2]
 - [Semantic Versioning 2.0.0][semver2.0.0]
 
-## See Also
-
-- [Domain Design](Wiki/domainDesign.md)
-  
 [swaggerHubTimelineTrackerSpec]: https://app.swaggerhub.com/apis-docs/kirypto/TimelineTracker/0.1.0
 
 [rfc6902]: https://tools.ietf.org/html/rfc6902
