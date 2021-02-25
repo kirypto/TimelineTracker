@@ -68,10 +68,7 @@ def process_patch_into_delta_kwargs(existing_object: Any, patch_operations: List
     for difference in make_patch(existing_object_view, modified_object_view):  # Use make_patch to determine the differences
         modified_attribute_path = difference["path"][1:].split("/")
         modified_attribute_name = modified_attribute_path[0]
-        if len(modified_attribute_path) == 1:
-            # Removing attribute entirely
-            delta_kwargs[modified_attribute_name] = None
-        else:
-            # Modification of attribute
-            delta_kwargs[modified_attribute_name] = modified_object_kwargs[modified_attribute_name]
+        if difference["op"] not in {"add", "replace", "remove"}:
+            raise RuntimeError(f"Failed to apply patch")
+        delta_kwargs[modified_attribute_name] = modified_object_kwargs[modified_attribute_name]
     return delta_kwargs

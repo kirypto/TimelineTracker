@@ -54,6 +54,7 @@ class LocationUseCase:
             description=kwargs.pop("description") if "description" in kwargs else existing_location.description,
             span=kwargs.pop("span") if "span" in kwargs else existing_location.span,
             tags=kwargs.pop("tags") if "tags" in kwargs else existing_location.tags,
+            metadata=kwargs.pop("metadata") if "metadata" in kwargs else existing_location.metadata,
             **kwargs
         )
 

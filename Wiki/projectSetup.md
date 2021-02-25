@@ -43,3 +43,7 @@ __In PyCharm__
 - Ensure the `Source/Python` directory is marked as a source root
 - Select the `Test/Unittest` directory to create the PyCharm Unittest run config
 - Modify the working directory parameter to point at the main project root.
+
+## See Also
+
+- For a more in-depth explanation of the domain, its resources, and its locations, see [Domain Design](domainDesign.md).
