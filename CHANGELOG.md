@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
 - Move in-depth explanation of resources into separate markdown file.
 - Move project standards to new section in README file.
 
-## [0.1.0] - 2020-01-15
+## [0.1.0] - 2021-01-15
 ### Added
 - Added Location POST route for creation.
 - Added Locations GET route for retrieving all existing ids.
