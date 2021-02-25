@@ -28,6 +28,7 @@ This project conforms to the following standards:
 - [OpenAPI Specification Version 3.0.3][openAPI3.0.3]
 - [YAML Ain’t Markup Language (YAML™) Version 1.2][yaml1.2]
 - [Semantic Versioning 2.0.0][semver2.0.0]
+- [Keep A Changelog 1.0.0][changelog1.0.0]
 
 [swaggerHubTimelineTrackerSpec]: https://app.swaggerhub.com/apis-docs/kirypto/TimelineTracker/0.1.0
 
@@ -42,3 +43,5 @@ This project conforms to the following standards:
 [openAPI3.0.3]: https://swagger.io/specification/
 
 [semver2.0.0]: https://semver.org/spec/v2.0.0.html
+
+[changelog1.0.0]: https://keepachangelog.com/en/1.0.0/
