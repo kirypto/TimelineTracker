@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- Modify json repositories to soft-delete files via adding a `.deleted` suffix instead of removing the file.
+
 ## [0.1.1] - 2021-02-24
 ### Fixed
 - Fix PATCH processing issue causing modification of any top level attributes _(ie: `/description`)_ to fail. Affected Location, Traveler,
