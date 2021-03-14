@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from flask import Flask
+from flask_cors import CORS
 from flask_swagger_ui import get_swaggerui_blueprint
 from ruamel.yaml import YAML
 
@@ -43,13 +44,14 @@ def _create_flask_web_app(version: str) -> Flask:
     return flask_web_app
 
 
-def _run_app(*, timeline_tracker_app_config: dict, flask_run_config: dict):
+def _run_app(*, timeline_tracker_app_config: dict, flask_run_config: dict, flask_cors_config: dict) -> None:
     timeline_tracker_flask_app = _create_timeline_tracker_flask_app(timeline_tracker_app_config)
+    CORS(timeline_tracker_flask_app, **flask_cors_config)
 
     timeline_tracker_flask_app.run(**flask_run_config)
 
 
-def _create_timeline_tracker_flask_app(timeline_tracker_app_config):
+def _create_timeline_tracker_flask_app(timeline_tracker_app_config) -> Flask:
     timeline_tracker_application = TimelineTrackerApp(**timeline_tracker_app_config)
 
     flask_web_app = _create_flask_web_app(timeline_tracker_application.version)

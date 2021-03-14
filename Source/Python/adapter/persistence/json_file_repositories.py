@@ -50,7 +50,11 @@ class _JsonFileIdentifiedEntityRepository(Generic[_T]):
         return self._retrieve_entity_from_json_file(str(entity_id))
 
     def retrieve_all(self) -> Set[_T]:
-        existing_entity_id_strings = [file.name.replace(".json", "") for file in self._repo_path.iterdir() if file.is_file()]
+        existing_entity_id_strings = [
+            file.name.replace(".json", "")
+            for file in self._repo_path.iterdir()
+            if file.is_file() and file.suffix == ".json"
+        ]
 
         all_entities = set()
         for entity_id_str in existing_entity_id_strings:
@@ -65,12 +69,14 @@ class _JsonFileIdentifiedEntityRepository(Generic[_T]):
         if not entity_path.exists():
             raise NameError(f"No stored entity with id {entity_id}")
 
-        entity_path.unlink()
+        deleted_suffix_path = entity_path.with_suffix(f"{entity_path.suffix}.deleted")
+        entity_path.rename(deleted_suffix_path)
 
     def _retrieve_entity_from_json_file(self, entity_id_str: str) -> _T:
         entity_path = self._repo_path.joinpath(f"{entity_id_str}.json")
         if entity_path.exists() and not entity_path.is_file():
-            raise FileExistsError(f"Could not retrieve entity {entity_id_str}, an uncontrolled non-file entity exists with the same name and path.")
+            raise FileExistsError(f"Could not retrieve entity {entity_id_str}, "
+                                  f"an uncontrolled non-file entity exists with the same name and path.")
         if not entity_path.exists():
             raise NameError(f"No stored entity with id {entity_id_str}")
 

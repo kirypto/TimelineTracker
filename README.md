@@ -9,26 +9,31 @@ this project came from my need to track and manage the plenitude of ideas that I
 See [Resource Details](Wiki/resourceDetails.md) for in-depth explanation on how information can be stored and retrieved using Timeline
 Tracker API.
 
+## Deploying / Using
+
+[Instructions for deploying Timeline Tracker API to use can be found here](Wiki/projectDeployment.md).
+
+## Contributing / Developing
+
+[Instructions for setting up for Timeline Tracker API development can be found here](Wiki/projectSetup.md).
+
 ## API Specification
 
 The Timeline Tracker API specification is written making use of SwaggerHub web tool and can be viewed here:
 [Timeline Tracker API Specification v0.1.0][swaggerHubTimelineTrackerSpec].
 
-## Project Development
-
-Instructions for setting up Timeline Tracker API either for development or usage can be found here: [__Project Setup__](Wiki/projectSetup.md).
-
 ## Project Standards
 
 This project conforms to the following standards:
 
-- [RFC 8259 The JavaScript Object Notation (JSON) Data Interchange Format][rfc8259]
-- [RFC 6902 JavaScript Object Notation (JSON) Patch][rfc6902]
-- [RFC 7231 Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content][rfc7231]
-- [OpenAPI Specification Version 3.0.3][openAPI3.0.3]
-- [YAML Ain’t Markup Language (YAML™) Version 1.2][yaml1.2]
 - [Semantic Versioning 2.0.0][semver2.0.0]
 - [Keep A Changelog 1.0.0][changelog1.0.0]
+- [YAML Ain’t Markup Language (YAML™) Version 1.2][yaml1.2]
+- [OpenAPI Specification Version 3.0.3][openAPI3.0.3]
+- [RFC 6902 JavaScript Object Notation (JSON) Patch][rfc6902]
+- [RFC 7231 Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content][rfc7231]
+- [RFC 8259 The JavaScript Object Notation (JSON) Data Interchange Format][rfc8259]
+  - __Exception:__ JSON responses from this API may include the numeric symbols `Infinity`, `-Infinity`, and `NaN`. 
 
 [swaggerHubTimelineTrackerSpec]: https://app.swaggerhub.com/apis-docs/kirypto/TimelineTracker/0.1.0
 
