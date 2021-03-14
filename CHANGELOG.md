@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 
 - Added support for CORS headers to allow serving returned data in on a web page.
 - Added instructions for CORS configuration to the `projectSetup.md`
+- Added a `runWithFlask.ps1` to simplify the deployment of TTAPI.
 
 ### Changed
 - Modify json repositories to soft-delete files via adding a `.deleted` suffix instead of removing the file.
