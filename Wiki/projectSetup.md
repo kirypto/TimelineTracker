@@ -3,7 +3,7 @@
 ## Requirements
 
 - Python >= 3.7
-- Python Modules as laid out in `requirements.txt`
+- Python packages as laid out in `requirements.txt`
 
 ## App Configuration
 
@@ -24,7 +24,7 @@ timeline_tracker_app_config: {
 # Configuration for the Python Flask service running the application
 flask_run_config: {
   host: localhost,
-  port: 1337,
+  port: 5000,
 }
 
 # Configuration for the Flask CORS extension

@@ -9,14 +9,18 @@ this project came from my need to track and manage the plenitude of ideas that I
 See [Resource Details](Wiki/resourceDetails.md) for in-depth explanation on how information can be stored and retrieved using Timeline
 Tracker API.
 
+## Deploying / Using
+
+[Instructions for deploying Timeline Tracker API to use can be found here](Wiki/projectDeployment.md).
+
+## Contributing / Developing
+
+[Instructions for setting up for Timeline Tracker API development can be found here](Wiki/projectSetup.md).
+
 ## API Specification
 
 The Timeline Tracker API specification is written making use of SwaggerHub web tool and can be viewed here:
 [Timeline Tracker API Specification v0.1.0][swaggerHubTimelineTrackerSpec].
-
-## Project Development
-
-Instructions for setting up Timeline Tracker API either for development or usage can be found here: [__Project Setup__](Wiki/projectSetup.md).
 
 ## Project Standards
 
