@@ -22,13 +22,14 @@ Instructions for setting up Timeline Tracker API either for development or usage
 
 This project conforms to the following standards:
 
-- [RFC 8259 The JavaScript Object Notation (JSON) Data Interchange Format][rfc8259]
-- [RFC 6902 JavaScript Object Notation (JSON) Patch][rfc6902]
-- [RFC 7231 Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content][rfc7231]
-- [OpenAPI Specification Version 3.0.3][openAPI3.0.3]
-- [YAML Ain’t Markup Language (YAML™) Version 1.2][yaml1.2]
 - [Semantic Versioning 2.0.0][semver2.0.0]
 - [Keep A Changelog 1.0.0][changelog1.0.0]
+- [YAML Ain’t Markup Language (YAML™) Version 1.2][yaml1.2]
+- [OpenAPI Specification Version 3.0.3][openAPI3.0.3]
+- [RFC 6902 JavaScript Object Notation (JSON) Patch][rfc6902]
+- [RFC 7231 Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content][rfc7231]
+- [RFC 8259 The JavaScript Object Notation (JSON) Data Interchange Format][rfc8259]
+  - __Exception:__ JSON responses from this API may include the numeric symbols `Infinity`, `-Infinity`, and `NaN`. 
 
 [swaggerHubTimelineTrackerSpec]: https://app.swaggerhub.com/apis-docs/kirypto/TimelineTracker/0.1.0
 
