@@ -26,6 +26,15 @@ flask_run_config: {
   host: localhost,
   port: 1337,
 }
+
+# Configuration for the Flask CORS extension
+# Parameters described https://flask-cors.readthedocs.io/en/latest/api.html
+flask_cors_config: {
+  origins: [
+      http://localhost:12345,
+      "*",
+  ],
+}
 ```
 
 ## Running the API
