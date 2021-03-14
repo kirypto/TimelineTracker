@@ -11,6 +11,9 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - Modify json repositories to soft-delete files via adding a `.deleted` suffix instead of removing the file.
+  
+### Fixed
+- Clarify divergence from RFC 8259 in project standards section of README file.
 
 ---
 
