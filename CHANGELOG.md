@@ -4,7 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-_(Nothing to see here)_
+### Added
+- Added a `sampleConfig.md` to replace the configuration samples duplicated in `projectSetup.md` and `projectDeployment.md`.
+- Added sample CORS header configuration to `sampleConfig.md`.
+
+### Changed
+- Changed project setup and deployment documentation to reference the new `sampleConfig.md`. 
 
 ---
 

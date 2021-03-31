@@ -7,35 +7,7 @@
 
 ## App Configuration
 
-- Create a configuration file, the following can be used as an example:
-
-```yaml
----
-# Configuration for the Timeline Tracker Application
-timeline_tracker_app_config: {
-  repositories_config: {
-    # Repository type supports 'json' or 'memory'
-    # - If 'json' type is specified, the json_repository_directory_root must also be configured
-    repository_type: memory,
-    #    json_repositories_directory_root: "/path/to/repo/root"
-  }
-}
-
-# Configuration for the Python Flask service running the application
-flask_run_config: {
-  host: localhost,
-  port: 5000,
-}
-
-# Configuration for the Flask CORS extension
-# Parameters described https://flask-cors.readthedocs.io/en/latest/api.html
-flask_cors_config: {
-  origins: [
-      http://localhost:12345,
-      "*",
-  ],
-}
-```
+- Create a configuration file, see the [Sample Config](sampleConfig.md) for an example.
 
 ## Running the API
 
