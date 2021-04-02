@@ -22,6 +22,54 @@ class TestValueTranslator(TestCase):
         # Assert
         self.assertEqual(expected, str(tag))
 
+    def test__to_json__should_translate_location_to_json_dict(self) -> None:
+        # Arrange
+        location = anon_location()
+
+        # Act
+        actual = ValueTranslator.to_json(location)
+
+        # Assert
+        self.assertTrue(type(actual) is dict)
+        self.assertIn("id", actual)
+        self.assertIn("name", actual)
+        self.assertIn("description", actual)
+        self.assertIn("span", actual)
+        self.assertIn("tags", actual)
+        self.assertIn("metadata", actual)
+
+    def test__to_json__should_translate_traveler_to_json_dict(self) -> None:
+        # Arrange
+        traveler = anon_traveler()
+
+        # Act
+        actual = ValueTranslator.to_json(traveler)
+
+        # Assert
+        self.assertTrue(type(actual) is dict)
+        self.assertIn("id", actual)
+        self.assertIn("name", actual)
+        self.assertIn("description", actual)
+        self.assertIn("journey", actual)
+        self.assertIn("tags", actual)
+        self.assertIn("metadata", actual)
+
+    def test__to_json__should_translate_event_to_json_dict(self) -> None:
+        # Arrange
+        event = anon_event()
+
+        # Act
+        actual = ValueTranslator.to_json(event)
+
+        # Assert
+        self.assertTrue(type(actual) is dict)
+        self.assertIn("id", actual)
+        self.assertIn("name", actual)
+        self.assertIn("description", actual)
+        self.assertIn("span", actual)
+        self.assertIn("tags", actual)
+        self.assertIn("metadata", actual)
+
 
 class TestLocationView(TestCase):
     def test__to_json__should_translate_to_json_dict(self) -> None:

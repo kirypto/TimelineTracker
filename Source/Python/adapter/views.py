@@ -39,41 +39,20 @@ class ValueTranslator(Generic[T]):
             return value
         if type(value) in {set, list}:
             return [ValueTranslator.to_json(inner_val) for inner_val in value]
+        if type(value) is MovementType:
+            movement_type: MovementType = value
+            return movement_type.value
         if type(value) is dict:
             return {
                 ValueTranslator.to_json(key): ValueTranslator.to_json(val)
                 for key, val in value.items()
             }
-        if type(value) is Range:
-            range_: Range = value
-            return {"low": range_.low, "high": range_.high}
-        if type(value) is PositionalRange:
-            positional_range: PositionalRange = value
+        if type(value) in {Location, Event, Traveler, PositionalRange, Position, Range, PositionalMove}:
+            location: Location = value
             return {
-                "latitude": ValueTranslator.to_json(positional_range.latitude),
-                "longitude": ValueTranslator.to_json(positional_range.longitude),
-                "altitude": ValueTranslator.to_json(positional_range.altitude),
-                "continuum": ValueTranslator.to_json(positional_range.continuum),
-                "reality": _translate_reality_to_json(positional_range.reality),
+                str(key).removeprefix("_"): ValueTranslator.to_json(val)
+                for key, val in vars(location).items()
             }
-        if type(value) is Position:
-            position: Position = value
-            return {
-                "latitude": ValueTranslator.to_json(position.latitude),
-                "longitude": ValueTranslator.to_json(position.longitude),
-                "altitude": ValueTranslator.to_json(position.altitude),
-                "continuum": ValueTranslator.to_json(position.continuum),
-                "reality": _translate_reality_to_json(position.reality),
-            }
-        if type(value) is PositionalMove:
-            positional_move: PositionalMove = value
-            return {
-                "position": ValueTranslator.to_json(positional_move.position),
-                "movement_type": ValueTranslator.to_json(positional_move.movement_type),
-            }
-        if type(value) is MovementType:
-            movement_type: MovementType = value
-            return movement_type.value
         raise TypeError(f"Unsupported type {type(value)}")
 
     @staticmethod
