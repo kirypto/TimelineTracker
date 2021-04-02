@@ -1,6 +1,6 @@
 from copy import deepcopy
 from http import HTTPStatus
-from typing import Tuple, Dict, Union, List, Any
+from typing import Tuple, Dict, Union, List, Any, Set
 
 from adapter.request_handling.utils import parse_optional_tag_set_query_param, with_error_response_on_raised_exceptions, \
     process_patch_into_delta_kwargs, parse_optional_positional_range_query_param, parse_optional_position_query_param
@@ -10,7 +10,8 @@ from application.location_use_cases import LocationUseCase
 from application.timeline_use_cases import TimelineUseCase
 from application.traveler_use_cases import TravelerUseCase
 from domain.ids import PrefixedUUID
-from domain.positions import PositionalMove
+from domain.positions import PositionalMove, PositionalRange
+from domain.tags import Tag
 
 
 class LocationsRequestHandler:
@@ -23,7 +24,13 @@ class LocationsRequestHandler:
 
     @with_error_response_on_raised_exceptions
     def locations_post_handler(self, request_body: dict) -> Tuple[dict, int]:
-        location_kwargs = LocationView.kwargs_from_json(request_body)
+        location_kwargs = {
+            "name": ValueTranslator.from_json(request_body["name"], str),
+            "description": ValueTranslator.from_json(request_body.get("description", ""), str),
+            "span": ValueTranslator.from_json(request_body["span"], PositionalRange),
+            "metadata": ValueTranslator.from_json(request_body.get("metadata", {}), Dict[str, str]),
+            "tags": ValueTranslator.from_json(request_body.get("tags", set()), Set[Tag]),
+        }
         location = self._location_use_case.create(**location_kwargs)
 
         return ValueTranslator.to_json(location), HTTPStatus.CREATED
@@ -111,7 +118,13 @@ class TravelersRequestHandler:
 
     @with_error_response_on_raised_exceptions
     def travelers_post_handler(self, request_body: dict) -> Tuple[dict, int]:
-        traveler_kwargs = TravelerView.kwargs_from_json(request_body)
+        traveler_kwargs = {
+            "name": ValueTranslator.from_json(request_body["name"], str),
+            "description": ValueTranslator.from_json(request_body.get("description", ""), str),
+            "journey": ValueTranslator.from_json(request_body["journey"], List[PositionalMove]),
+            "metadata": ValueTranslator.from_json(request_body.get("metadata", {}), Dict[str, str]),
+            "tags": ValueTranslator.from_json(request_body.get("tags", set()), Set[Tag]),
+        }
         traveler = self._traveler_use_case.create(**traveler_kwargs)
 
         return ValueTranslator.to_json(traveler), HTTPStatus.CREATED
@@ -212,7 +225,15 @@ class EventsRequestHandler:
 
     @with_error_response_on_raised_exceptions
     def events_post_handler(self, request_body: dict) -> Tuple[dict, int]:
-        event_kwargs = EventView.kwargs_from_json(request_body)
+        event_kwargs = {
+            "name": ValueTranslator.from_json(request_body["name"], str),
+            "description": ValueTranslator.from_json(request_body.get("description", ""), str),
+            "span": ValueTranslator.from_json(request_body["span"], PositionalRange),
+            "metadata": ValueTranslator.from_json(request_body.get("metadata", {}), Dict[str, str]),
+            "tags": ValueTranslator.from_json(request_body.get("tags", set()), Set[Tag]),
+            "affected_locations": ValueTranslator.from_json(request_body["affected_locations"], Set[PrefixedUUID]),
+            "affected_travelers": ValueTranslator.from_json(request_body["affected_travelers"], Set[PrefixedUUID]),
+        }
         event = self._event_use_case.create(**event_kwargs)
 
         return ValueTranslator.to_json(event), HTTPStatus.CREATED
