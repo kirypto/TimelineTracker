@@ -26,7 +26,7 @@ class LocationsRequestHandler:
         location_kwargs = LocationView.kwargs_from_json(request_body)
         location = self._location_use_case.create(**location_kwargs)
 
-        return LocationView.to_json(location), HTTPStatus.CREATED
+        return ValueTranslator.to_json(location), HTTPStatus.CREATED
 
     @with_error_response_on_raised_exceptions
     def locations_get_all_handler(self, query_params: Dict[str, str]) -> Tuple[Union[list, dict], int]:
@@ -56,7 +56,7 @@ class LocationsRequestHandler:
 
         location = self._location_use_case.retrieve(location_id)
 
-        return LocationView.to_json(location), HTTPStatus.OK
+        return ValueTranslator.to_json(location), HTTPStatus.OK
 
     @with_error_response_on_raised_exceptions
     def location_delete_handler(self, location_id_str: str) -> Tuple[Union[dict, str], int]:
@@ -78,7 +78,7 @@ class LocationsRequestHandler:
         delta_kwargs = process_patch_into_delta_kwargs(existing_location, patch_operations, LocationView)
         modified_location = self._location_use_case.update(location_id, **delta_kwargs)
 
-        return LocationView.to_json(modified_location), HTTPStatus.OK
+        return ValueTranslator.to_json(modified_location), HTTPStatus.OK
 
     @with_error_response_on_raised_exceptions
     def location_timeline_get_handler(self, location_id_str: str, query_params: Dict[str, str]) -> Tuple[List[str], int]:
@@ -114,7 +114,7 @@ class TravelersRequestHandler:
         traveler_kwargs = TravelerView.kwargs_from_json(request_body)
         traveler = self._traveler_use_case.create(**traveler_kwargs)
 
-        return TravelerView.to_json(traveler), HTTPStatus.CREATED
+        return ValueTranslator.to_json(traveler), HTTPStatus.CREATED
 
     @with_error_response_on_raised_exceptions
     def travelers_get_all_handler(self, query_params: Dict[str, str]) -> Tuple[Union[list, dict], int]:
@@ -144,7 +144,7 @@ class TravelersRequestHandler:
 
         traveler = self._traveler_use_case.retrieve(traveler_id)
 
-        return TravelerView.to_json(traveler), HTTPStatus.OK
+        return ValueTranslator.to_json(traveler), HTTPStatus.OK
 
     @with_error_response_on_raised_exceptions
     def traveler_delete_handler(self, traveler_id_str: str) -> Tuple[Union[dict, str], int]:
@@ -166,7 +166,7 @@ class TravelersRequestHandler:
         delta_kwargs = process_patch_into_delta_kwargs(existing_traveler, patch_operations, TravelerView)
         modified_traveler = self._traveler_use_case.update(traveler_id, **delta_kwargs)
 
-        return TravelerView.to_json(modified_traveler), HTTPStatus.OK
+        return ValueTranslator.to_json(modified_traveler), HTTPStatus.OK
 
     @with_error_response_on_raised_exceptions
     def traveler_journey_post_handler(self, traveler_id_str: str, new_positional_move_json: dict) -> Tuple[dict, int]:
@@ -183,7 +183,7 @@ class TravelersRequestHandler:
 
         modified_traveler = self._traveler_use_case.update(traveler_id, journey=appended_journey)
 
-        return TravelerView.to_json(modified_traveler), HTTPStatus.OK
+        return ValueTranslator.to_json(modified_traveler), HTTPStatus.OK
 
     @with_error_response_on_raised_exceptions
     def traveler_timeline_get_handler(self, traveler_id_str: str, query_params: Dict[str, str]) -> Tuple[List[Union[str, dict]], int]:
@@ -215,7 +215,7 @@ class EventsRequestHandler:
         event_kwargs = EventView.kwargs_from_json(request_body)
         event = self._event_use_case.create(**event_kwargs)
 
-        return EventView.to_json(event), HTTPStatus.CREATED
+        return ValueTranslator.to_json(event), HTTPStatus.CREATED
 
     @with_error_response_on_raised_exceptions
     def events_get_all_handler(self, query_params: Dict[str, str]) -> Tuple[Union[list, dict], int]:
@@ -245,7 +245,7 @@ class EventsRequestHandler:
 
         event = self._event_use_case.retrieve(event_id)
 
-        return EventView.to_json(event), HTTPStatus.OK
+        return ValueTranslator.to_json(event), HTTPStatus.OK
 
     @with_error_response_on_raised_exceptions
     def event_delete_handler(self, event_id_str: str) -> Tuple[Union[dict, str], int]:
@@ -267,4 +267,4 @@ class EventsRequestHandler:
         delta_kwargs = process_patch_into_delta_kwargs(existing_event, patch_operations, EventView)
         modified_event = self._event_use_case.update(event_id, **delta_kwargs)
 
-        return EventView.to_json(modified_event), HTTPStatus.OK
+        return ValueTranslator.to_json(modified_event), HTTPStatus.OK

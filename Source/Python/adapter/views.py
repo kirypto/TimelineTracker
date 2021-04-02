@@ -160,21 +160,7 @@ class ValueTranslator(Generic[T]):
         raise TypeError(f"Unsupported type {type_}")
 
 
-class _View(ABC):
-    @staticmethod
-    @abstractmethod
-    def to_json(domain_object: Any) -> Any:
-        pass
-
-
-class PrimitiveView(_View, ABC):
-    @staticmethod
-    @abstractmethod
-    def from_json(json_view: Any) -> Any:
-        pass
-
-
-class DomainConstructedView(_View, ABC):
+class DomainConstructedView(ABC):
     @staticmethod
     @abstractmethod
     def kwargs_from_json(json_view: Any) -> Any:
@@ -190,14 +176,6 @@ class LocationView(DomainConstructedView):
         "tags": Set[Tag],
         "metadata": Dict[str, str],
     }
-
-    @staticmethod
-    def to_json(location: Location) -> dict:
-        location_attributes = {attribute_name.replace("_", "", 1): value for attribute_name, value in vars(location).items()}
-        return {
-            attribute_name: ValueTranslator.to_json(location_attributes[attribute_name])
-            for attribute_name in LocationView.__attribute_types_by_name.keys()
-        }
 
     @staticmethod
     def kwargs_from_json(location_view: dict) -> dict:
@@ -223,14 +201,6 @@ class TravelerView(DomainConstructedView):
     }
 
     @staticmethod
-    def to_json(traveler: Traveler) -> dict:
-        traveler_attributes = {attribute_name.replace("_", "", 1): value for attribute_name, value in vars(traveler).items()}
-        return {
-            attribute_name: ValueTranslator.to_json(traveler_attributes[attribute_name])
-            for attribute_name in TravelerView.__attribute_types_by_name.keys()
-        }
-
-    @staticmethod
     def kwargs_from_json(traveler_view: dict) -> dict:
         def translate_val(attribute_name, value):
             if attribute_name not in TravelerView.__attribute_types_by_name:
@@ -254,14 +224,6 @@ class EventView(DomainConstructedView):
         "affected_locations": Set[PrefixedUUID],
         "metadata": Dict[str, str],
     }
-
-    @staticmethod
-    def to_json(event: Event) -> dict:
-        event_attributes = {attribute_name.replace("_", "", 1): value for attribute_name, value in vars(event).items()}
-        return {
-            attribute_name: ValueTranslator.to_json(event_attributes[attribute_name])
-            for attribute_name in EventView.__attribute_types_by_name.keys()
-        }
 
     @staticmethod
     def kwargs_from_json(event_view: dict) -> dict:

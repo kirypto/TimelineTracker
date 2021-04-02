@@ -59,7 +59,7 @@ def process_patch_into_delta_kwargs(existing_object: Any, patch_operations: List
         -> Dict[str, Any]:
     patch = JsonPatch([PatchOperation(operation).operation for operation in patch_operations])
 
-    existing_object_view = view_type.to_json(existing_object)
+    existing_object_view = ValueTranslator.to_json(existing_object)
     modified_object_view = patch.apply(existing_object_view)
 
     modified_object_kwargs = view_type.kwargs_from_json(modified_object_view)

@@ -5,7 +5,7 @@ from typing import Any
 from flask_unittest import ClientTestCase
 
 from Test.Unittest.test_helpers.anons import anon_event, anon_location, anon_traveler
-from adapter.views import EventView, LocationView, TravelerView
+from adapter.views import LocationView, TravelerView, ValueTranslator
 from domain.positions import PositionalMove, Position, MovementType
 
 
@@ -33,7 +33,7 @@ class EventResourceTest(ClientTestCase):
 
     def test__post_event__should_create_event__when_all_args_provided(self, client) -> None:
         # Arrange
-        body = EventView.to_json(anon_event())
+        body = ValueTranslator.to_json(anon_event())
 
         # Act
         actual = client.post("/api/event", json=body)
@@ -44,7 +44,7 @@ class EventResourceTest(ClientTestCase):
 
     def test__post_event__should_create_event__optional_args_left_out(self, client) -> None:
         # Arrange
-        body = EventView.to_json(anon_event())
+        body = ValueTranslator.to_json(anon_event())
         optional_arg_names = {"description", "metadata", "tags"}
         for arg_name in optional_arg_names:
             body = copy(body)
@@ -58,7 +58,7 @@ class EventResourceTest(ClientTestCase):
 
     def test__get_events__should_return_existing_events(self, client) -> None:
         # Arrange
-        body = EventView.to_json(anon_event())
+        body = ValueTranslator.to_json(anon_event())
         response = client.post("/api/event", json=body)
         expected_id = parse_json(response.data)["id"]
 
@@ -71,7 +71,7 @@ class EventResourceTest(ClientTestCase):
 
     def test__get_event__should_return_existing_event(self, client) -> None:
         # Arrange
-        body = EventView.to_json(anon_event())
+        body = ValueTranslator.to_json(anon_event())
         response = client.post("/api/event", json=body)
         expected_json = parse_json(response.data)
         event_id = expected_json["id"]
@@ -86,7 +86,7 @@ class EventResourceTest(ClientTestCase):
 
     def test__delete_event__should_remove(self, client) -> None:
         # Arrange
-        body = EventView.to_json(anon_event())
+        body = ValueTranslator.to_json(anon_event())
         response = client.post("/api/event", json=body)
         event_id = parse_json(response.data)["id"]
 
@@ -99,7 +99,7 @@ class EventResourceTest(ClientTestCase):
 
     def test__patch_event__should_allow_editing_name(self, client) -> None:
         # Arrange
-        body = EventView.to_json(anon_event(tags=set(), metadata={}))
+        body = ValueTranslator.to_json(anon_event(tags=set(), metadata={}))
         response = client.post("/api/event", json=body)
         expected_json = parse_json(response.data)
         event_id = expected_json["id"]
@@ -115,7 +115,7 @@ class EventResourceTest(ClientTestCase):
 
     def test__patch_event__should_allow_editing_tags(self, client) -> None:
         # Arrange
-        body = EventView.to_json(anon_event())
+        body = ValueTranslator.to_json(anon_event())
         response = client.post("/api/event", json=body)
         expected_json = parse_json(response.data)
         event_id = expected_json["id"]
@@ -131,7 +131,7 @@ class EventResourceTest(ClientTestCase):
 
     def test__patch_event__should_allow_editing_span(self, client) -> None:
         # Arrange
-        body = EventView.to_json(anon_event())
+        body = ValueTranslator.to_json(anon_event())
         response = client.post("/api/event", json=body)
         expected_json = parse_json(response.data)
         event_id = expected_json["id"]
@@ -147,7 +147,7 @@ class EventResourceTest(ClientTestCase):
 
     def test__patch_event__should_allow_editing_metadata(self, client) -> None:
         # Arrange
-        body = EventView.to_json(anon_event())
+        body = ValueTranslator.to_json(anon_event())
         response = client.post("/api/event", json=body)
         expected_json = parse_json(response.data)
         event_id = expected_json["id"]
@@ -164,9 +164,9 @@ class EventResourceTest(ClientTestCase):
     def test__patch_event__should_allow_editing_affected_locations(self, client) -> None:
         # Arrange
         event = anon_event()
-        body = EventView.to_json(event)
+        body = ValueTranslator.to_json(event)
         location = anon_location(span=event.span)
-        location_id = parse_json(client.post("/api/location", json=LocationView.to_json(location)).data)["id"]
+        location_id = parse_json(client.post("/api/location", json=ValueTranslator.to_json(location)).data)["id"]
         response = client.post("/api/event", json=body)
         expected_json = parse_json(response.data)
         event_id = expected_json["id"]
@@ -183,7 +183,7 @@ class EventResourceTest(ClientTestCase):
     def test__patch_event__should_allow_editing_affected_travelers(self, client) -> None:
         # Arrange
         event = anon_event()
-        body = EventView.to_json(event)
+        body = ValueTranslator.to_json(event)
         traveler = anon_traveler(journey=[PositionalMove(movement_type=MovementType.IMMEDIATE, position=Position(
             latitude=event.span.latitude.low,
             altitude=event.span.altitude.low,
@@ -191,7 +191,7 @@ class EventResourceTest(ClientTestCase):
             continuum=event.span.continuum.low,
             reality=event.span.reality.low,
         ))])
-        traveler_id = parse_json(client.post("/api/traveler", json=TravelerView.to_json(traveler)).data)["id"]
+        traveler_id = parse_json(client.post("/api/traveler", json=ValueTranslator.to_json(traveler)).data)["id"]
         response = client.post("/api/event", json=body)
         expected_json = parse_json(response.data)
         event_id = expected_json["id"]

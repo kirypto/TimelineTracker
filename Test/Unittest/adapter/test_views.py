@@ -105,20 +105,10 @@ class TestValueTranslator(TestCase):
 
 
 class TestLocationView(TestCase):
-    def test__to_json__should_translate_to_json_dict(self) -> None:
-        # Arrange
-        location = anon_location()
-
-        # Act
-        actual = LocationView.to_json(location)
-
-        # Assert
-        self.assertTrue(type(actual) is dict)
-
     def test__from_json__should_translate_from_json_dict(self) -> None:
         # Arrange
         location = anon_location()
-        json = LocationView.to_json(location)
+        json = ValueTranslator.to_json(location)
 
         # Act
         actual = Location(**LocationView.kwargs_from_json(json))
@@ -128,20 +118,10 @@ class TestLocationView(TestCase):
 
 
 class TestTravelerView(TestCase):
-    def test__to_json__should_translate_to_json_dict(self) -> None:
-        # Arrange
-        traveler = anon_traveler()
-
-        # Act
-        actual = TravelerView.to_json(traveler)
-
-        # Assert
-        self.assertTrue(type(actual) is dict)
-
     def test__from_json__should_translate_from_json_dict(self) -> None:
         # Arrange
         traveler = anon_traveler()
-        json = TravelerView.to_json(traveler)
+        json = ValueTranslator.to_json(traveler)
 
         # Act
         actual = Traveler(**TravelerView.kwargs_from_json(json))
@@ -151,20 +131,10 @@ class TestTravelerView(TestCase):
 
 
 class TestEventView(TestCase):
-    def test__to_json__should_translate_to_json_dict(self) -> None:
-        # Arrange
-        event = anon_event()
-
-        # Act
-        actual = EventView.to_json(event)
-
-        # Assert
-        self.assertTrue(type(actual) is dict)
-
     def test__from_json__should_translate_from_json_dict(self) -> None:
         # Arrange
         event = anon_event()
-        json = EventView.to_json(event)
+        json = ValueTranslator.to_json(event)
 
         # Act
         actual = Event(**EventView.kwargs_from_json(json))
