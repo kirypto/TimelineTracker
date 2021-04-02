@@ -4,11 +4,12 @@ from typing import Tuple, Dict, Union, List, Any
 
 from adapter.request_handling.utils import parse_optional_tag_set_query_param, with_error_response_on_raised_exceptions, \
     process_patch_into_delta_kwargs, parse_optional_positional_range_query_param, parse_optional_position_query_param
-from adapter.views import LocationView, LocationIdView, TravelerView, TravelerIdView, EventView, EventIdView, ValueTranslator
+from adapter.views import LocationView, TravelerView, EventView, ValueTranslator
 from application.event_use_cases import EventUseCase
 from application.location_use_cases import LocationUseCase
 from application.timeline_use_cases import TimelineUseCase
 from application.traveler_use_cases import TravelerUseCase
+from domain.ids import PrefixedUUID
 from domain.positions import PositionalMove
 
 
@@ -45,25 +46,33 @@ class LocationsRequestHandler:
 
         locations = self._location_use_case.retrieve_all(**filters)
 
-        return [LocationIdView.to_json(location.id) for location in locations], HTTPStatus.OK
+        return [ValueTranslator.to_json(location.id) for location in locations], HTTPStatus.OK
 
     @with_error_response_on_raised_exceptions
     def location_get_handler(self, location_id_str: str) -> Tuple[dict, int]:
-        location_id = LocationIdView.from_json(location_id_str)
+        if not location_id_str.startswith("location-"):
+            raise ValueError(f"Cannot parse location id from '{location_id_str}")
+        location_id = ValueTranslator.from_json(location_id_str, PrefixedUUID)
+
         location = self._location_use_case.retrieve(location_id)
 
         return LocationView.to_json(location), HTTPStatus.OK
 
     @with_error_response_on_raised_exceptions
     def location_delete_handler(self, location_id_str: str) -> Tuple[Union[dict, str], int]:
-        location_id = LocationIdView.from_json(location_id_str)
+        if not location_id_str.startswith("location-"):
+            raise ValueError(f"Cannot parse location id from '{location_id_str}")
+        location_id = ValueTranslator.from_json(location_id_str, PrefixedUUID)
+
         self._location_use_case.delete(location_id)
 
         return "", HTTPStatus.NO_CONTENT
 
     @with_error_response_on_raised_exceptions
     def location_patch_handler(self, location_id_str: str, patch_operations: List[Dict[str, Any]]) -> Tuple[dict, int]:
-        location_id = LocationIdView.from_json(location_id_str)
+        if not location_id_str.startswith("location-"):
+            raise ValueError(f"Cannot parse location id from '{location_id_str}")
+        location_id = ValueTranslator.from_json(location_id_str, PrefixedUUID)
 
         existing_location = self._location_use_case.retrieve(location_id)
         delta_kwargs = process_patch_into_delta_kwargs(existing_location, patch_operations, LocationView)
@@ -73,6 +82,10 @@ class LocationsRequestHandler:
 
     @with_error_response_on_raised_exceptions
     def location_timeline_get_handler(self, location_id_str: str, query_params: Dict[str, str]) -> Tuple[List[str], int]:
+        if not location_id_str.startswith("location-"):
+            raise ValueError(f"Cannot parse location id from '{location_id_str}")
+        location_id = ValueTranslator.from_json(location_id_str, PrefixedUUID)
+
         supported_filters = {"taggedAll", "taggedAny", "taggedOnly", "taggedNone"}
         if not supported_filters.issuperset(query_params.keys()):
             raise ValueError(f"Unsupported filter(s): {', '.join(query_params.keys() - supported_filters)}")
@@ -82,7 +95,6 @@ class LocationsRequestHandler:
             "tagged_only": parse_optional_tag_set_query_param(query_params.get("taggedOnly", None)),
             "tagged_none": parse_optional_tag_set_query_param(query_params.get("taggedNone", None)),
         }
-        location_id = LocationIdView.from_json(location_id_str)
 
         timeline = self._timeline_use_case.construct_location_timeline(location_id, **filters)
 
@@ -122,25 +134,33 @@ class TravelersRequestHandler:
 
         travelers = self._traveler_use_case.retrieve_all(**filters)
 
-        return [TravelerIdView.to_json(traveler.id) for traveler in travelers], HTTPStatus.OK
+        return [ValueTranslator.to_json(traveler.id) for traveler in travelers], HTTPStatus.OK
 
     @with_error_response_on_raised_exceptions
     def traveler_get_handler(self, traveler_id_str: str) -> Tuple[dict, int]:
-        traveler_id = TravelerIdView.from_json(traveler_id_str)
+        if not traveler_id_str.startswith("traveler-"):
+            raise ValueError(f"Cannot parse traveler id from '{traveler_id_str}")
+        traveler_id = ValueTranslator.from_json(traveler_id_str, PrefixedUUID)
+
         traveler = self._traveler_use_case.retrieve(traveler_id)
 
         return TravelerView.to_json(traveler), HTTPStatus.OK
 
     @with_error_response_on_raised_exceptions
     def traveler_delete_handler(self, traveler_id_str: str) -> Tuple[Union[dict, str], int]:
-        traveler_id = TravelerIdView.from_json(traveler_id_str)
+        if not traveler_id_str.startswith("traveler-"):
+            raise ValueError(f"Cannot parse traveler id from '{traveler_id_str}")
+        traveler_id = ValueTranslator.from_json(traveler_id_str, PrefixedUUID)
+
         self._traveler_use_case.delete(traveler_id)
 
         return "", HTTPStatus.NO_CONTENT
 
     @with_error_response_on_raised_exceptions
     def traveler_patch_handler(self, traveler_id_str: str, patch_operations: List[Dict[str, Any]]) -> Tuple[dict, int]:
-        traveler_id = TravelerIdView.from_json(traveler_id_str)
+        if not traveler_id_str.startswith("traveler-"):
+            raise ValueError(f"Cannot parse traveler id from '{traveler_id_str}")
+        traveler_id = ValueTranslator.from_json(traveler_id_str, PrefixedUUID)
 
         existing_traveler = self._traveler_use_case.retrieve(traveler_id)
         delta_kwargs = process_patch_into_delta_kwargs(existing_traveler, patch_operations, TravelerView)
@@ -150,7 +170,10 @@ class TravelersRequestHandler:
 
     @with_error_response_on_raised_exceptions
     def traveler_journey_post_handler(self, traveler_id_str: str, new_positional_move_json: dict) -> Tuple[dict, int]:
-        traveler_id = TravelerIdView.from_json(traveler_id_str)
+        if not traveler_id_str.startswith("traveler-"):
+            raise ValueError(f"Cannot parse traveler id from '{traveler_id_str}")
+        traveler_id = ValueTranslator.from_json(traveler_id_str, PrefixedUUID)
+
         new_positional_move = ValueTranslator.from_json(new_positional_move_json, PositionalMove)
 
         existing_traveler = self._traveler_use_case.retrieve(traveler_id)
@@ -164,6 +187,10 @@ class TravelersRequestHandler:
 
     @with_error_response_on_raised_exceptions
     def traveler_timeline_get_handler(self, traveler_id_str: str, query_params: Dict[str, str]) -> Tuple[List[Union[str, dict]], int]:
+        if not traveler_id_str.startswith("traveler-"):
+            raise ValueError(f"Cannot parse traveler id from '{traveler_id_str}")
+        traveler_id = ValueTranslator.from_json(traveler_id_str, PrefixedUUID)
+
         supported_filters = {"taggedAll", "taggedAny", "taggedOnly", "taggedNone"}
         if not supported_filters.issuperset(query_params.keys()):
             raise ValueError(f"Unsupported filter(s): {', '.join(query_params.keys() - supported_filters)}")
@@ -173,7 +200,6 @@ class TravelersRequestHandler:
             "tagged_only": parse_optional_tag_set_query_param(query_params.get("taggedOnly", None)),
             "tagged_none": parse_optional_tag_set_query_param(query_params.get("taggedNone", None)),
         }
-        traveler_id = TravelerIdView.from_json(traveler_id_str)
 
         timeline = self._timeline_use_case.construct_traveler_timeline(traveler_id, **filters)
 
@@ -209,25 +235,33 @@ class EventsRequestHandler:
 
         events = self._event_use_case.retrieve_all(**filters)
 
-        return [EventIdView.to_json(event.id) for event in events], HTTPStatus.OK
+        return [ValueTranslator.to_json(event.id) for event in events], HTTPStatus.OK
 
     @with_error_response_on_raised_exceptions
     def event_get_handler(self, event_id_str: str) -> Tuple[dict, int]:
-        event_id = EventIdView.from_json(event_id_str)
+        if not event_id_str.startswith("event-"):
+            raise ValueError(f"Cannot parse event id from '{event_id_str}")
+        event_id = ValueTranslator.from_json(event_id_str, PrefixedUUID)
+
         event = self._event_use_case.retrieve(event_id)
 
         return EventView.to_json(event), HTTPStatus.OK
 
     @with_error_response_on_raised_exceptions
     def event_delete_handler(self, event_id_str: str) -> Tuple[Union[dict, str], int]:
-        event_id = EventIdView.from_json(event_id_str)
+        if not event_id_str.startswith("event-"):
+            raise ValueError(f"Cannot parse event id from '{event_id_str}")
+        event_id = ValueTranslator.from_json(event_id_str, PrefixedUUID)
+
         self._event_use_case.delete(event_id)
 
         return "", HTTPStatus.NO_CONTENT
 
     @with_error_response_on_raised_exceptions
     def event_patch_handler(self, event_id_str: str, patch_operations: List[Dict[str, Any]]) -> Tuple[dict, int]:
-        event_id = EventIdView.from_json(event_id_str)
+        if not event_id_str.startswith("event-"):
+            raise ValueError(f"Cannot parse event id from '{event_id_str}")
+        event_id = ValueTranslator.from_json(event_id_str, PrefixedUUID)
 
         existing_event = self._event_use_case.retrieve(event_id)
         delta_kwargs = process_patch_into_delta_kwargs(existing_event, patch_operations, EventView)

@@ -181,36 +181,6 @@ class DomainConstructedView(_View, ABC):
         pass
 
 
-class PrefixedIdView(PrimitiveView, ABC):
-    @staticmethod
-    def to_json(location_id: PrefixedUUID) -> str:
-        return ValueTranslator.to_json(location_id)
-
-
-class LocationIdView(PrefixedIdView):
-    @staticmethod
-    def from_json(location_id_str: str) -> PrefixedUUID:
-        if not location_id_str.startswith("location-"):
-            raise ValueError(f"Cannot parse location id from '{location_id_str}")
-        return ValueTranslator.from_json(location_id_str, PrefixedUUID)
-
-
-class TravelerIdView(PrefixedIdView):
-    @staticmethod
-    def from_json(traveler_id_str: str) -> PrefixedUUID:
-        if not traveler_id_str.startswith("traveler-"):
-            raise ValueError(f"Cannot parse traveler id from '{traveler_id_str}")
-        return ValueTranslator.from_json(traveler_id_str, PrefixedUUID)
-
-
-class EventIdView(PrefixedIdView):
-    @staticmethod
-    def from_json(event_id_str: str) -> PrefixedUUID:
-        if not event_id_str.startswith("event-"):
-            raise ValueError(f"Cannot parse event id from '{event_id_str}")
-        return ValueTranslator.from_json(event_id_str, PrefixedUUID)
-
-
 class LocationView(DomainConstructedView):
     __attribute_types_by_name = {
         "id": PrefixedUUID,
