@@ -119,6 +119,38 @@ class ValueTranslator(Generic[T]):
                     ValueTranslator.from_json(key, str): ValueTranslator.from_json(val, str)
                     for key, val in string_dict.items()
                 }
+            if type_ is Location:
+                location_json: dict = value
+                return Location(**{
+                    "id": ValueTranslator.from_json(location_json["id"], PrefixedUUID),
+                    "name": ValueTranslator.from_json(location_json["name"], str),
+                    "description": ValueTranslator.from_json(location_json["description"], str),
+                    "span": ValueTranslator.from_json(location_json["span"], PositionalRange),
+                    "tags": ValueTranslator.from_json(location_json["tags"], Set[Tag]),
+                    "metadata": ValueTranslator.from_json(location_json["metadata"], Dict[str, str]),
+                })
+            if type_ is Traveler:
+                traveler_json: dict = value
+                return Traveler(**{
+                    "id": ValueTranslator.from_json(traveler_json["id"], PrefixedUUID),
+                    "name": ValueTranslator.from_json(traveler_json["name"], str),
+                    "description": ValueTranslator.from_json(traveler_json["description"], str),
+                    "journey": ValueTranslator.from_json(traveler_json["journey"], List[PositionalMove]),
+                    "tags": ValueTranslator.from_json(traveler_json["tags"], Set[Tag]),
+                    "metadata": ValueTranslator.from_json(traveler_json["metadata"], Dict[str, str]),
+                })
+            if type_ is Event:
+                event_json: dict = value
+                return Event(**{
+                    "id": ValueTranslator.from_json(event_json["id"], PrefixedUUID),
+                    "name": ValueTranslator.from_json(event_json["name"], str),
+                    "description": ValueTranslator.from_json(event_json["description"], str),
+                    "span": ValueTranslator.from_json(event_json["span"], PositionalRange),
+                    "tags": ValueTranslator.from_json(event_json["tags"], Set[Tag]),
+                    "metadata": ValueTranslator.from_json(event_json["metadata"], Dict[str, str]),
+                    "affected_locations": ValueTranslator.from_json(event_json["affected_locations"], Set[PrefixedUUID]),
+                    "affected_travelers": ValueTranslator.from_json(event_json["affected_travelers"], Set[PrefixedUUID]),
+                })
         except BaseException as e:
             if type(type_) is type:
                 name = type_.__name__
