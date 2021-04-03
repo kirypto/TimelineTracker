@@ -5,7 +5,7 @@ from typing import Any
 from flask_unittest import ClientTestCase
 
 from Test.Unittest.test_helpers.anons import anon_event, anon_location, anon_traveler
-from adapter.views import LocationView, TravelerView, ValueTranslator
+from adapter.views import ValueTranslator
 from domain.positions import PositionalMove, Position, MovementType
 
 

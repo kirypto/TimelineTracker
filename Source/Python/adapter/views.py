@@ -167,29 +167,6 @@ class DomainConstructedView(ABC):
         pass
 
 
-class LocationView(DomainConstructedView):
-    __attribute_types_by_name = {
-        "id": PrefixedUUID,
-        "name": str,
-        "description": str,
-        "span": PositionalRange,
-        "tags": Set[Tag],
-        "metadata": Dict[str, str],
-    }
-
-    @staticmethod
-    def kwargs_from_json(location_view: dict) -> dict:
-        def translate_val(attribute_name, value):
-            if attribute_name not in LocationView.__attribute_types_by_name:
-                raise ValueError(f"Failed to translate attribute '{attribute_name}' when constructing {Location.__name__}")
-            return ValueTranslator.from_json(value, LocationView.__attribute_types_by_name[attribute_name])
-
-        return {
-            attribute_name: translate_val(attribute_name, value)
-            for attribute_name, value in location_view.items()
-        }
-
-
 class TravelerView(DomainConstructedView):
     __attribute_types_by_name = {
         "id": PrefixedUUID,

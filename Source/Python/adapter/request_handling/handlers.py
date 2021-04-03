@@ -2,14 +2,17 @@ from copy import deepcopy
 from http import HTTPStatus
 from typing import Tuple, Dict, Union, List, Any, Set
 
+from jsonpatch import JsonPatch, PatchOperation
+
 from adapter.request_handling.utils import parse_optional_tag_set_query_param, with_error_response_on_raised_exceptions, \
     process_patch_into_delta_kwargs, parse_optional_positional_range_query_param, parse_optional_position_query_param
-from adapter.views import LocationView, TravelerView, EventView, ValueTranslator
+from adapter.views import TravelerView, EventView, ValueTranslator
 from application.event_use_cases import EventUseCase
 from application.location_use_cases import LocationUseCase
 from application.timeline_use_cases import TimelineUseCase
 from application.traveler_use_cases import TravelerUseCase
 from domain.ids import PrefixedUUID
+from domain.locations import Location
 from domain.positions import PositionalMove, PositionalRange
 from domain.tags import Tag
 
@@ -81,9 +84,16 @@ class LocationsRequestHandler:
             raise ValueError(f"Cannot parse location id from '{location_id_str}")
         location_id = ValueTranslator.from_json(location_id_str, PrefixedUUID)
 
-        existing_location = self._location_use_case.retrieve(location_id)
-        delta_kwargs = process_patch_into_delta_kwargs(existing_location, patch_operations, LocationView)
-        modified_location = self._location_use_case.update(location_id, **delta_kwargs)
+        patch = JsonPatch([PatchOperation(operation).operation for operation in patch_operations])
+        existing_location_json = ValueTranslator.to_json(self._location_use_case.retrieve(location_id))
+
+        modified_location_json = patch.apply(existing_location_json)
+        modified_location = ValueTranslator.from_json(modified_location_json, Location)
+
+        if modified_location.id != location_id:
+            raise ValueError("A Location's 'id' cannot be modified")
+
+        self._location_use_case.update(modified_location)
 
         return ValueTranslator.to_json(modified_location), HTTPStatus.OK
 
