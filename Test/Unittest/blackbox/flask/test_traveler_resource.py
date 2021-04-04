@@ -5,7 +5,7 @@ from typing import Any
 from flask_unittest import ClientTestCase
 
 from Test.Unittest.test_helpers.anons import anon_traveler
-from adapter.views import ValueTranslator
+from adapter.views import JsonTranslator
 
 
 _PORT = 54321
@@ -32,7 +32,7 @@ class TravelerResourceTest(ClientTestCase):
 
     def test__post_traveler__should_create_traveler__when_all_args_provided(self, client) -> None:
         # Arrange
-        body = ValueTranslator.to_json(anon_traveler())
+        body = JsonTranslator.to_json(anon_traveler())
 
         # Act
         actual = client.post("/api/traveler", json=body)
@@ -43,7 +43,7 @@ class TravelerResourceTest(ClientTestCase):
 
     def test__post_traveler__should_create_traveler__optional_args_left_out(self, client) -> None:
         # Arrange
-        body = ValueTranslator.to_json(anon_traveler())
+        body = JsonTranslator.to_json(anon_traveler())
         optional_arg_names = {"description", "metadata", "tags"}
         for arg_name in optional_arg_names:
             body = copy(body)
@@ -57,7 +57,7 @@ class TravelerResourceTest(ClientTestCase):
 
     def test__get_travelers__should_return_existing_travelers(self, client) -> None:
         # Arrange
-        body = ValueTranslator.to_json(anon_traveler())
+        body = JsonTranslator.to_json(anon_traveler())
         response = client.post("/api/traveler", json=body)
         expected_id = parse_json(response.data)["id"]
 
@@ -70,7 +70,7 @@ class TravelerResourceTest(ClientTestCase):
 
     def test__get_traveler__should_return_existing_traveler(self, client) -> None:
         # Arrange
-        body = ValueTranslator.to_json(anon_traveler())
+        body = JsonTranslator.to_json(anon_traveler())
         response = client.post("/api/traveler", json=body)
         expected_json = parse_json(response.data)
         traveler_id = expected_json["id"]
@@ -85,7 +85,7 @@ class TravelerResourceTest(ClientTestCase):
 
     def test__delete_traveler__should_remove(self, client) -> None:
         # Arrange
-        body = ValueTranslator.to_json(anon_traveler())
+        body = JsonTranslator.to_json(anon_traveler())
         response = client.post("/api/traveler", json=body)
         traveler_id = parse_json(response.data)["id"]
 
@@ -98,7 +98,7 @@ class TravelerResourceTest(ClientTestCase):
 
     def test__patch_traveler__should_allow_editing_name(self, client) -> None:
         # Arrange
-        body = ValueTranslator.to_json(anon_traveler(tags=set(), metadata={}))
+        body = JsonTranslator.to_json(anon_traveler(tags=set(), metadata={}))
         response = client.post("/api/traveler", json=body)
         expected_json = parse_json(response.data)
         traveler_id = expected_json["id"]
@@ -114,7 +114,7 @@ class TravelerResourceTest(ClientTestCase):
 
     def test__patch_traveler__should_allow_editing_tags(self, client) -> None:
         # Arrange
-        body = ValueTranslator.to_json(anon_traveler())
+        body = JsonTranslator.to_json(anon_traveler())
         response = client.post("/api/traveler", json=body)
         expected_json = parse_json(response.data)
         traveler_id = expected_json["id"]
@@ -130,7 +130,7 @@ class TravelerResourceTest(ClientTestCase):
 
     def test__patch_traveler__should_allow_editing_journey(self, client) -> None:
         # Arrange
-        body = ValueTranslator.to_json(anon_traveler())
+        body = JsonTranslator.to_json(anon_traveler())
         response = client.post("/api/traveler", json=body)
         expected_json = parse_json(response.data)
         traveler_id = expected_json["id"]
@@ -146,7 +146,7 @@ class TravelerResourceTest(ClientTestCase):
 
     def test__patch_traveler__should_allow_editing_metadata(self, client) -> None:
         # Arrange
-        body = ValueTranslator.to_json(anon_traveler())
+        body = JsonTranslator.to_json(anon_traveler())
         response = client.post("/api/traveler", json=body)
         expected_json = parse_json(response.data)
         traveler_id = expected_json["id"]

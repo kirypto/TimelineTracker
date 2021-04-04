@@ -3,7 +3,7 @@ from json import dumps, loads
 from pathlib import Path
 from typing import Set, Type, Generic, TypeVar, Dict
 
-from adapter.views import ValueTranslator
+from adapter.views import JsonTranslator
 from domain.events import Event
 from domain.ids import PrefixedUUID, IdentifiedEntity
 from domain.locations import Location
@@ -39,7 +39,7 @@ class _JsonFileIdentifiedEntityRepository(Generic[_T]):
         if entity_path.exists() and not entity_path.is_file():
             raise FileExistsError(f"Could not save location {entity.id}, an uncontrolled non-file entity exists with the same name and path.")
 
-        json = ValueTranslator.to_json(entity)
+        json = JsonTranslator.to_json(entity)
         entity_path.write_text(dumps(json, indent=2), "utf8")
 
     def retrieve(self, entity_id: PrefixedUUID) -> _T:
@@ -79,7 +79,7 @@ class _JsonFileIdentifiedEntityRepository(Generic[_T]):
             raise NameError(f"No stored entity with id {entity_id_str}")
 
         entity_json = loads(entity_path.read_text(encoding="utf8"))
-        return ValueTranslator.from_json(entity_json, self._entity_type)
+        return JsonTranslator.from_json(entity_json, self._entity_type)
 
 
 class JsonFileLocationRepository(LocationRepository):

@@ -3,7 +3,7 @@ from string import ascii_uppercase
 from unittest import TestCase
 
 from Test.Unittest.test_helpers.anons import anon_location, anon_event, anon_traveler
-from adapter.views import ValueTranslator
+from adapter.views import JsonTranslator
 from domain.events import Event
 from domain.locations import Location
 from domain.tags import Tag
@@ -17,17 +17,17 @@ class TestValueTranslator(TestCase):
         expected = uppercase_tag.lower()
 
         # Act
-        tag = ValueTranslator.from_json(uppercase_tag, Tag)
+        tag = JsonTranslator.from_json(uppercase_tag, Tag)
 
         # Assert
         self.assertEqual(expected, str(tag))
 
     def test__from_json__should_convert_json_to_location(self) -> None:
         # Arrange
-        location_json = ValueTranslator.to_json(anon_location())
+        location_json = JsonTranslator.to_json(anon_location())
 
         # Act
-        location = ValueTranslator.from_json(location_json, Location)
+        location = JsonTranslator.from_json(location_json, Location)
 
         # Assert
         self.assertEqual(location_json["name"], location.name)
@@ -35,10 +35,10 @@ class TestValueTranslator(TestCase):
 
     def test__from_json__should_convert_json_to_traveler(self) -> None:
         # Arrange
-        traveler_json = ValueTranslator.to_json(anon_traveler())
+        traveler_json = JsonTranslator.to_json(anon_traveler())
 
         # Act
-        traveler = ValueTranslator.from_json(traveler_json, Traveler)
+        traveler = JsonTranslator.from_json(traveler_json, Traveler)
 
         # Assert
         self.assertEqual(traveler_json["name"], traveler.name)
@@ -46,10 +46,10 @@ class TestValueTranslator(TestCase):
 
     def test__from_json__should_convert_json_to_event(self) -> None:
         # Arrange
-        event_json = ValueTranslator.to_json(anon_event())
+        event_json = JsonTranslator.to_json(anon_event())
 
         # Act
-        event = ValueTranslator.from_json(event_json, Event)
+        event = JsonTranslator.from_json(event_json, Event)
 
         # Assert
         self.assertEqual(event_json["name"], event.name)
@@ -60,7 +60,7 @@ class TestValueTranslator(TestCase):
         location = anon_location()
 
         # Act
-        actual = ValueTranslator.to_json(location)
+        actual = JsonTranslator.to_json(location)
 
         # Assert
         self.assertTrue(type(actual) is dict)
@@ -76,7 +76,7 @@ class TestValueTranslator(TestCase):
         traveler = anon_traveler()
 
         # Act
-        actual = ValueTranslator.to_json(traveler)
+        actual = JsonTranslator.to_json(traveler)
 
         # Assert
         self.assertTrue(type(actual) is dict)
@@ -92,7 +92,7 @@ class TestValueTranslator(TestCase):
         event = anon_event()
 
         # Act
-        actual = ValueTranslator.to_json(event)
+        actual = JsonTranslator.to_json(event)
 
         # Assert
         self.assertTrue(type(actual) is dict)

@@ -5,7 +5,7 @@ from typing import Union, Tuple, Optional, Set, Callable
 
 from jsonpatch import InvalidJsonPatch, JsonPatchTestFailed, JsonPatchConflict
 
-from adapter.views import ValueTranslator
+from adapter.views import JsonTranslator
 from domain.positions import PositionalRange, Position
 from domain.tags import Tag
 
@@ -17,19 +17,19 @@ def error_response(message: Union[str, BaseException], status_code: int) -> Tupl
 def parse_optional_tag_set_query_param(tags_query_param: Optional[str]) -> Optional[Set[Tag]]:
     if tags_query_param is None:
         return None
-    return {ValueTranslator.from_json(tag_str, Tag) for tag_str in tags_query_param.split(",") if len(tag_str) > 0}
+    return {JsonTranslator.from_json(tag_str, Tag) for tag_str in tags_query_param.split(",") if len(tag_str) > 0}
 
 
 def parse_optional_positional_range_query_param(positional_range_query_param: Optional[str]) -> Optional[PositionalRange]:
     if positional_range_query_param is None:
         return None
-    return ValueTranslator.from_json(loads(positional_range_query_param), PositionalRange)
+    return JsonTranslator.from_json(loads(positional_range_query_param), PositionalRange)
 
 
 def parse_optional_position_query_param(position_query_param: Optional[str]) -> Optional[Position]:
     if position_query_param is None:
         return None
-    return ValueTranslator.from_json(loads(position_query_param), Position)
+    return JsonTranslator.from_json(loads(position_query_param), Position)
 
 
 def with_error_response_on_raised_exceptions(handler_function: Callable) -> Callable:
