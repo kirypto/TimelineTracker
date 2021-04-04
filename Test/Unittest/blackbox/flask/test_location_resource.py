@@ -5,7 +5,7 @@ from typing import Any
 from flask_unittest import ClientTestCase
 
 from Test.Unittest.test_helpers.anons import anon_location
-from adapter.views import LocationView
+from adapter.views import JsonTranslator
 
 
 _PORT = 54321
@@ -32,7 +32,7 @@ class LocationResourceTest(ClientTestCase):
 
     def test__post_location__should_create_location__when_all_args_provided(self, client) -> None:
         # Arrange
-        body = LocationView.to_json(anon_location())
+        body = JsonTranslator.to_json(anon_location())
 
         # Act
         actual = client.post("/api/location", json=body)
@@ -43,7 +43,7 @@ class LocationResourceTest(ClientTestCase):
 
     def test__post_location__should_create_location__optional_args_left_out(self, client) -> None:
         # Arrange
-        body = LocationView.to_json(anon_location())
+        body = JsonTranslator.to_json(anon_location())
         optional_arg_names = {"description", "metadata", "tags"}
         for arg_name in optional_arg_names:
             body = copy(body)
@@ -57,7 +57,7 @@ class LocationResourceTest(ClientTestCase):
 
     def test__get_locations__should_return_existing_locations(self, client) -> None:
         # Arrange
-        body = LocationView.to_json(anon_location())
+        body = JsonTranslator.to_json(anon_location())
         response = client.post("/api/location", json=body)
         expected_id = parse_json(response.data)["id"]
 
@@ -70,7 +70,7 @@ class LocationResourceTest(ClientTestCase):
 
     def test__get_location__should_return_existing_location(self, client) -> None:
         # Arrange
-        body = LocationView.to_json(anon_location())
+        body = JsonTranslator.to_json(anon_location())
         response = client.post("/api/location", json=body)
         expected_json = parse_json(response.data)
         location_id = expected_json["id"]
@@ -85,7 +85,7 @@ class LocationResourceTest(ClientTestCase):
 
     def test__delete_location__should_remove(self, client) -> None:
         # Arrange
-        body = LocationView.to_json(anon_location())
+        body = JsonTranslator.to_json(anon_location())
         response = client.post("/api/location", json=body)
         location_id = parse_json(response.data)["id"]
 
@@ -98,7 +98,7 @@ class LocationResourceTest(ClientTestCase):
 
     def test__patch_location__should_allow_editing_name(self, client) -> None:
         # Arrange
-        body = LocationView.to_json(anon_location(tags=set(), metadata={}))
+        body = JsonTranslator.to_json(anon_location(tags=set(), metadata={}))
         response = client.post("/api/location", json=body)
         expected_json = parse_json(response.data)
         location_id = expected_json["id"]
@@ -114,7 +114,7 @@ class LocationResourceTest(ClientTestCase):
 
     def test__patch_location__should_allow_editing_tags(self, client) -> None:
         # Arrange
-        body = LocationView.to_json(anon_location())
+        body = JsonTranslator.to_json(anon_location())
         response = client.post("/api/location", json=body)
         expected_json = parse_json(response.data)
         location_id = expected_json["id"]
@@ -130,7 +130,7 @@ class LocationResourceTest(ClientTestCase):
 
     def test__patch_location__should_allow_editing_span(self, client) -> None:
         # Arrange
-        body = LocationView.to_json(anon_location())
+        body = JsonTranslator.to_json(anon_location())
         response = client.post("/api/location", json=body)
         expected_json = parse_json(response.data)
         location_id = expected_json["id"]
@@ -146,7 +146,7 @@ class LocationResourceTest(ClientTestCase):
 
     def test__patch_location__should_allow_editing_metadata(self, client) -> None:
         # Arrange
-        body = LocationView.to_json(anon_location())
+        body = JsonTranslator.to_json(anon_location())
         response = client.post("/api/location", json=body)
         expected_json = parse_json(response.data)
         location_id = expected_json["id"]

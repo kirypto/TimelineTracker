@@ -1,15 +1,17 @@
+from copy import deepcopy
 from unittest import TestCase
 from unittest.mock import patch, MagicMock
 
 from Test.Unittest.test_helpers.anons import anon_prefixed_id, anon_positional_range, anon_name, anon_description, anon_tag, \
-    anon_create_event_kwargs, anon_event, anon_anything, anon_location, anon_traveler
+    anon_create_event_kwargs, anon_event, anon_anything, anon_location, anon_traveler, anon_metadata
 from adapter.persistence.in_memory_repositories import InMemoryEventRepository, InMemoryLocationRepository, InMemoryTravelerRepository
 from application.event_use_cases import EventUseCase
+from domain.events import Event
 from domain.persistence.repositories import TravelerRepository, LocationRepository
 from domain.positions import PositionalMove, MovementType, Position
 
 
-class TestEventUsecase(TestCase):
+class TestEventUseCase(TestCase):
     event_use_case: EventUseCase
     location_repository: LocationRepository
     traveler_repository: TravelerRepository
@@ -62,8 +64,8 @@ class TestEventUsecase(TestCase):
         span = anon_positional_range()
         location = anon_location(span=span)
         journey = [PositionalMove(
-            position=Position(latitude=span.latitude.low, longitude=span.longitude.low, altitude=span.altitude.low, continuum=span.continuum.low,
-                              reality=span.reality.low), movement_type=MovementType.IMMEDIATE)]
+            position=Position(latitude=span.latitude.low, longitude=span.longitude.low, altitude=span.altitude.low,
+                              continuum=span.continuum.low, reality=span.reality.low), movement_type=MovementType.IMMEDIATE)]
         traveler = anon_traveler(journey=journey)
         self.location_repository.save(location)
         self.traveler_repository.save(traveler)
@@ -82,11 +84,12 @@ class TestEventUsecase(TestCase):
         self.location_repository.save(location)
 
         # Act
-        def Action(): self.event_use_case.create(span=anon_positional_range(), name=anon_name(), description=anon_description(), tags={anon_tag()},
-                                                 affected_locations={location.id})
+        def action(): self.event_use_case.create(
+            span=anon_positional_range(), name=anon_name(), description=anon_description(), tags={anon_tag()},
+            affected_locations={location.id})
 
         # Assert
-        self.assertRaises(ValueError, Action)
+        self.assertRaises(ValueError, action)
 
     def test__create__should_reject_affected_travelers_that_do_not_intersect_event(self) -> None:
         # Arrange
@@ -94,11 +97,12 @@ class TestEventUsecase(TestCase):
         self.traveler_repository.save(traveler)
 
         # Act
-        def Action(): self.event_use_case.create(span=anon_positional_range(), name=anon_name(), description=anon_description(), tags={anon_tag()},
-                                                 affected_travelers={traveler.id})
+        def action(): self.event_use_case.create(
+            span=anon_positional_range(), name=anon_name(), description=anon_description(), tags={anon_tag()},
+            affected_travelers={traveler.id})
 
         # Assert
-        self.assertRaises(ValueError, Action)
+        self.assertRaises(ValueError, action)
 
     def test__retrieve__should_return_saved__when_exists(self) -> None:
         # Arrange
@@ -114,19 +118,19 @@ class TestEventUsecase(TestCase):
         # Arrange
 
         # Act
-        def Action(): self.event_use_case.retrieve(anon_prefixed_id(prefix="event"))
+        def action(): self.event_use_case.retrieve(anon_prefixed_id(prefix="event"))
 
         # Assert
-        self.assertRaises(NameError, Action)
+        self.assertRaises(NameError, action)
 
     def test__retrieve__should_raise_exception__when_invalid_id_provided(self) -> None:
         # Arrange
 
         # Act
-        def Action(): self.event_use_case.retrieve(anon_prefixed_id())
+        def action(): self.event_use_case.retrieve(anon_prefixed_id())
 
         # Assert
-        self.assertRaises(ValueError, Action)
+        self.assertRaises(ValueError, action)
 
     def test__retrieve_all__should_return_all_saved__when_no_filters_provided(self) -> None:
         # Arrange
@@ -141,7 +145,8 @@ class TestEventUsecase(TestCase):
         self.assertSetEqual(expected, actual)
 
     @patch("application.filtering_use_cases.FilteringUseCase.filter_named_entities")
-    def test__retrieve_all__should_delegate_to_filter_named_entities__when_filtering_necessary(self, filter_named_entities_mock: MagicMock) -> None:
+    def test__retrieve_all__should_delegate_to_filter_named_entities__when_filtering_necessary(
+            self, filter_named_entities_mock: MagicMock) -> None:
         # Arrange
         expected_output = {anon_event()}
         filter_named_entities_mock.return_value = expected_output, {}
@@ -155,7 +160,8 @@ class TestEventUsecase(TestCase):
         self.assertEqual(expected_output, actual)
 
     @patch("application.filtering_use_cases.FilteringUseCase.filter_tagged_entities")
-    def test__retrieve_all__should_delegate_to_filter_tagged_entities__when_filtering_necessary(self, filter_tagged_entities_mock: MagicMock) -> None:
+    def test__retrieve_all__should_delegate_to_filter_tagged_entities__when_filtering_necessary(
+            self, filter_tagged_entities_mock: MagicMock) -> None:
         # Arrange
         expected_output = {anon_event()}
         filter_tagged_entities_mock.return_value = expected_output, {}
@@ -169,8 +175,8 @@ class TestEventUsecase(TestCase):
         self.assertEqual(expected_output, actual)
 
     @patch("application.filtering_use_cases.FilteringUseCase.filter_spanning_entities")
-    def test__retrieve_all__should_delegate_to_filter_spanning_entities__when_filtering_necessary(self,
-                                                                                                  filter_spanning_entities_mock: MagicMock) -> None:
+    def test__retrieve_all__should_delegate_to_filter_spanning_entities__when_filtering_necessary(
+            self, filter_spanning_entities_mock: MagicMock) -> None:
         # Arrange
         expected_output = {anon_event()}
         filter_spanning_entities_mock.return_value = expected_output, {}
@@ -187,54 +193,53 @@ class TestEventUsecase(TestCase):
         # Arrange
 
         # Act
-        def Action(): self.event_use_case.retrieve_all(unsupported_filter=anon_anything())
+        def action(): self.event_use_case.retrieve_all(unsupported_filter=anon_anything())
 
         # Assert
-        self.assertRaises(ValueError, Action)
+        self.assertRaises(ValueError, action)
 
     def test__update__should_raise_exception__when_not_exists(self) -> None:
         # Arrange
 
         # Act
-        def Action(): self.event_use_case.update(anon_prefixed_id(prefix="event"), name=anon_name())
+        def action(): self.event_use_case.update(anon_event())
 
         # Assert
-        self.assertRaises(NameError, Action)
-
-    def test__update__should_reject_attempts_to_change_id(self) -> None:
-        # Arrange
-        event = self.event_use_case.create(**anon_create_event_kwargs())
-
-        # Act
-        # noinspection PyArgumentList
-        def Action(): self.event_use_case.update(event.id, id=anon_prefixed_id(prefix="event"))
-
-        # Assert
-        self.assertRaises(ValueError, Action)
+        self.assertRaises(NameError, action)
 
     def test__update__should_reject_affected_locations_that_do_not_intersect_event(self) -> None:
         # Arrange
-        event = self.event_use_case.create(**anon_create_event_kwargs())
+        event_kwargs = anon_create_event_kwargs()
+        event = self.event_use_case.create(**event_kwargs)
         location = anon_location()
         self.location_repository.save(location)
+        modified_kwargs = deepcopy(event_kwargs)
+        modified_kwargs["id"] = event.id
+        modified_kwargs["affected_locations"] = {location.id}
+        modified_event = Event(**modified_kwargs)
 
         # Act
-        def Action(): self.event_use_case.update(event.id, affected_locations={location.id})
+        def action(): self.event_use_case.update(modified_event)
 
         # Assert
-        self.assertRaises(ValueError, Action)
+        self.assertRaises(ValueError, action)
 
     def test__update__should_reject_affected_travelers_that_do_not_intersect_event(self) -> None:
         # Arrange
-        event = self.event_use_case.create(**anon_create_event_kwargs())
+        event_kwargs = anon_create_event_kwargs()
+        event = self.event_use_case.create(**event_kwargs)
         traveler = anon_traveler()
         self.traveler_repository.save(traveler)
+        modified_kwargs = deepcopy(event_kwargs)
+        modified_kwargs["id"] = event.id
+        modified_kwargs["affected_travelers"] = {traveler.id}
+        modified_event = Event(**modified_kwargs)
 
         # Act
-        def Action(): self.event_use_case.update(event.id, affected_travelers={traveler.id})
+        def action(): self.event_use_case.update(modified_event)
 
         # Assert
-        self.assertRaises(ValueError, Action)
+        self.assertRaises(ValueError, action)
 
     def test__update__should_update_provided_attributes__when_attributes_provided(self) -> None:
         # Arrange
@@ -243,18 +248,21 @@ class TestEventUsecase(TestCase):
         expected_description = anon_description()
         expected_span = anon_positional_range()
         expected_tags = {anon_tag(), anon_tag()}
+        expected_metadata = anon_metadata()
+        modified_event = Event(
+            id=event.id, name=expected_name, description=expected_description, span=expected_span, tags=expected_tags,
+            metadata=expected_metadata)
 
         # Act
-        actual_updated_name = self.event_use_case.update(event.id, name=expected_name)
-        actual_updated_description = self.event_use_case.update(event.id, description=expected_description)
-        actual_updated_span = self.event_use_case.update(event.id, span=expected_span)
-        actual_updated_tags = self.event_use_case.update(event.id, tags=expected_tags)
+        self.event_use_case.update(modified_event)
 
         # Assert
-        self.assertEqual(expected_name, actual_updated_name.name)
-        self.assertEqual(expected_description, actual_updated_description.description)
-        self.assertEqual(expected_span, actual_updated_span.span)
-        self.assertEqual(expected_tags, actual_updated_tags.tags)
+        actual = self.event_use_case.retrieve(event.id)
+        self.assertEqual(expected_name, actual.name)
+        self.assertEqual(expected_description, actual.description)
+        self.assertEqual(expected_span, actual.span)
+        self.assertEqual(expected_tags, actual.tags)
+        self.assertEqual(expected_metadata, actual.metadata)
 
     def test__delete__should_delete__when_event_exists(self) -> None:
         # Arrange
@@ -270,16 +278,16 @@ class TestEventUsecase(TestCase):
         # Arrange
 
         # Act
-        def Action(): self.event_use_case.delete(anon_prefixed_id(prefix="event"))
+        def action(): self.event_use_case.delete(anon_prefixed_id(prefix="event"))
 
         # Assert
-        self.assertRaises(NameError, Action)
+        self.assertRaises(NameError, action)
 
     def test__delete__should_raise_exception__when_invalid_id_provided(self) -> None:
         # Arrange
 
         # Act
-        def Action(): self.event_use_case.delete(anon_prefixed_id())
+        def action(): self.event_use_case.delete(anon_prefixed_id())
 
         # Assert
-        self.assertRaises(ValueError, Action)
+        self.assertRaises(ValueError, action)

@@ -1,11 +1,11 @@
 from http import HTTPStatus
 from json import loads
 from logging import exception
-from typing import Union, Tuple, Optional, Set, Callable, Any, List, Dict, Type
+from typing import Union, Tuple, Optional, Set, Callable
 
-from jsonpatch import InvalidJsonPatch, JsonPatchTestFailed, JsonPatch, PatchOperation, make_patch, JsonPatchConflict
+from jsonpatch import InvalidJsonPatch, JsonPatchTestFailed, JsonPatchConflict
 
-from adapter.views import DomainConstructedView, ValueTranslator
+from adapter.views import JsonTranslator
 from domain.positions import PositionalRange, Position
 from domain.tags import Tag
 
@@ -17,19 +17,19 @@ def error_response(message: Union[str, BaseException], status_code: int) -> Tupl
 def parse_optional_tag_set_query_param(tags_query_param: Optional[str]) -> Optional[Set[Tag]]:
     if tags_query_param is None:
         return None
-    return {ValueTranslator.from_json(tag_str, Tag) for tag_str in tags_query_param.split(",") if len(tag_str) > 0}
+    return {JsonTranslator.from_json(tag_str, Tag) for tag_str in tags_query_param.split(",") if len(tag_str) > 0}
 
 
 def parse_optional_positional_range_query_param(positional_range_query_param: Optional[str]) -> Optional[PositionalRange]:
     if positional_range_query_param is None:
         return None
-    return ValueTranslator.from_json(loads(positional_range_query_param), PositionalRange)
+    return JsonTranslator.from_json(loads(positional_range_query_param), PositionalRange)
 
 
 def parse_optional_position_query_param(position_query_param: Optional[str]) -> Optional[Position]:
     if position_query_param is None:
         return None
-    return ValueTranslator.from_json(loads(position_query_param), Position)
+    return JsonTranslator.from_json(loads(position_query_param), Position)
 
 
 def with_error_response_on_raised_exceptions(handler_function: Callable) -> Callable:
@@ -53,22 +53,3 @@ def with_error_response_on_raised_exceptions(handler_function: Callable) -> Call
             return error_response(e, HTTPStatus.INTERNAL_SERVER_ERROR)
 
     return inner
-
-
-def process_patch_into_delta_kwargs(existing_object: Any, patch_operations: List[Dict[str, Any]], view_type: Type[DomainConstructedView]) \
-        -> Dict[str, Any]:
-    patch = JsonPatch([PatchOperation(operation).operation for operation in patch_operations])
-
-    existing_object_view = view_type.to_json(existing_object)
-    modified_object_view = patch.apply(existing_object_view)
-
-    modified_object_kwargs = view_type.kwargs_from_json(modified_object_view)
-
-    delta_kwargs = {}
-    for difference in make_patch(existing_object_view, modified_object_view):  # Use make_patch to determine the differences
-        modified_attribute_path = difference["path"][1:].split("/")
-        modified_attribute_name = modified_attribute_path[0]
-        if difference["op"] not in {"add", "replace", "remove"}:
-            raise RuntimeError(f"Failed to apply patch")
-        delta_kwargs[modified_attribute_name] = modified_object_kwargs[modified_attribute_name]
-    return delta_kwargs
