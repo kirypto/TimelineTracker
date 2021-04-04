@@ -1,9 +1,9 @@
 from adapter.factories import RepositoriesFactory
 from adapter.request_handling.handlers import LocationsRequestHandler, TravelersRequestHandler, EventsRequestHandler
-from application.event_use_cases import EventUseCase
-from application.location_use_cases import LocationUseCase
-from application.timeline_use_cases import TimelineUseCase
-from application.traveler_use_cases import TravelerUseCase
+from application.use_case.event_use_cases import EventUseCase
+from application.use_case.location_use_cases import LocationUseCase
+from application.use_case.timeline_use_cases import TimelineUseCase
+from application.use_case.traveler_use_cases import TravelerUseCase
 from _version import __version__
 
 

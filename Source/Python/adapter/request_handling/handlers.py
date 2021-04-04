@@ -7,10 +7,10 @@ from jsonpatch import JsonPatch, PatchOperation
 from adapter.request_handling.utils import parse_optional_tag_set_query_param, with_error_response_on_raised_exceptions, \
     parse_optional_positional_range_query_param, parse_optional_position_query_param
 from adapter.views import JsonTranslator
-from application.event_use_cases import EventUseCase
-from application.location_use_cases import LocationUseCase
-from application.timeline_use_cases import TimelineUseCase
-from application.traveler_use_cases import TravelerUseCase
+from application.use_case.event_use_cases import EventUseCase
+from application.use_case.location_use_cases import LocationUseCase
+from application.use_case.timeline_use_cases import TimelineUseCase
+from application.use_case.traveler_use_cases import TravelerUseCase
 from domain.events import Event
 from domain.ids import PrefixedUUID
 from domain.locations import Location

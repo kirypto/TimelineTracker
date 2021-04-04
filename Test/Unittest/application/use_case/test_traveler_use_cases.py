@@ -5,7 +5,7 @@ from unittest.mock import patch, MagicMock
 from Test.Unittest.test_helpers.anons import anon_journey, anon_prefixed_id, anon_name, anon_description, anon_tag, \
     anon_create_traveler_kwargs, anon_traveler, anon_anything, anon_positional_range, anon_event, anon_metadata
 from adapter.persistence.in_memory_repositories import InMemoryTravelerRepository, InMemoryEventRepository
-from application.traveler_use_cases import TravelerUseCase
+from application.use_case.traveler_use_cases import TravelerUseCase
 from domain.persistence.repositories import EventRepository
 from domain.positions import PositionalMove, MovementType, Position
 from domain.travelers import Traveler
@@ -95,7 +95,7 @@ class TestTravelerUseCase(TestCase):
         # Assert
         self.assertSetEqual(expected, actual)
 
-    @patch("application.filtering_use_cases.FilteringUseCase.filter_named_entities")
+    @patch("application.use_case.filtering_use_cases.FilteringUseCase.filter_named_entities")
     def test__retrieve_all__should_delegate_to_filter_named_entities__when_filtering_necessary(
             self, filter_named_entities_mock: MagicMock) -> None:
         # Arrange
@@ -110,7 +110,7 @@ class TestTravelerUseCase(TestCase):
         self.assertEqual(expected_output, actual)
         filter_named_entities_mock.assert_called_once_with(expected_input)
 
-    @patch("application.filtering_use_cases.FilteringUseCase.filter_tagged_entities")
+    @patch("application.use_case.filtering_use_cases.FilteringUseCase.filter_tagged_entities")
     def test__retrieve_all__should_delegate_to_filter_tagged_entities__when_filtering_necessary(
             self, filter_tagged_entities_mock: MagicMock) -> None:
         # Arrange
@@ -125,7 +125,7 @@ class TestTravelerUseCase(TestCase):
         self.assertEqual(expected_output, actual)
         filter_tagged_entities_mock.assert_called_once_with(expected_input)
 
-    @patch("application.filtering_use_cases.FilteringUseCase.filter_journeying_entities")
+    @patch("application.use_case.filtering_use_cases.FilteringUseCase.filter_journeying_entities")
     def test__retrieve_all__should_delegate_to_filter_journeying_entities__when_filtering_necessary(
             self, filter_journeying_entities_mock: MagicMock) -> None:
         # Arrange

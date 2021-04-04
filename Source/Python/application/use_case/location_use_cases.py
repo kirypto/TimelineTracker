@@ -1,7 +1,7 @@
 from typing import Set
 from uuid import uuid4
 
-from application.filtering_use_cases import FilteringUseCase
+from application.use_case.filtering_use_cases import FilteringUseCase
 from domain.ids import PrefixedUUID
 from domain.locations import Location
 from domain.persistence.repositories import LocationRepository, EventRepository
