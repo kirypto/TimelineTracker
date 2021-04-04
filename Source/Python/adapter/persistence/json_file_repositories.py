@@ -37,7 +37,8 @@ class _JsonFileIdentifiedEntityRepository(Generic[_T]):
 
         entity_path = self._repo_path.joinpath(f"{entity.id}.json")
         if entity_path.exists() and not entity_path.is_file():
-            raise FileExistsError(f"Could not save location {entity.id}, an uncontrolled non-file entity exists with the same name and path.")
+            raise FileExistsError(f"Could not save location {entity.id}, an uncontrolled non-file entity exists with the same name and "
+                                  f"path.")
 
         json = JsonTranslator.to_json(entity)
         entity_path.write_text(dumps(json, indent=2), "utf8")
@@ -166,3 +167,8 @@ class JsonFileEventRepository(EventRepository):
             self._event_ids_by_location_id[location_id].remove(event_id)
         for traveler_id in self._event_ids_by_traveler_id:
             self._event_ids_by_traveler_id[traveler_id].remove(event_id)
+
+
+location_repository_class = JsonFileLocationRepository
+traveler_repository_class = JsonFileTravelerRepository
+event_repository_class = JsonFileEventRepository

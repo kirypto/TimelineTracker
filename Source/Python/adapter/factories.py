@@ -1,11 +1,15 @@
-from adapter.persistence.in_memory_repositories import InMemoryLocationRepository, InMemoryTravelerRepository, InMemoryEventRepository
-from adapter.persistence.json_file_repositories import JsonFileLocationRepository, JsonFileTravelerRepository, JsonFileEventRepository
+from importlib import import_module
+
 from domain.persistence.repositories import TravelerRepository, LocationRepository, EventRepository
 
 
 class RepositoriesFactory:
-    _traveler_repo: TravelerRepository
+    _REPO_TYPES = {
+        "memory": "in_memory_repositories",
+        "json": "json_file_repositories",
+    }
     _location_repo: LocationRepository
+    _traveler_repo: TravelerRepository
     _event_repo: EventRepository
 
     @property
@@ -21,15 +25,15 @@ class RepositoriesFactory:
         return self._event_repo
 
     def __init__(self, repository_type: str, **kwargs) -> None:
-        if repository_type == "json":
-            self._location_repo = JsonFileLocationRepository(**kwargs)
-            self._traveler_repo = JsonFileTravelerRepository(**kwargs)
-            self._event_repo = JsonFileEventRepository(**kwargs)
-        elif repository_type == "memory":
-            if len(kwargs) > 0:
-                raise ValueError(f"In memory repositories do not required additional params, these were given: {kwargs.keys()}")
-            self._location_repo = InMemoryLocationRepository()
-            self._traveler_repo = InMemoryTravelerRepository()
-            self._event_repo = InMemoryEventRepository()
-        else:
-            raise ValueError(f"Unsupported repository type {repository_type}")
+        if repository_type not in RepositoriesFactory._REPO_TYPES:
+            raise ValueError(f"Unsupported repository type {repository_type}. "
+                             f"Supported types are: {set(RepositoriesFactory._REPO_TYPES.keys())}")
+
+        repositories_module = import_module(f"adapter.persistence.{RepositoriesFactory._REPO_TYPES[repository_type]}")
+        location_repository_class = getattr(repositories_module, 'location_repository_class')
+        traveler_repository_class = getattr(repositories_module, 'traveler_repository_class')
+        event_repository_class = getattr(repositories_module, 'event_repository_class')
+
+        self._location_repo = location_repository_class(**kwargs)
+        self._traveler_repo = traveler_repository_class(**kwargs)
+        self._event_repo = event_repository_class(**kwargs)
