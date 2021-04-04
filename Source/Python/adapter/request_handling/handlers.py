@@ -6,7 +6,7 @@ from jsonpatch import JsonPatch, PatchOperation
 
 from adapter.request_handling.utils import parse_optional_tag_set_query_param, with_error_response_on_raised_exceptions, \
     process_patch_into_delta_kwargs, parse_optional_positional_range_query_param, parse_optional_position_query_param
-from adapter.views import TravelerView, EventView, ValueTranslator
+from adapter.views import EventView, ValueTranslator
 from application.event_use_cases import EventUseCase
 from application.location_use_cases import LocationUseCase
 from application.timeline_use_cases import TimelineUseCase
@@ -15,8 +15,10 @@ from domain.ids import PrefixedUUID
 from domain.locations import Location
 from domain.positions import PositionalMove, PositionalRange
 from domain.tags import Tag
+from domain.travelers import Traveler
 
 
+# noinspection DuplicatedCode
 class LocationsRequestHandler:
     _location_use_case: LocationUseCase
     _timeline_use_case: TimelineUseCase
@@ -141,7 +143,8 @@ class TravelersRequestHandler:
 
     @with_error_response_on_raised_exceptions
     def travelers_get_all_handler(self, query_params: Dict[str, str]) -> Tuple[Union[list, dict], int]:
-        supported_filters = {"nameIs", "nameHas", "taggedAll", "taggedAny", "taggedOnly", "taggedNone", "journeyIntersects", "journeyIncludes"}
+        supported_filters = {"nameIs", "nameHas", "taggedAll", "taggedAny", "taggedOnly", "taggedNone", "journeyIntersects",
+                             "journeyIncludes"}
         if not supported_filters.issuperset(query_params.keys()):
             raise ValueError(f"Unsupported filter(s): {', '.join(query_params.keys() - supported_filters)}")
         filters = {
@@ -185,9 +188,16 @@ class TravelersRequestHandler:
             raise ValueError(f"Cannot parse traveler id from '{traveler_id_str}")
         traveler_id = ValueTranslator.from_json(traveler_id_str, PrefixedUUID)
 
-        existing_traveler = self._traveler_use_case.retrieve(traveler_id)
-        delta_kwargs = process_patch_into_delta_kwargs(existing_traveler, patch_operations, TravelerView)
-        modified_traveler = self._traveler_use_case.update(traveler_id, **delta_kwargs)
+        patch = JsonPatch([PatchOperation(operation).operation for operation in patch_operations])
+        existing_object_view = ValueTranslator.to_json(self._traveler_use_case.retrieve(traveler_id))
+
+        modified_traveler_json = patch.apply(existing_object_view)
+        modified_traveler = ValueTranslator.from_json(modified_traveler_json, Traveler)
+
+        if modified_traveler.id != traveler_id:
+            raise ValueError("A Traveler's 'id' cannot be modified")
+
+        self._traveler_use_case.update(modified_traveler)
 
         return ValueTranslator.to_json(modified_traveler), HTTPStatus.OK
 
@@ -203,8 +213,11 @@ class TravelersRequestHandler:
 
         appended_journey = deepcopy(existing_traveler.journey)
         appended_journey.append(new_positional_move)
+        modified_traveler = Traveler(
+            id=existing_traveler.id, name=existing_traveler.name, description=existing_traveler.description,
+            journey=appended_journey, tags=existing_traveler.tags, metadata=existing_traveler.metadata)
 
-        modified_traveler = self._traveler_use_case.update(traveler_id, journey=appended_journey)
+        self._traveler_use_case.update(modified_traveler)
 
         return ValueTranslator.to_json(modified_traveler), HTTPStatus.OK
 
@@ -229,6 +242,7 @@ class TravelersRequestHandler:
         return ValueTranslator.to_json(timeline), HTTPStatus.OK
 
 
+# noinspection DuplicatedCode
 class EventsRequestHandler:
     def __init__(self, event_use_case: EventUseCase) -> None:
         self._event_use_case = event_use_case
