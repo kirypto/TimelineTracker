@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - Changed project setup and deployment documentation to reference the new `sampleConfig.md`. 
+- Changed tags to be served alphabetically sorted.
 
 ### Fixed
 - Fixed JSON PATCH issues causing `move` operations to fail.

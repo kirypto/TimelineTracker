@@ -36,8 +36,10 @@ class JsonTranslator(Generic[T]):
             return str(value)
         if type(value) is str:
             return value
-        if type(value) in {set, list}:
+        if type(value) is list:
             return [JsonTranslator.to_json(inner_val) for inner_val in value]
+        if type(value) is set:
+            return sorted([JsonTranslator.to_json(inner_val) for inner_val in value])
         if type(value) is MovementType:
             movement_type: MovementType = value
             return movement_type.value

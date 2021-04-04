@@ -1,8 +1,9 @@
-from random import choices
+from copy import deepcopy
+from random import choices, shuffle
 from string import ascii_uppercase
 from unittest import TestCase
 
-from Test.Unittest.test_helpers.anons import anon_location, anon_event, anon_traveler
+from Test.Unittest.test_helpers.anons import anon_location, anon_event, anon_traveler, anon_tag
 from adapter.views import JsonTranslator
 from domain.events import Event
 from domain.locations import Location
@@ -102,3 +103,16 @@ class TestValueTranslator(TestCase):
         self.assertIn("span", actual)
         self.assertIn("tags", actual)
         self.assertIn("metadata", actual)
+
+    def test__to_json__should_return_sorted_list_of_string_tags__when_set_of_tags_given(self) -> None:
+        # Arrange
+        tags_1 = [anon_tag() for _ in range(100)]
+        tags_2 = deepcopy(tags_1)
+        tags_2.reverse()
+
+        # Act
+        actual_1 = JsonTranslator.to_json(set(tags_1))
+        actual_2 = JsonTranslator.to_json(set(tags_2))
+
+        # Assert
+        self.assertListEqual(actual_1, actual_2)
