@@ -1,4 +1,3 @@
-from abc import ABC, abstractmethod
 from math import isinf
 from typing import Any, Set, List, Generic, TypeVar, Type, Union, Dict
 from uuid import UUID
@@ -158,35 +157,3 @@ class ValueTranslator(Generic[T]):
                 name = str(type_).split(".")[-1]
             raise type(e)(f"Error when parsing {name}: {e}")
         raise TypeError(f"Unsupported type {type_}")
-
-
-class DomainConstructedView(ABC):
-    @staticmethod
-    @abstractmethod
-    def kwargs_from_json(json_view: Any) -> Any:
-        pass
-
-
-class EventView(DomainConstructedView):
-    __attribute_types_by_name = {
-        "id": PrefixedUUID,
-        "name": str,
-        "description": str,
-        "span": PositionalRange,
-        "tags": Set[Tag],
-        "affected_travelers": Set[PrefixedUUID],
-        "affected_locations": Set[PrefixedUUID],
-        "metadata": Dict[str, str],
-    }
-
-    @staticmethod
-    def kwargs_from_json(event_view: dict) -> dict:
-        def translate_val(attribute_name, value):
-            if attribute_name not in EventView.__attribute_types_by_name:
-                raise ValueError(f"Failed to translate attribute '{attribute_name}' when constructing {Event.__name__}")
-            return ValueTranslator.from_json(value, EventView.__attribute_types_by_name[attribute_name])
-
-        return {
-            attribute_name: translate_val(attribute_name, value)
-            for attribute_name, value in event_view.items()
-        }

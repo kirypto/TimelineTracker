@@ -5,12 +5,13 @@ from typing import Tuple, Dict, Union, List, Any, Set
 from jsonpatch import JsonPatch, PatchOperation
 
 from adapter.request_handling.utils import parse_optional_tag_set_query_param, with_error_response_on_raised_exceptions, \
-    process_patch_into_delta_kwargs, parse_optional_positional_range_query_param, parse_optional_position_query_param
-from adapter.views import EventView, ValueTranslator
+    parse_optional_positional_range_query_param, parse_optional_position_query_param
+from adapter.views import ValueTranslator
 from application.event_use_cases import EventUseCase
 from application.location_use_cases import LocationUseCase
 from application.timeline_use_cases import TimelineUseCase
 from application.traveler_use_cases import TravelerUseCase
+from domain.events import Event
 from domain.ids import PrefixedUUID
 from domain.locations import Location
 from domain.positions import PositionalMove, PositionalRange
@@ -308,8 +309,15 @@ class EventsRequestHandler:
             raise ValueError(f"Cannot parse event id from '{event_id_str}")
         event_id = ValueTranslator.from_json(event_id_str, PrefixedUUID)
 
-        existing_event = self._event_use_case.retrieve(event_id)
-        delta_kwargs = process_patch_into_delta_kwargs(existing_event, patch_operations, EventView)
-        modified_event = self._event_use_case.update(event_id, **delta_kwargs)
+        patch = JsonPatch([PatchOperation(operation).operation for operation in patch_operations])
+        existing_event_json = ValueTranslator.to_json(self._event_use_case.retrieve(event_id))
+
+        modified_event_json = patch.apply(existing_event_json)
+        modified_event = ValueTranslator.from_json(modified_event_json, Event)
+
+        if modified_event.id != event_id:
+            raise ValueError("A Event's 'id' cannot be modified")
+
+        self._event_use_case.update(modified_event)
 
         return ValueTranslator.to_json(modified_event), HTTPStatus.OK
