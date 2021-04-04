@@ -11,7 +11,7 @@ from domain.persistence.repositories import TravelerRepository, LocationReposito
 from domain.positions import PositionalMove, MovementType, Position
 
 
-class TestEventUsecase(TestCase):
+class TestEventUseCase(TestCase):
     event_use_case: EventUseCase
     location_repository: LocationRepository
     traveler_repository: TravelerRepository

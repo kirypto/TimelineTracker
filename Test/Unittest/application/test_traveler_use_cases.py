@@ -11,7 +11,7 @@ from domain.positions import PositionalMove, MovementType, Position
 from domain.travelers import Traveler
 
 
-class TestTravelerUsecase(TestCase):
+class TestTravelerUseCase(TestCase):
     event_repository: EventRepository
     traveler_use_case: TravelerUseCase
 

@@ -10,7 +10,7 @@ from domain.locations import Location
 from domain.persistence.repositories import EventRepository
 
 
-class TestLocationUsecase(TestCase):
+class TestLocationUseCase(TestCase):
     event_repository: EventRepository
     location_use_case: LocationUseCase
 
