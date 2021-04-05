@@ -1,6 +1,6 @@
 from application.factories import RepositoriesFactory
-from adapter.request_handling.handlers import LocationsRequestHandler, TravelersRequestHandler, EventsRequestHandler, \
-    LocationsRestRequestHandler, TravelersRestRequestHandler, EventsRestRequestHandler
+from adapter.request_handling.rest_handlers import LocationsRestRequestHandler, TravelersRestRequestHandler, EventsRestRequestHandler
+from domain.request_handling.handlers import LocationsRequestHandler, TravelersRequestHandler, EventsRequestHandler
 from application.use_case.event_use_cases import EventUseCase
 from application.use_case.location_use_cases import LocationUseCase
 from application.use_case.timeline_use_cases import TimelineUseCase
