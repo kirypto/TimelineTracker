@@ -2,7 +2,7 @@ from json import dumps
 
 from flask import request, Flask
 
-from adapter.request_handling.handlers import LocationsRequestHandler, TravelersRequestHandler, EventsRequestHandler
+from domain.request_handling.handlers import LocationsRequestHandler, TravelersRequestHandler, EventsRequestHandler
 
 
 class _HTTPMethod:

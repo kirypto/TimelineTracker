@@ -13,13 +13,13 @@ _HOST = "localhost"
 _APP_CONFIG = {
     "repositories_config": {
         "repository_type": "memory",
-    }
+    },
 }
 
 
 def construct_flask_app():
     # noinspection PyProtectedMember
-    from adapter.flask.flask_app import _create_timeline_tracker_flask_app
+    from adapter.runners.flask.flask_app import _create_timeline_tracker_flask_app
     return _create_timeline_tracker_flask_app(_APP_CONFIG)
 
 

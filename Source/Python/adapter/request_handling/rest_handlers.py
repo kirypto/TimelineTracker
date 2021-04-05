@@ -7,20 +7,21 @@ from jsonpatch import JsonPatch, PatchOperation
 from adapter.request_handling.utils import parse_optional_tag_set_query_param, with_error_response_on_raised_exceptions, \
     parse_optional_positional_range_query_param, parse_optional_position_query_param
 from adapter.views import JsonTranslator
-from application.event_use_cases import EventUseCase
-from application.location_use_cases import LocationUseCase
-from application.timeline_use_cases import TimelineUseCase
-from application.traveler_use_cases import TravelerUseCase
+from application.use_case.event_use_cases import EventUseCase
+from application.use_case.location_use_cases import LocationUseCase
+from application.use_case.timeline_use_cases import TimelineUseCase
+from application.use_case.traveler_use_cases import TravelerUseCase
 from domain.events import Event
 from domain.ids import PrefixedUUID
 from domain.locations import Location
 from domain.positions import PositionalMove, PositionalRange
+from domain.request_handling.handlers import LocationsRequestHandler, TravelersRequestHandler, EventsRequestHandler
 from domain.tags import Tag
 from domain.travelers import Traveler
 
 
 # noinspection DuplicatedCode
-class LocationsRequestHandler:
+class LocationsRestRequestHandler(LocationsRequestHandler):
     _location_use_case: LocationUseCase
     _timeline_use_case: TimelineUseCase
 
@@ -121,7 +122,7 @@ class LocationsRequestHandler:
         return JsonTranslator.to_json(timeline), HTTPStatus.OK
 
 
-class TravelersRequestHandler:
+class TravelersRestRequestHandler(TravelersRequestHandler):
     _traveler_use_case: TravelerUseCase
     _timeline_use_case: TimelineUseCase
 
@@ -244,7 +245,7 @@ class TravelersRequestHandler:
 
 
 # noinspection DuplicatedCode
-class EventsRequestHandler:
+class EventsRestRequestHandler(EventsRequestHandler):
     def __init__(self, event_use_case: EventUseCase) -> None:
         self._event_use_case = event_use_case
 
@@ -321,3 +322,8 @@ class EventsRequestHandler:
         self._event_use_case.update(modified_event)
 
         return JsonTranslator.to_json(modified_event), HTTPStatus.OK
+
+
+location_request_handler_class = LocationsRestRequestHandler
+traveler_request_handler_class = TravelersRestRequestHandler
+event_request_handler_class = EventsRestRequestHandler
