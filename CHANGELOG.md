@@ -16,7 +16,9 @@ All notable changes to this project will be documented in this file.
 - Changed tags attributes to automatically remove whitespace from edges of each tag.
 
 ### Fixed
-- Fixed JSON PATCH issues causing `move` operations to fail.
+- Fixed Json PATCH issues causing `move` operations to fail.
+- Fixed API Spec to use `{"low":-Infinity,"high":Infinity}` instead of `"ALL"` for fully spanning ranges.
+- Fixed Json parsing of ranges to support passing a single int or float value.
 
 ---
 
@@ -30,7 +32,7 @@ All notable changes to this project will be documented in this file.
 - Added instructions for releasing a new version of the app to the `projectSetup.md` file.
 
 ### Changed
-- Modify json repositories to soft-delete files via adding a `.deleted` suffix instead of removing the file.
+- Modify Json repositories to soft-delete files via adding a `.deleted` suffix instead of removing the file.
 
 ### Fixed
 - Clarify divergence from RFC 8259 in project standards section of README file.
