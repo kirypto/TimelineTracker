@@ -5,7 +5,7 @@ from flask_cors import CORS
 from flask_swagger_ui import get_swaggerui_blueprint
 from ruamel.yaml import YAML
 
-from adapter.flask.flask_controllers import register_locations_routes, register_travelers_routes, register_events_routes
+from adapter.runners.flask.flask_controllers import register_locations_routes, register_travelers_routes, register_events_routes
 from application.main import TimelineTrackerApp
 
 
