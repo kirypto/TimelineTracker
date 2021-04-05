@@ -4,7 +4,7 @@ from typing import Any
 
 from flask_unittest import ClientTestCase
 
-from Test.Unittest.test_helpers.anons import anon_event, anon_location, anon_traveler
+from Test.Unittest.test_helpers.anons import anon_event, anon_location, anon_traveler, anon_float
 from adapter.views import JsonTranslator
 from domain.positions import PositionalMove, Position, MovementType
 
@@ -135,8 +135,9 @@ class EventResourceTest(ClientTestCase):
         response = client.post("/api/event", json=body)
         expected_json = parse_json(response.data)
         event_id = expected_json["id"]
-        expected_json["span"]["continuum"]["low"] = -4321.01234
-        patch = [{"op": "replace", "path": "/span/continuum/low", "value": -4321.01234}]
+        expected_continuum_low = anon_float(-999999.9, expected_json["span"]["continuum"]["high"])
+        expected_json["span"]["continuum"]["low"] = expected_continuum_low
+        patch = [{"op": "replace", "path": "/span/continuum/low", "value": expected_continuum_low}]
 
         # Act
         actual = client.patch(f"/api/event/{event_id}", json=patch)
