@@ -322,3 +322,8 @@ class EventsRestRequestHandler(EventsRequestHandler):
         self._event_use_case.update(modified_event)
 
         return JsonTranslator.to_json(modified_event), HTTPStatus.OK
+
+
+location_request_handler_class = LocationsRestRequestHandler
+traveler_request_handler_class = TravelersRestRequestHandler
+event_request_handler_class = EventsRestRequestHandler

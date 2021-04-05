@@ -51,7 +51,10 @@ def _run_app(*, timeline_tracker_app_config: dict, flask_run_config: dict, flask
     timeline_tracker_flask_app.run(**flask_run_config)
 
 
-def _create_timeline_tracker_flask_app(timeline_tracker_app_config) -> Flask:
+def _create_timeline_tracker_flask_app(timeline_tracker_app_config: dict) -> Flask:
+    timeline_tracker_app_config["request_handlers_config"] = {
+        "request_handler_type": "rest"
+    }
     timeline_tracker_application = TimelineTrackerApp(**timeline_tracker_app_config)
 
     flask_web_app = _create_flask_web_app(timeline_tracker_application.version)
