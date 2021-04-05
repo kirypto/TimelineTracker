@@ -1,10 +1,11 @@
 from copy import deepcopy
-from random import choices, shuffle
+from random import choices
 from string import ascii_uppercase
 from unittest import TestCase
 
-from Test.Unittest.test_helpers.anons import anon_location, anon_event, anon_traveler, anon_tag
+from Test.Unittest.test_helpers.anons import anon_location, anon_event, anon_traveler, anon_tag, anon_int, anon_float
 from adapter.views import JsonTranslator
+from domain.collections import Range
 from domain.events import Event
 from domain.locations import Location
 from domain.tags import Tag
@@ -55,6 +56,21 @@ class TestValueTranslator(TestCase):
         # Assert
         self.assertEqual(event_json["name"], event.name)
         self.assertEqual(event_json["description"], event.description)
+
+    def test__from_json__should_return_float_range_of_single_value__when_parsing_a_range_where_an_int_or_float_given(self) -> None:
+        # Arrange
+        value_1 = anon_int()
+        value_2 = anon_float()
+        expected_range_1 = Range(float(value_1), float(value_1))
+        expected_range_2 = Range(value_2, value_2)
+
+        # Act
+        actual_1 = JsonTranslator.from_json(value_1, Range[float])
+        actual_2 = JsonTranslator.from_json(value_2, Range[float])
+
+        # Assert
+        self.assertEqual(expected_range_1, actual_1)
+        self.assertEqual(expected_range_2, actual_2)
 
     def test__to_json__should_translate_location_to_json_dict(self) -> None:
         # Arrange

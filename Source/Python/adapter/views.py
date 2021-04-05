@@ -82,6 +82,8 @@ class JsonTranslator(Generic[T]):
                     "reality": JsonTranslator.from_json(positional_range_json["reality"], Range[float]),
                 })
             if type_ is Range[float]:
+                if type(value) in {int, float}:
+                    value = {"low": value, "high": value}
                 range_json: dict = value
                 return Range(**{
                     "low": JsonTranslator.from_json(range_json["low"], float),

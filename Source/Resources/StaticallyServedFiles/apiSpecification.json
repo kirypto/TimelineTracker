@@ -114,7 +114,7 @@
           "schema" : {
             "type" : "string"
           },
-          "example" : "{\"latitude\":0,\"longitude\":0,\"altitude\":{\"low\":0,\"high\":Infinity},\"continuum\":\"ALL\",\"reality\":0}"
+          "example" : "{\"latitude\":0,\"longitude\":0,\"altitude\":{\"low\":0,\"high\":Infinity},\"continuum\":{\"low\":-Infinity,\"high\":Infinity},\"reality\":0}"
         } ],
         "responses" : {
           "200" : {
@@ -348,7 +348,7 @@
           "schema" : {
             "type" : "string"
           },
-          "example" : "{\"latitude\":0,\"longitude\":0,\"altitude\":{\"low\":0,\"high\":Infinity},\"continuum\":\"ALL\",\"reality\":0}"
+          "example" : "{\"latitude\":0,\"longitude\":0,\"altitude\":{\"low\":0,\"high\":Infinity},\"continuum\":{\"low\":-Infinity,\"high\":Infinity},\"reality\":0}"
         } ],
         "responses" : {
           "200" : {
