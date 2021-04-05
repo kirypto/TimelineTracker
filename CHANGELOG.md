@@ -4,12 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+_(Nothing to see here)_
+
+---
+
+## [0.1.3] - 2021-04-05
 ### Added
 - Added a `sampleConfig.md` to replace the configuration samples duplicated in `projectSetup.md` and `projectDeployment.md`.
 - Added sample CORS header configuration to `sampleConfig.md`.
 
 ### Changed
-- Changed project setup and deployment documentation to reference the new `sampleConfig.md`. 
+- Changed project setup and deployment documentation to reference the new `sampleConfig.md`.
 - Changed tags to be served alphabetically sorted.
 - Changed description attributes to automatically remove whitespace from edges.
 - Changed metadata attributes to automatically remove whitespace from edges of given metadata keys and values.
@@ -76,7 +81,9 @@ All notable changes to this project will be documented in this file.
 - Added Event PATCH route for modification.
 
 
-[Unreleased]: https://github.com/kirypto/TimelineTracker/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/kirypto/TimelineTracker/compare/v0.1.3...HEAD
+
+[0.1.3]: https://github.com/kirypto/TimelineTracker/compare/v0.1.2...v0.1.3
 
 [0.1.2]: https://github.com/kirypto/TimelineTracker/compare/v0.1.1...v0.1.2
 
