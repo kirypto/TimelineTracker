@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from adapter.main import TimelineTrackerApp
+from application.main import TimelineTrackerApp
 
 
 class TestTimelineTrackerApp(TestCase):

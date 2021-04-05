@@ -6,7 +6,7 @@ from flask_swagger_ui import get_swaggerui_blueprint
 from ruamel.yaml import YAML
 
 from adapter.flask.flask_controllers import register_locations_routes, register_travelers_routes, register_events_routes
-from adapter.main import TimelineTrackerApp
+from application.main import TimelineTrackerApp
 
 
 def _create_flask_web_app(version: str) -> Flask:
