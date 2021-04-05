@@ -31,10 +31,13 @@ class TimelineTrackerApp:
 
     def __init__(self, *, repositories_config: dict) -> None:
         repositories_factory = RepositoriesFactory(**repositories_config)
-        location_use_case = LocationUseCase(repositories_factory.location_repo, repositories_factory.event_repo)
-        traveler_use_case = TravelerUseCase(repositories_factory.traveler_repo, repositories_factory.event_repo)
-        event_use_case = EventUseCase(repositories_factory.location_repo, repositories_factory.traveler_repo, repositories_factory.event_repo)
-        timeline_use_case = TimelineUseCase(repositories_factory.location_repo, repositories_factory.traveler_repo, repositories_factory.event_repo)
+        location_repository = repositories_factory.location_repo
+        traveler_repository = repositories_factory.traveler_repo
+        event_repository = repositories_factory.event_repo
+        location_use_case = LocationUseCase(location_repository, event_repository)
+        traveler_use_case = TravelerUseCase(traveler_repository, event_repository)
+        event_use_case = EventUseCase(location_repository, traveler_repository, event_repository)
+        timeline_use_case = TimelineUseCase(location_repository, traveler_repository, event_repository)
         self._locations_request_handler = LocationsRequestHandler(location_use_case, timeline_use_case)
         self._travelers_request_handler = TravelersRequestHandler(traveler_use_case, timeline_use_case)
         self._event_request_handler = EventsRequestHandler(event_use_case)
