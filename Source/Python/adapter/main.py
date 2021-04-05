@@ -1,4 +1,4 @@
-from adapter.factories import RepositoriesFactory
+from application.factories import RepositoriesFactory
 from adapter.request_handling.handlers import LocationsRequestHandler, TravelersRequestHandler, EventsRequestHandler
 from application.use_case.event_use_cases import EventUseCase
 from application.use_case.location_use_cases import LocationUseCase
