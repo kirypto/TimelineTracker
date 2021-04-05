@@ -1,6 +1,6 @@
 from typing import List, Union, Set
 
-from application.filtering_use_cases import FilteringUseCase
+from application.use_case.filtering_use_cases import FilteringUseCase
 from domain.collections import Range
 from domain.events import Event
 from domain.ids import PrefixedUUID

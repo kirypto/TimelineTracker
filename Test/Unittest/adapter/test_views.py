@@ -1,9 +1,10 @@
-from random import choices
+from copy import deepcopy
+from random import choices, shuffle
 from string import ascii_uppercase
 from unittest import TestCase
 
-from Test.Unittest.test_helpers.anons import anon_location, anon_event, anon_traveler
-from adapter.views import LocationView, ValueTranslator, EventView, TravelerView
+from Test.Unittest.test_helpers.anons import anon_location, anon_event, anon_traveler, anon_tag
+from adapter.views import JsonTranslator
 from domain.events import Event
 from domain.locations import Location
 from domain.tags import Tag
@@ -17,76 +18,101 @@ class TestValueTranslator(TestCase):
         expected = uppercase_tag.lower()
 
         # Act
-        tag = ValueTranslator.from_json(uppercase_tag, Tag)
+        tag = JsonTranslator.from_json(uppercase_tag, Tag)
 
         # Assert
         self.assertEqual(expected, str(tag))
 
+    def test__from_json__should_convert_json_to_location(self) -> None:
+        # Arrange
+        location_json = JsonTranslator.to_json(anon_location())
 
-class TestLocationView(TestCase):
-    def test__to_json__should_translate_to_json_dict(self) -> None:
+        # Act
+        location = JsonTranslator.from_json(location_json, Location)
+
+        # Assert
+        self.assertEqual(location_json["name"], location.name)
+        self.assertEqual(location_json["description"], location.description)
+
+    def test__from_json__should_convert_json_to_traveler(self) -> None:
+        # Arrange
+        traveler_json = JsonTranslator.to_json(anon_traveler())
+
+        # Act
+        traveler = JsonTranslator.from_json(traveler_json, Traveler)
+
+        # Assert
+        self.assertEqual(traveler_json["name"], traveler.name)
+        self.assertEqual(traveler_json["description"], traveler.description)
+
+    def test__from_json__should_convert_json_to_event(self) -> None:
+        # Arrange
+        event_json = JsonTranslator.to_json(anon_event())
+
+        # Act
+        event = JsonTranslator.from_json(event_json, Event)
+
+        # Assert
+        self.assertEqual(event_json["name"], event.name)
+        self.assertEqual(event_json["description"], event.description)
+
+    def test__to_json__should_translate_location_to_json_dict(self) -> None:
         # Arrange
         location = anon_location()
 
         # Act
-        actual = LocationView.to_json(location)
+        actual = JsonTranslator.to_json(location)
 
         # Assert
         self.assertTrue(type(actual) is dict)
+        self.assertIn("id", actual)
+        self.assertIn("name", actual)
+        self.assertIn("description", actual)
+        self.assertIn("span", actual)
+        self.assertIn("tags", actual)
+        self.assertIn("metadata", actual)
 
-    def test__from_json__should_translate_from_json_dict(self) -> None:
-        # Arrange
-        location = anon_location()
-        json = LocationView.to_json(location)
-
-        # Act
-        actual = Location(**LocationView.kwargs_from_json(json))
-
-        # Assert
-        self.assertEqual(location, actual)
-
-
-class TestTravelerView(TestCase):
-    def test__to_json__should_translate_to_json_dict(self) -> None:
+    def test__to_json__should_translate_traveler_to_json_dict(self) -> None:
         # Arrange
         traveler = anon_traveler()
 
         # Act
-        actual = TravelerView.to_json(traveler)
+        actual = JsonTranslator.to_json(traveler)
 
         # Assert
         self.assertTrue(type(actual) is dict)
+        self.assertIn("id", actual)
+        self.assertIn("name", actual)
+        self.assertIn("description", actual)
+        self.assertIn("journey", actual)
+        self.assertIn("tags", actual)
+        self.assertIn("metadata", actual)
 
-    def test__from_json__should_translate_from_json_dict(self) -> None:
-        # Arrange
-        traveler = anon_traveler()
-        json = TravelerView.to_json(traveler)
-
-        # Act
-        actual = Traveler(**TravelerView.kwargs_from_json(json))
-
-        # Assert
-        self.assertEqual(traveler, actual)
-
-
-class TestEventView(TestCase):
-    def test__to_json__should_translate_to_json_dict(self) -> None:
+    def test__to_json__should_translate_event_to_json_dict(self) -> None:
         # Arrange
         event = anon_event()
 
         # Act
-        actual = EventView.to_json(event)
+        actual = JsonTranslator.to_json(event)
 
         # Assert
         self.assertTrue(type(actual) is dict)
+        self.assertIn("id", actual)
+        self.assertIn("name", actual)
+        self.assertIn("description", actual)
+        self.assertIn("span", actual)
+        self.assertIn("tags", actual)
+        self.assertIn("metadata", actual)
 
-    def test__from_json__should_translate_from_json_dict(self) -> None:
+    def test__to_json__should_return_sorted_list_of_string_tags__when_set_of_tags_given(self) -> None:
         # Arrange
-        event = anon_event()
-        json = EventView.to_json(event)
+        tags_1 = [anon_tag() for _ in range(100)]
+        tags_2 = deepcopy(tags_1)
+        tags_2.reverse()
 
         # Act
-        actual = Event(**EventView.kwargs_from_json(json))
+        actual_1 = JsonTranslator.to_json(set(tags_1))
+        actual_2 = JsonTranslator.to_json(set(tags_2))
 
         # Assert
-        self.assertEqual(event, actual)
+        self.assertListEqual(actual_1, actual_2)

@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from adapter.main import TimelineTrackerApp
+from application.main import TimelineTrackerApp
 
 
 class TestTimelineTrackerApp(TestCase):
@@ -9,7 +9,10 @@ class TestTimelineTrackerApp(TestCase):
         config = {
             "repositories_config": {
                 "repository_type": "memory"
-            }
+            },
+            "request_handlers_config": {
+                "request_handler_type": "rest"
+            },
         }
 
         # Act

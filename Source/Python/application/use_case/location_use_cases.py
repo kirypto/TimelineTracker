@@ -1,7 +1,7 @@
 from typing import Set
 from uuid import uuid4
 
-from application.filtering_use_cases import FilteringUseCase
+from application.use_case.filtering_use_cases import FilteringUseCase
 from domain.ids import PrefixedUUID
 from domain.locations import Location
 from domain.persistence.repositories import LocationRepository, EventRepository
@@ -44,23 +44,11 @@ class LocationUseCase:
 
         return span_filtered_locations
 
-    def update(self, location_id: PrefixedUUID, **kwargs) -> Location:
-        if "id" in kwargs:
-            raise ValueError(f"Cannot update 'id' attribute of {Location.__name__}")
-        existing_location = self._location_repository.retrieve(location_id)
-        updated_location = Location(
-            id=location_id,
-            name=kwargs.pop("name") if "name" in kwargs else existing_location.name,
-            description=kwargs.pop("description") if "description" in kwargs else existing_location.description,
-            span=kwargs.pop("span") if "span" in kwargs else existing_location.span,
-            tags=kwargs.pop("tags") if "tags" in kwargs else existing_location.tags,
-            **kwargs
-        )
+    def update(self, location: Location) -> None:
+        self._location_repository.retrieve(location.id)
+        self._validate_linked_events_still_intersect_for_update(location)
 
-        self._validate_linked_events_still_intersect_for_update(updated_location)
-
-        self._location_repository.save(updated_location)
-        return updated_location
+        self._location_repository.save(location)
 
     def delete(self, location_id: PrefixedUUID) -> None:
         if not location_id.prefix == "location":
@@ -79,5 +67,5 @@ class LocationUseCase:
         linked_events = self._event_repository.retrieve_all(location_id=updated_location.id)
         for linked_event in linked_events:
             if not linked_event.span.intersects(updated_location.span):
-                raise ValueError(f"Cannot modify location, currently linked to Event {linked_event.id} and the modification would cause them to no "
-                                 f"longer intersect")
+                raise ValueError(f"Cannot modify location, currently linked to Event {linked_event.id} and the modification would "
+                                 f"cause them to no longer intersect")

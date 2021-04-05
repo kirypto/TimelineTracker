@@ -2,7 +2,7 @@ from typing import Set
 from unittest import TestCase
 
 from Test.Unittest.test_helpers.anons import anon_traveler, anon_location, anon_tag, anon_anything
-from application.filtering_use_cases import FilteringUseCase
+from application.use_case.filtering_use_cases import FilteringUseCase
 from domain.collections import Range
 from domain.descriptors import NamedEntity
 from domain.positions import SpanningEntity, PositionalRange, Position, JourneyingEntity, PositionalMove, MovementType

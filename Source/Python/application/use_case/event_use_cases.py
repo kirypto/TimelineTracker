@@ -1,7 +1,7 @@
 from typing import Set
 from uuid import uuid4
 
-from application.filtering_use_cases import FilteringUseCase
+from application.use_case.filtering_use_cases import FilteringUseCase
 from domain.events import Event
 from domain.ids import PrefixedUUID
 from domain.persistence.repositories import EventRepository, TravelerRepository, LocationRepository
@@ -50,23 +50,12 @@ class EventUseCase:
 
         return span_filtered_events
 
-    def update(self, event_id: PrefixedUUID, **kwargs) -> Event:
-        if "id" in kwargs:
-            raise ValueError(f"Cannot update 'id' attribute of {Event.__name__}")
-        existing_event = self._event_repository.retrieve(event_id)
-        updated_event = Event(
-            id=event_id, name=kwargs.pop("name") if "name" in kwargs else existing_event.name,
-            description=kwargs.pop("description") if "description" in kwargs else existing_event.description,
-            span=kwargs.pop("span") if "span" in kwargs else existing_event.span,
-            tags=kwargs.pop("tags") if "tags" in kwargs else existing_event.tags,
-            affected_locations=kwargs.pop("affected_locations") if "affected_locations" in kwargs else existing_event.affected_locations,
-            affected_travelers=kwargs.pop("affected_travelers") if "affected_travelers" in kwargs else existing_event.affected_travelers,
-            **kwargs)
+    def update(self, event: Event) -> None:
+        self._event_repository.retrieve(event.id)
 
-        self._validate_affected_entities(updated_event)
+        self._validate_affected_entities(event)
 
-        self._event_repository.save(updated_event)
-        return updated_event
+        self._event_repository.save(event)
 
     def delete(self, event_id: PrefixedUUID) -> None:
         if not event_id.prefix == "event":

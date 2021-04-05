@@ -1,11 +1,12 @@
 from pathlib import Path
 
 from flask import Flask
+from flask_cors import CORS
 from flask_swagger_ui import get_swaggerui_blueprint
 from ruamel.yaml import YAML
 
-from adapter.flask.flask_controllers import register_locations_routes, register_travelers_routes, register_events_routes
-from adapter.main import TimelineTrackerApp
+from adapter.runners.flask.flask_controllers import register_locations_routes, register_travelers_routes, register_events_routes
+from application.main import TimelineTrackerApp
 
 
 def _create_flask_web_app(version: str) -> Flask:
@@ -43,7 +44,17 @@ def _create_flask_web_app(version: str) -> Flask:
     return flask_web_app
 
 
-def _run_app(*, timeline_tracker_app_config: dict, flask_run_config: dict):
+def _run_app(*, timeline_tracker_app_config: dict, flask_run_config: dict, flask_cors_config: dict) -> None:
+    timeline_tracker_flask_app = _create_timeline_tracker_flask_app(timeline_tracker_app_config)
+    CORS(timeline_tracker_flask_app, **flask_cors_config)
+
+    timeline_tracker_flask_app.run(**flask_run_config)
+
+
+def _create_timeline_tracker_flask_app(timeline_tracker_app_config: dict) -> Flask:
+    timeline_tracker_app_config["request_handlers_config"] = {
+        "request_handler_type": "rest"
+    }
     timeline_tracker_application = TimelineTrackerApp(**timeline_tracker_app_config)
 
     flask_web_app = _create_flask_web_app(timeline_tracker_application.version)
@@ -51,7 +62,7 @@ def _run_app(*, timeline_tracker_app_config: dict, flask_run_config: dict):
     register_travelers_routes(flask_web_app, timeline_tracker_application.travelers_request_handler)
     register_events_routes(flask_web_app, timeline_tracker_application.event_request_handler)
 
-    flask_web_app.run(**flask_run_config)
+    return flask_web_app
 
 
 if __name__ == "__main__":

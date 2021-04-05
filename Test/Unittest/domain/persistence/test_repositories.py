@@ -102,6 +102,18 @@ class TestSRDRepository(ABC):
 
         # Assert
         self.assertSetEqual(expected, actual)
+        
+    def test__retrieve_all__should_not_return_deleted_entities__when_previously_existing_entities_are_deleted(self) -> None:
+        # Arrange
+        entity = self.anon_entity()
+        self.repository.save(entity)
+        self.repository.delete(entity.id)
+
+        # Act
+        actual = self.repository.retrieve_all()
+
+        # Assert
+        self.assertSetEqual(set(), actual)
 
     def test__delete__should_delete_entity__when_matching_entity_stored(self) -> None:
         # Arrange

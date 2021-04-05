@@ -33,7 +33,7 @@ def anon_anything(*, not_type: Type = None) -> Any:
 
 
 def anon_description(num_chars: int = 100) -> str:
-    return "".join(choices(printable, k=num_chars))
+    return "".join(choices(printable, k=num_chars)).strip()
 
 
 def anon_float(a: float = None, b: float = None) -> float:
@@ -61,11 +61,11 @@ def anon_journey() -> List[PositionalMove]:
 
 
 def anon_metadata_key() -> str:
-    return "".join(choices("_-" + ascii_letters + digits, k=10))
+    return "".join(choices("_-." + ascii_letters + digits, k=10))
 
 
 def anon_metadata_value() -> str:
-    return "".join(choices(printable, k=50))
+    return "".join(choices(printable, k=50)).strip()
 
 
 def anon_metadata() -> Dict[str, str]:
@@ -153,13 +153,13 @@ def anon_traveler(*, name: str = None, tags: Set[Tag] = None, journey: List[Posi
 
 def anon_event(
         *, affected_locations: Set[PrefixedUUID] = None, affected_travelers: Set[PrefixedUUID] = None, span: PositionalRange = None,
-        metadata: Dict[str, str] = None) -> Event:
+        metadata: Dict[str, str] = None, tags: Set[Tag] = None) -> Event:
     return Event(
         affected_locations=_coalesce(affected_locations, set()),
         affected_travelers=_coalesce(affected_travelers, set()),
         id=anon_prefixed_id(prefix="event"), name=anon_name(), description=anon_description(),
         span=_coalesce(span, anon_positional_range()),
-        tags={anon_tag()},
+        tags=_coalesce(tags, {anon_tag()}),
         metadata=_coalesce(metadata, anon_metadata())
     )
 

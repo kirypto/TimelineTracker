@@ -3,7 +3,7 @@ from json import dumps, loads
 from pathlib import Path
 from typing import Set, Type, Generic, TypeVar, Dict
 
-from adapter.views import LocationView, TravelerView, DomainConstructedView, EventView
+from adapter.views import JsonTranslator
 from domain.events import Event
 from domain.ids import PrefixedUUID, IdentifiedEntity
 from domain.locations import Location
@@ -17,9 +17,8 @@ _T = TypeVar('_T', bound=IdentifiedEntity)
 class _JsonFileIdentifiedEntityRepository(Generic[_T]):
     _repo_path: Path
     _entity_type: Type[_T]
-    _entity_view_type: Type[DomainConstructedView]
 
-    def __init__(self, repo_name: str, entity_type: Type[_T], entity_view_type: Type[DomainConstructedView], *,
+    def __init__(self, repo_name: str, entity_type: Type[_T], *,
                  json_repositories_directory_root: str) -> None:
         root_repos_path = Path(json_repositories_directory_root)
         if not root_repos_path.exists() or not root_repos_path.is_dir():
@@ -31,7 +30,6 @@ class _JsonFileIdentifiedEntityRepository(Generic[_T]):
             raise ValueError(f"The path '{repo_path}' is not a valid directory and cannot be used.")
         self._repo_path = repo_path
         self._entity_type = entity_type
-        self._entity_view_type = entity_view_type
 
     def save(self, entity: _T) -> None:
         if not isinstance(entity, self._entity_type):
@@ -39,9 +37,10 @@ class _JsonFileIdentifiedEntityRepository(Generic[_T]):
 
         entity_path = self._repo_path.joinpath(f"{entity.id}.json")
         if entity_path.exists() and not entity_path.is_file():
-            raise FileExistsError(f"Could not save location {entity.id}, an uncontrolled non-file entity exists with the same name and path.")
+            raise FileExistsError(f"Could not save location {entity.id}, an uncontrolled non-file entity exists with the same name and "
+                                  f"path.")
 
-        json = self._entity_view_type.to_json(entity)
+        json = JsonTranslator.to_json(entity)
         entity_path.write_text(dumps(json, indent=2), "utf8")
 
     def retrieve(self, entity_id: PrefixedUUID) -> _T:
@@ -50,7 +49,11 @@ class _JsonFileIdentifiedEntityRepository(Generic[_T]):
         return self._retrieve_entity_from_json_file(str(entity_id))
 
     def retrieve_all(self) -> Set[_T]:
-        existing_entity_id_strings = [file.name.replace(".json", "") for file in self._repo_path.iterdir() if file.is_file()]
+        existing_entity_id_strings = [
+            file.name.replace(".json", "")
+            for file in self._repo_path.iterdir()
+            if file.is_file() and file.suffix == ".json"
+        ]
 
         all_entities = set()
         for entity_id_str in existing_entity_id_strings:
@@ -65,24 +68,26 @@ class _JsonFileIdentifiedEntityRepository(Generic[_T]):
         if not entity_path.exists():
             raise NameError(f"No stored entity with id {entity_id}")
 
-        entity_path.unlink()
+        deleted_suffix_path = entity_path.with_suffix(f"{entity_path.suffix}.deleted")
+        entity_path.rename(deleted_suffix_path)
 
     def _retrieve_entity_from_json_file(self, entity_id_str: str) -> _T:
         entity_path = self._repo_path.joinpath(f"{entity_id_str}.json")
         if entity_path.exists() and not entity_path.is_file():
-            raise FileExistsError(f"Could not retrieve entity {entity_id_str}, an uncontrolled non-file entity exists with the same name and path.")
+            raise FileExistsError(f"Could not retrieve entity {entity_id_str}, "
+                                  f"an uncontrolled non-file entity exists with the same name and path.")
         if not entity_path.exists():
             raise NameError(f"No stored entity with id {entity_id_str}")
 
         entity_json = loads(entity_path.read_text(encoding="utf8"))
-        return self._entity_type(**self._entity_view_type.kwargs_from_json(entity_json))
+        return JsonTranslator.from_json(entity_json, self._entity_type)
 
 
 class JsonFileLocationRepository(LocationRepository):
     _inner_repo: _JsonFileIdentifiedEntityRepository[Location]
 
     def __init__(self, **kwargs) -> None:
-        self._inner_repo = _JsonFileIdentifiedEntityRepository("LocationRepo", Location, LocationView, **kwargs)
+        self._inner_repo = _JsonFileIdentifiedEntityRepository("LocationRepo", Location, **kwargs)
 
     def save(self, location: Location) -> None:
         self._inner_repo.save(location)
@@ -101,7 +106,7 @@ class JsonFileTravelerRepository(TravelerRepository):
     _inner_repo: _JsonFileIdentifiedEntityRepository[Traveler]
 
     def __init__(self, **kwargs) -> None:
-        self._inner_repo = _JsonFileIdentifiedEntityRepository("TravelerRepo", Traveler, TravelerView, **kwargs)
+        self._inner_repo = _JsonFileIdentifiedEntityRepository("TravelerRepo", Traveler, **kwargs)
 
     def save(self, traveler: Traveler) -> None:
         self._inner_repo.save(traveler)
@@ -122,7 +127,7 @@ class JsonFileEventRepository(EventRepository):
     _event_ids_by_traveler_id: Dict[PrefixedUUID, Set[PrefixedUUID]]
 
     def __init__(self, **kwargs) -> None:
-        self._inner_repo = _JsonFileIdentifiedEntityRepository("EventRepo", Event, EventView, **kwargs)
+        self._inner_repo = _JsonFileIdentifiedEntityRepository("EventRepo", Event, **kwargs)
         self._event_ids_by_location_id = defaultdict(set)
         self._event_ids_by_traveler_id = defaultdict(set)
         for event in self._inner_repo.retrieve_all():
@@ -162,3 +167,8 @@ class JsonFileEventRepository(EventRepository):
             self._event_ids_by_location_id[location_id].remove(event_id)
         for traveler_id in self._event_ids_by_traveler_id:
             self._event_ids_by_traveler_id[traveler_id].remove(event_id)
+
+
+location_repository_class = JsonFileLocationRepository
+traveler_repository_class = JsonFileTravelerRepository
+event_repository_class = JsonFileEventRepository

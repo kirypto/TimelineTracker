@@ -123,6 +123,16 @@ class TestDescribedEntity(TestCase):
         # Assert
         self.assertEqual(expected, actual.description)
 
+    def test__init__should_strip_provided_value__when_has_whitespace_at_edges(self) -> None:
+        # Arrange
+        expected = anon_description()
+
+        # Act
+        actual = DescribedEntity(description=f" \t{expected}\n ")
+
+        # Assert
+        self.assertEqual(expected, actual.description)
+
     def test__init__should_accept_kwargs(self) -> None:
         # Arrange
         class TestKwargs(DescribedEntity, _Other):
