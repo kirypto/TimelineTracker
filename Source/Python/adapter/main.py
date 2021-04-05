@@ -1,5 +1,6 @@
 from application.factories import RepositoriesFactory
-from adapter.request_handling.handlers import LocationsRequestHandler, TravelersRequestHandler, EventsRequestHandler
+from adapter.request_handling.handlers import LocationsRequestHandler, TravelersRequestHandler, EventsRequestHandler, \
+    LocationsRestRequestHandler, TravelersRestRequestHandler, EventsRestRequestHandler
 from application.use_case.event_use_cases import EventUseCase
 from application.use_case.location_use_cases import LocationUseCase
 from application.use_case.timeline_use_cases import TimelineUseCase
@@ -38,6 +39,6 @@ class TimelineTrackerApp:
         traveler_use_case = TravelerUseCase(traveler_repository, event_repository)
         event_use_case = EventUseCase(location_repository, traveler_repository, event_repository)
         timeline_use_case = TimelineUseCase(location_repository, traveler_repository, event_repository)
-        self._locations_request_handler = LocationsRequestHandler(location_use_case, timeline_use_case)
-        self._travelers_request_handler = TravelersRequestHandler(traveler_use_case, timeline_use_case)
-        self._event_request_handler = EventsRequestHandler(event_use_case)
+        self._locations_request_handler = LocationsRestRequestHandler(location_use_case, timeline_use_case)
+        self._travelers_request_handler = TravelersRestRequestHandler(traveler_use_case, timeline_use_case)
+        self._event_request_handler = EventsRestRequestHandler(event_use_case)
