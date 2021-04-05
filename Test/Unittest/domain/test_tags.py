@@ -24,19 +24,30 @@ class TestTag(TestCase):
         illegal_tag = anon_tag_name(4) + "".join(choices("!@#$%^&*()+={}[]|\\:;"'<>,.?/', k=1))
 
         # Act
-        def Action(): return Tag(illegal_tag)
+        def action(): return Tag(illegal_tag)
 
         # Assert
-        self.assertRaises(ValueError, Action)
+        self.assertRaises(ValueError, action)
 
     def test__init__should_reject_empty(self) -> None:
         # Arrange
 
         # Act
-        def Action(): return Tag("")
+        def action(): return Tag("")
 
         # Assert
-        self.assertRaises(ValueError, Action)
+        self.assertRaises(ValueError, action)
+
+    def test__init__should_strip_whitespace(self) -> None:
+        # Arrange
+        expected = anon_tag_name()
+        tag = Tag(f" {expected}\t")
+
+        # Act
+        actual = str(tag)
+
+        # Assert
+        self.assertEqual(expected, actual)
 
     def test__equality__should_correctly_compare_tags(self) -> None:
         # Arrange
@@ -63,10 +74,10 @@ class TestTag(TestCase):
         tag = anon_tag()
 
         # Act
-        def Action(): _ = {tag}
+        def action(): _ = {tag}
 
         # Assert
-        Action()
+        action()
 
 
 class TestTaggedEntity(TestCase):
@@ -99,8 +110,8 @@ class TestTaggedEntity(TestCase):
         # Act
         expected = "other"
 
-        def Action(): return TestKwargs(tags={anon_tag()}, other=expected)
-        actual = Action()
+        def action(): return TestKwargs(tags={anon_tag()}, other=expected)
+        actual = action()
 
         # Assert
         self.assertEqual(expected, actual.other)
@@ -123,10 +134,10 @@ class TestTaggedEntity(TestCase):
 
         # Act
         # noinspection PyPropertyAccess
-        def Action(): tags.tags = {anon_tag()}
+        def action(): tags.tags = {anon_tag()}
 
         # Assert
-        self.assertRaises(AttributeError, Action)
+        self.assertRaises(AttributeError, action)
 
     def test__add_tag__should_add_to_set(self) -> None:
         # Arrange
@@ -175,10 +186,10 @@ class TestTaggedEntity(TestCase):
         tags = TaggedEntity()
 
         # Act
-        def Action(): tags.remove_tag(anon_tag())
+        def action(): tags.remove_tag(anon_tag())
 
         # Assert
-        self.assertRaises(KeyError, Action)
+        self.assertRaises(KeyError, action)
 
     def test__equality__should_correctly_compare_attributes(self) -> None:
         # Arrange
@@ -205,20 +216,20 @@ class TestTaggedEntity(TestCase):
         tags = TaggedEntity()
 
         # Act
-        def Action(): _ = {tags}
+        def action(): _ = {tags}
 
         # Assert
-        Action()
+        action()
 
     def test__hash__should_be_hashable__when_has_tags(self) -> None:
         # Arrange
         tags = TaggedEntity(tags={anon_tag()})
 
         # Act
-        def Action(): _ = {tags}
+        def action(): _ = {tags}
 
         # Assert
-        Action()
+        action()
 
 
 class _Other(BaseEntity):
