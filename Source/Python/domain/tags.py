@@ -11,7 +11,10 @@ class Tag:
     _tag: str
 
     def __init__(self, tag: str) -> None:
-        if not isinstance(tag, str) or not match(r"^[a-z0-9_-]+$", tag):
+        if not isinstance(tag, str):
+            raise TypeError(f"Argument 'tag' must be a string")
+        tag = tag.strip()
+        if not match(r"^[a-z0-9_-]+$", tag):
             raise ValueError(f"Invalid tag name '{tag}'")
         self._tag = tag
 

@@ -8,6 +8,25 @@ _(Nothing to see here)_
 
 ---
 
+## [0.1.3] - 2021-04-05
+### Added
+- Added a `sampleConfig.md` to replace the configuration samples duplicated in `projectSetup.md` and `projectDeployment.md`.
+- Added sample CORS header configuration to `sampleConfig.md`.
+
+### Changed
+- Changed project setup and deployment documentation to reference the new `sampleConfig.md`.
+- Changed tags to be served alphabetically sorted.
+- Changed description attributes to automatically remove whitespace from edges.
+- Changed metadata attributes to automatically remove whitespace from edges of given metadata keys and values.
+- Changed tags attributes to automatically remove whitespace from edges of each tag.
+
+### Fixed
+- Fixed Json PATCH issues causing `move` operations to fail.
+- Fixed API Spec to use `{"low":-Infinity,"high":Infinity}` instead of `"ALL"` for fully spanning ranges.
+- Fixed Json parsing of ranges to support passing a single int or float value.
+
+---
+
 ## [0.1.2] - 2021-03-14
 ### Added
 
@@ -18,7 +37,7 @@ _(Nothing to see here)_
 - Added instructions for releasing a new version of the app to the `projectSetup.md` file.
 
 ### Changed
-- Modify json repositories to soft-delete files via adding a `.deleted` suffix instead of removing the file.
+- Modify Json repositories to soft-delete files via adding a `.deleted` suffix instead of removing the file.
 
 ### Fixed
 - Clarify divergence from RFC 8259 in project standards section of README file.
@@ -62,7 +81,9 @@ _(Nothing to see here)_
 - Added Event PATCH route for modification.
 
 
-[Unreleased]: https://github.com/kirypto/TimelineTracker/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/kirypto/TimelineTracker/compare/v0.1.3...HEAD
+
+[0.1.3]: https://github.com/kirypto/TimelineTracker/compare/v0.1.2...v0.1.3
 
 [0.1.2]: https://github.com/kirypto/TimelineTracker/compare/v0.1.1...v0.1.2
 

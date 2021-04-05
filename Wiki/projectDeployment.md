@@ -13,37 +13,8 @@
   expected name by the script below)_
 - If intending to run the API on anything other than `http://localhost:5000`, it is recommended to change the `servers` list in the
   `apiSpecification.json` file. This will allow the Swagger docs page to interact with your API.
-- The following can be used as a `config.yaml` example:
+- See the [Sample Config](sampleConfig.md) for an example.
 
-```yaml
----
-# Configuration for the Timeline Tracker Application
-timeline_tracker_app_config: {
-  repositories_config: {
-    # Repository type supports 'json' or 'memory', but 'memory' will reset each time the app is run
-    # - If 'json' type is specified, the json_repository_directory_root must also be configured
-    repository_type: json,
-    # json_repositories_directory_root is the location of persisted json files so the app can read and write to the same files when
-    # restarted
-    json_repositories_directory_root: "/path/to/preferred/repository/location"
-  }
-}
-
-# Configuration for the Python Flask service running the application
-flask_run_config: {
-  host: localhost,
-  port: 5000,
-}
-
-# Configuration for the Flask CORS extension
-# Parameters described https://flask-cors.readthedocs.io/en/latest/api.html
-flask_cors_config: {
-  origins: [
-      http://localhost:12345,
-      "*",
-  ],
-}
-```
 
 ## Running the API
 

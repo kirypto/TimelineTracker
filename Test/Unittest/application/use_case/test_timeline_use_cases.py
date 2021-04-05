@@ -5,7 +5,7 @@ from unittest.mock import patch, MagicMock
 
 from Test.Unittest.test_helpers.anons import anon_prefixed_id, anon_event, anon_positional_range, anon_location, anon_traveler
 from adapter.persistence.in_memory_repositories import InMemoryLocationRepository, InMemoryTravelerRepository, InMemoryEventRepository
-from application.timeline_use_cases import TimelineUseCase
+from application.use_case.timeline_use_cases import TimelineUseCase
 from domain.collections import Range
 from domain.persistence.repositories import LocationRepository, TravelerRepository, EventRepository
 from domain.positions import Position, PositionalMove, MovementType, PositionalRange
@@ -64,7 +64,7 @@ class TestTimelineUseCase(TestCase):
         # Assert
         self.assertListEqual(expected_timeline, actual)
 
-    @patch("application.filtering_use_cases.FilteringUseCase.filter_tagged_entities")
+    @patch("application.use_case.filtering_use_cases.FilteringUseCase.filter_tagged_entities")
     def test__construct_location_timeline__should_delegate_to_filter_tagged_entities__when_filtering_necessary(
             self, filter_tagged_entities_mock: MagicMock) -> None:
         # Arrange
@@ -253,7 +253,7 @@ class TestTimelineUseCase(TestCase):
         # Assert
         self.assertListEqual(expected_timeline, actual)
 
-    @patch("application.filtering_use_cases.FilteringUseCase.filter_tagged_entities")
+    @patch("application.use_case.filtering_use_cases.FilteringUseCase.filter_tagged_entities")
     def test__construct_traveler_timeline__should_delegate_to_filter_tagged_entities__when_filtering_necessary(
             self, filter_tagged_entities_mock: MagicMock) -> None:
         # Arrange

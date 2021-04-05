@@ -27,6 +27,19 @@ class TestMetadataEntity(TestCase):
         # Assert
         self.assertDictEqual(expected, actual)
 
+    def test__init__should_strip_metadata_whitespace__when_metadata_keys_or_values_have_whitespace(self) -> None:
+        # Arrange
+        metadata_key = anon_metadata_key()
+        metadata_value = anon_metadata_value()
+        expected = {metadata_key: metadata_value}
+        metadata_entity = MetadataEntity(metadata={f" {metadata_key}\t": f"\n{metadata_value}\t"})
+
+        # Act
+        actual = metadata_entity.metadata
+
+        # Assert
+        self.assertDictEqual(expected, actual)
+
     def test__init__should_support_kwargs(self) -> None:
         # Arrange
         class TestKwargs(MetadataEntity, _Other):

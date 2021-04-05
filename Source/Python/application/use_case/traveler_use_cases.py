@@ -1,7 +1,7 @@
 from typing import Set
 from uuid import uuid4
 
-from application.filtering_use_cases import FilteringUseCase
+from application.use_case.filtering_use_cases import FilteringUseCase
 from domain.ids import PrefixedUUID
 from domain.persistence.repositories import TravelerRepository, EventRepository
 from domain.travelers import Traveler
@@ -43,24 +43,11 @@ class TravelerUseCase:
 
         return journey_filtered_travelers
 
-    def update(self, traveler_id: PrefixedUUID, **kwargs) -> Traveler:
-        if "id" in kwargs:
-            raise ValueError(f"Cannot update 'id' attribute of {Traveler.__name__}")
-        existing_traveler = self._traveler_repository.retrieve(traveler_id)
-        updated_traveler = Traveler(
-            id=traveler_id,
-            name=kwargs.pop("name") if "name" in kwargs else existing_traveler.name,
-            description=kwargs.pop("description") if "description" in kwargs else existing_traveler.description,
-            journey=kwargs.pop("journey") if "journey" in kwargs else existing_traveler.journey,
-            tags=kwargs.pop("tags") if "tags" in kwargs else existing_traveler.tags,
-            metadata=kwargs.pop("metadata") if "metadata" in kwargs else existing_traveler.metadata,
-            **kwargs
-        )
+    def update(self, traveler: Traveler) -> None:
+        self._traveler_repository.retrieve(traveler.id)
+        self._validate_linked_events_still_intersect_for_update(traveler)
 
-        self._validate_linked_events_still_intersect_for_update(updated_traveler)
-
-        self._traveler_repository.save(updated_traveler)
-        return updated_traveler
+        self._traveler_repository.save(traveler)
 
     def delete(self, traveler_id: PrefixedUUID) -> None:
         if not traveler_id.prefix == "traveler":
