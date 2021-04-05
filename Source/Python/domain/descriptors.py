@@ -45,7 +45,7 @@ class DescribedEntity(BaseEntity):
             raise ValueError(f"{self.__class__.__name__} attribute 'description' cannot be {None}")
         if not isinstance(description, str):
             raise ValueError(f"{self.__class__.__name__} attribute 'description' must be a string")
-        self._description = description
+        self._description = description.strip()
         super().__init__(**kwargs)
 
     def __eq__(self, other: object) -> bool:

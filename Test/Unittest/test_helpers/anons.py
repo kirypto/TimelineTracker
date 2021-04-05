@@ -33,7 +33,7 @@ def anon_anything(*, not_type: Type = None) -> Any:
 
 
 def anon_description(num_chars: int = 100) -> str:
-    return "".join(choices(printable, k=num_chars))
+    return "".join(choices(printable, k=num_chars)).strip()
 
 
 def anon_float(a: float = None, b: float = None) -> float:
