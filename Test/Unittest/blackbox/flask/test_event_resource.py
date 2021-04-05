@@ -15,9 +15,6 @@ _APP_CONFIG = {
     "repositories_config": {
         "repository_type": "memory",
     },
-    "request_handlers_config": {
-        "request_handler_type": "rest"
-    },
 }
 
 
