@@ -190,7 +190,7 @@ class EventResourceTest(ClientTestCase):
             altitude=event.span.altitude.low,
             longitude=event.span.longitude.low,
             continuum=event.span.continuum.low,
-            reality=event.span.reality.low,
+            reality=next(iter(event.span.reality)),
         ))])
         traveler_id = parse_json(client.post("/api/traveler", json=JsonTranslator.to_json(traveler)).data)["id"]
         response = client.post("/api/event", json=body)

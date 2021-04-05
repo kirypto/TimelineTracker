@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from enum import Enum
 from math import isinf, isnan
-from typing import Any, List
+from typing import Any, List, Set
 
 from domain.base_entity import BaseEntity
 from domain.collections import Range
@@ -38,7 +38,8 @@ class Position:
     def __init__(self, *, latitude: float, longitude: float, altitude: float, continuum: float, reality: float, **kwargs) -> None:
         def validate_type(argument_name, value, acceptable_types):
             if type(value) not in acceptable_types:
-                raise TypeError(f"{self.__class__.__name__} attribute '{argument_name}' must be one of types {acceptable_types}, was {type(value)}")
+                raise TypeError(f"{self.__class__.__name__} attribute '{argument_name}' must be one of types {acceptable_types}, was "
+                                f"{type(value)}")
             if isinf(value) or isnan(value):
                 raise ValueError(f"{self.__class__.__name__} attribute '{argument_name}' cannot be +/-Infinity or NaN, was {value}")
             return acceptable_types[0](value)
@@ -77,7 +78,7 @@ class PositionalRange:
     _longitude: Range[float]
     _altitude: Range[float]
     _continuum: Range[float]
-    _reality: Range[float]
+    _reality: set[int]
 
     @property
     def latitude(self) -> Range[float]:
@@ -96,28 +97,30 @@ class PositionalRange:
         return self._continuum
 
     @property
-    def reality(self) -> Range[float]:
+    def reality(self) -> Set[int]:
         return self._reality
 
-    def __init__(self, *, latitude: Range[float], longitude: Range[float], altitude: Range[float], continuum: Range[float], reality: Range[float],
-                 **kwargs):
+    def __init__(self, *, latitude: Range[float], longitude: Range[float], altitude: Range[float], continuum: Range[float],
+                 reality: Set[int], **kwargs):
         def _validate_range(argument_name: str, range_: Range, acceptable_types: List[type]):
             if not isinstance(range_, Range):
                 raise TypeError(f"{self.__class__.__name__} attribute '{argument_name}' must be a {Range.__name__}")
             if range_.type not in acceptable_types:
-                raise TypeError(f"{self.__class__.__name__} attribute '{argument_name}' must be a {Range.__name__} of one of {acceptable_types}")
+                raise TypeError(f"{self.__class__.__name__} attribute '{argument_name}' must be a {Range.__name__} of one of "
+                                f"{acceptable_types}")
             if isnan(range_.low) or isnan(range_.high):
                 raise ValueError(f"{self.__class__.__name__} attribute '{argument_name}' contained NaN")
             return Range(low=acceptable_types[0](range_.low), high=acceptable_types[0](range_.high))
+        if not isinstance(reality, set):
+            raise TypeError(f"{self.__class__.__name__} attribute 'reality' must be a set, was {type(reality)}")
+        if any({type(i) != int for i in reality}):
+            raise TypeError(f"{self.__class__.__name__} attribute 'reality' must be a set of integers, was {reality}")
 
         self._latitude = _validate_range("latitude", latitude, [float, int])
         self._longitude = _validate_range("longitude", longitude, [float, int])
         self._altitude = _validate_range("altitude", altitude, [float, int])
         self._continuum = _validate_range("continuum", continuum, [float, int])
-        self._reality = _validate_range("reality", reality, [float, int])
-        if (not (self._reality.low.is_integer() or isinf(self._reality.low)) or
-                not (self._reality.high.is_integer() or isinf(self._reality.high))):
-            raise ValueError(f"{self.__class__.__name__} attribute 'reality' must be a range Range of two whole numbers, was {self._reality}")
+        self._reality = reality
 
         super().__init__(**kwargs)
 
@@ -131,7 +134,7 @@ class PositionalRange:
                 and self._reality == other._reality)
 
     def __hash__(self) -> int:
-        return hash((self.__class__, self._latitude, self._longitude, self._altitude, self._continuum, self._reality))
+        return hash((self.__class__, self._latitude, self._longitude, self._altitude, self._continuum, frozenset(self._reality)))
 
     def __str__(self) -> str:
         return f"({self._latitude},{self._longitude},{self._altitude},{self._continuum},{self._reality})"
@@ -143,15 +146,19 @@ class PositionalRange:
     def includes(self, position: Position) -> bool:
         if not isinstance(position, Position):
             raise TypeError(f"Argument must be of type {Position.__name__}")
+        # TODO Properly support reality as a set of ints
+        raise NotImplementedError("Properly support reality as a set of ints")
         return (self._latitude.includes(position.latitude)
                 and self._longitude.includes(position.longitude)
                 and self._altitude.includes(position.altitude)
                 and self._continuum.includes(position.continuum)
-                and self._reality.includes(position.reality))
+                and self._reality.intersects(position.reality))
 
     def intersects(self, positional_range: PositionalRange) -> bool:
         if not isinstance(positional_range, PositionalRange):
             raise TypeError(f"Argument must be of type {PositionalRange.__name__}")
+        # TODO Properly support reality as a set of ints
+        raise NotImplementedError("Properly support reality as a set of ints")
         return (self._latitude.intersects(positional_range.latitude)
                 and self._longitude.intersects(positional_range.longitude)
                 and self._altitude.intersects(positional_range.altitude)
@@ -271,12 +278,12 @@ class JourneyingEntity(BaseEntity):
                 continue
             if positional_move.movement_type == MovementType.INTERPOLATED:
                 if positional_move.position.reality != last_position.reality:
-                    raise ValueError(f"Invalid journey: Cannot interpolate across realities. (problematic move was: {positional_move}, which "
-                                     f"succeeded {last_position})")
+                    raise ValueError(f"Invalid journey: Cannot interpolate across realities. (problematic move was: {positional_move}, "
+                                     f"which succeeded {last_position})")
                 elif positional_move.position.continuum == last_position.continuum:
                     raise ValueError(f"Invalid journey: Cannot interpolate when continuum values are identical. (problematic move was: "
                                      f"{positional_move}, which succeeded {last_position})")
                 elif positional_move.position.continuum < last_position.continuum:
-                    raise ValueError(f"Invalid journey: Cannot interpolate backwards in continuum. (problematic move was: {positional_move}, which "
-                                     f"succeeded {last_position})")
+                    raise ValueError(f"Invalid journey: Cannot interpolate backwards in continuum. (problematic move was: "
+                                     f"{positional_move}, which succeeded {last_position})")
             last_position = positional_move.position

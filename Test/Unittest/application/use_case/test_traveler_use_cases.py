@@ -163,7 +163,7 @@ class TestTravelerUseCase(TestCase):
         span = anon_positional_range()
         journey = [PositionalMove(
             position=Position(latitude=span.latitude.low, longitude=span.longitude.low, altitude=span.altitude.low,
-                              continuum=span.continuum.low, reality=span.reality.low),
+                              continuum=span.continuum.low, reality=next(iter(span.reality))),
             movement_type=MovementType.IMMEDIATE)]
         traveler_kwargs = anon_create_traveler_kwargs(journey=journey)
         traveler = self.traveler_use_case.create(**traveler_kwargs)
