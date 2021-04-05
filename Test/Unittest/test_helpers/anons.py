@@ -61,11 +61,11 @@ def anon_journey() -> List[PositionalMove]:
 
 
 def anon_metadata_key() -> str:
-    return "".join(choices("_-" + ascii_letters + digits, k=10))
+    return "".join(choices("_-." + ascii_letters + digits, k=10))
 
 
 def anon_metadata_value() -> str:
-    return "".join(choices(printable, k=50))
+    return "".join(choices(printable, k=50)).strip()
 
 
 def anon_metadata() -> Dict[str, str]:

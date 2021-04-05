@@ -13,7 +13,7 @@ class MetadataEntity(BaseEntity):
 
     def __init__(self, *, metadata: Dict[str, str] = None, **kwargs) -> None:
         if metadata is not None:
-            self._validate_metadata(metadata)
+            metadata = self._validate_metadata(metadata)
         else:
             metadata = {}
         self._metadata = metadata
@@ -27,14 +27,18 @@ class MetadataEntity(BaseEntity):
     def __hash__(self) -> int:
         return hash((MetadataEntity, frozenset(self._metadata.items()), super().__hash__()))
 
-    def _validate_metadata(self, metadata: Dict[str, str]) -> None:
+    def _validate_metadata(self, metadata: Dict[str, str]) -> Dict[str, str]:
         if not isinstance(metadata, dict):
             raise TypeError(f"{self.__class__.__name__} attribute 'metadata' must be a dictionary")
+        stripped_metadata = {}
         for key, value in metadata.items():
             if type(key) is not str:
                 raise TypeError(f"{self.__class__.__name__} attribute 'metadata' dictionary keys must be strings, was {type(key)}")
-            elif type(value) is not str:
+            if type(value) is not str:
                 raise TypeError(f"{self.__class__.__name__} attribute 'metadata' dictionary values must be strings, was {type(value)}")
-            elif not match(r"^[\w\-.]*$", key):
-                raise ValueError(f"{self.__class__.__name__} attribute 'metadata' dictionary keys must contain only alphanumeric, underscore, dash, "
-                                 f"and space characters; was {value}")
+            key = key.strip()
+            if not match(r"^[\w\-.]*$", key):
+                raise ValueError(f"{self.__class__.__name__} attribute 'metadata' dictionary keys must contain only alphanumeric, "
+                                 f"underscore, dash, and decimal characters; was '{key}'")
+            stripped_metadata[key] = value.strip()
+        return stripped_metadata
