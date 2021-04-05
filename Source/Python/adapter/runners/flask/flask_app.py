@@ -11,7 +11,7 @@ from application.main import TimelineTrackerApp
 
 def _create_flask_web_app(version: str) -> Flask:
     # File Paths
-    _PROJECT_ROOT = Path(__file__).parents[4]
+    _PROJECT_ROOT = Path(__file__).parents[5]
     _RESOURCE_FOLDER = _PROJECT_ROOT.joinpath("Source", "Resources")
 
     # Web Paths
