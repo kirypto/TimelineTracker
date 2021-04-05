@@ -18,9 +18,9 @@ class NamedEntity(BaseEntity):
         name = name.strip()
         if len(name) == 0:
             raise ValueError(f"{self.__class__.__name__} attribute 'name' cannot be empty")
-        if not match(r"^[\w\-. ]*$", name):
-            raise ValueError(f"{self.__class__.__name__} attribute 'name' must contain only alphanumeric, underscore, dash, and space "
-                             f"characters")
+        if not match(r"^[\w\-. ]+$", name):
+            raise ValueError(f"{self.__class__.__name__} attribute 'name' must contain only alphanumeric, underscore, dash, space, and "
+                             f"decimal characters")
         self._name = name
         super().__init__(**kwargs)
 
