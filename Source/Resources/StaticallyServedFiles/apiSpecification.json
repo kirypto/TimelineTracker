@@ -893,7 +893,7 @@
         "required" : [ "low", "high" ]
       },
       "PositionalRange" : {
-        "description" : "A multi-dimensional range, with a range for each dimension.",
+        "description" : "A multi-dimensional range, with a range for the first 4 dimensions and an array for realities.",
         "type" : "object",
         "properties" : {
           "latitude" : {
@@ -909,7 +909,12 @@
             "$ref" : "#/components/schemas/Range"
           },
           "reality" : {
-            "$ref" : "#/components/schemas/Range"
+            "type" : "array",
+            "items" : {
+              "type" : "number",
+              "format" : "float",
+              "example" : 0
+            }
           }
         },
         "required" : [ "latitude", "longitude", "altitude", "continuum", "reality" ]
