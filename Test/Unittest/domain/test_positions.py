@@ -233,8 +233,8 @@ class TestPositionalRange(TestCase):
         high = low + abs(anon_int())
         within = anon_float(low, high)
         range_ = Range(low, high)
-        positional_range = PositionalRange(latitude=range_, longitude=range_, altitude=range_, continuum=range_, reality={anon_int()})
-        position = Position(latitude=low, longitude=high, altitude=within, continuum=within, reality=anon_int(low, high))
+        positional_range = PositionalRange(latitude=range_, longitude=range_, altitude=range_, continuum=range_, reality={low, high})
+        position = Position(latitude=low, longitude=high, altitude=within, continuum=within, reality=choice([low, high]))
 
         # Act
         actual = positional_range.includes(position)

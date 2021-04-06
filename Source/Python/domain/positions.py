@@ -146,24 +146,20 @@ class PositionalRange:
     def includes(self, position: Position) -> bool:
         if not isinstance(position, Position):
             raise TypeError(f"Argument must be of type {Position.__name__}")
-        # TODO Properly support reality as a set of ints
-        raise NotImplementedError("Properly support reality as a set of ints")
         return (self._latitude.includes(position.latitude)
                 and self._longitude.includes(position.longitude)
                 and self._altitude.includes(position.altitude)
                 and self._continuum.includes(position.continuum)
-                and self._reality.intersects(position.reality))
+                and position.reality in self._reality)
 
     def intersects(self, positional_range: PositionalRange) -> bool:
         if not isinstance(positional_range, PositionalRange):
             raise TypeError(f"Argument must be of type {PositionalRange.__name__}")
-        # TODO Properly support reality as a set of ints
-        raise NotImplementedError("Properly support reality as a set of ints")
         return (self._latitude.intersects(positional_range.latitude)
                 and self._longitude.intersects(positional_range.longitude)
                 and self._altitude.intersects(positional_range.altitude)
                 and self._continuum.intersects(positional_range.continuum)
-                and self._reality.intersects(positional_range.reality))
+                and len(self._reality.intersection(positional_range.reality)) > 0)
 
     @staticmethod
     def _range_includes(low: Any, high: Any, value: Any) -> bool:
