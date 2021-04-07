@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from _version import __version__
 from application.factories import RepositoriesFactory, RequestHandlersFactory
 from application.use_case.event_use_cases import EventUseCase
@@ -9,6 +11,7 @@ from domain.request_handling.handlers import LocationsRequestHandler, TravelersR
 
 class TimelineTrackerApp:
     _version: str
+    _resources_folder: Path
     _locations_request_handler: LocationsRequestHandler
     _travelers_request_handler: TravelersRequestHandler
     _event_request_handler: EventsRequestHandler
@@ -16,6 +19,10 @@ class TimelineTrackerApp:
     @property
     def version(self) -> str:
         return __version__
+
+    @property
+    def resources_folder(self) -> Path:
+        return self._resources_folder
 
     @property
     def locations_request_handler(self) -> LocationsRequestHandler:
@@ -29,7 +36,11 @@ class TimelineTrackerApp:
     def event_request_handler(self) -> EventsRequestHandler:
         return self._event_request_handler
 
-    def __init__(self, *, repositories_config: dict, request_handlers_config: dict) -> None:
+    def __init__(self, *, resources_folder_path: str, repositories_config: dict, request_handlers_config: dict) -> None:
+        self._resources_folder = Path(resources_folder_path).resolve()
+        if not self._resources_folder.exists() or not self._resources_folder.is_dir():
+            raise ValueError(f"The provided resources folder does not exist or was not a directory. Was '{self._resources_folder}'.")
+
         repositories_factory = RepositoriesFactory(**repositories_config)
         location_repository = repositories_factory.location_repo
         traveler_repository = repositories_factory.traveler_repo

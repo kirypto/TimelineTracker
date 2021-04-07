@@ -9,22 +9,15 @@ from adapter.runners.flask.flask_controllers import register_locations_routes, r
 from application.main import TimelineTrackerApp
 
 
-def _create_flask_web_app(version: str) -> Flask:
-    # File Paths
-    _PROJECT_ROOT = Path(__file__).parents[5]
-    _RESOURCE_FOLDER = _PROJECT_ROOT.joinpath("Source", "Resources")
-
+def _create_flask_web_app(resource_folder: Path, version: str) -> Flask:
     # Web Paths
-    _SWAGGER_URL = '/api/docs'  # URL for exposing Swagger UI (without trailing '/')
-    _API_SPECIFICATION_URL = '/static/apiSpecification.json'  # Our API url (can of course be a local resource)
+    _STATIC_URL_PREFIX = "/static"
+    _SWAGGER_URL = "/api/docs"  # URL for exposing Swagger UI (without trailing '/')
+    _API_SPECIFICATION_URL = f"{_STATIC_URL_PREFIX}/apiSpecification.json"  # Our API url (can of course be a local resource)
 
+    statically_served_files_folder = resource_folder.joinpath("StaticallyServedFiles").as_posix()
     # Construct Flask web service
-    flask_web_app = Flask(
-        __name__,
-        root_path=_RESOURCE_FOLDER.joinpath("FlaskWebAppRoot").as_posix(),
-        static_folder=_RESOURCE_FOLDER.joinpath("StaticallyServedFiles").as_posix(),
-        static_url_path="/static",
-    )
+    flask_web_app = Flask(__name__, static_folder=statically_served_files_folder, static_url_path=_STATIC_URL_PREFIX)
 
     # Call flask_swagger_ui blueprint factory function
     swagger_ui_blueprint = get_swaggerui_blueprint(
@@ -57,7 +50,7 @@ def _create_timeline_tracker_flask_app(timeline_tracker_app_config: dict) -> Fla
     }
     timeline_tracker_application = TimelineTrackerApp(**timeline_tracker_app_config)
 
-    flask_web_app = _create_flask_web_app(timeline_tracker_application.version)
+    flask_web_app = _create_flask_web_app(timeline_tracker_application.resources_folder, timeline_tracker_application.version)
     register_locations_routes(flask_web_app, timeline_tracker_application.locations_request_handler)
     register_travelers_routes(flask_web_app, timeline_tracker_application.travelers_request_handler)
     register_events_routes(flask_web_app, timeline_tracker_application.event_request_handler)

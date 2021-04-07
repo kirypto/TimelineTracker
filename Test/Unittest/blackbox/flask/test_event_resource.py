@@ -1,5 +1,6 @@
 from copy import copy
 from json import loads
+from pathlib import Path
 from typing import Any
 
 from flask_unittest import ClientTestCase
@@ -15,6 +16,7 @@ _APP_CONFIG = {
     "repositories_config": {
         "repository_type": "memory",
     },
+    "resources_folder_path": Path(__file__).parents[4].joinpath("Source/Resources/").resolve().as_posix(),
 }
 
 

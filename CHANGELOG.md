@@ -3,8 +3,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
-
-_(Nothing to see here)_
+### Added
+- Added a requirement to include the Resources directory path as part of the application configuration
 
 ---
 
@@ -29,7 +29,6 @@ _(Nothing to see here)_
 
 ## [0.1.2] - 2021-03-14
 ### Added
-
 - Added support for CORS headers to allow serving returned data in on a web page.
 - Added sample CORS configuration to the `projectSetup.md` and `projectDeployment.md` files.
 - Added a `runWithFlask.ps1` to simplify the deployment of TTAPI.
