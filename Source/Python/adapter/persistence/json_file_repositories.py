@@ -3,6 +3,7 @@ from json import dumps, loads
 from pathlib import Path
 from typing import Set, Type, Generic, TypeVar, Dict
 
+from adapter.persistence.json_file_data_migrations import JsonFileDataMigrator
 from adapter.views import JsonTranslator
 from domain.events import Event
 from domain.ids import PrefixedUUID, IdentifiedEntity
@@ -12,6 +13,10 @@ from domain.travelers import Traveler
 
 
 _T = TypeVar('_T', bound=IdentifiedEntity)
+_METADATA_VERSION_FILE = "repository_version.metadata"
+_LOCATION_REPO_DIR_NAME = "LocationRepo"
+_TRAVELER_REPO_DIR_NAME = "TravelerRepo"
+_EVENT_REPO_DIR_NAME = "EventRepo"
 
 
 class _JsonFileIdentifiedEntityRepository(Generic[_T]):
@@ -28,6 +33,9 @@ class _JsonFileIdentifiedEntityRepository(Generic[_T]):
             repo_path.mkdir()
         if not repo_path.is_dir():
             raise ValueError(f"The path '{repo_path}' is not a valid directory and cannot be used.")
+
+        JsonFileDataMigrator.ensure_updated(root_repos_path)
+
         self._repo_path = repo_path
         self._entity_type = entity_type
 
@@ -87,7 +95,7 @@ class JsonFileLocationRepository(LocationRepository):
     _inner_repo: _JsonFileIdentifiedEntityRepository[Location]
 
     def __init__(self, **kwargs) -> None:
-        self._inner_repo = _JsonFileIdentifiedEntityRepository("LocationRepo", Location, **kwargs)
+        self._inner_repo = _JsonFileIdentifiedEntityRepository(_LOCATION_REPO_DIR_NAME, Location, **kwargs)
 
     def save(self, location: Location) -> None:
         self._inner_repo.save(location)
@@ -106,7 +114,7 @@ class JsonFileTravelerRepository(TravelerRepository):
     _inner_repo: _JsonFileIdentifiedEntityRepository[Traveler]
 
     def __init__(self, **kwargs) -> None:
-        self._inner_repo = _JsonFileIdentifiedEntityRepository("TravelerRepo", Traveler, **kwargs)
+        self._inner_repo = _JsonFileIdentifiedEntityRepository(_TRAVELER_REPO_DIR_NAME, Traveler, **kwargs)
 
     def save(self, traveler: Traveler) -> None:
         self._inner_repo.save(traveler)
@@ -127,7 +135,7 @@ class JsonFileEventRepository(EventRepository):
     _event_ids_by_traveler_id: Dict[PrefixedUUID, Set[PrefixedUUID]]
 
     def __init__(self, **kwargs) -> None:
-        self._inner_repo = _JsonFileIdentifiedEntityRepository("EventRepo", Event, **kwargs)
+        self._inner_repo = _JsonFileIdentifiedEntityRepository(_EVENT_REPO_DIR_NAME, Event, **kwargs)
         self._event_ids_by_location_id = defaultdict(set)
         self._event_ids_by_traveler_id = defaultdict(set)
         for event in self._inner_repo.retrieve_all():
