@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 ### Added
 - Added a requirement to include the Resources directory path as part of the application configuration
+- Added a metadata file to track the version of data stored in the Json repository
+- Added a Json data migration system for updating persisted data to a newer application version
+
+### Changed
+- Changed the `reality` component of Locations' and Events' `span` attribute to be a set of integers instead of a range
+  - The Json representation of this is a sorted integer array
 
 ---
 
