@@ -10,7 +10,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - Changed the `reality` component of Locations' and Events' `span` attribute to be a set of integers instead of a range
-  - The Json representation of this is a sorted integer array
+  - Changed served Json representation to be a sorted integer array
+  - Changed API Spec to align with integer array changes
 
 ---
 
