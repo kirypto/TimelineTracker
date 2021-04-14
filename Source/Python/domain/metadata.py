@@ -37,8 +37,11 @@ class MetadataEntity(BaseEntity):
             if type(value) is not str:
                 raise TypeError(f"{self.__class__.__name__} attribute 'metadata' dictionary values must be strings, was {type(value)}")
             key = key.strip()
-            if not match(r"^[\w\-.]*$", key):
-                raise ValueError(f"{self.__class__.__name__} attribute 'metadata' dictionary keys must contain only alphanumeric, "
-                                 f"underscore, dash, and decimal characters; was '{key}'")
-            stripped_metadata[key] = value.strip()
+            if not match(r"^[\w\-.]+$", key):
+                raise ValueError(f"{self.__class__.__name__} attribute 'metadata' dictionary keys must be non-empty and can only contain "
+                                 f"alphanumeric, underscore, dash, and decimal characters; was '{key}'")
+            value = value.strip()
+            if len(value) == 0:
+                raise ValueError(f"{self.__class__.__name__} attribute 'metadata' dictionary values must be non-empty")
+            stripped_metadata[key] = value
         return stripped_metadata
