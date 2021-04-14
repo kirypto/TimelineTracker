@@ -1,3 +1,4 @@
+from pathlib import Path
 from unittest import TestCase
 
 from application.main import TimelineTrackerApp
@@ -13,6 +14,7 @@ class TestTimelineTrackerApp(TestCase):
             "request_handlers_config": {
                 "request_handler_type": "rest"
             },
+            "resources_folder_path": Path(__file__).parents[3].joinpath("Source/Resources/").resolve().as_posix(),
         }
 
         # Act

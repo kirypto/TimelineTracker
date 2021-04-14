@@ -79,7 +79,7 @@ class JsonTranslator(Generic[T]):
                     "longitude": JsonTranslator.from_json(positional_range_json["longitude"], Range[float]),
                     "altitude": JsonTranslator.from_json(positional_range_json["altitude"], Range[float]),
                     "continuum": JsonTranslator.from_json(positional_range_json["continuum"], Range[float]),
-                    "reality": JsonTranslator.from_json(positional_range_json["reality"], Range[float]),
+                    "reality": JsonTranslator.from_json(positional_range_json["reality"], Set[int]),
                 })
             if type_ is Range[float]:
                 if type(value) in {int, float}:
@@ -154,6 +154,9 @@ class JsonTranslator(Generic[T]):
                     "affected_locations": JsonTranslator.from_json(event_json["affected_locations"], Set[PrefixedUUID]),
                     "affected_travelers": JsonTranslator.from_json(event_json["affected_travelers"], Set[PrefixedUUID]),
                 })
+            if type_ is Set[int]:
+                ints_json: list = value
+                return {JsonTranslator.from_json(integer, int) for integer in ints_json}
         except BaseException as e:
             if type(type_) is type:
                 name = type_.__name__

@@ -196,8 +196,8 @@ class TestEventRepository(TestSRDRepository):
         # Arrange
         span = anon_positional_range()
         journey = [PositionalMove(
-            position=Position(latitude=span.latitude.low, longitude=span.longitude.low, altitude=span.altitude.low, continuum=span.continuum.low,
-                              reality=span.reality.low), movement_type=MovementType.IMMEDIATE)]
+            position=Position(latitude=span.latitude.low, longitude=span.longitude.low, altitude=span.altitude.low,
+                              continuum=span.continuum.low, reality=next(iter(span.reality))), movement_type=MovementType.IMMEDIATE)]
         traveler = anon_traveler(journey=journey)
         linked_event = anon_event(span=span, affected_travelers={traveler.id})
         other_event = anon_event()
@@ -215,8 +215,8 @@ class TestEventRepository(TestSRDRepository):
         # Arrange
         span = anon_positional_range()
         journey = [PositionalMove(
-            position=Position(latitude=span.latitude.low, longitude=span.longitude.low, altitude=span.altitude.low, continuum=span.continuum.low,
-                              reality=span.reality.low), movement_type=MovementType.IMMEDIATE)]
+            position=Position(latitude=span.latitude.low, longitude=span.longitude.low, altitude=span.altitude.low,
+                              continuum=span.continuum.low, reality=next(iter(span.reality))), movement_type=MovementType.IMMEDIATE)]
         traveler = anon_traveler(journey=journey)
         location = anon_location(span=span)
 

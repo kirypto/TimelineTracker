@@ -3,8 +3,15 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+### Added
+- Added a requirement to include the Resources directory path as part of the application configuration
+- Added a metadata file to track the version of data stored in the Json repository
+- Added a Json data migration system for updating persisted data to a newer application version
 
-_(Nothing to see here)_
+### Changed
+- Changed the `reality` component of Locations' and Events' `span` attribute to be a set of integers instead of a range
+  - Changed served Json representation to be a sorted integer array
+  - Changed API Spec to align with integer array changes
 
 ---
 
@@ -29,7 +36,6 @@ _(Nothing to see here)_
 
 ## [0.1.2] - 2021-03-14
 ### Added
-
 - Added support for CORS headers to allow serving returned data in on a web page.
 - Added sample CORS configuration to the `projectSetup.md` and `projectDeployment.md` files.
 - Added a `runWithFlask.ps1` to simplify the deployment of TTAPI.

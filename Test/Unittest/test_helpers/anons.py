@@ -107,13 +107,14 @@ def anon_range(*, whole_numbers: bool = False) -> Range:
 
 def anon_positional_range(*, continuum: Range[float] = None) -> PositionalRange:
     return PositionalRange(
-        latitude=(anon_range()),
-        longitude=(anon_range()),
-        altitude=(anon_range()),
+        latitude=anon_range(),
+        longitude=anon_range(),
+        altitude=anon_range(),
         continuum=_coalesce(continuum, anon_range()),
-        reality=(anon_range(whole_numbers=True)))
+        reality={anon_int()})
 
 
+# noinspection PyShadowingBuiltins
 def anon_location(
         *, id: PrefixedUUID = None, name: str = None, tags: Set[Tag] = None, span: PositionalRange = None,
         metadata: Dict[str, str] = None) -> Location:
@@ -140,7 +141,8 @@ def anon_tagged_entity(num_tags: int = 3) -> TaggedEntity:
     return TaggedEntity(tags=tags)
 
 
-def anon_traveler(*, name: str = None, tags: Set[Tag] = None, journey: List[PositionalMove] = None, metadata: Dict[str, str] = None) -> Traveler:
+def anon_traveler(*, name: str = None, tags: Set[Tag] = None, journey: List[PositionalMove] = None, metadata: Dict[str, str] = None
+                  ) -> Traveler:
     return Traveler(
         id=anon_prefixed_id(prefix="traveler"),
         name=_coalesce(name, anon_name()),
@@ -165,7 +167,8 @@ def anon_event(
 
 
 def anon_create_location_kwargs(
-        *, name: str = None, description: str = None, span: PositionalRange = None, tags: Set[Tag] = None, metadata: Dict[str, str] = None) -> dict:
+        *, name: str = None, description: str = None, span: PositionalRange = None, tags: Set[Tag] = None, metadata: Dict[str, str] = None
+) -> dict:
     return {
         "name": _coalesce(name, anon_name()),
         "description": _coalesce(description, anon_description()),
@@ -189,7 +192,8 @@ def anon_create_traveler_kwargs(
 
 def anon_create_event_kwargs(
         *, name: str = None, description: str = None, span: PositionalRange = None, tags: Set[Tag] = None,
-        affected_locations: Set[PrefixedUUID] = None, affected_travelers: Set[PrefixedUUID] = None, metadata: Dict[str, str] = None) -> dict:
+        affected_locations: Set[PrefixedUUID] = None, affected_travelers: Set[PrefixedUUID] = None, metadata: Dict[str, str] = None
+) -> dict:
     return {
         "name": _coalesce(name, anon_name()),
         "description": _coalesce(description, anon_description()),
