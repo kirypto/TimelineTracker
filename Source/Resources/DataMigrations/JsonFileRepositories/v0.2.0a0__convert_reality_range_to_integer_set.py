@@ -1,7 +1,7 @@
 import logging
 from json import loads, dumps
 from pathlib import Path
-from typing import Dict, Any, List, Type, Union
+from typing import Dict, Any, List
 
 from adapter.persistence.json_file_data_migrations import JsonDataMigrationScript
 from adapter.views import JsonTranslator
@@ -34,18 +34,12 @@ class DataMigration(JsonDataMigrationScript):
         if not is_safe_to_migrate:
             raise ValueError(f"Migration to {self.get_migration_version_from_file(__file__)} would be unsafe, aborting. See log for detail")
 
-    def _validate_no_infinite_ranges(self, json_obj_with_span: Dict) -> None:
-        pass
-
-    def migrate_data(self) -> None:
+    def _inner_migrate_data(self) -> None:
         for location_json_file in filter(lambda x: x.suffix == ".json", self.location_repo_dir.iterdir()):
             self._update_reality_to_be_integer_set(location_json_file, entity_type=Location)
 
         for event_json_file in filter(lambda x: x.suffix == ".json", self.event_repo_dir.iterdir()):
             self._update_reality_to_be_integer_set(event_json_file, entity_type=Event)
-
-        version = self.get_migration_version_from_file(__file__)
-        self.repo_version_file.write_text(str(version), UTF8)
 
     @staticmethod
     def _update_reality_to_be_integer_set(json_file: Path, *, entity_type: Any) -> None:

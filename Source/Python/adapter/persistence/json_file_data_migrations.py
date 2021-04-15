@@ -42,8 +42,13 @@ class JsonDataMigrationScript(ABC):
     def validate_safe_to_migrate(self) -> None:
         pass
 
-    @abstractmethod
     def migrate_data(self) -> None:
+        self._inner_migrate_data()
+        version = self.get_migration_version_from_file(__file__)
+        self.repo_version_file.write_text(str(version), "utf8")
+
+    @abstractmethod
+    def _inner_migrate_data(self) -> None:
         pass
 
 
