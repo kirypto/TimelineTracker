@@ -2,8 +2,8 @@
 
 ## Requirements
 
-- Python >= 3.7
-- Python packages as laid out in `requirements.txt`
+- Install Python _(version >= 3.9)_ and pip.
+- Install the required packages _(`pip install -r requirements.txt`)_.
 
 ## App Configuration
 
