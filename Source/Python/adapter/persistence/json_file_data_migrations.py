@@ -79,9 +79,9 @@ class JsonFileDataMigrator:
     @classmethod
     def _get_repository_version(cls, repository_root_path: Path) -> StrictVersion:
         repository_version_file = repository_root_path.joinpath(_METADATA_VERSION_FILE)
-        if not repository_version_file.exists() or not repository_version_file.is_file():
-            raise ValueError(f"Could not locate {_METADATA_VERSION_FILE} in the repository root folder!\n"
-                             f"(If upgrading from before v0.2.0, the file must be manually added, simply create it containing '0.1.3')")
+        if not repository_version_file.exists():
+            return StrictVersion("0.1.3")  # Concept of repository version introduced in next version
+
         repository_version_str = repository_version_file.read_text("utf-8")
         if len(repository_version_str) == 0:
             raise ValueError(f"{_METADATA_VERSION_FILE} was empty")

@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - Changed required python version listed in `projectSetup.py` and `projectDeployment.py` to be 3.9
+- Changed Json data migrations to default to v0.1.3 when a repository_version.metadata file does not exist
 
 ---
 
