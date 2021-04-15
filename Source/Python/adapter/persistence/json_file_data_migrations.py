@@ -34,22 +34,32 @@ class JsonDataMigrationScript(ABC):
     def __init__(self, repository_root_path: Path) -> None:
         self._repository_root_path = repository_root_path
 
-    @staticmethod
-    def get_migration_version_from_file(migration_script_file_name: str) -> StrictVersion:
-        return StrictVersion(Path(migration_script_file_name).name.split("__")[0].removeprefix("v"))
+    def validate_safe_to_migrate(self) -> None:
+        is_safe_to_migrate = self._is_safe_to_migrate()
+        if not is_safe_to_migrate:
+            raise ValueError(f"Migration to {self._migration_version} would be unsafe, aborting. See log for detail")
 
     @abstractmethod
-    def validate_safe_to_migrate(self) -> None:
+    def _is_safe_to_migrate(self) -> bool:
         pass
 
     def migrate_data(self) -> None:
         self._inner_migrate_data()
-        version = self.get_migration_version_from_file(__file__)
+        version = self._migration_version
         self.repo_version_file.write_text(str(version), "utf8")
 
     @abstractmethod
     def _inner_migrate_data(self) -> None:
         pass
+    
+    @property
+    @abstractmethod
+    def _file_name(self) -> str:
+        pass
+
+    @property
+    def _migration_version(self) -> StrictVersion:
+        return StrictVersion(Path(self._file_name).name.split("__")[0].removeprefix("v"))
 
 
 class JsonFileDataMigrator:

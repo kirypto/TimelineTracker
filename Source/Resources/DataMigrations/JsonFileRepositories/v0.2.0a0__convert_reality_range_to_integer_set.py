@@ -13,10 +13,14 @@ UTF8 = "utf8"
 
 
 class DataMigration(JsonDataMigrationScript):
+    @property
+    def _file_name(self) -> str:
+        return __file__
+
     def __init__(self, repository_root_path: Path) -> None:
         super().__init__(repository_root_path)
 
-    def validate_safe_to_migrate(self) -> None:
+    def _is_safe_to_migrate(self) -> bool:
         location_and_event_jsons: List[Dict[str, Any]] = []
         for location_json_file in filter(lambda x: x.suffix == ".json", self.location_repo_dir.iterdir()):
             location_and_event_jsons.append(loads(location_json_file.read_text("utf-8")))
@@ -31,8 +35,7 @@ class DataMigration(JsonDataMigrationScript):
                 logging.error(f"Object {json_object['id']} has a reality range larger than 1000 and needs to be migrated manually. "
                               f"(was {reality_range_width})")
                 is_safe_to_migrate = False
-        if not is_safe_to_migrate:
-            raise ValueError(f"Migration to {self.get_migration_version_from_file(__file__)} would be unsafe, aborting. See log for detail")
+        return is_safe_to_migrate
 
     def _inner_migrate_data(self) -> None:
         for location_json_file in filter(lambda x: x.suffix == ".json", self.location_repo_dir.iterdir()):
