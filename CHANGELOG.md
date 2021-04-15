@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+_(Nothing to see here)_
+
+---
+
+## [0.2.1] - 2021-04-15
 ### Changed
 - Changed required python version listed in `projectSetup.py` and `projectDeployment.py` to be 3.9
 - Changed Json data migrations to default to v0.1.3 when a repository_version.metadata file does not exist
@@ -96,7 +101,9 @@ All notable changes to this project will be documented in this file.
 - Added Event PATCH route for modification.
 
 
-[Unreleased]: https://github.com/kirypto/TimelineTracker/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/kirypto/TimelineTracker/compare/v0.2.1...HEAD
+
+[0.2.0]: https://github.com/kirypto/TimelineTracker/compare/v0.2.0...v0.2.1
 
 [0.2.0]: https://github.com/kirypto/TimelineTracker/compare/v0.1.3...v0.2.0
 
