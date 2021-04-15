@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+
+_(Nothing to see here)_
+
+---
+
+## [0.2.0] - 2021-04-14
 ### Added
 - Added a requirement to include the Resources directory path as part of the application configuration
 - Added a metadata file to track the version of data stored in the Json repository
@@ -88,7 +94,9 @@ All notable changes to this project will be documented in this file.
 - Added Event PATCH route for modification.
 
 
-[Unreleased]: https://github.com/kirypto/TimelineTracker/compare/v0.1.3...HEAD
+[Unreleased]: https://github.com/kirypto/TimelineTracker/compare/v0.2.0...HEAD
+
+[0.2.0]: https://github.com/kirypto/TimelineTracker/compare/v0.1.3...v0.2.0
 
 [0.1.3]: https://github.com/kirypto/TimelineTracker/compare/v0.1.2...v0.1.3
 
