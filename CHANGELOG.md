@@ -4,7 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-_(Nothing to see here)_
+### Changed
+- Changed required python version listed in `projectSetup.py` and `projectDeployment.py` to be 3.9
 
 ---
 
