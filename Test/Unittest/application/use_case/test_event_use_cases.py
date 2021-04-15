@@ -65,7 +65,7 @@ class TestEventUseCase(TestCase):
         location = anon_location(span=span)
         journey = [PositionalMove(
             position=Position(latitude=span.latitude.low, longitude=span.longitude.low, altitude=span.altitude.low,
-                              continuum=span.continuum.low, reality=span.reality.low), movement_type=MovementType.IMMEDIATE)]
+                              continuum=span.continuum.low, reality=next(iter(span.reality))), movement_type=MovementType.IMMEDIATE)]
         traveler = anon_traveler(journey=journey)
         self.location_repository.save(location)
         self.traveler_repository.save(traveler)

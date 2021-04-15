@@ -2,16 +2,16 @@ from random import choice
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
-from Test.Unittest.test_helpers.anons import anon_float, anon_int, anon_position, anon_positional_range, anon_range, anon_journey, anon_anything
-from Test.Unittest.test_helpers.anons import anon_movement_type, \
-    anon_positional_move
+from Test.Unittest.test_helpers.anons import anon_float, anon_int, anon_position, anon_positional_range, anon_range, anon_journey, \
+    anon_anything
+from Test.Unittest.test_helpers.anons import anon_movement_type, anon_positional_move
 from domain.base_entity import BaseEntity
 from domain.collections import Range
 from domain.positions import Position, PositionalRange, SpanningEntity, JourneyingEntity, MovementType
 from domain.positions import PositionalMove
 
 
-# noinspection PyPropertyAccess
+# noinspection PyPropertyAccess,DuplicatedCode
 class TestPosition(TestCase):
     def test__init__should_initialize_from_provided_args(self) -> None:
         # Arrange
@@ -22,8 +22,8 @@ class TestPosition(TestCase):
         expected_reality = anon_int()
 
         # Act
-        actual = Position(latitude=expected_latitude, longitude=expected_longitude, altitude=expected_altitude, continuum=expected_continuum,
-                          reality=expected_reality)
+        actual = Position(latitude=expected_latitude, longitude=expected_longitude, altitude=expected_altitude,
+                          continuum=expected_continuum, reality=expected_reality)
 
         # Assert
         self.assertEqual(expected_latitude, actual.latitude)
@@ -38,8 +38,8 @@ class TestPosition(TestCase):
             pass
 
         # Act
-        actual = KwargsTest(latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=anon_float(), reality=anon_int(),
-                            other="other")
+        actual = KwargsTest(latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=anon_float(),
+                            reality=anon_int(), other="other")
 
         # Assert
         self.assertEqual("other", actual.other)
@@ -49,59 +49,60 @@ class TestPosition(TestCase):
         invalid_type = choice(["string", False, True])
 
         # Act
-        def InvalidLatitude(): Position(latitude=invalid_type,
-                                        longitude=anon_float(), altitude=anon_float(), continuum=anon_float(), reality=anon_int())
+        def invalid_latitude(): Position(latitude=invalid_type,
+                                         longitude=anon_float(), altitude=anon_float(), continuum=anon_float(), reality=anon_int())
 
-        def InvalidLongitude(): Position(longitude=invalid_type,
-                                         latitude=anon_float(), altitude=anon_float(), continuum=anon_float(), reality=anon_int())
+        def invalid_longitude(): Position(longitude=invalid_type,
+                                          latitude=anon_float(), altitude=anon_float(), continuum=anon_float(), reality=anon_int())
 
-        def InvalidAltitude(): Position(altitude=invalid_type,
-                                        latitude=anon_float(), longitude=anon_float(), continuum=anon_float(), reality=anon_int())
+        def invalid_altitude(): Position(altitude=invalid_type,
+                                         latitude=anon_float(), longitude=anon_float(), continuum=anon_float(), reality=anon_int())
 
-        def InvalidContinuum(): Position(continuum=invalid_type,
-                                         latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), reality=anon_int())
+        def invalid_continuum(): Position(continuum=invalid_type,
+                                          latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), reality=anon_int())
 
-        def InvalidReality(): Position(reality=invalid_type,
-                                       latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=anon_float())
+        def invalid_reality(): Position(reality=invalid_type,
+                                        latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=anon_float())
 
         # Assert
-        self.assertRaises(TypeError, InvalidLatitude)
-        self.assertRaises(TypeError, InvalidLongitude)
-        self.assertRaises(TypeError, InvalidAltitude)
-        self.assertRaises(TypeError, InvalidContinuum)
-        self.assertRaises(TypeError, InvalidReality)
+        self.assertRaises(TypeError, invalid_latitude)
+        self.assertRaises(TypeError, invalid_longitude)
+        self.assertRaises(TypeError, invalid_altitude)
+        self.assertRaises(TypeError, invalid_continuum)
+        self.assertRaises(TypeError, invalid_reality)
 
     def test__init__should_reject_reality_of_non_whole_number(self) -> None:
         # Arrange
 
         # Act
-        def InvalidReality(): Position(reality=anon_float(),
-                                       latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=anon_float())
+        def invalid_reality(): Position(reality=anon_float(),
+                                        latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=anon_float())
 
         # Assert
-        self.assertRaises(ValueError, InvalidReality)
+        self.assertRaises(ValueError, invalid_reality)
 
     def test__properties__should_not_be_mutable(self) -> None:
         # Arrange
-        position = Position(latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=anon_float(), reality=anon_int())
+        position = Position(latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=anon_float(),
+                            reality=anon_int())
 
         # Act
-        def ActionLatitude(): position.latitude = anon_float()
+        def action_latitude(): position.latitude = anon_float()
 
-        def ActionLongitude(): position.longitude = anon_float()
+        def action_longitude(): position.longitude = anon_float()
 
-        def ActionAltitude(): position.altitude = anon_float()
+        def action_altitude(): position.altitude = anon_float()
 
-        def ActionContinuum(): position.continuum = anon_float()
+        def action_continuum(): position.continuum = anon_float()
 
-        def ActionReality(): position.reality = anon_float()
+        def action_reality(): position.reality = anon_float()
 
         # Assert
-        self.assertRaises(AttributeError, ActionLatitude)
-        self.assertRaises(AttributeError, ActionLongitude)
-        self.assertRaises(AttributeError, ActionAltitude)
-        self.assertRaises(AttributeError, ActionContinuum)
-        self.assertRaises(AttributeError, ActionReality)
+        self.assertRaises(AttributeError, action_latitude)
+        self.assertRaises(AttributeError, action_longitude)
+        self.assertRaises(AttributeError, action_altitude)
+        self.assertRaises(AttributeError, action_continuum)
+        self.assertRaises(AttributeError, action_reality)
 
     def test__equality__should_compare_as_same__when_all_dimensions_are_equal(self) -> None:
         # Arrange
@@ -158,13 +159,13 @@ class TestPosition(TestCase):
         position = anon_position()
 
         # Act
-        def Action(): _ = {position}
+        def action(): _ = {position}
 
         # Assert
-        Action()
+        action()
 
 
-# noinspection PyTypeChecker
+# noinspection PyTypeChecker,DuplicatedCode
 class TestPositionalRange(TestCase):
     def test__init__should_initialize_from_provided_args(self) -> None:
         # Arrange
@@ -172,10 +173,11 @@ class TestPositionalRange(TestCase):
         expected_longitude = anon_range()
         expected_altitude = anon_range()
         expected_continuum = anon_range()
-        expected_reality = anon_range(whole_numbers=True)
+        expected_reality = {anon_int()}
 
         # Act
-        actual = PositionalRange(latitude=expected_latitude, longitude=expected_longitude, altitude=expected_altitude, continuum=expected_continuum,
+        actual = PositionalRange(latitude=expected_latitude, longitude=expected_longitude, altitude=expected_altitude,
+                                 continuum=expected_continuum,
                                  reality=expected_reality)
 
         # Assert
@@ -192,7 +194,7 @@ class TestPositionalRange(TestCase):
 
         # Act
         actual = KwargsTest(latitude=anon_range(), longitude=anon_range(), altitude=anon_range(), continuum=anon_range(),
-                            reality=anon_range(whole_numbers=True),
+                            reality={anon_int()},
                             other="other")
 
         # Assert
@@ -203,53 +205,27 @@ class TestPositionalRange(TestCase):
         invalid_type = choice(["string", False, True])
 
         # Act
-        def InvalidLatitude(): PositionalRange(latitude=invalid_type,
-                                               longitude=anon_range(), altitude=anon_range(), continuum=anon_range(),
-                                               reality=anon_range(whole_numbers=True))
+        def invalid_latitude(): PositionalRange(
+            latitude=invalid_type, longitude=anon_range(), altitude=anon_range(), continuum=anon_range(), reality={anon_int()})
 
-        def InvalidLongitude(): PositionalRange(longitude=invalid_type,
-                                                latitude=anon_range(), altitude=anon_range(), continuum=anon_range(),
-                                                reality=anon_range(whole_numbers=True))
+        def invalid_longitude(): PositionalRange(
+            longitude=invalid_type, latitude=anon_range(), altitude=anon_range(), continuum=anon_range(), reality={anon_int()})
 
-        def InvalidAltitude(): PositionalRange(altitude=invalid_type,
-                                               latitude=anon_range(), longitude=anon_range(), continuum=anon_range(),
-                                               reality=anon_range(whole_numbers=True))
+        def invalid_altitude(): PositionalRange(
+            altitude=invalid_type, latitude=anon_range(), longitude=anon_range(), continuum=anon_range(), reality={anon_int()})
 
-        def InvalidContinuum(): PositionalRange(continuum=invalid_type,
-                                                latitude=anon_range(), longitude=anon_range(), altitude=anon_range(),
-                                                reality=anon_range(whole_numbers=True))
+        def invalid_continuum(): PositionalRange(
+            continuum=invalid_type, latitude=anon_range(), longitude=anon_range(), altitude=anon_range(), reality={anon_int()})
 
-        def InvalidReality(): PositionalRange(reality=invalid_type,
-                                              latitude=anon_range(), longitude=anon_range(), altitude=anon_range(), continuum=anon_range())
+        def invalid_reality(): PositionalRange(
+            reality=invalid_type, latitude=anon_range(), longitude=anon_range(), altitude=anon_range(), continuum=anon_range())
 
         # Assert
-        self.assertRaises(TypeError, InvalidLatitude)
-        self.assertRaises(TypeError, InvalidLongitude)
-        self.assertRaises(TypeError, InvalidAltitude)
-        self.assertRaises(TypeError, InvalidContinuum)
-        self.assertRaises(TypeError, InvalidReality)
-
-    def test__init__should_reject_reality_range_with_non_whole_numbers(self) -> None:
-        # Arrange
-        float_val = anon_float()
-        non_whole_number_range_low = Range(float_val, float(int(float_val + 1)))
-        non_whole_number_range_high = Range(float(int(float_val - 1)), float_val)
-        non_whole_number_range_both = Range(float_val, float_val + 1)
-
-        # Act
-        def InvalidRealityLow(): PositionalRange(reality=non_whole_number_range_low,
-                                                 latitude=anon_range(), longitude=anon_range(), altitude=anon_range(), continuum=anon_range())
-
-        def InvalidRealityHigh(): PositionalRange(reality=non_whole_number_range_high,
-                                                  latitude=anon_range(), longitude=anon_range(), altitude=anon_range(), continuum=anon_range())
-
-        def InvalidRealityBoth(): PositionalRange(reality=non_whole_number_range_both,
-                                                  latitude=anon_range(), longitude=anon_range(), altitude=anon_range(), continuum=anon_range())
-
-        # Assert
-        self.assertRaises(ValueError, InvalidRealityLow)
-        self.assertRaises(ValueError, InvalidRealityHigh)
-        self.assertRaises(ValueError, InvalidRealityBoth)
+        self.assertRaises(TypeError, invalid_latitude)
+        self.assertRaises(TypeError, invalid_longitude)
+        self.assertRaises(TypeError, invalid_altitude)
+        self.assertRaises(TypeError, invalid_continuum)
+        self.assertRaises(TypeError, invalid_reality)
 
     def test__includes__should_return_true__when_provided_position_is_within_positional_range(self) -> None:
         # Arrange
@@ -257,8 +233,8 @@ class TestPositionalRange(TestCase):
         high = low + abs(anon_int())
         within = anon_float(low, high)
         range_ = Range(low, high)
-        positional_range = PositionalRange(latitude=range_, longitude=range_, altitude=range_, continuum=range_, reality=range_)
-        position = Position(latitude=low, longitude=high, altitude=within, continuum=within, reality=anon_int(low, high))
+        positional_range = PositionalRange(latitude=range_, longitude=range_, altitude=range_, continuum=range_, reality={low, high})
+        position = Position(latitude=low, longitude=high, altitude=within, continuum=within, reality=choice([low, high]))
 
         # Act
         actual = positional_range.includes(position)
@@ -271,7 +247,7 @@ class TestPositionalRange(TestCase):
         low = anon_int()
         high = low + abs(anon_int())
         range_ = Range(low, high)
-        positional_range = PositionalRange(latitude=range_, longitude=range_, altitude=range_, continuum=range_, reality=range_)
+        positional_range = PositionalRange(latitude=range_, longitude=range_, altitude=range_, continuum=range_, reality={anon_int()})
         out_of_range_values = [low - 1, high + 1]
         out_of_range_latitude = Position(latitude=choice(out_of_range_values), longitude=low, altitude=low, continuum=low, reality=low)
         out_of_range_longitude = Position(latitude=low, longitude=choice(out_of_range_values), altitude=low, continuum=low, reality=low)
@@ -298,26 +274,26 @@ class TestPositionalRange(TestCase):
         low = anon_int()
         high = low + abs(anon_int())
         range_ = Range(low, high)
-        positional_range = PositionalRange(latitude=range_, longitude=range_, altitude=range_, continuum=range_, reality=range_)
+        positional_range = PositionalRange(latitude=range_, longitude=range_, altitude=range_, continuum=range_, reality={anon_int()})
         invalid_type = choice([True, 1.0, "nope", positional_range])
 
         # Act
-        def Action(): positional_range.includes(invalid_type)
+        def action(): positional_range.includes(invalid_type)
 
         # Assert
-        self.assertRaises(TypeError, Action)
+        self.assertRaises(TypeError, action)
 
     def test__intersects__should_return_true__when_provided_range_partially_overlaps(self) -> None:
         # Arrange
         low = anon_int()
         high = low + abs(anon_int())
         range_ = Range(low, high)
-        positional_range = PositionalRange(latitude=range_, longitude=range_, altitude=range_, continuum=range_, reality=range_)
+        positional_range = PositionalRange(latitude=range_, longitude=range_, altitude=range_, continuum=range_, reality={low, high})
         other = PositionalRange(latitude=Range(high, high + 1),
                                 longitude=Range(low - 1, low),
                                 altitude=Range(high - 1, high + 1),
                                 continuum=Range(low - 1, low + 1),
-                                reality=Range(low - 1, high + 1))
+                                reality={low})
 
         # Act
         actual = positional_range.intersects(other)
@@ -330,12 +306,12 @@ class TestPositionalRange(TestCase):
         low = anon_int()
         high = low + abs(anon_int())
         range_ = Range(low, high)
-        positional_range = PositionalRange(latitude=range_, longitude=range_, altitude=range_, continuum=range_, reality=range_)
+        positional_range = PositionalRange(latitude=range_, longitude=range_, altitude=range_, continuum=range_, reality={low})
         other = PositionalRange(latitude=Range(low + 1, high - 1),
                                 longitude=Range(low + 1, high - 1),
                                 altitude=Range(low + 1, high - 1),
                                 continuum=Range(low + 1, high - 1),
-                                reality=Range(low + 1, high - 1))
+                                reality={low})
 
         # Act
         actual = positional_range.intersects(other)
@@ -348,18 +324,18 @@ class TestPositionalRange(TestCase):
         low = anon_int()
         high = low + abs(anon_int())
         range_ = Range(low, high)
-        positional_range = PositionalRange(latitude=range_, longitude=range_, altitude=range_, continuum=range_, reality=range_)
+        positional_range = PositionalRange(latitude=range_, longitude=range_, altitude=range_, continuum=range_, reality={anon_int()})
         out_of_bound_ranges = [Range(low - abs(anon_int()), low - 1), Range(high + 1, high + abs(anon_int()))]
-        out_of_range_latitude = PositionalRange(latitude=choice(out_of_bound_ranges),
-                                                longitude=range_, altitude=range_, continuum=range_, reality=range_)
-        out_of_range_longitude = PositionalRange(longitude=choice(out_of_bound_ranges),
-                                                 altitude=range_, continuum=range_, reality=range_, latitude=range_)
-        out_of_range_altitude = PositionalRange(altitude=choice(out_of_bound_ranges),
-                                                latitude=range_, longitude=range_, continuum=range_, reality=range_)
-        out_of_range_continuum = PositionalRange(continuum=choice(out_of_bound_ranges),
-                                                 latitude=range_, longitude=range_, altitude=range_, reality=range_)
-        out_of_range_reality = PositionalRange(reality=choice(out_of_bound_ranges),
-                                               latitude=range_, longitude=range_, altitude=range_, continuum=range_)
+        out_of_range_latitude = PositionalRange(
+            latitude=choice(out_of_bound_ranges), longitude=range_, altitude=range_, continuum=range_, reality={anon_int()})
+        out_of_range_longitude = PositionalRange(
+            longitude=choice(out_of_bound_ranges), altitude=range_, continuum=range_, reality={anon_int()}, latitude=range_)
+        out_of_range_altitude = PositionalRange(
+            altitude=choice(out_of_bound_ranges), latitude=range_, longitude=range_, continuum=range_, reality={anon_int()})
+        out_of_range_continuum = PositionalRange(
+            continuum=choice(out_of_bound_ranges), latitude=range_, longitude=range_, altitude=range_, reality={anon_int()})
+        out_of_range_reality = PositionalRange(
+            reality={low - 1}, latitude=range_, longitude=range_, altitude=range_, continuum=range_)
 
         # Act
         actual_latitude = positional_range.intersects(out_of_range_latitude)
@@ -382,10 +358,10 @@ class TestPositionalRange(TestCase):
         invalid_type = choice([True, 1.0, "nope", position])
 
         # Act
-        def Action(): positional_range.intersects(invalid_type)
+        def action(): positional_range.intersects(invalid_type)
 
         # Assert
-        self.assertRaises(TypeError, Action)
+        self.assertRaises(TypeError, action)
 
     def test__equality__should_compare_as_same__when_all_dimensions_are_equal(self) -> None:
         # Arrange
@@ -399,7 +375,7 @@ class TestPositionalRange(TestCase):
             "longitude": anon_range(),
             "altitude": anon_range(),
             "continuum": anon_range(),
-            "reality": anon_range(whole_numbers=True),
+            "reality": {anon_int()},
         }
         position_a = PositionalRange(**dict(kwargs))
         position_b = PositionalRange(**dict(kwargs))
@@ -407,7 +383,7 @@ class TestPositionalRange(TestCase):
         position_d = PositionalRange(**copy_and_set(kwargs, "longitude", anon_range()))
         position_e = PositionalRange(**copy_and_set(kwargs, "altitude", anon_range()))
         position_f = PositionalRange(**copy_and_set(kwargs, "continuum", anon_range()))
-        position_g = PositionalRange(**copy_and_set(kwargs, "reality", anon_range(whole_numbers=True)))
+        position_g = PositionalRange(**copy_and_set(kwargs, "reality", {anon_int()}))
 
         # Act
         actual_a_equals_b = position_a == position_b
@@ -442,10 +418,10 @@ class TestPositionalRange(TestCase):
         positional_range = anon_positional_range()
 
         # Act
-        def Action(): _ = {positional_range}
+        def action(): _ = {positional_range}
 
         # Assert
-        Action()
+        action()
 
 
 # noinspection PyTypeChecker
@@ -467,13 +443,13 @@ class TestPositionalMove(TestCase):
         invalid_type = choice(["string", False, True])
 
         # Act
-        def InvalidPosition(): PositionalMove(position=invalid_type, movement_type=anon_movement_type())
+        def invalid_position(): PositionalMove(position=invalid_type, movement_type=anon_movement_type())
 
-        def InvalidMovementType(): PositionalMove(movement_type=invalid_type, position=anon_position())
+        def invalid_movement_type(): PositionalMove(movement_type=invalid_type, position=anon_position())
 
         # Assert
-        self.assertRaises(TypeError, InvalidPosition)
-        self.assertRaises(TypeError, InvalidMovementType)
+        self.assertRaises(TypeError, invalid_position)
+        self.assertRaises(TypeError, invalid_movement_type)
 
     def test__equality__should_compare_as_same__when_all_attributes_are_equal(self) -> None:
         # Arrange
@@ -514,10 +490,10 @@ class TestPositionalMove(TestCase):
         positional_move = anon_positional_move()
 
         # Act
-        def Action(): _ = {positional_move}
+        def action(): _ = {positional_move}
 
         # Assert
-        Action()
+        action()
 
 
 # noinspection PyPropertyAccess
@@ -537,10 +513,10 @@ class TestSpanningEntity(TestCase):
         illegal_type = choice([1, True, "nope"])
 
         # Act
-        def Action(): SpanningEntity(span=illegal_type)
+        def action(): SpanningEntity(span=illegal_type)
 
         # Assert
-        self.assertRaises(TypeError, Action)
+        self.assertRaises(TypeError, action)
 
     def test__init__should_accept_kwargs(self) -> None:
         # Arrange
@@ -550,9 +526,9 @@ class TestSpanningEntity(TestCase):
         # Act
         expected = "other"
 
-        def Action(): return TestKwargs(span=anon_positional_range(), other=expected)
+        def action(): return TestKwargs(span=anon_positional_range(), other=expected)
 
-        actual = Action()
+        actual = action()
 
         # Assert
         self.assertEqual(expected, actual.other)
@@ -562,10 +538,10 @@ class TestSpanningEntity(TestCase):
         spanning_entity = SpanningEntity(span=anon_positional_range())
 
         # Act
-        def Action(): spanning_entity.span = anon_positional_range()
+        def action(): spanning_entity.span = anon_positional_range()
 
         # Assert
-        self.assertRaises(AttributeError, Action)
+        self.assertRaises(AttributeError, action)
 
     def test__equality__should_correctly_compare_span(self) -> None:
         # Arrange
@@ -592,10 +568,10 @@ class TestSpanningEntity(TestCase):
         spanning_entity = SpanningEntity(span=anon_positional_range())
 
         # Act
-        def Action(): _ = {spanning_entity}
+        def action(): _ = {spanning_entity}
 
         # Assert
-        Action()
+        action()
 
 
 # noinspection PyPropertyAccess
@@ -615,10 +591,10 @@ class TestJourneyingEntity(TestCase):
         illegal_type = anon_anything(not_type=list)
 
         # Act
-        def Action(): JourneyingEntity(journey=illegal_type)
+        def action(): JourneyingEntity(journey=illegal_type)
 
         # Assert
-        self.assertRaises(TypeError, Action)
+        self.assertRaises(TypeError, action)
 
     @patch("domain.positions.JourneyingEntity.validate_journey")
     def test__init__should_reject_invalid_journey(self, validate_journey_mock: MagicMock) -> None:
@@ -640,9 +616,9 @@ class TestJourneyingEntity(TestCase):
         # Act
         expected = "other"
 
-        def Action(): return TestKwargs(journey=anon_journey(), other=expected)
+        def action(): return TestKwargs(journey=anon_journey(), other=expected)
 
-        actual = Action()
+        actual = action()
 
         # Assert
         self.assertEqual(expected, actual.other)
@@ -652,10 +628,10 @@ class TestJourneyingEntity(TestCase):
         spanning_entity = JourneyingEntity(journey=anon_journey())
 
         # Act
-        def Action(): spanning_entity.journey = anon_journey()
+        def action(): spanning_entity.journey = anon_journey()
 
         # Assert
-        self.assertRaises(AttributeError, Action)
+        self.assertRaises(AttributeError, action)
 
     def test__equality__should_correctly_compare_attributes(self) -> None:
         # Arrange
@@ -682,29 +658,29 @@ class TestJourneyingEntity(TestCase):
         journeying_entity = JourneyingEntity(journey=anon_journey())
 
         # Act
-        def Action(): _ = {journeying_entity}
+        def action(): _ = {journeying_entity}
 
         # Assert
-        Action()
+        action()
 
     def test__validate_journey__should_reject__when_empty(self) -> None:
         # Arrange
 
         # Act
-        def Action(): JourneyingEntity.validate_journey([])
+        def action(): JourneyingEntity.validate_journey([])
 
         # Assert
-        self.assertRaises(ValueError, Action)
+        self.assertRaises(ValueError, action)
 
     def test__validate_journey__should_reject__when_does_not_start_with_immediate_move(self) -> None:
         # Arrange
         journey = [PositionalMove(position=anon_position(), movement_type=MovementType.INTERPOLATED)]
 
         # Act
-        def Action(): JourneyingEntity.validate_journey(journey)
+        def action(): JourneyingEntity.validate_journey(journey)
 
         # Assert
-        self.assertRaises(ValueError, Action)
+        self.assertRaises(ValueError, action)
 
     def test__validate_journey__should_reject__when_an_interpolated_move_changes_realities(self) -> None:
         # Arrange
@@ -716,10 +692,10 @@ class TestJourneyingEntity(TestCase):
         ]
 
         # Act
-        def Action(): JourneyingEntity.validate_journey(journey)
+        def action(): JourneyingEntity.validate_journey(journey)
 
         # Assert
-        self.assertRaises(ValueError, Action)
+        self.assertRaises(ValueError, action)
 
     def test__validate_journey__should_reject__when_an_interpolated_move_decreases_in_continuum(self) -> None:
         # Arrange
@@ -731,10 +707,10 @@ class TestJourneyingEntity(TestCase):
         ]
 
         # Act
-        def Action(): JourneyingEntity.validate_journey(journey)
+        def action(): JourneyingEntity.validate_journey(journey)
 
         # Assert
-        self.assertRaises(ValueError, Action)
+        self.assertRaises(ValueError, action)
 
 
 class _Other(BaseEntity):

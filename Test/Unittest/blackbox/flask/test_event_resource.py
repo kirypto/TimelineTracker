@@ -1,5 +1,6 @@
 from copy import copy
 from json import loads
+from pathlib import Path
 from typing import Any
 
 from flask_unittest import ClientTestCase
@@ -15,6 +16,7 @@ _APP_CONFIG = {
     "repositories_config": {
         "repository_type": "memory",
     },
+    "resources_folder_path": Path(__file__).parents[4].joinpath("Source/Resources/").resolve().as_posix(),
 }
 
 
@@ -190,7 +192,7 @@ class EventResourceTest(ClientTestCase):
             altitude=event.span.altitude.low,
             longitude=event.span.longitude.low,
             continuum=event.span.continuum.low,
-            reality=event.span.reality.low,
+            reality=next(iter(event.span.reality)),
         ))])
         traveler_id = parse_json(client.post("/api/traveler", json=JsonTranslator.to_json(traveler)).data)["id"]
         response = client.post("/api/event", json=body)

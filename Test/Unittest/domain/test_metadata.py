@@ -64,6 +64,26 @@ class TestMetadataEntity(TestCase):
         # Assert
         self.assertRaises(TypeError, action)
 
+    def test__init__should_reject_empty_key(self) -> None:
+        # Arrange
+        value = anon_metadata_value()
+
+        # Act
+        def action(): MetadataEntity(metadata={"": value})
+
+        # Assert
+        self.assertRaises(ValueError, action)
+
+    def test__init__should_reject_empty_value(self) -> None:
+        # Arrange
+        key = anon_metadata_key()
+
+        # Act
+        def action(): MetadataEntity(metadata={key: ""})
+
+        # Assert
+        self.assertRaises(ValueError, action)
+
     def test__init__should_reject_metadata_keys_of_invalid_type(self) -> None:
         # Arrange
         metadata = {anon_anything(not_type=str): anon_metadata_value()}

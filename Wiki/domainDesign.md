@@ -6,7 +6,8 @@
     - Dimensions 1-3: typical coordinate system consisting of longitude, latitude, and altitude.
     - Dimension 4: 'time' or 'duration', the time that the position is tied to
     - Dimension 5: 'decision space' or 'alternate realities' which may be jumped between
-- `PositionalRange`: a multi-dimensional range, with a lower and higher point in each dimension.
+- `PositionalRange`: a multi-dimensional range, with a lower and higher point in each dimension excluding the 5th dimension which is a set
+  of integers instead.
 - `Journey`: a sequence of positions. Iterating along the sequence of positions does not necessarily imply increasing in along the 4th
   dimension _(as would be expected with 'real-world' 3 dimensional positions)_. Instead, two adjacent points in a journey may move in the
   4th or even 5th dimension.

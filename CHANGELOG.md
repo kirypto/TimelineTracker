@@ -8,6 +8,20 @@ _(Nothing to see here)_
 
 ---
 
+## [0.2.0] - 2021-04-14
+### Added
+- Added a requirement to include the Resources directory path as part of the application configuration
+- Added a metadata file to track the version of data stored in the Json repository
+- Added a Json data migration system for updating persisted data to a newer application version
+
+### Changed
+- Changed the `reality` component of Locations' and Events' `span` attribute to be a set of integers instead of a range
+  - Changed served Json representation to be a sorted integer array
+  - Changed API Spec to align with integer array changes
+- Changed metadata attribute to reject empty strings for either keys or values
+
+---
+
 ## [0.1.3] - 2021-04-05
 ### Added
 - Added a `sampleConfig.md` to replace the configuration samples duplicated in `projectSetup.md` and `projectDeployment.md`.
@@ -29,7 +43,6 @@ _(Nothing to see here)_
 
 ## [0.1.2] - 2021-03-14
 ### Added
-
 - Added support for CORS headers to allow serving returned data in on a web page.
 - Added sample CORS configuration to the `projectSetup.md` and `projectDeployment.md` files.
 - Added a `runWithFlask.ps1` to simplify the deployment of TTAPI.
@@ -81,7 +94,9 @@ _(Nothing to see here)_
 - Added Event PATCH route for modification.
 
 
-[Unreleased]: https://github.com/kirypto/TimelineTracker/compare/v0.1.3...HEAD
+[Unreleased]: https://github.com/kirypto/TimelineTracker/compare/v0.2.0...HEAD
+
+[0.2.0]: https://github.com/kirypto/TimelineTracker/compare/v0.1.3...v0.2.0
 
 [0.1.3]: https://github.com/kirypto/TimelineTracker/compare/v0.1.2...v0.1.3
 
