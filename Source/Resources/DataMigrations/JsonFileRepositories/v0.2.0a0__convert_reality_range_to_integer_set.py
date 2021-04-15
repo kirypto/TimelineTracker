@@ -34,9 +34,6 @@ class DataMigration(JsonDataMigrationScript):
         if not is_safe_to_migrate:
             raise ValueError(f"Migration to {self.get_migration_version_from_file(__file__)} would be unsafe, aborting. See log for detail")
 
-    def _validate_no_infinite_ranges(self, json_obj_with_span: Dict) -> None:
-        pass
-
     def migrate_data(self) -> None:
         for location_json_file in filter(lambda x: x.suffix == ".json", self.location_repo_dir.iterdir()):
             self._update_reality_to_be_integer_set(location_json_file, entity_type=Location)
