@@ -7,6 +7,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Added requirement on `waitress>=2.0.0`
 - Added a `runWithFlask.sh` script for running on Unix
+- Added missing documentation for `spanIncludes` query param of `/api/events` route in API specification
+- Added missing documentation for `spanIntersects` query param of `/api/events` route in API specification
 
 ### Changed
 - Upgraded `Flask` dependency to `>=2.0.1`
@@ -16,6 +18,7 @@ All notable changes to this project will be documented in this file.
 - Modified flask app to serve api with `waitress`
 - Modified name-based entity filtering to be case-insensitive
 - Modified `projectDeployment.md` to include instructions for running from bash
+- Corrected example for `spanIntersects` query param of `/api/locations` route in API specification
 
 ---
 
