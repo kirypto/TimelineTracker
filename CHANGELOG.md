@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 - Upgraded `ruamel.yaml` dependency to `>=0.17.16`
 - Upgraded `flask-cors` dependency to `>=3.0.10`
 - Modified flask app to serve api with `waitress`
+- Modified name-based entity filtering to be case-insensitive
 
 ---
 

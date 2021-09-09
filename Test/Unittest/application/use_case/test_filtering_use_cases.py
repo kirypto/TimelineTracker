@@ -41,6 +41,18 @@ class TestFilteringUseCase(TestCase):
         # Assert
         self.assertEqual(expected, actual)
 
+    def test__filter_named_entity__should_filter_down_to_matching__when_name_is_provided_with_different_case(self) -> None:
+        # Arrange
+        expected: Set[NamedEntity] = {anon_traveler(name="Name"), anon_location(name="Name")}
+        all_named_entities = {anon_location()}
+        all_named_entities |= expected
+
+        # Act
+        actual, _ = FilteringUseCase.filter_named_entities(all_named_entities, name_is="name")
+
+        # Assert
+        self.assertEqual(expected, actual)
+
     def test__filter_named_entity__should_filter_down_to_matching__when_name_has_provided(self) -> None:
         # Arrange
         expected: Set[NamedEntity] = {anon_traveler(name="this name 1"), anon_location(name="that name 2")}
@@ -49,6 +61,18 @@ class TestFilteringUseCase(TestCase):
 
         # Act
         actual, _ = FilteringUseCase.filter_named_entities(all_named_entities, name_has="name")
+
+        # Assert
+        self.assertEqual(expected, actual)
+
+    def test__filter_named_entity__should_filter_down_to_matching__when_name_has_provided_with_different_case(self) -> None:
+        # Arrange
+        expected: Set[NamedEntity] = {anon_traveler(name="this name 1"), anon_location(name="that name 2")}
+        all_named_entities = {anon_location()}
+        all_named_entities |= expected
+
+        # Act
+        actual, _ = FilteringUseCase.filter_named_entities(all_named_entities, name_has="Name")
 
         # Assert
         self.assertEqual(expected, actual)
@@ -74,7 +98,9 @@ class TestFilteringUseCase(TestCase):
 
     def test__filter_tagged_entity__should_filter_down_to_matching__when_tagged_all_provided(self) -> None:
         # Arrange
-        expected: Set[TaggedEntity] = {anon_traveler(tags={Tag("tag1"), Tag("tag2")}), anon_location(tags={Tag("tag1"), Tag("tag2"), anon_tag()})}
+        expected: Set[TaggedEntity] = {
+            anon_traveler(tags={Tag("tag1"), Tag("tag2")}), anon_location(tags={Tag("tag1"), Tag("tag2"), anon_tag()})
+        }
         all_tagged_entities = {anon_location(tags={Tag("tag1")})}
         all_tagged_entities |= expected
 
