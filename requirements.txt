@@ -4,3 +4,4 @@ flask-swagger-ui~=3.36.0
 ruamel.yaml>=0.17.16
 flask-unittest~=0.1.1
 flask-cors>=3.0.10
+waitress>=2.0.0
