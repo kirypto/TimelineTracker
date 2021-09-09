@@ -5,7 +5,7 @@
     "url" : "http://localhost:5000"
   } ],
   "info" : {
-    "version" : "0.1.0",
+    "version" : "0.3.0",
     "title" : "Timeline Tracker API",
     "license" : {
       "url" : "https://github.com/kirypto/TimelineTracker/blob/master/LICENSE.txt",
