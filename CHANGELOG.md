@@ -4,7 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-_(Nothing to see here)_
+### Changed
+- Upgraded `Flask` dependency to `>=2.0.1`
+- Upgraded `jsonpatch` dependency to `>=1.32`
+- Upgraded `ruamel.yaml` dependency to `>=0.17.16`
+- Upgraded `flask-cors` dependency to `>=3.0.10`
 
 ---
 
