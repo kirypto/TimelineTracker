@@ -4,11 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+- Added requirement on `waitress>=2.0.0`
+
 ### Changed
 - Upgraded `Flask` dependency to `>=2.0.1`
 - Upgraded `jsonpatch` dependency to `>=1.32`
 - Upgraded `ruamel.yaml` dependency to `>=0.17.16`
 - Upgraded `flask-cors` dependency to `>=3.0.10`
+- Modified flask app to serve api with `waitress`
 
 ---
 

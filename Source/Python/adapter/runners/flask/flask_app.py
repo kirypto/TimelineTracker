@@ -42,7 +42,6 @@ def _run_app(*, timeline_tracker_app_config: dict, flask_run_config: dict, flask
     timeline_tracker_flask_app = _create_timeline_tracker_flask_app(timeline_tracker_app_config)
     CORS(timeline_tracker_flask_app, **flask_cors_config)
 
-    # timeline_tracker_flask_app.run(**flask_run_config)
     serve(timeline_tracker_flask_app, **flask_run_config)
 
 
