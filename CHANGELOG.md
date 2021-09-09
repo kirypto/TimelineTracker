@@ -8,6 +8,25 @@ _(Nothing to see here)_
 
 ---
 
+## [0.3.0] - 2021-09-08
+### Added
+- Added requirement on `waitress>=2.0.0`
+- Added a `runWithFlask.sh` script for running on Unix
+- Added missing documentation for `spanIncludes` query param of `/api/events` route in API specification
+- Added missing documentation for `spanIntersects` query param of `/api/events` route in API specification
+
+### Changed
+- Upgraded `Flask` dependency to `>=2.0.1`
+- Upgraded `jsonpatch` dependency to `>=1.32`
+- Upgraded `ruamel.yaml` dependency to `>=0.17.16`
+- Upgraded `flask-cors` dependency to `>=3.0.10`
+- Modified flask app to serve api with `waitress`
+- Modified name-based entity filtering to be case-insensitive
+- Modified `projectDeployment.md` to include instructions for running from bash
+- Corrected example for `spanIntersects` query param of `/api/locations` route in API specification
+
+---
+
 ## [0.2.1] - 2021-04-15
 ### Changed
 - Changed required python version listed in `projectSetup.py` and `projectDeployment.py` to be 3.9
@@ -101,7 +120,9 @@ _(Nothing to see here)_
 - Added Event PATCH route for modification.
 
 
-[Unreleased]: https://github.com/kirypto/TimelineTracker/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/kirypto/TimelineTracker/compare/v0.3.0...HEAD
+
+[0.3.0]: https://github.com/kirypto/TimelineTracker/compare/v0.2.1...v0.3.0
 
 [0.2.0]: https://github.com/kirypto/TimelineTracker/compare/v0.2.0...v0.2.1
 

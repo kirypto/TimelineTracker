@@ -5,7 +5,7 @@
     "url" : "http://localhost:5000"
   } ],
   "info" : {
-    "version" : "0.1.0",
+    "version" : "0.3.0",
     "title" : "Timeline Tracker API",
     "license" : {
       "url" : "https://github.com/kirypto/TimelineTracker/blob/master/LICENSE.txt",
@@ -114,7 +114,7 @@
           "schema" : {
             "type" : "string"
           },
-          "example" : "{\"latitude\":0,\"longitude\":0,\"altitude\":{\"low\":0,\"high\":Infinity},\"continuum\":{\"low\":-Infinity,\"high\":Infinity},\"reality\":0}"
+          "example" : "{\"latitude\":0,\"longitude\":0,\"altitude\":{\"low\":0,\"high\":Infinity},\"continuum\":{\"low\":-Infinity,\"high\":Infinity},\"reality\":[0]}"
         } ],
         "responses" : {
           "200" : {
@@ -604,6 +604,22 @@
             "type" : "string"
           },
           "example" : "important,unimportant"
+        }, {
+          "in" : "query",
+          "name" : "spanIncludes",
+          "description" : "Position object. Filters to only include events which have a span that includes the specified position.",
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "{\"latitude\":0,\"longitude\":0,\"altitude\":0,\"continuum\":0,\"reality\":0}"
+        }, {
+          "in" : "query",
+          "name" : "spanIntersects",
+          "description" : "PositionalRange object. Filters to only include locations which have a span that intersects the specified positional range.",
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "{\"latitude\":0,\"longitude\":0,\"altitude\":{\"low\":0,\"high\":Infinity},\"continuum\":{\"low\":-Infinity,\"high\":Infinity},\"reality\":[0]}"
         } ],
         "responses" : {
           "200" : {
