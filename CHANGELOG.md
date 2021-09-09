@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - Added requirement on `waitress>=2.0.0`
+- Added a `runWithFlask.sh` script for running on Unix
 
 ### Changed
 - Upgraded `Flask` dependency to `>=2.0.1`
