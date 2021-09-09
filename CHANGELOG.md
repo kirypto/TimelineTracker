@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 - Upgraded `flask-cors` dependency to `>=3.0.10`
 - Modified flask app to serve api with `waitress`
 - Modified name-based entity filtering to be case-insensitive
+- Modified `projectDeployment.md` to include instructions for running from bash
 
 ---
 

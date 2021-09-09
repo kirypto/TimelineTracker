@@ -18,7 +18,11 @@
 
 ## Running the API
 
-- Read and confirm the settings of the `runWithFlask.ps1`
-- Run it from the root TTAPI directory: `./Script/runWithflask.ps1`
+- From PowerShell _(windows)_:
+  - Read and confirm the settings of the `runWithFlask.ps1`
+  - Run it from the root TTAPI directory: `./Script/runWithflask.ps1`
+- From bash _(linux/mac)_:
+  - Read and confirm the settings of the `runWithFlask.ps1`
+  - Run it from the root TTAPI directory: `./Script/runWithflask.ps1`
 
 [projectReleases]: https://github.com/kirypto/TimelineTracker/releases/latest
