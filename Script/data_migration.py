@@ -1,9 +1,10 @@
 from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
 from distutils.version import StrictVersion
-from json import loads
-from logging import error, info
+from glob import glob
+from json import loads, dumps
+from logging import error, info, warning
 from pathlib import Path
-from typing import Dict, NoReturn, Any, List, Tuple
+from typing import Dict, NoReturn, Any, List, Tuple, Union
 
 from jsonpatch import JsonPatch, PatchOperation, InvalidJsonPatch
 from ruamel.yaml import YAML
@@ -11,15 +12,25 @@ from ruamel.yaml import YAML
 from util.logging import configure_logging
 
 
+_JsonMigration = Dict[str, Union[str, Dict[str, Any]]]
+_UUID_MATCHER = "[0-9a-f]" * 8 + "-" + "[0-9a-f]" * 4 + "-" + "[1-5]" + "[0-9a-f]" * 3 + "-" + "[89ab]" + "[0-9a-f]" * 3 + "-" + \
+                "[0-9a-f]" * 12
+
+
 def _main() -> NoReturn:
     args = _parse_arguments()
     configure_logging()
 
-    config: dict = YAML(typ="safe").load(Path(args.config))
-    repository_config: Dict[str, str] = config["timeline_tracker_app_config"]["repositories_config"]
-    from _version import __version__
-    app_version = StrictVersion(__version__)
-    _ensure_data_migrated_to_current_version(app_version, **repository_config)
+    # noinspection PyBroadException
+    try:
+        config: dict = YAML(typ="safe").load(Path(args.config))
+        repository_config: Dict[str, str] = config["timeline_tracker_app_config"]["repositories_config"]
+        from _version import __version__
+        app_version = StrictVersion(__version__)
+        _ensure_data_migrated_to_current_version(app_version, **repository_config)
+    except Exception as e:
+        error(f"Failure occurred during data migration: {e}", exc_info=e)
+        exit(-1)
 
 
 def _parse_arguments() -> Namespace:
@@ -82,34 +93,49 @@ def _ensure_json_data_migrated_to_current_version(app_version: StrictVersion, js
 
 def _apply_json_data_migration(
         json_repository_path: Path,
-        *, location_modifications: List[Dict[str, Any]] = None, traveler_modifications: List[Dict[str, Any]] = None,
-        event_modifications: List[Dict[str, Any]] = None,
-        **kwargs
+        *, migrations: List[_JsonMigration] = None, warnings: List[str] = None, **kwargs
 ) -> None:
-    valid_instructions = {"location_modifications", "traveler_modifications", "event_modifications"}
-    if kwargs:
-        error(f"Unknown json migration instructions. Must be subset of {valid_instructions}, but was: {set(kwargs.keys())}")
+    valid_instructions = {"warnings", "migrations"}
+    if not isinstance(migrations, list):
+        error(f"Invalid json migration instructions. Must contain 'migrations' list.")
         exit(-1)
-    if location_modifications:
-        info("Apply modifications to Location entities")
-        modification_patches = _validate_and_load_patch_instructions(location_modifications)
-    if traveler_modifications:
-        info("Apply modifications to Traveler entities")
-        modification_patches = _validate_and_load_patch_instructions(traveler_modifications)
-    if event_modifications:
-        info("Apply modifications to Event entities")
-        modification_patches = _validate_and_load_patch_instructions(event_modifications)
+    if kwargs:
+        error(f"Invalid json migration instructions. Must be subset of {valid_instructions}, but was: {set(kwargs.keys())}")
+        exit(-1)
+
+    if warnings:
+        for warning_message in warnings:
+            warning(warning_message)
+    migrated_data_by_path: Dict[str, Dict[str, Any]] = {}
+    for migration in migrations:
+        matching_files, json_patch = _load_json_migration(json_repository_path, **migration)
+        for file_path in matching_files:
+            if file_path.as_posix() in migrated_data_by_path:
+                json_data = migrated_data_by_path[file_path.as_posix()]
+                print(dumps(json_data, indent=2))
+            else:
+                json_data = loads(file_path.read_text(encoding="utf8"))
+            mutated = json_patch.apply(json_data)
+            migrated_data_by_path[file_path.as_posix()] = mutated
+    print(dumps(migrated_data_by_path, indent=2))
 
 
-def _validate_and_load_patch_instructions(modifications: List[Dict[str, Any]]) -> JsonPatch:
-    if not isinstance(modifications, list) or any([not isinstance(modification, dict) for modification in modifications]):
-        error(f"Failed to load modification instructions, was not a valid JSON Patch: '{modifications}'")
+def _load_json_migration(json_repository_path: Path, path_matcher: str, data_patch: List[Dict[str, Any]]) -> Tuple[List[Path], JsonPatch]:
+    full_path_matcher = json_repository_path.joinpath(path_matcher.replace("<guid>", _UUID_MATCHER)).as_posix()
+    matching_files = [Path(path).resolve() for path in glob(full_path_matcher, recursive=True)]
+    json_patch = _validate_and_load_json_patch(data_patch)
+    return matching_files, json_patch
+
+
+def _validate_and_load_json_patch(raw_patch: List[Dict[str, Any]]) -> JsonPatch:
+    if not isinstance(raw_patch, list) or any([not isinstance(modification, dict) for modification in raw_patch]):
+        error(f"Failed to load modification instructions, was not a valid JSON Patch: '{raw_patch}'")
         exit(-1)
 
     try:
-        return JsonPatch([PatchOperation(operation).operation for operation in modifications])
+        return JsonPatch([PatchOperation(operation).operation for operation in raw_patch])
     except InvalidJsonPatch as e:
-        error(f"Failed to load modification instructions: {e}. Was '{modifications}'")
+        error(f"Failed to load modification instructions: {e}. Was '{raw_patch}'")
         exit(-1)
 
 
