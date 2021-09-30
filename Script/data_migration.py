@@ -84,10 +84,18 @@ def _ensure_json_data_migrated_to_current_version(app_version: StrictVersion, js
             if migration_file.name.endswith(".json")
         ])
         for version, change_description, instructions in migration_instructions:
-            if version < data_version:
+            if version <= data_version:
                 continue
-            info(f"Migrating data to version {version} ({change_description})")
+            if version > app_version:
+                warning(f"A migration file exists for a version ({version}) greater than the application version {app_version}, ignoring.")
+                continue
+            info(f"Attempting to migrate data to version {version} ({change_description})")
             _apply_json_data_migration(json_repository_path, **instructions)
+            json_repository_path.joinpath("repository_version.metadata").write_text(str(version), encoding="utf8")
+            info(f"Successfully migrated data to version {version}")
+
+        json_repository_path.joinpath("repository_version.metadata").write_text(str(app_version), encoding="utf8")
+        info(f"Successfully migrated data to version {app_version}")
     exit(0)
 
 
@@ -117,7 +125,8 @@ def _apply_json_data_migration(
                 json_data = loads(file_path.read_text(encoding="utf8"))
             mutated = json_patch.apply(json_data)
             migrated_data_by_path[file_path.as_posix()] = mutated
-    print(dumps(migrated_data_by_path, indent=2))
+    for file_path_raw, data in migrated_data_by_path.items():
+        Path(file_path_raw).write_text(dumps(data, indent=2), encoding="utf8")
 
 
 def _load_json_migration(json_repository_path: Path, path_matcher: str, data_patch: List[Dict[str, Any]]) -> Tuple[List[Path], JsonPatch]:
