@@ -114,6 +114,9 @@ def _apply_json_data_migration(
     if warnings:
         for warning_message in warnings:
             warning(warning_message)
+        if "y" != input("    Continue with migration? (y/N) ").lower():
+            info("Aborting as instructed by user.")
+            exit(-1)
     migrated_data_by_path: Dict[str, Dict[str, Any]] = {}
     for migration in migrations:
         matching_files, json_patch = _load_json_migration(json_repository_path, **migration)
