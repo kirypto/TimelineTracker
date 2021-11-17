@@ -1,4 +1,4 @@
-# Configurable/
+# Configurable
 venvPath="venv";
 configFilePath="config.yaml";
 pythonCommand=python3;
