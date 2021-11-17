@@ -1,3 +1,9 @@
+# Configurable
+$venvPath = "venv";
+$configFilePath = "config.yaml";
+# ##############################
+
+
 # Ensures python output is send straight to terminal without first being buffered
 $Env:PYTHONUNBUFFERED = 1;
 
@@ -8,5 +14,20 @@ $Env:PYTHONPATH += ";.\Source\Python";
 $Env:FLASK_ENV = "development";
 #$Env:FLASK_ENV = "production";
 
-# Actually run the app (assuming configuration is in a config.yaml file in the project root)
-python .\Source\Python\adapter\runners\flask\flask_app.py ./config.yaml
+# Activate the python virtual environment
+if (Test-Path -Path "$venvPath" -Type "Container") {
+    .\venv\Scripts\Activate.ps1;
+}
+
+# Ensure data is up to date
+Write-Host "    ==================== Updating persisted data ====================";
+python .\Script\data_migration.py --config $configFilePath;
+$migrationExitCode = $LASTEXITCODE;
+if ($migrationExitCode -ne 0) {
+    Write-Host "Failed to update persisted data (exit code $migrationExitCode). Aborting application launch.";
+    exit 1;
+}
+
+# Actually run the app
+Write-Host "    ====================   Running Application   ====================";
+python .\Source\Python\adapter\runners\flask\flask_app.py $configFilePath;
