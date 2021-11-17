@@ -1,0 +1,57 @@
+{
+  "warnings": [
+    "This data migration is potentially lossy due to removing the concept of range from /span/reality. After this migration, /span/reality will be an array with a single value taken from the previous /span/reality/low. For any entity that had a different values for /span/reality/low and .../high, manual data correction is required. The previous values for /span/reality/low and .../high will be stored in the entities metadata at /metadata/__dataMigration_v0.2.0a0__realityLow and .../...__realityHigh respectively."
+  ],
+  "migrations": [
+    {
+      "path_matcher": "LocationRepo/location-<guid>.json",
+      "data_patch": [
+        {
+          "op": "copy",
+          "from": "/span/reality/low",
+          "path": "/metadata/__dataMigration_v0.2.0a0__realityLow"
+        },
+        {
+          "op": "copy",
+          "from": "/span/reality/high",
+          "path": "/metadata/__dataMigration_v0.2.0a0__realityHigh"
+        },
+        {
+          "op": "replace",
+          "path": "/span/reality",
+          "value": []
+        },
+        {
+          "op": "copy",
+          "from": "/metadata/__dataMigration_v0.2.0a0__realityLow",
+          "path": "/span/reality/-"
+        }
+      ]
+    },
+    {
+      "path_matcher": "EventRepo/event-<guid>.json",
+      "data_patch": [
+        {
+          "op": "copy",
+          "from": "/span/reality/low",
+          "path": "/metadata/__dataMigration_v0.2.0a0__realityLow"
+        },
+        {
+          "op": "copy",
+          "from": "/span/reality/high",
+          "path": "/metadata/__dataMigration_v0.2.0a0__realityHigh"
+        },
+        {
+          "op": "replace",
+          "path": "/span/reality",
+          "value": []
+        },
+        {
+          "op": "copy",
+          "from": "/metadata/__dataMigration_v0.2.0a0__realityLow",
+          "path": "/span/reality/-"
+        }
+      ]
+    }
+  ]
+}

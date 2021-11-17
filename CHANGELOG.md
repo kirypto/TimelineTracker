@@ -3,48 +3,49 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
-
-_(Nothing to see here)_
+### Changed
+- Modified the data migration to be triggered by run scripts prior to launching the application proper.
+- Corrected minor formatting in CHANGELOG _(added periods, fixed indentations)_.
 
 ---
 
 ## [0.3.0] - 2021-09-08
 ### Added
-- Added requirement on `waitress>=2.0.0`
-- Added a `runWithFlask.sh` script for running on Unix
-- Added missing documentation for `spanIncludes` query param of `/api/events` route in API specification
-- Added missing documentation for `spanIntersects` query param of `/api/events` route in API specification
+- Added requirement on `waitress>=2.0.0`.
+- Added a `runWithFlask.sh` script for running on Unix.
+- Added missing documentation for `spanIncludes` query param of `/api/events` route in API specification.
+- Added missing documentation for `spanIntersects` query param of `/api/events` route in API specification.
 
 ### Changed
-- Upgraded `Flask` dependency to `>=2.0.1`
-- Upgraded `jsonpatch` dependency to `>=1.32`
-- Upgraded `ruamel.yaml` dependency to `>=0.17.16`
-- Upgraded `flask-cors` dependency to `>=3.0.10`
-- Modified flask app to serve api with `waitress`
-- Modified name-based entity filtering to be case-insensitive
-- Modified `projectDeployment.md` to include instructions for running from bash
-- Corrected example for `spanIntersects` query param of `/api/locations` route in API specification
+- Upgraded `Flask` dependency to `>=2.0.1`.
+- Upgraded `jsonpatch` dependency to `>=1.32`.
+- Upgraded `ruamel.yaml` dependency to `>=0.17.16`.
+- Upgraded `flask-cors` dependency to `>=3.0.10`.
+- Modified flask app to serve api with `waitress`.
+- Modified name-based entity filtering to be case-insensitive.
+- Modified `projectDeployment.md` to include instructions for running from bash.
+- Corrected example for `spanIntersects` query param of `/api/locations` route in API specification.
 
 ---
 
 ## [0.2.1] - 2021-04-15
 ### Changed
-- Changed required python version listed in `projectSetup.py` and `projectDeployment.py` to be 3.9
-- Changed Json data migrations to default to v0.1.3 when a repository_version.metadata file does not exist
+- Changed required python version listed in `projectSetup.py` and `projectDeployment.py` to be 3.9.
+- Changed Json data migrations to default to v0.1.3 when a repository_version.metadata file does not exist.
 
 ---
 
 ## [0.2.0] - 2021-04-14
 ### Added
-- Added a requirement to include the Resources directory path as part of the application configuration
-- Added a metadata file to track the version of data stored in the Json repository
-- Added a Json data migration system for updating persisted data to a newer application version
+- Added a requirement to include the Resources directory path as part of the application configuration.
+- Added a metadata file to track the version of data stored in the Json repository.
+- Added a Json data migration system for updating persisted data to a newer application version.
 
 ### Changed
-- Changed the `reality` component of Locations' and Events' `span` attribute to be a set of integers instead of a range
-  - Changed served Json representation to be a sorted integer array
-  - Changed API Spec to align with integer array changes
-- Changed metadata attribute to reject empty strings for either keys or values
+- Changed the `reality` component of Locations' and Events' `span` attribute to be a set of integers instead of a range.
+- Changed served Json representation of `reality` to be a sorted integer array.
+- Updated API Spec to align with integer array changes.
+- Changed metadata attribute to reject empty strings for either keys or values.
 
 ---
 
@@ -92,7 +93,7 @@ _(Nothing to see here)_
 - Fix PATCH processing issue causing modification of any top level attributes _(ie: `/description`)_ to fail. Affected Location, Traveler,
   and Event routes.
 - Fix Traveler DELETE issue causing failure with "Cannot parse location id" message.
-- Fix issue causing metadata to clear whenever PATCHing other attributes. Affected Location, Traveler, and Events
+- Fix issue causing metadata to clear whenever PATCHing other attributes. Affected Location, Traveler, and Events.
 
 ---
 
