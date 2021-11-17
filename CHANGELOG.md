@@ -3,8 +3,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
-
-_(Nothing to see here)_
+### Changed
+- Modified the data migration to be triggered by run scripts prior to launching the application proper
 
 ---
 
