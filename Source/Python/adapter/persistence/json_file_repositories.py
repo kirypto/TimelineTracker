@@ -3,7 +3,6 @@ from json import dumps, loads
 from pathlib import Path
 from typing import Set, Type, Generic, TypeVar, Dict
 
-from adapter.persistence.json_file_data_migrations import JsonFileDataMigrator
 from adapter.views import JsonTranslator
 from domain.events import Event
 from domain.ids import PrefixedUUID, IdentifiedEntity
@@ -33,8 +32,6 @@ class _JsonFileIdentifiedEntityRepository(Generic[_T]):
             repo_path.mkdir()
         if not repo_path.is_dir():
             raise ValueError(f"The path '{repo_path}' is not a valid directory and cannot be used.")
-
-        JsonFileDataMigrator.ensure_updated(root_repos_path)
 
         self._repo_path = repo_path
         self._entity_type = entity_type
