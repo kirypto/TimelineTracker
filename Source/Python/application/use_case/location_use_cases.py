@@ -1,6 +1,7 @@
 from typing import Set
 from uuid import uuid4
 
+from application.access.authentication import requires_authentication
 from application.use_case.filtering_use_cases import FilteringUseCase
 from domain.ids import PrefixedUUID
 from domain.locations import Location
@@ -20,6 +21,7 @@ class LocationUseCase:
         self._location_repository = location_repository
         self._event_repository = event_repository
 
+    @requires_authentication()
     def create(self, **kwargs) -> Location:
         kwargs["id"] = PrefixedUUID("location", uuid4())
         location = Location(**kwargs)
@@ -28,12 +30,14 @@ class LocationUseCase:
 
         return location
 
+    @requires_authentication()
     def retrieve(self, location_id: PrefixedUUID) -> Location:
         if not location_id.prefix == "location":
             raise ValueError("Argument 'location_id' must be prefixed with 'location'")
 
         return self._location_repository.retrieve(location_id)
 
+    @requires_authentication()
     def retrieve_all(self, **kwargs) -> Set[Location]:
         all_locations = self._location_repository.retrieve_all()
         name_filtered_locations, kwargs = FilteringUseCase.filter_named_entities(all_locations, **kwargs)
@@ -44,12 +48,14 @@ class LocationUseCase:
 
         return span_filtered_locations
 
+    @requires_authentication()
     def update(self, location: Location) -> None:
         self._location_repository.retrieve(location.id)
         self._validate_linked_events_still_intersect_for_update(location)
 
         self._location_repository.save(location)
 
+    @requires_authentication()
     def delete(self, location_id: PrefixedUUID) -> None:
         if not location_id.prefix == "location":
             raise ValueError("Argument 'location_id' must be prefixed with 'location'")
