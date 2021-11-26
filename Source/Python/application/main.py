@@ -8,6 +8,7 @@ from application.use_case.location_use_cases import LocationUseCase
 from application.use_case.timeline_use_cases import TimelineUseCase
 from application.use_case.traveler_use_cases import TravelerUseCase
 from domain.request_handling.handlers import LocationsRequestHandler, TravelersRequestHandler, EventsRequestHandler
+from util.logging import configure_logging
 
 
 _INITIALIZATION_DATA: Dict[str, Any] = {
@@ -64,7 +65,11 @@ class TimelineTrackerApp:
     def event_request_handler(self) -> EventsRequestHandler:
         return self._event_request_handler
 
-    def __init__(self, *, resources_folder_path: str, repositories_config: dict, request_handlers_config: dict) -> None:
+    def __init__(
+            self, *, resources_folder_path: str, repositories_config: dict, request_handlers_config: dict, logging_config: dict = None
+    ) -> None:
+        configure_logging(**(logging_config if logging_config is not None else {}))
+
         self._resources_folder = Path(resources_folder_path).resolve()
         if not self._resources_folder.exists() or not self._resources_folder.is_dir():
             raise ValueError(f"The provided resources folder does not exist or was not a directory. Was '{self._resources_folder}'.")
