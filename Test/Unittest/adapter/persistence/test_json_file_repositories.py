@@ -8,10 +8,7 @@ from domain.persistence.repositories import LocationRepository, TravelerReposito
 
 
 def _prepare_temp_directory_for_json_repo_tests() -> TemporaryDirectory:
-    # noinspection PyProtectedMember
-    from application.main import _INITIALIZATION_DATA
     from _version import __version__
-    _INITIALIZATION_DATA["isAccessible"] = True
 
     repo_dir = TemporaryDirectory()
     Path(repo_dir.name).joinpath("repository_version.metadata").write_text(__version__)
