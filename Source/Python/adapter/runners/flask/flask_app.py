@@ -10,7 +10,7 @@ from adapter.runners.flask.flask_controllers import register_locations_routes, r
 from application.main import TimelineTrackerApp
 
 
-def _create_flask_web_app(resource_folder: Path, version: str) -> Flask:
+def _create_flask_web_app(resource_folder: Path, version: str, secret_key: str) -> Flask:
     # Web Paths
     _STATIC_URL_PREFIX = "/static"
     _SWAGGER_URL = "/api/docs"  # URL for exposing Swagger UI (without trailing '/')
@@ -30,6 +30,8 @@ def _create_flask_web_app(resource_folder: Path, version: str) -> Flask:
     # (URL must match the one given to factory function above)
     flask_web_app.register_blueprint(swagger_ui_blueprint, url_prefix=_SWAGGER_URL)
 
+    flask_web_app.secret_key = secret_key
+
     # Setup web path root
     @flask_web_app.route("/")
     def web_root():
@@ -38,20 +40,23 @@ def _create_flask_web_app(resource_folder: Path, version: str) -> Flask:
     return flask_web_app
 
 
-def _run_app(*, timeline_tracker_app_config: dict, flask_run_config: dict, flask_cors_config: dict) -> None:
-    timeline_tracker_flask_app = _create_timeline_tracker_flask_app(timeline_tracker_app_config)
+def _run_app(
+        *, timeline_tracker_app_config: dict, flask_run_config: dict, flask_cors_config: dict, secret_key: str
+) -> None:
+    timeline_tracker_flask_app = _create_timeline_tracker_flask_app(timeline_tracker_app_config, secret_key)
     CORS(timeline_tracker_flask_app, **flask_cors_config)
 
     serve(timeline_tracker_flask_app, **flask_run_config)
 
 
-def _create_timeline_tracker_flask_app(timeline_tracker_app_config: dict) -> Flask:
+def _create_timeline_tracker_flask_app(timeline_tracker_app_config: dict, secret_key: str) -> Flask:
     timeline_tracker_app_config["request_handlers_config"] = {
         "request_handler_type": "rest"
     }
     timeline_tracker_application = TimelineTrackerApp(**timeline_tracker_app_config)
 
-    flask_web_app = _create_flask_web_app(timeline_tracker_application.resources_folder, timeline_tracker_application.version)
+    flask_web_app = _create_flask_web_app(
+        timeline_tracker_application.resources_folder, timeline_tracker_application.version, secret_key)
     register_locations_routes(flask_web_app, timeline_tracker_application.locations_request_handler)
     register_travelers_routes(flask_web_app, timeline_tracker_application.travelers_request_handler)
     register_events_routes(flask_web_app, timeline_tracker_application.event_request_handler)

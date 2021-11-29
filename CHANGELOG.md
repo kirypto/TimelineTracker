@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+### Added
+- Added an application `secret_key` field to the configuration yaml to protect client-side connections.
+
 ### Changed
 - Modified the data migration to be triggered by run scripts prior to launching the application proper.
 - Corrected minor formatting in CHANGELOG _(added periods, fixed indentations)_.

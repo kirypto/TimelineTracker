@@ -2,6 +2,10 @@
 
 ```yaml
 ---
+# Application Secret. Generate a string and set it here. 
+# Secure Password Generator is useful: https://passwordsgenerator.net/?length=42&symbols=1&numbers=1&lowercase=1&uppercase=1&similar=1&ambiguous=0&client=1&autoselect=0
+secret_key: null
+
 # Configuration for the Timeline Tracker Application
 timeline_tracker_app_config: {
   # Absolute path to the 'Resources' folder. Unless moved, this would be '/path/to/project/root/Source/Resources'

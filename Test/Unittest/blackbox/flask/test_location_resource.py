@@ -5,7 +5,7 @@ from typing import Any
 
 from flask_unittest import ClientTestCase
 
-from Test.Unittest.test_helpers.anons import anon_location, anon_float
+from Test.Unittest.test_helpers.anons import anon_location, anon_float, anon_string
 from adapter.views import JsonTranslator
 
 
@@ -22,7 +22,7 @@ _APP_CONFIG = {
 def construct_flask_app():
     # noinspection PyProtectedMember
     from adapter.runners.flask.flask_app import _create_timeline_tracker_flask_app
-    return _create_timeline_tracker_flask_app(_APP_CONFIG)
+    return _create_timeline_tracker_flask_app(_APP_CONFIG, anon_string())
 
 
 def parse_json(json_bytes: bytes) -> Any:
