@@ -21,7 +21,7 @@ def setup_flask_auth(
     if not isinstance(_flask_web_app, Flask):
         raise TypeError(f"Cannot setup auth0 for flask: provided web app must be a Flask object but was {type(_flask_web_app)}.")
 
-    info(f"Setting up authentication for web app with: auth_callback_route={auth_callback_route}, login_route={login_route}, "
+    info(f"Setting up authorization for web app with: auth_callback_route={auth_callback_route}, login_route={login_route}, "
          f"login_return_route={login_return_route}, logout_route={logout_route}, logout_return_route={logout_return_route}")
 
     flask_web_app: Flask = _flask_web_app

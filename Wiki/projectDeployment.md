@@ -17,8 +17,8 @@
     - Note: if going with Auth0.com _(recommended)_, see below for instructions.
 
 ### Auth0.com Configuration
-- To securely manage authentication, Auth0.com can be used. It provides a free *(up to an extent, such as limited user count)* service for
-  managing users, authentication, access, etc. This is the recommended approach for deploying TTAPI.
+- To securely manage authorization, Auth0.com can be used. It provides a free *(up to an extent, such as limited user count)* service for
+  managing users, resource access, etc. This is the recommended approach for deploying TTAPI.
 - Auth0.com provides a [Getting Started](https://auth0.com/docs/quickstart/webapp/python) document that covers integration into a python
   app.
     - **Note:** This guide targets users creating an app and includes the python code which **will not be needed** for setting up TTAPI.
