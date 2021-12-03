@@ -1,16 +1,19 @@
 from pathlib import Path
 
-from flask import Flask
+from flask import Flask, redirect
 from flask_cors import CORS
 from flask_swagger_ui import get_swaggerui_blueprint
 from ruamel.yaml import YAML
 from waitress import serve
 
+from adapter.auth.auth0 import setup_flask_auth, extract_profile_from_flask_session
 from adapter.runners.flask.flask_controllers import register_locations_routes, register_travelers_routes, register_events_routes
+from application.access.authentication import requires_authentication
+from application.access.clients import Profile
 from application.main import TimelineTrackerApp
 
 
-def _create_flask_web_app(resource_folder: Path, version: str, secret_key: str) -> Flask:
+def _create_flask_web_app(auth_config: dict, resource_folder: Path, version: str, secret_key: str) -> Flask:
     # Web Paths
     _STATIC_URL_PREFIX = "/static"
     _SWAGGER_URL = "/api/docs"  # URL for exposing Swagger UI (without trailing '/')
@@ -32,31 +35,62 @@ def _create_flask_web_app(resource_folder: Path, version: str, secret_key: str) 
 
     flask_web_app.secret_key = secret_key
 
+    login_route = "/login"
+    logout_route = "/logout"
+    home_route = "/home"
+    dashboard_route = "/dashboard"
+
     # Setup web path root
+    @flask_web_app.route(dashboard_route)
+    @extract_profile_from_flask_session
+    @requires_authentication(profile_pass_through=True)
+    def dashboard_page(profile: Profile):
+        # TODO #97 kirypto 2021-11-24: Once requires_authentication throws an error, this check will not be needed
+        if profile is None:
+            return redirect(home_route)
+
+        return f"""
+        <div> Logged in as {profile.name} <div>
+        <div> <a href=\"/api/docs\"> API {version} Documentation </a> </div>
+        <div> <button onclick="window.location.href='{logout_route}'"> Logout </button> </div>
+        """
+
+    @flask_web_app.route(home_route)
+    @extract_profile_from_flask_session
+    def home_page(profile: Profile = None):
+        if profile is not None:
+            return redirect(dashboard_route)
+        return f"""
+        <div> It Works! Login to access Dashboard. </div>
+        <div> <button onclick="window.location.href='{login_route}'"> Login </button> </div>
+        """
+
     @flask_web_app.route("/")
-    def web_root():
-        return f"It Works!  <a href=\"/api/docs\"> API {version} </a>"
+    def root_endpoint():
+        return redirect(home_route)
+
+    setup_flask_auth(flask_web_app, login_route, dashboard_route, logout_route, home_route, **auth_config)
 
     return flask_web_app
 
 
 def _run_app(
-        *, timeline_tracker_app_config: dict, flask_run_config: dict, flask_cors_config: dict, secret_key: str
+        *, timeline_tracker_app_config: dict, flask_run_config: dict, flask_cors_config: dict, auth_config: dict, secret_key: str,
 ) -> None:
-    timeline_tracker_flask_app = _create_timeline_tracker_flask_app(timeline_tracker_app_config, secret_key)
+    timeline_tracker_flask_app = _create_timeline_tracker_flask_app(timeline_tracker_app_config, auth_config, secret_key)
     CORS(timeline_tracker_flask_app, **flask_cors_config)
 
     serve(timeline_tracker_flask_app, **flask_run_config)
 
 
-def _create_timeline_tracker_flask_app(timeline_tracker_app_config: dict, secret_key: str) -> Flask:
+def _create_timeline_tracker_flask_app(timeline_tracker_app_config: dict, auth_config: dict, secret_key: str) -> Flask:
     timeline_tracker_app_config["request_handlers_config"] = {
         "request_handler_type": "rest"
     }
     timeline_tracker_application = TimelineTrackerApp(**timeline_tracker_app_config)
 
     flask_web_app = _create_flask_web_app(
-        timeline_tracker_application.resources_folder, timeline_tracker_application.version, secret_key)
+        auth_config, timeline_tracker_application.resources_folder, timeline_tracker_application.version, secret_key)
     register_locations_routes(flask_web_app, timeline_tracker_application.locations_request_handler)
     register_travelers_routes(flask_web_app, timeline_tracker_application.travelers_request_handler)
     register_events_routes(flask_web_app, timeline_tracker_application.event_request_handler)
@@ -66,6 +100,7 @@ def _create_timeline_tracker_flask_app(timeline_tracker_app_config: dict, secret
 
 if __name__ == "__main__":
     import sys
+
     config_file = sys.argv[1]
     config: dict = YAML(typ="safe").load(Path(config_file))
     _run_app(**config)

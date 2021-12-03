@@ -43,4 +43,20 @@ flask_cors_config: {
       "Content-Type",
   ],
 }
+
+
+auth_config: {
+  # Can be changed, but must be a unique route and be configured on Auth0.com as a valid callback           
+  auth_callback_route: "/auth-callback",
+  
+  # Settings from Auth0.com. Setup can be found here https://auth0.com/docs/quickstart/webapp/python.
+  client_id: "<Auth0.com -> Application -> Client ID>",
+  client_secret: "<Auth0.com -> Application -> Client Secret>",
+  api_base_url: "<Auth0.com -> Application -> Domain>",
+  access_token_url: "<Auth0.com -> Application -> Domain>/oauth/token",
+  authorize_url: "<Auth0.com -> Application -> Domain>/authorize",
+  client_kwargs: {
+    scope: "openid profile email",
+  },
+}
 ```
