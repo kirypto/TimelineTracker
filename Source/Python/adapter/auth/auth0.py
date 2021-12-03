@@ -2,12 +2,14 @@
 An Auth0 adapter for a web application.
 
 Currently supports only Flask, but is designed to be extendable to django or other web apps supported by authlib. Because of this, imports
-do not occur at the top of the module to prevent ModuleNotFoundErrors. Instead, imports are made within scope of the setup methods needing
-them.
+do not occur at the top of the module to prevent ModuleNotFoundErrors. Instead, imports are made within scope of the methods needing them.
 """
+from functools import wraps
 from logging import info
-from typing import Any
+from typing import Any, Callable
 from urllib.parse import urlencode
+
+from application.access.clients import Profile
 
 
 def setup_flask_auth(
@@ -61,3 +63,16 @@ def setup_flask_auth(
         host_url_without_slash = request.host_url.removesuffix("/")
         params = {"returnTo": f"{host_url_without_slash}{logout_return_route}", "client_id": client_id}
         return redirect(auth0.api_base_url + "/v2/logout?" + urlencode(params))
+
+
+def extract_profile_from_flask_session(function: Callable) -> Callable:
+    from flask import session
+
+    @wraps(function)
+    def decorated(*args, **kwargs):
+        if "profile" not in session:
+            return function(*args, profile=None, **kwargs)
+        profile = Profile(session["profile"]["user_id"], session["profile"]["name"])
+        return function(*args, profile=profile, **kwargs)
+
+    return decorated
