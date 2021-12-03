@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 - Corrected minor formatting in CHANGELOG _(added periods, fixed indentations)_.
 - Modified the `sampleConfig.md` to show the required configurations for Auth0.com.
 - Modified `/` page to navigate to the `/home` page.
+- Modify api endpoints to enforce authentication.
 
 ---
 

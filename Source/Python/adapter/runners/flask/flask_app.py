@@ -10,6 +10,7 @@ from adapter.auth.auth0 import setup_flask_auth, extract_profile_from_flask_sess
 from adapter.runners.flask.flask_controllers import register_locations_routes, register_travelers_routes, register_events_routes
 from application.access.authentication import requires_authentication
 from application.access.clients import Profile
+from application.access.errors import AuthError
 from application.main import TimelineTrackerApp
 
 
@@ -45,10 +46,6 @@ def _create_flask_web_app(auth_config: dict, resource_folder: Path, version: str
     @extract_profile_from_flask_session
     @requires_authentication(profile_pass_through=True)
     def dashboard_page(profile: Profile):
-        # TODO #97 kirypto 2021-11-24: Once requires_authentication throws an error, this check will not be needed
-        if profile is None:
-            return redirect(home_route)
-
         return f"""
         <div> Logged in as {profile.name} <div>
         <div> <a href=\"/api/docs\"> API {version} Documentation </a> </div>
@@ -68,6 +65,14 @@ def _create_flask_web_app(auth_config: dict, resource_folder: Path, version: str
     @flask_web_app.route("/")
     def root_endpoint():
         return redirect(home_route)
+
+    @flask_web_app.errorhandler(RuntimeError)
+    def error_page(exception: RuntimeError):
+        return f"""
+        <h1> {type(exception).__name__} </h1>
+        <div> {str(exception)} </div>
+        {"<div> Return <a href='/home'>Home</a> to login. </div>" if isinstance(exception, AuthError) else ""}
+        """
 
     setup_flask_auth(flask_web_app, login_route, dashboard_route, logout_route, home_route, **auth_config)
 
