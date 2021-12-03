@@ -83,6 +83,10 @@ def anon_name(num_chars: int = 10) -> str:
     return ("".join(choices(ascii_letters + "_. ", k=num_chars))).strip()
 
 
+def anon_route(num_chars: int = 10) -> str:
+    return ("/" + "".join(choices(ascii_letters + "_. ", k=num_chars))).strip()
+
+
 def anon_string(num_chars: int = 10) -> str:
     return ("".join(choices(printable, k=num_chars))).strip()
 
