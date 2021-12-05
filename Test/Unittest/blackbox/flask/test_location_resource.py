@@ -3,9 +3,10 @@ from json import loads
 from pathlib import Path
 from typing import Any
 
+from flask.testing import FlaskClient
 from flask_unittest import ClientTestCase
 
-from Test.Unittest.test_helpers.anons import anon_location, anon_float, anon_string, anon_route
+from Test.Unittest.test_helpers.anons import anon_location, anon_float, anon_string, anon_route, anon_name
 from adapter.views import JsonTranslator
 
 
@@ -36,7 +37,15 @@ def parse_json(json_bytes: bytes) -> Any:
 class LocationResourceTest(ClientTestCase):
     app = construct_flask_app()
 
-    def test__post_location__should_create_location__when_all_args_provided(self, client) -> None:
+    def setUp(self, client: FlaskClient) -> None:
+        with client.session_transaction() as session:
+            session["profile"] = {"user_id": anon_string(), "name": anon_name()}
+
+    def tearDown(self, client: FlaskClient) -> None:
+        with client.session_transaction() as session:
+            del session["profile"]
+
+    def test__post_location__should_create_location__when_all_args_provided(self, client: FlaskClient) -> None:
         # Arrange
         body = JsonTranslator.to_json(anon_location())
 
@@ -47,7 +56,7 @@ class LocationResourceTest(ClientTestCase):
         self.assertEqual(201, actual.status_code)
         self.assertIn("id", parse_json(actual.data))
 
-    def test__post_location__should_create_location__optional_args_left_out(self, client) -> None:
+    def test__post_location__should_create_location__optional_args_left_out(self, client: FlaskClient) -> None:
         # Arrange
         body = JsonTranslator.to_json(anon_location())
         optional_arg_names = {"description", "metadata", "tags"}
@@ -61,7 +70,7 @@ class LocationResourceTest(ClientTestCase):
             # Assert
             self.assertEqual(201, actual.status_code, msg=f"POST failed when '{arg_name}' was not provided")
 
-    def test__get_locations__should_return_existing_locations(self, client) -> None:
+    def test__get_locations__should_return_existing_locations(self, client: FlaskClient) -> None:
         # Arrange
         body = JsonTranslator.to_json(anon_location())
         response = client.post("/api/location", json=body)
@@ -74,7 +83,7 @@ class LocationResourceTest(ClientTestCase):
         self.assertEqual(200, actual.status_code)
         self.assertIn(expected_id, parse_json(actual.data))
 
-    def test__get_location__should_return_existing_location(self, client) -> None:
+    def test__get_location__should_return_existing_location(self, client: FlaskClient) -> None:
         # Arrange
         body = JsonTranslator.to_json(anon_location())
         response = client.post("/api/location", json=body)
@@ -89,7 +98,7 @@ class LocationResourceTest(ClientTestCase):
         self.assertEqual(200, actual.status_code)
         self.assertEqual(expected_json, parse_json(actual.data))
 
-    def test__delete_location__should_remove(self, client) -> None:
+    def test__delete_location__should_remove(self, client: FlaskClient) -> None:
         # Arrange
         body = JsonTranslator.to_json(anon_location())
         response = client.post("/api/location", json=body)
@@ -102,7 +111,7 @@ class LocationResourceTest(ClientTestCase):
         self.assertEqual(204, actual.status_code)
         self.assertEqual(404, client.get(f"/api/location/{location_id}").status_code)
 
-    def test__patch_location__should_allow_editing_name(self, client) -> None:
+    def test__patch_location__should_allow_editing_name(self, client: FlaskClient) -> None:
         # Arrange
         body = JsonTranslator.to_json(anon_location(tags=set(), metadata={}))
         response = client.post("/api/location", json=body)
@@ -118,7 +127,7 @@ class LocationResourceTest(ClientTestCase):
         self.assertEqual(200, actual.status_code)
         self.assertEqual(expected_json, parse_json(actual.data))
 
-    def test__patch_location__should_allow_editing_tags(self, client) -> None:
+    def test__patch_location__should_allow_editing_tags(self, client: FlaskClient) -> None:
         # Arrange
         body = JsonTranslator.to_json(anon_location())
         response = client.post("/api/location", json=body)
@@ -134,7 +143,7 @@ class LocationResourceTest(ClientTestCase):
         self.assertEqual(200, actual.status_code)
         self.assertEqual(expected_json, parse_json(actual.data))
 
-    def test__patch_location__should_allow_editing_span(self, client) -> None:
+    def test__patch_location__should_allow_editing_span(self, client: FlaskClient) -> None:
         # Arrange
         body = JsonTranslator.to_json(anon_location())
         response = client.post("/api/location", json=body)
@@ -151,7 +160,7 @@ class LocationResourceTest(ClientTestCase):
         self.assertEqual(200, actual.status_code)
         self.assertEqual(expected_json, parse_json(actual.data))
 
-    def test__patch_location__should_allow_editing_metadata(self, client) -> None:
+    def test__patch_location__should_allow_editing_metadata(self, client: FlaskClient) -> None:
         # Arrange
         body = JsonTranslator.to_json(anon_location())
         response = client.post("/api/location", json=body)
