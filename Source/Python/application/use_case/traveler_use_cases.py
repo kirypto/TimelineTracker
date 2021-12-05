@@ -1,6 +1,7 @@
 from typing import Set
 from uuid import uuid4
 
+from application.access.authentication import requires_authentication
 from application.use_case.filtering_use_cases import FilteringUseCase
 from domain.ids import PrefixedUUID
 from domain.persistence.repositories import TravelerRepository, EventRepository
@@ -20,6 +21,7 @@ class TravelerUseCase:
         self._event_repository = event_repository
         self._traveler_repository = traveler_repository
 
+    @requires_authentication()
     def create(self, **kwargs) -> Traveler:
         kwargs["id"] = PrefixedUUID(prefix="traveler", uuid=uuid4())
 
@@ -27,12 +29,14 @@ class TravelerUseCase:
         self._traveler_repository.save(traveler)
         return traveler
 
+    @requires_authentication()
     def retrieve(self, traveler_id: PrefixedUUID) -> Traveler:
         if not traveler_id.prefix == "traveler":
             raise ValueError("Argument 'traveler_id' must be prefixed with 'traveler'")
 
         return self._traveler_repository.retrieve(traveler_id)
 
+    @requires_authentication()
     def retrieve_all(self, **kwargs) -> Set[Traveler]:
         all_travelers = self._traveler_repository.retrieve_all()
         name_filtered_travelers, kwargs = FilteringUseCase.filter_named_entities(all_travelers, **kwargs)
@@ -43,12 +47,14 @@ class TravelerUseCase:
 
         return journey_filtered_travelers
 
+    @requires_authentication()
     def update(self, traveler: Traveler) -> None:
         self._traveler_repository.retrieve(traveler.id)
         self._validate_linked_events_still_intersect_for_update(traveler)
 
         self._traveler_repository.save(traveler)
 
+    @requires_authentication()
     def delete(self, traveler_id: PrefixedUUID) -> None:
         if not traveler_id.prefix == "traveler":
             raise ValueError("Argument 'traveler_id' must be prefixed with 'traveler'")

@@ -3,9 +3,19 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+### Added
+- Added an application `secret_key` field to the configuration yaml to protect client-side connections.
+- Added authorization (supported by Auth0.com) to the application.
+- Added documentation to `projectDeployment.md` to show how to integrate Auth0.com with the application.
+- Added a `/home` page to be shown when the client is not logged in with a Login button.
+- Added a `/dashboard` page to be shown when the client is logged in with a Logout button and link to documentation.
+
 ### Changed
 - Modified the data migration to be triggered by run scripts prior to launching the application proper.
 - Corrected minor formatting in CHANGELOG _(added periods, fixed indentations)_.
+- Modified the `sampleConfig.md` to show the required configurations for Auth0.com.
+- Modified `/` page to navigate to the `/home` page.
+- Modify api endpoints to enforce authorization.
 
 ---
 

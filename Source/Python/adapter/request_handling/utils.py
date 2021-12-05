@@ -6,6 +6,7 @@ from typing import Union, Tuple, Optional, Set, Callable
 from jsonpatch import InvalidJsonPatch, JsonPatchTestFailed, JsonPatchConflict
 
 from adapter.views import JsonTranslator
+from application.access.errors import AuthError
 from domain.positions import PositionalRange, Position
 from domain.tags import Tag
 
@@ -36,6 +37,9 @@ def with_error_response_on_raised_exceptions(handler_function: Callable) -> Call
     def inner(*args, **kwargs):
         try:
             return handler_function(*args, **kwargs)
+        except AuthError as e:
+            exception(e, exc_info=e)
+            return error_response(e, HTTPStatus.UNAUTHORIZED)
         except NameError as e:
             exception(e, exc_info=e)
             return error_response(e, HTTPStatus.NOT_FOUND)

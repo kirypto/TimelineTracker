@@ -1,6 +1,7 @@
 from typing import Set
 from uuid import uuid4
 
+from application.access.authentication import requires_authentication
 from application.use_case.filtering_use_cases import FilteringUseCase
 from domain.events import Event
 from domain.ids import PrefixedUUID
@@ -24,6 +25,7 @@ class EventUseCase:
         self._traveler_repository = traveler_repository
         self._event_repository = event_repository
 
+    @requires_authentication()
     def create(self, **kwargs) -> Event:
         kwargs["id"] = PrefixedUUID("event", uuid4())
         event = Event(**kwargs)
@@ -34,12 +36,14 @@ class EventUseCase:
 
         return event
 
+    @requires_authentication()
     def retrieve(self, event_id: PrefixedUUID) -> Event:
         if not event_id.prefix == "event":
             raise ValueError("Argument 'event_id' must be prefixed with 'event'")
 
         return self._event_repository.retrieve(event_id)
 
+    @requires_authentication()
     def retrieve_all(self, **kwargs) -> Set[Event]:
         all_events = self._event_repository.retrieve_all()
         name_filtered_events, kwargs = FilteringUseCase.filter_named_entities(all_events, **kwargs)
@@ -50,6 +54,7 @@ class EventUseCase:
 
         return span_filtered_events
 
+    @requires_authentication()
     def update(self, event: Event) -> None:
         self._event_repository.retrieve(event.id)
 
@@ -57,6 +62,7 @@ class EventUseCase:
 
         self._event_repository.save(event)
 
+    @requires_authentication()
     def delete(self, event_id: PrefixedUUID) -> None:
         if not event_id.prefix == "event":
             raise ValueError("Argument 'event_id' must be prefixed with 'event'")

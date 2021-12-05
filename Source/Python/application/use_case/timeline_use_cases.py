@@ -1,5 +1,6 @@
 from typing import List, Union, Set
 
+from application.access.authentication import requires_authentication
 from application.use_case.filtering_use_cases import FilteringUseCase
 from domain.collections import Range
 from domain.events import Event
@@ -13,11 +14,14 @@ class TimelineUseCase:
     _traveler_repository: TravelerRepository
     _event_repository: EventRepository
 
-    def __init__(self, location_repository: LocationRepository, traveler_repository: TravelerRepository, event_repository: EventRepository) -> None:
+    def __init__(
+            self, location_repository: LocationRepository, traveler_repository: TravelerRepository, event_repository: EventRepository
+    ) -> None:
         self._location_repository = location_repository
         self._traveler_repository = traveler_repository
         self._event_repository = event_repository
 
+    @requires_authentication()
     def construct_location_timeline(self, location_id: PrefixedUUID, **filter_kwargs) -> List[PrefixedUUID]:
         def get_continuum(e: Event) -> Range:
             return e.span.continuum
@@ -32,6 +36,7 @@ class TimelineUseCase:
         events_ordered_by_continuum = sorted(events, key=get_continuum)
         return [event.id for event in events_ordered_by_continuum]
 
+    @requires_authentication()
     def construct_traveler_timeline(self, traveler_id: PrefixedUUID, **filter_kwargs) -> List[Union[PrefixedUUID, PositionalMove]]:
         traveler = self._traveler_repository.retrieve(traveler_id)
         events = self._event_repository.retrieve_all(traveler_id=traveler_id)

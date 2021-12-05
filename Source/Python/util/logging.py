@@ -2,9 +2,10 @@ import logging as _logging
 import sys as _sys
 
 
-def configure_logging(*, console_level: int = _logging.INFO) -> None:
+def configure_logging(*, console_level: int = _logging.INFO, disabled: bool = False) -> None:
     root = _logging.getLogger()
     root.setLevel(_logging.DEBUG)
+    root.disabled = disabled
 
     console_handler = _logging.StreamHandler(_sys.stdout)
     console_handler.setLevel(console_level)
