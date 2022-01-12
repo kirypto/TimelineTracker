@@ -3,8 +3,9 @@ from unittest import TestCase
 from unittest.mock import MagicMock
 
 from Test.Unittest.test_helpers.anons import anon_anything
-from application.requests.rest import RESTHandler, RouteDescriptor, RESTMethod, RESTController, RouteNotFoundError, RequestVerifier, \
-    RequestHandler
+from application.requests.rest.controllers import RESTController
+from application.requests.rest.handlers import AbstractRESTHandler
+from application.requests.rest import RequestVerifier, RequestHandler, RouteDescriptor, RESTMethod, RouteNotFoundError
 
 
 class TestRESTController(TestCase):
@@ -112,7 +113,7 @@ class TestRESTController(TestCase):
 
     def test__get_supported_routes__should_return_all_supported_routes__when_multiple_specified(self) -> None:
         # Arrange
-        class _RESTHandlerStub2(RESTHandler):
+        class _RESTHandlerStub2(AbstractRESTHandler):
             def get_routes(self) -> Set[RouteDescriptor]:
                 no_op_put_descriptor: RouteDescriptor = "/no/op", RESTMethod.PUT, MagicMock(), MagicMock()
                 hello_get_descriptor: RouteDescriptor = "/hello", RESTMethod.GET, MagicMock(), MagicMock()
@@ -130,7 +131,7 @@ class TestRESTController(TestCase):
         self.assertEqual(expected, actual)
 
 
-class _RESTHandlerStub(RESTHandler):
+class _RESTHandlerStub(AbstractRESTHandler):
     request_verifier: RequestVerifier
     request_handler: RequestHandler
 

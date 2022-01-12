@@ -1,41 +1,9 @@
-from abc import ABC, abstractmethod
 from collections import defaultdict
-from enum import Enum
-from functools import total_ordering
 from logging import error
-from typing import Tuple, Set, Callable, Any, Optional, Dict, Union
+from typing import Dict, Set, Tuple
 
-
-@total_ordering
-class RESTMethod(Enum):
-    GET = "GET"
-    POST = "POST"
-    PUT = "PUT"
-
-    def __lt__(self, other: object) -> bool:
-        if not isinstance(other, RESTMethod):
-            return NotImplemented
-        other_method: RESTMethod = other
-        for method in RESTMethod:
-            if self == method:
-                return False
-            elif other_method == method:
-                return True
-        return False
-
-
-Route = str
-StatusCode = int
-Data = Union[str, dict]
-RequestVerifier = Callable[[Any], Tuple[bool, Optional[str]]]
-RequestHandler = Callable[[Any], Tuple[StatusCode, Data]]
-RouteDescriptor = Tuple[Route, RESTMethod, RequestVerifier, RequestHandler]
-
-
-class RESTHandler(ABC):
-    @abstractmethod
-    def get_routes(self) -> Set[RouteDescriptor]:
-        pass
+from application.requests.rest import Route, RESTMethod, RequestVerifier, RequestHandler, StatusCode, Data, RouteNotFoundError
+from application.requests.rest.handlers import AbstractRESTHandler
 
 
 class RESTController:
@@ -43,7 +11,7 @@ class RESTController:
     _request_verifiers: Dict[Route, Dict[RESTMethod, RequestVerifier]]
     _request_handlers: Dict[Route, Dict[RESTMethod, RequestHandler]]
 
-    def __init__(self, handlers: Set[RESTHandler]) -> None:
+    def __init__(self, handlers: Set[AbstractRESTHandler]) -> None:
         self._validate_handlers(handlers)
         self._supported_routes = defaultdict(set)
         self._request_verifiers = defaultdict(dict)
@@ -77,13 +45,9 @@ class RESTController:
         return supported_routes
 
     @staticmethod
-    def _validate_handlers(handlers: Set[RESTHandler]) -> None:
+    def _validate_handlers(handlers: Set[AbstractRESTHandler]) -> None:
         handler_routes = sorted([(route, http_method) for handler in handlers for route, http_method, _, _ in handler.get_routes()])
         for index in range(len(handler_routes) - 1):
             if handler_routes[index] == handler_routes[index + 1]:
                 curr_route, curr_type = handler_routes[index]
-                raise ValueError(f"Multiple {RESTHandler.__name__}s register {curr_type.value} for route {curr_route}.")
-
-
-class RouteNotFoundError(NameError):
-    pass
+                raise ValueError(f"Multiple {AbstractRESTHandler.__name__}s register {curr_type.value} for route {curr_route}.")
