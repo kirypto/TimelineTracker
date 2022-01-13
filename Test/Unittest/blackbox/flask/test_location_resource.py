@@ -7,7 +7,7 @@ from flask.testing import FlaskClient
 from flask_unittest import ClientTestCase
 
 from Test.Unittest.test_helpers.anons import anon_location, anon_float, anon_string, anon_route, anon_name
-from adapter.views import JsonTranslator
+from application.requests.data_forms import JsonTranslator
 
 
 _PORT = 54321

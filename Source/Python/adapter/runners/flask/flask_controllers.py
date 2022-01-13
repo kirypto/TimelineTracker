@@ -5,7 +5,7 @@ from flask import request, Flask
 
 from adapter.auth.auth0 import extract_profile_from_flask_session
 from application.access.clients import Profile
-from domain.request_handling.handlers import LocationsRequestHandler, TravelersRequestHandler, EventsRequestHandler
+from application.requests.rest.handlers import LocationsRestRequestHandler, TravelersRestRequestHandler, EventsRestRequestHandler
 
 
 class _HTTPMethod:
@@ -15,7 +15,7 @@ class _HTTPMethod:
     Patch = "PATCH"
 
 
-def register_locations_routes(flask_web_app: Flask, locations_request_handler: LocationsRequestHandler) -> None:
+def register_locations_routes(flask_web_app: Flask, locations_request_handler: LocationsRestRequestHandler) -> None:
     @flask_web_app.route("/api/location", methods=[_HTTPMethod.Post])
     @extract_profile_from_flask_session
     def api_location__post(*, profile: Optional[Profile]):
@@ -49,7 +49,7 @@ def register_locations_routes(flask_web_app: Flask, locations_request_handler: L
         return dumps(response_body, indent=2), status_code
 
 
-def register_travelers_routes(flask_web_app: Flask, travelers_request_handler: TravelersRequestHandler) -> None:
+def register_travelers_routes(flask_web_app: Flask, travelers_request_handler: TravelersRestRequestHandler) -> None:
     @flask_web_app.route("/api/traveler", methods=[_HTTPMethod.Post])
     @extract_profile_from_flask_session
     def api_traveler__post(*, profile: Optional[Profile]):
@@ -89,7 +89,7 @@ def register_travelers_routes(flask_web_app: Flask, travelers_request_handler: T
         return dumps(response_body, indent=2), status_code
 
 
-def register_events_routes(flask_web_app: Flask, events_request_handler: EventsRequestHandler) -> None:
+def register_events_routes(flask_web_app: Flask, events_request_handler: EventsRestRequestHandler) -> None:
     @flask_web_app.route("/api/event", methods=[_HTTPMethod.Post])
     @extract_profile_from_flask_session
     def api_event__post(*, profile: Optional[Profile]):

@@ -4,7 +4,7 @@ from string import ascii_uppercase
 from unittest import TestCase
 
 from Test.Unittest.test_helpers.anons import anon_location, anon_event, anon_traveler, anon_tag, anon_int, anon_float
-from adapter.views import JsonTranslator
+from application.requests.data_forms import JsonTranslator
 from domain.collections import Range
 from domain.events import Event
 from domain.locations import Location

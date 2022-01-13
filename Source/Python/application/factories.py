@@ -1,11 +1,11 @@
 from importlib import import_module
 
+from application.requests.rest.handlers import LocationsRestRequestHandler, TravelersRestRequestHandler, EventsRestRequestHandler
 from application.use_case.event_use_cases import EventUseCase
 from application.use_case.location_use_cases import LocationUseCase
 from application.use_case.timeline_use_cases import TimelineUseCase
 from application.use_case.traveler_use_cases import TravelerUseCase
 from domain.persistence.repositories import TravelerRepository, LocationRepository, EventRepository
-from domain.request_handling.handlers import LocationsRequestHandler, TravelersRequestHandler, EventsRequestHandler
 
 
 class RepositoriesFactory:
@@ -48,20 +48,20 @@ class RequestHandlersFactory:
     _HANDLER_TYPES = {
         "rest": "rest_handlers",
     }
-    _location_handler: LocationsRequestHandler
-    _traveler_handler: TravelersRequestHandler
-    _event_handler: EventsRequestHandler
+    _location_handler: LocationsRestRequestHandler
+    _traveler_handler: TravelersRestRequestHandler
+    _event_handler: EventsRestRequestHandler
 
     @property
-    def location_handler(self) -> LocationsRequestHandler:
+    def location_handler(self) -> LocationsRestRequestHandler:
         return self._location_handler
 
     @property
-    def traveler_handler(self) -> TravelersRequestHandler:
+    def traveler_handler(self) -> TravelersRestRequestHandler:
         return self._traveler_handler
 
     @property
-    def event_handler(self) -> EventsRequestHandler:
+    def event_handler(self) -> EventsRestRequestHandler:
         return self._event_handler
 
     def __init__(self, location_use_case: LocationUseCase, traveler_use_case: TravelerUseCase, event_use_case: EventUseCase,
@@ -70,11 +70,6 @@ class RequestHandlersFactory:
             raise ValueError(f"Unsupported request handler type {request_handler_type}. "
                              f"Supported types are: {set(RequestHandlersFactory._HANDLER_TYPES.keys())}")
 
-        request_handlers_module = import_module(f"adapter.request_handling.{RequestHandlersFactory._HANDLER_TYPES[request_handler_type]}")
-        location_request_handler_class = getattr(request_handlers_module, "location_request_handler_class")
-        traveler_request_handler_class = getattr(request_handlers_module, "traveler_request_handler_class")
-        event_request_handler_class = getattr(request_handlers_module, "event_request_handler_class")
-
-        self._location_handler = location_request_handler_class(location_use_case, timeline_use_case)
-        self._traveler_handler = traveler_request_handler_class(traveler_use_case, timeline_use_case)
-        self._event_handler = event_request_handler_class(event_use_case)
+        self._location_handler = LocationsRestRequestHandler(location_use_case, timeline_use_case)
+        self._traveler_handler = TravelersRestRequestHandler(traveler_use_case, timeline_use_case)
+        self._event_handler = EventsRestRequestHandler(event_use_case)

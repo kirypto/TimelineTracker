@@ -5,7 +5,7 @@ from typing import Union, Tuple, Optional, Set, Callable
 
 from jsonpatch import InvalidJsonPatch, JsonPatchTestFailed, JsonPatchConflict
 
-from adapter.views import JsonTranslator
+from application.requests.data_forms import JsonTranslator
 from application.access.errors import AuthError
 from domain.positions import PositionalRange, Position
 from domain.tags import Tag

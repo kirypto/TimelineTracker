@@ -2,20 +2,20 @@ from pathlib import Path
 
 from _version import __version__
 from application.factories import RepositoriesFactory, RequestHandlersFactory
+from application.requests.rest.handlers import LocationsRestRequestHandler, TravelersRestRequestHandler, EventsRestRequestHandler
 from application.use_case.event_use_cases import EventUseCase
 from application.use_case.location_use_cases import LocationUseCase
 from application.use_case.timeline_use_cases import TimelineUseCase
 from application.use_case.traveler_use_cases import TravelerUseCase
-from domain.request_handling.handlers import LocationsRequestHandler, TravelersRequestHandler, EventsRequestHandler
 from util.logging import configure_logging
 
 
 class TimelineTrackerApp:
     _version: str
     _resources_folder: Path
-    _locations_request_handler: LocationsRequestHandler
-    _travelers_request_handler: TravelersRequestHandler
-    _event_request_handler: EventsRequestHandler
+    _locations_request_handler: LocationsRestRequestHandler
+    _travelers_request_handler: TravelersRestRequestHandler
+    _event_request_handler: EventsRestRequestHandler
 
     @property
     def version(self) -> str:
@@ -26,15 +26,15 @@ class TimelineTrackerApp:
         return self._resources_folder
 
     @property
-    def locations_request_handler(self) -> LocationsRequestHandler:
+    def locations_request_handler(self) -> LocationsRestRequestHandler:
         return self._locations_request_handler
 
     @property
-    def travelers_request_handler(self) -> TravelersRequestHandler:
+    def travelers_request_handler(self) -> TravelersRestRequestHandler:
         return self._travelers_request_handler
 
     @property
-    def event_request_handler(self) -> EventsRequestHandler:
+    def event_request_handler(self) -> EventsRestRequestHandler:
         return self._event_request_handler
 
     def __init__(

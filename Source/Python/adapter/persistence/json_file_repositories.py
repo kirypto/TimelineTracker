@@ -3,7 +3,7 @@ from json import dumps, loads
 from pathlib import Path
 from typing import Set, Type, Generic, TypeVar, Dict
 
-from adapter.views import JsonTranslator
+from application.requests.data_forms import JsonTranslator
 from domain.events import Event
 from domain.ids import PrefixedUUID, IdentifiedEntity
 from domain.locations import Location
