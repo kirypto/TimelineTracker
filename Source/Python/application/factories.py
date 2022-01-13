@@ -45,9 +45,6 @@ class RepositoriesFactory:
 
 
 class RequestHandlersFactory:
-    _HANDLER_TYPES = {
-        "rest": "rest_handlers",
-    }
     _location_handler: LocationsRestRequestHandler
     _traveler_handler: TravelersRestRequestHandler
     _event_handler: EventsRestRequestHandler
@@ -65,11 +62,7 @@ class RequestHandlersFactory:
         return self._event_handler
 
     def __init__(self, location_use_case: LocationUseCase, traveler_use_case: TravelerUseCase, event_use_case: EventUseCase,
-                 timeline_use_case: TimelineUseCase, request_handler_type: str) -> None:
-        if request_handler_type not in RequestHandlersFactory._HANDLER_TYPES:
-            raise ValueError(f"Unsupported request handler type {request_handler_type}. "
-                             f"Supported types are: {set(RequestHandlersFactory._HANDLER_TYPES.keys())}")
-
+                 timeline_use_case: TimelineUseCase) -> None:
         self._location_handler = LocationsRestRequestHandler(location_use_case, timeline_use_case)
         self._traveler_handler = TravelersRestRequestHandler(traveler_use_case, timeline_use_case)
         self._event_handler = EventsRestRequestHandler(event_use_case)

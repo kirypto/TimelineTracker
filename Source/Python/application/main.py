@@ -37,9 +37,7 @@ class TimelineTrackerApp:
     def event_request_handler(self) -> EventsRestRequestHandler:
         return self._event_request_handler
 
-    def __init__(
-            self, *, resources_folder_path: str, repositories_config: dict, request_handlers_config: dict, logging_config: dict = None
-    ) -> None:
+    def __init__(self, *, resources_folder_path: str, repositories_config: dict, logging_config: dict = None) -> None:
         configure_logging(**(logging_config if logging_config is not None else {}))
 
         self._resources_folder = Path(resources_folder_path).resolve()
@@ -57,7 +55,7 @@ class TimelineTrackerApp:
         timeline_use_case = TimelineUseCase(location_repository, traveler_repository, event_repository)
 
         request_handlers_factory = RequestHandlersFactory(
-            location_use_case, traveler_use_case, event_use_case, timeline_use_case, **request_handlers_config)
+            location_use_case, traveler_use_case, event_use_case, timeline_use_case)
         self._locations_request_handler = request_handlers_factory.location_handler
         self._travelers_request_handler = request_handlers_factory.traveler_handler
         self._event_request_handler = request_handlers_factory.event_handler
