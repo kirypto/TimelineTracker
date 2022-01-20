@@ -6,8 +6,10 @@ from typing import Union, Callable, Any, Tuple, Optional
 Route = str
 StatusCode = int
 Data = Union[str, dict]
-RequestVerifier = Callable[[Any], Tuple[bool, Optional[str]]]
-RequestHandler = Callable[[Any], Tuple[StatusCode, Data]]
+VerifierResult = Optional[str]
+HandlerResult = Tuple[StatusCode, Data]
+RequestVerifier = Callable[[...], VerifierResult]
+RequestHandler = Callable[[...], HandlerResult]
 
 
 @total_ordering

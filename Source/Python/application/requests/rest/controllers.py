@@ -2,7 +2,7 @@ from collections import defaultdict
 from logging import error
 from typing import Dict, Set, Tuple
 
-from application.requests.rest import Route, RESTMethod, RequestVerifier, RequestHandler, StatusCode, Data, RouteNotFoundError
+from application.requests.rest import Route, RESTMethod, RequestVerifier, RequestHandler, RouteNotFoundError, HandlerResult, VerifierResult
 from application.requests.rest.handlers import AbstractRESTHandler
 
 
@@ -22,18 +22,18 @@ class RESTController:
                 self._request_verifiers[route][http_method] = verifier_function
                 self._request_handlers[route][http_method] = handler_function
 
-    def handle(self, route: Route, method: RESTMethod, *args, **kwargs) -> Tuple[StatusCode, Data]:
+    def handle(self, route: Route, method: RESTMethod, *args, **kwargs) -> HandlerResult:
         if route not in self._supported_routes or method not in self._supported_routes[route]:
             error(f"No handler registered for '{method.value} {route}'")
             raise RouteNotFoundError(f"Unsupported resource '{method.value} {route}'")
 
-        request_verifier = self._request_verifiers[route][method]
-        is_valid, message_if_invalid = request_verifier(*args, **kwargs)
-        if not is_valid:
+        request_verifier: RequestVerifier = self._request_verifiers[route][method]
+        message_if_invalid: VerifierResult = request_verifier(*args, **kwargs)
+        if message_if_invalid is not None:
             error(f"Handler for '{method.value} {route}' rejected provided arguments: {message_if_invalid}")
             raise ValueError(message_if_invalid)
 
-        request_handler = self._request_handlers[route][method]
+        request_handler: RequestHandler = self._request_handlers[route][method]
         status_code, data = request_handler(*args, **kwargs)
         return status_code, data
 

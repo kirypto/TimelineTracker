@@ -46,7 +46,7 @@ class TestRESTController(TestCase):
         # Arrange
         rest_handler = _RESTHandlerStub()
         request_verifier_mock = MagicMock()
-        request_verifier_mock.return_value = (True, None)
+        request_verifier_mock.return_value = None
         rest_handler.request_verifier = request_verifier_mock
         expected_args = {anon_anything(), anon_anything()}
         expected_kwargs = {"first": anon_anything(), "second": anon_anything()}
@@ -62,7 +62,7 @@ class TestRESTController(TestCase):
         # Arrange
         rest_handler = _RESTHandlerStub()
         request_verifier_mock = MagicMock()
-        request_verifier_mock.return_value = (False, "Nope!")
+        request_verifier_mock.return_value = "Nope!"
         rest_handler.request_verifier = request_verifier_mock
         rest_controller = RESTController({rest_handler})
 
@@ -137,7 +137,7 @@ class _RESTHandlerStub(AbstractRESTHandler):
 
     def __init__(self):
         verifier = MagicMock()
-        verifier.return_value = (True, None)
+        verifier.return_value = None
         self.request_verifier = verifier
         handler = MagicMock()
         handler.return_value = (200, {})
