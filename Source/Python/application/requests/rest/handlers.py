@@ -6,7 +6,7 @@ from typing import Set, Tuple, Dict, Union, List, Any
 from jsonpatch import JsonPatch, PatchOperation
 
 from application.requests.rest import RouteDescriptor
-from application.requests.utils import with_error_response_on_raised_exceptions, parse_optional_tag_set_query_param, \
+from application.requests.rest.utils import with_error_response_on_raised_exceptions, parse_optional_tag_set_query_param, \
     parse_optional_position_query_param, parse_optional_positional_range_query_param
 from application.requests.data_forms import JsonTranslator
 from application.use_case.event_use_cases import EventUseCase
