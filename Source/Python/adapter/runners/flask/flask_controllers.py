@@ -77,12 +77,6 @@ class FlaskRESTController(RESTController):
 
 
 def register_locations_routes(flask_web_app: Flask, locations_request_handler: LocationsRestRequestHandler) -> None:
-    @flask_web_app.route("/api/location", methods=[_HTTPMethod.Post])
-    @extract_profile_from_flask_session
-    def api_location__post(*, profile: Optional[Profile]):
-        response_body, status_code = locations_request_handler.locations_post_handler(request.json, profile=profile)
-        return dumps(response_body, indent=2), status_code
-
     @flask_web_app.route("/api/locations", methods=[_HTTPMethod.Get])
     @extract_profile_from_flask_session
     def api_locations__get(*, profile: Optional[Profile]):

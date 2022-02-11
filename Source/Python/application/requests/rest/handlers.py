@@ -1,14 +1,14 @@
-from abc import ABC, abstractmethod
 from copy import deepcopy
 from http import HTTPStatus
 from typing import Set, Tuple, Dict, Union, List, Any
 
 from jsonpatch import JsonPatch, PatchOperation
 
-from application.requests.rest import RouteDescriptor
+from application.requests.data_forms import JsonTranslator
+from application.requests.rest import RESTMethod, HandlerResult
+from application.requests.rest.controllers import RESTController
 from application.requests.rest.utils import with_error_response_on_raised_exceptions, parse_optional_tag_set_query_param, \
     parse_optional_position_query_param, parse_optional_positional_range_query_param
-from application.requests.data_forms import JsonTranslator
 from application.use_case.event_use_cases import EventUseCase
 from application.use_case.location_use_cases import LocationUseCase
 from application.use_case.timeline_use_cases import TimelineUseCase
@@ -21,32 +21,29 @@ from domain.tags import Tag
 from domain.travelers import Traveler
 
 
-class AbstractRESTHandler(ABC):
-    @abstractmethod
-    def get_routes(self) -> Set[RouteDescriptor]:
-        pass
-
-
 class LocationsRestRequestHandler:
     _location_use_case: LocationUseCase
     _timeline_use_case: TimelineUseCase
+    _rest_controller: RESTController
 
-    def __init__(self, location_use_case: LocationUseCase, timeline_use_case: TimelineUseCase) -> None:
+    def __init__(self, rest_controller: RESTController, location_use_case: LocationUseCase, timeline_use_case: TimelineUseCase) -> None:
+        self._rest_controller = rest_controller
         self._location_use_case = location_use_case
         self._timeline_use_case = timeline_use_case
 
-    @with_error_response_on_raised_exceptions
-    def locations_post_handler(self, request_body: dict, **kwargs) -> Tuple[dict, int]:
-        location_kwargs = {
-            "name": JsonTranslator.from_json(request_body["name"], str),
-            "description": JsonTranslator.from_json(request_body.get("description", ""), str),
-            "span": JsonTranslator.from_json(request_body["span"], PositionalRange),
-            "metadata": JsonTranslator.from_json(request_body.get("metadata", {}), Dict[str, str]),
-            "tags": JsonTranslator.from_json(request_body.get("tags", set()), Set[Tag]),
-        }
-        location = self._location_use_case.create(**location_kwargs, **kwargs)
+    def register_routes(self):
+        @self._rest_controller.register_rest_endpoint("/api/location", RESTMethod.POST, json=True)
+        def locations_post_handler(json_body: dict, **kwargs) -> HandlerResult:
+            location_kwargs = {
+                "name": JsonTranslator.from_json(json_body["name"], str),
+                "description": JsonTranslator.from_json(json_body.get("description", ""), str),
+                "span": JsonTranslator.from_json(json_body["span"], PositionalRange),
+                "metadata": JsonTranslator.from_json(json_body.get("metadata", {}), Dict[str, str]),
+                "tags": JsonTranslator.from_json(json_body.get("tags", set()), Set[Tag]),
+            }
+            location = self._location_use_case.create(**location_kwargs, **kwargs)
 
-        return JsonTranslator.to_json(location), HTTPStatus.CREATED
+            return HTTPStatus.CREATED, JsonTranslator.to_json(location)
 
     @with_error_response_on_raised_exceptions
     def locations_get_all_handler(self, query_params: Dict[str, str], **kwargs) -> Tuple[Union[list, dict], int]:

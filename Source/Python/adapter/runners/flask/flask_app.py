@@ -93,6 +93,14 @@ def _create_timeline_tracker_flask_app(timeline_tracker_app_config: dict, auth_c
 
     flask_web_app = _create_flask_web_app(
         auth_config, timeline_tracker_application.resources_folder, timeline_tracker_application.version, secret_key)
+
+    controller_config = dict(
+        rest_controller_config=dict(
+            controller_class_path="adapter.runners.flask.flask_controllers.FlaskRESTController",
+            flask_web_app=flask_web_app,
+        ),
+    )
+    timeline_tracker_application.initialize_controllers(**controller_config)
     register_locations_routes(flask_web_app, timeline_tracker_application.locations_request_handler)
     register_travelers_routes(flask_web_app, timeline_tracker_application.travelers_request_handler)
     register_events_routes(flask_web_app, timeline_tracker_application.event_request_handler)

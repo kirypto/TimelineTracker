@@ -19,6 +19,8 @@ class TestTimelineTrackerApp(TestCase):
 
         # Act
         app = TimelineTrackerApp(**config)
+        # TODO kirypto #99: Split these tests so the constructor and initialization of controllers are done separately
+        app.initialize_controllers(rest_controller_config=dict(controller_class_path="unittest.mock.MagicMock"))
 
         # Assert
         self.assertIsNotNone(app.locations_request_handler)

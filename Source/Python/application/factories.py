@@ -1,5 +1,6 @@
 from importlib import import_module
 
+from application.requests.rest.controllers import RESTController
 from application.requests.rest.handlers import LocationsRestRequestHandler, TravelersRestRequestHandler, EventsRestRequestHandler
 from application.use_case.event_use_cases import EventUseCase
 from application.use_case.location_use_cases import LocationUseCase
@@ -61,8 +62,25 @@ class RequestHandlersFactory:
     def event_handler(self) -> EventsRestRequestHandler:
         return self._event_handler
 
-    def __init__(self, location_use_case: LocationUseCase, traveler_use_case: TravelerUseCase, event_use_case: EventUseCase,
-                 timeline_use_case: TimelineUseCase) -> None:
-        self._location_handler = LocationsRestRequestHandler(location_use_case, timeline_use_case)
+    def __init__(
+            self, rest_controller: RESTController, location_use_case: LocationUseCase, traveler_use_case: TravelerUseCase,
+            event_use_case: EventUseCase, timeline_use_case: TimelineUseCase,
+    ) -> None:
+        self._location_handler = LocationsRestRequestHandler(rest_controller, location_use_case, timeline_use_case)
         self._traveler_handler = TravelersRestRequestHandler(traveler_use_case, timeline_use_case)
         self._event_handler = EventsRestRequestHandler(event_use_case)
+
+
+class RESTControllersFactory:
+    _rest_controller: RESTController
+
+    @property
+    def rest_controller(self) -> RESTController:
+        return self._rest_controller
+
+    def __init__(self, *, controller_class_path: str, **kwargs) -> None:
+        module, class_name = controller_class_path.rsplit(".", maxsplit=1)
+        controller_module = import_module(module)
+        rest_controller_class = getattr(controller_module, class_name)
+
+        self._rest_controller = rest_controller_class(**kwargs)
