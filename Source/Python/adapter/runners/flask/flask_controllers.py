@@ -1,11 +1,15 @@
+from functools import wraps
 from json import dumps
-from typing import Optional
+from typing import Optional, Tuple, Any
 
 from flask import request, Flask
 
 from adapter.auth.auth0 import extract_profile_from_flask_session
 from application.access.clients import Profile
+from application.requests.rest import RESTMethod, HandlerResult, RequestHandler
+from application.requests.rest.controllers import RESTController, HandlerRegisterer
 from application.requests.rest.handlers import LocationsRestRequestHandler, TravelersRestRequestHandler, EventsRestRequestHandler
+from application.requests.rest.utils import with_error_response_on_raised_exceptions
 
 
 class _HTTPMethod:
@@ -13,6 +17,38 @@ class _HTTPMethod:
     Get = "GET"
     Delete = "DELETE"
     Patch = "PATCH"
+
+
+class FlaskRESTController(RESTController):
+    _flask_web_app: Flask
+
+    def __init__(self, *, flask_web_app: Flask) -> None:
+        self._flask_web_app = flask_web_app
+
+    def register_rest_endpoint(
+            self, route: str, method: RESTMethod, *, json: bool = False, query_params: bool = False
+    ) -> HandlerRegisterer:
+        def handler_registerer(handler_func: RequestHandler) -> None:
+
+            @with_error_response_on_raised_exceptions
+            @extract_profile_from_flask_session
+            @wraps(handler_func)
+            def handler_wrapper(**kwargs) -> Tuple[Any, int]:
+                args = []
+                if json:
+                    if request.json is None:
+                        raise ValueError("Json body must be provided")
+                    args.append(request.json)
+                if query_params:
+                    args.append(dict(request.args))
+
+                response: HandlerResult = handler_func(*args, **kwargs)
+                status_code, contents = response
+                return contents, status_code
+
+            self._flask_web_app.add_url_rule(route, route, handler_wrapper)
+
+        return handler_registerer
 
 
 def register_locations_routes(flask_web_app: Flask, locations_request_handler: LocationsRestRequestHandler) -> None:
