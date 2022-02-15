@@ -1,150 +1,113 @@
-from typing import Set
-from unittest import TestCase
-from unittest.mock import MagicMock
+from abc import ABC, abstractmethod
+from http import HTTPStatus
+from typing import Callable, Any, Optional
 
-from Test.Unittest.test_helpers.anons import anon_anything
+from Test.Unittest.test_helpers.anons import anon_string, anon_name, anon_route
+from application.access.clients import Profile
+from application.requests.rest import RESTMethod, HandlerResult
 from application.requests.rest.controllers import RESTController
-from application.requests.rest.handlers import AbstractRESTHandler
-from application.requests.rest import RequestVerifier, RequestHandler, RouteDescriptor, RESTMethod, RouteNotFoundError
+from application.requests.rest.utils import error_response
 
 
-class TestRESTController(TestCase):
-    def test__init__should_throw_exception__when_multiple_handlers_register_the_same_route(self) -> None:
+class TestRESTController(ABC):
+    assertIsNone: Callable
+    assertEqual: Callable
+    fail: Callable
+
+    @property
+    @abstractmethod
+    def controller(self) -> RESTController:
+        pass
+
+    @abstractmethod
+    def invoke(self, route: str, method: RESTMethod, *, json: Any = None, query_params: dict = None) -> Any:
+        pass
+
+    @abstractmethod
+    def setup_equivalent_of_profile(self, profile: Optional[Profile]) -> None:
+        pass
+
+    def test__registered_route__should_return_error_response__when_exception_thrown(self, *_) -> None:
         # Arrange
-        handler_1 = _RESTHandlerStub()
-        handler_2 = _RESTHandlerStub()
+        expected_json, expected_status_code = error_response("expected message", HTTPStatus.BAD_REQUEST)
+        route = anon_route()
 
-        # Act
-        def action(): RESTController({handler_1, handler_2})
+        @self.controller.register_rest_endpoint(route, RESTMethod.GET)
+        def handler(**_):
+            # Act
+            raise ValueError("expected message")
+
+        actual = self.invoke(route, RESTMethod.GET)
 
         # Assert
-        self.assertRaises(ValueError, action)
+        self.assertEqual(expected_status_code, actual.status_code)
+        self.assertEqual(expected_json, actual.json)
 
-    def test__handle__should_throw_exception__when_route_is_not_supported(self) -> None:
+    def test__registered_route__should_pass_none_for_profile__when_profile_equivalent_not_set(self, *_) -> None:
         # Arrange
-        handler = _RESTHandlerStub()
-        rest_controller = RESTController({handler})
+        self.setup_equivalent_of_profile(None)
+        route = anon_route()
 
         # Act
-        def action(): rest_controller.handle("/does/not/exist", RESTMethod.GET)
+        @self.controller.register_rest_endpoint(route, RESTMethod.GET)
+        def handler(*, profile: Profile = None, **_) -> HandlerResult:
+            # Assert
+            self.assertIsNone(profile)
+            return HTTPStatus.OK, ""
 
-        # Assert
-        self.assertRaises(RouteNotFoundError, action)
+        self.invoke(route, RESTMethod.GET)
 
-    def test__handle__should_throw_exception__when_method_is_not_supported(self) -> None:
+    def test__registered_route__should_pass_expected_profile__when_profile_equivalent_is_set(self, *_) -> None:
         # Arrange
-        handler = _RESTHandlerStub()
-        rest_controller = RESTController({handler})
+        expected = Profile(anon_string(), anon_name())
+        self.setup_equivalent_of_profile(expected)
+        route = anon_route()
 
         # Act
-        def action(): rest_controller.handle("/no/op", RESTMethod.POST)
+        @self.controller.register_rest_endpoint(route, RESTMethod.GET)
+        def handler(*, profile: Profile = None, **_):
+            # Assert
+            self.assertEqual(expected, profile)
 
-        # Assert
-        self.assertRaises(RouteNotFoundError, action)
+        self.invoke(route, RESTMethod.GET)
 
-    def test__handle__should_delegate_to_verifier__when_registered(self) -> None:
+    def test__registered_route__should_not_pass_body__when_body_not_requested(self, *_) -> None:
         # Arrange
-        rest_handler = _RESTHandlerStub()
-        request_verifier_mock = MagicMock()
-        request_verifier_mock.return_value = None
-        rest_handler.request_verifier = request_verifier_mock
-        expected_args = {anon_anything(), anon_anything()}
-        expected_kwargs = {"first": anon_anything(), "second": anon_anything()}
-        rest_controller = RESTController({rest_handler})
+        route = anon_route()
 
         # Act
-        rest_controller.handle("/no/op", RESTMethod.GET, *expected_args, **expected_kwargs)
+        @self.controller.register_rest_endpoint(route, RESTMethod.GET, json=False)
+        def handler(*args, **_) -> None:
+            # Assert
+            self.assertEqual(0, len(args))
 
-        # Assert
-        request_verifier_mock.assert_called_once_with(*expected_args, **expected_kwargs)
+        self.invoke(route, RESTMethod.GET, json=None)
 
-    def test__handle__should_throw_exception__when_verifier_returns_false(self) -> None:
+    def test__registered_route__should_pass_body__when_body_requested_and_available(self, *_) -> None:
         # Arrange
-        rest_handler = _RESTHandlerStub()
-        request_verifier_mock = MagicMock()
-        request_verifier_mock.return_value = "Nope!"
-        rest_handler.request_verifier = request_verifier_mock
-        rest_controller = RESTController({rest_handler})
+        route = anon_route()
+        expected_body = anon_string()
 
         # Act
-        def action(): rest_controller.handle("/no/op", RESTMethod.GET)
+        @self.controller.register_rest_endpoint(route, RESTMethod.GET, json=True)
+        def handler(json_body: Any, **_) -> None:
+            # Assert
+            self.assertEqual(expected_body, json_body)
 
-        # Assert
-        self.assertRaises(ValueError, action)
+        self.invoke(route, RESTMethod.GET, json=expected_body)
 
-    def test__handle__should_delegate_to_handler__when_registered(self) -> None:
+    def test__registered_route__should_return_error_response__when_body_requested_but_not_available(self, *_) -> None:
         # Arrange
-        rest_handler = _RESTHandlerStub()
-        request_handler_mock = MagicMock()
-        request_handler_mock.return_value = (200, {})
-        rest_handler.request_handler = request_handler_mock
-        expected_args = {anon_anything(), anon_anything()}
-        expected_kwargs = {"first": anon_anything(), "second": anon_anything()}
-        rest_controller = RESTController({rest_handler})
+        route = anon_route()
+        expected_json, expected_status_code = error_response("Json body must be provided", HTTPStatus.BAD_REQUEST)
 
         # Act
-        rest_controller.handle("/no/op", RESTMethod.GET, *expected_args, **expected_kwargs)
+        @self.controller.register_rest_endpoint(route, RESTMethod.GET, json=True)
+        def handler(body: Any, **_) -> None:
+            self.fail(f"Should not have invoked method as 'body' arg should not have been passed in, was {body}")
+
+        actual = self.invoke(route, RESTMethod.GET, json=None)
 
         # Assert
-        request_handler_mock.assert_called_once_with(*expected_args, **expected_kwargs)
-
-    def test__get_supported_routes__should_return_empty__when_none_specified(self) -> None:
-        # Arrange
-        rest_controller = RESTController(set())
-        expected = set()
-
-        # Act
-        actual = rest_controller.get_supported_resources()
-
-        # Assert
-        self.assertEqual(expected, actual)
-
-    def test__get_supported_routes__should_return_all_supported_routes__when_single_specified(self) -> None:
-        # Arrange
-        rest_handler = _RESTHandlerStub()
-        rest_controller = RESTController({rest_handler})
-        expected = {("/no/op", RESTMethod.GET)}
-
-        # Act
-        actual = rest_controller.get_supported_resources()
-
-        # Assert
-        self.assertEqual(expected, actual)
-
-    def test__get_supported_routes__should_return_all_supported_routes__when_multiple_specified(self) -> None:
-        # Arrange
-        class _RESTHandlerStub2(AbstractRESTHandler):
-            def get_routes(self) -> Set[RouteDescriptor]:
-                no_op_put_descriptor: RouteDescriptor = "/no/op", RESTMethod.PUT, MagicMock(), MagicMock()
-                hello_get_descriptor: RouteDescriptor = "/hello", RESTMethod.GET, MagicMock(), MagicMock()
-                return {no_op_put_descriptor, hello_get_descriptor}
-
-        rest_handler_1 = _RESTHandlerStub()
-        rest_handler_2 = _RESTHandlerStub2()
-        rest_controller = RESTController({rest_handler_1, rest_handler_2})
-        expected = {("/no/op", RESTMethod.GET), ("/no/op", RESTMethod.PUT), ("/hello", RESTMethod.GET)}
-
-        # Act
-        actual = rest_controller.get_supported_resources()
-
-        # Assert
-        self.assertEqual(expected, actual)
-
-
-class _RESTHandlerStub(AbstractRESTHandler):
-    request_verifier: RequestVerifier
-    request_handler: RequestHandler
-
-    def __init__(self):
-        verifier = MagicMock()
-        verifier.return_value = None
-        self.request_verifier = verifier
-        handler = MagicMock()
-        handler.return_value = (200, {})
-        self.request_handler = handler
-
-    def get_routes(self) -> Set[RouteDescriptor]:
-        noop_descriptor: RouteDescriptor = "/no/op", RESTMethod.GET, self.request_verifier, self.request_handler
-        return {
-            noop_descriptor,
-        }
+        self.assertEqual(expected_status_code, actual.status_code)
+        self.assertEqual(expected_json, actual.json)

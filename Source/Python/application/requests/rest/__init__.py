@@ -1,6 +1,6 @@
 from enum import Enum
 from functools import total_ordering
-from typing import Union, Callable, Any, Tuple, Optional
+from typing import Union, Callable, Tuple, Optional
 
 
 Route = str
