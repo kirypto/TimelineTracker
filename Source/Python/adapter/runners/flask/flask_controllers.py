@@ -1,6 +1,7 @@
+from collections import defaultdict
 from functools import wraps
 from json import dumps
-from typing import Optional, Tuple, Any
+from typing import Optional, Tuple, Any, Dict, Callable
 
 from flask import request, Flask
 
@@ -21,13 +22,24 @@ class _HTTPMethod:
 
 class FlaskRESTController(RESTController):
     _flask_web_app: Flask
+    _finalized: bool
+    _routes: Dict[str, Dict[RESTMethod, Callable]]
 
     def __init__(self, *, flask_web_app: Flask) -> None:
         self._flask_web_app = flask_web_app
+        self._finalized = False
+        self._routes = defaultdict(dict)
 
     def register_rest_endpoint(
             self, route: str, method: RESTMethod, *, json: bool = False, query_params: bool = False
     ) -> HandlerRegisterer:
+        if self._finalized:
+            raise ValueError("Cannot register, controller has already been finalized.")
+        if not isinstance(route, str):
+            raise ValueError(f"Cannot register, route argument must be a str but was {type(route)}.")
+        if not isinstance(method, RESTMethod):
+            raise ValueError(f"Cannot register, method argument must be a {type(RESTMethod).__name__} but was {type(route)}.")
+
         def handler_registerer(handler_func: RequestHandler) -> None:
 
             @with_error_response_on_raised_exceptions
@@ -46,9 +58,22 @@ class FlaskRESTController(RESTController):
                 status_code, contents = response
                 return contents, status_code
 
-            self._flask_web_app.add_url_rule(route, route, handler_wrapper)
+            self._routes[route][method] = handler_wrapper
 
         return handler_registerer
+
+    def finalize(self) -> None:
+        if self._finalized:
+            raise ValueError("Controller has already been finalized.")
+
+        for route, method_handler_dict in self._routes.items():
+            def route_handler(*args, **kwargs):
+                rest_method = RESTMethod(request.method.upper())
+                return method_handler_dict[rest_method](*args, **kwargs)
+
+            self._flask_web_app.add_url_rule(route, route, route_handler, methods=[m.value for m in method_handler_dict.keys()])
+
+        self._finalized = True
 
 
 def register_locations_routes(flask_web_app: Flask, locations_request_handler: LocationsRestRequestHandler) -> None:

@@ -13,3 +13,7 @@ class RESTController(ABC):
             self, route: str, method: RESTMethod, *, json: bool = False, query_params: bool = False
     ) -> HandlerRegisterer:
         pass
+
+    @abstractmethod
+    def finalize(self) -> None:
+        pass

@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from http import HTTPStatus
+from random import choice
 from typing import Callable, Any, Optional
 
 from Test.Unittest.test_helpers.anons import anon_string, anon_name, anon_route
@@ -13,6 +14,7 @@ class TestRESTController(ABC):
     assertIsNone: Callable
     assertEqual: Callable
     fail: Callable
+    assertRaises: Callable
 
     @property
     @abstractmethod
@@ -37,11 +39,36 @@ class TestRESTController(ABC):
             # Act
             raise ValueError("expected message")
 
+        self.controller.finalize()
         actual = self.invoke(route, RESTMethod.GET)
 
         # Assert
         self.assertEqual(expected_status_code, actual.status_code)
         self.assertEqual(expected_json, actual.json)
+
+    def test__registered_route__should_delegate_to_correct_handler__when_route_registered_with_multiple_methods(self, *_) -> None:
+        # Arrange
+        route = anon_route()
+        method_1 = choice(list(RESTMethod))
+        method_2 = choice([m for m in RESTMethod if m != method_1])
+        expected_1, expected_2 = anon_string(), anon_string()
+
+        # Act
+        @self.controller.register_rest_endpoint(route, method_1)
+        def handler_1(**_) -> HandlerResult:
+            return HTTPStatus.OK, expected_1
+
+        @self.controller.register_rest_endpoint(route, method_2)
+        def handler_2(**_) -> HandlerResult:
+            return HTTPStatus.OK, expected_2
+
+        self.controller.finalize()
+        actual_1 = self.invoke(route, method_1)
+        actual_2 = self.invoke(route, method_2)
+
+        # Assert
+        self.assertEqual(expected_1, actual_1.data.decode())
+        self.assertEqual(expected_2, actual_2.data.decode())
 
     def test__registered_route__should_pass_none_for_profile__when_profile_equivalent_not_set(self, *_) -> None:
         # Arrange
@@ -106,8 +133,48 @@ class TestRESTController(ABC):
         def handler(body: Any, **_) -> None:
             self.fail(f"Should not have invoked method as 'body' arg should not have been passed in, was {body}")
 
+        self.controller.finalize()
+
         actual = self.invoke(route, RESTMethod.GET, json=None)
 
         # Assert
         self.assertEqual(expected_status_code, actual.status_code)
         self.assertEqual(expected_json, actual.json)
+
+    def test__register_route__should_throw_exception__when_controller_already_finalized(self, *_) -> None:
+        # Arrange
+        self.controller.finalize()
+
+        # Act
+        def action():
+            @self.controller.register_rest_endpoint(anon_route(), RESTMethod.GET)
+            def handler(**_) -> None:
+                self.fail("Should not make it here")
+
+        # Assert
+        self.assertRaises(ValueError, action)
+
+    def test__finalize__should_throw_exception__when_already_finalized(self, *_) -> None:
+        # Arrange
+        self.controller.finalize()
+
+        # Act
+        def action():
+            self.controller.finalize()
+
+        # Assert
+        self.assertRaises(ValueError, action)
+
+    def test__registered_routes__should_not_be_active__when_not_yet_finalized(self, *_) -> None:
+        # Arrange
+        route = anon_route()
+
+        @self.controller.register_rest_endpoint(route, RESTMethod.GET)
+        def handler(**_) -> None:
+            self.fail("Should not make it here")
+
+        # Act
+        actual = self.invoke(route, RESTMethod.GET)
+
+        # Assert
+        self.assertEqual(HTTPStatus.NOT_FOUND, actual.status_code)
