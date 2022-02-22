@@ -23,7 +23,7 @@ timeline_tracker_app_config: {
 
 # Configuration for the Python Flask service running the application
 flask_run_config: {
-  host: localhost,
+  host: "127.0.0.1",
   port: 5000,
 }
 

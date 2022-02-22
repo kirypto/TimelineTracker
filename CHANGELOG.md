@@ -16,6 +16,8 @@ All notable changes to this project will be documented in this file.
 - Modified the `sampleConfig.md` to show the required configurations for Auth0.com.
 - Modified `/` page to navigate to the `/home` page.
 - Modify api endpoints to enforce authorization.
+- Rework internal logic for REST request handling to improve code flow and simplicity.
+- Change default `host` in `sampleConfig.md` and `apiSpecification.json` from `localhost` to `127.0.0.1`.
 
 ---
 
