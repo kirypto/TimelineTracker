@@ -84,7 +84,7 @@ def anon_name(num_chars: int = 10) -> str:
 
 
 def anon_route(num_chars: int = 10) -> str:
-    return ("/" + "".join(choices(ascii_letters + "_. ", k=num_chars))).strip()
+    return "/" + "".join(choices(ascii_letters, k=num_chars))
 
 
 def anon_string(num_chars: int = 10) -> str:

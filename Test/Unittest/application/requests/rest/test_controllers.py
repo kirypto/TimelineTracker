@@ -178,3 +178,42 @@ class TestRESTController(ABC):
 
         # Assert
         self.assertEqual(HTTPStatus.NOT_FOUND, actual.status_code)
+    
+    def test__register_rest_endpoint__should_raise_exception__when_handler_does_not_accept_correct_arguments(self, *_) -> None:
+        # Arrange
+        route = anon_route() + "/<foo>" + anon_route() + "/<bar>"
+
+        # Act
+        def action():
+            @self.controller.register_rest_endpoint(route, RESTMethod.GET)
+            def handler() -> None:
+                self.fail(f"Should not make it here.")
+
+        # Assert
+        self.assertRaises(ValueError, action)
+
+    def test__register_rest_endpoint__should_raise_exception__when_handler_has_url_params_as_non_keyword_only_arguments(self, *_) -> None:
+        # Arrange
+        route = anon_route() + "/<foo>" + anon_route() + "/<bar>"
+
+        # Act
+        def action():
+            @self.controller.register_rest_endpoint(route, RESTMethod.GET)
+            def handler(foo, bar) -> None:
+                self.fail(f"Should not make it here. (prevent unused warnings: {foo}, {bar})")
+
+        # Assert
+        self.assertRaises(ValueError, action)
+
+    def test__register_rest_endpoint__should_not_raise_exception__when_handler_has_keyword_only_arguments_for_each_url_param(
+            self, *_
+    ) -> None:
+        # Arrange
+        route = anon_route() + "/<foo>" + anon_route() + "/<bar>"
+
+        # Act
+        @self.controller.register_rest_endpoint(route, RESTMethod.GET)
+        def handler(*, foo, bar) -> None:
+            self.fail(f"Should not make it here. (prevent unused warnings: {foo}, {bar})")
+
+        # Assert
