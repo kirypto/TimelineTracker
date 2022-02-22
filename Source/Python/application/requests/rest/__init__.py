@@ -1,13 +1,12 @@
 from enum import Enum
 from functools import total_ordering
-from typing import Union, Callable, Tuple, Optional
+from typing import Callable, Tuple, Optional
 
 
 Route = str
 StatusCode = int
-Data = Union[str, dict]
 VerifierResult = Optional[str]
-HandlerResult = Tuple[StatusCode, Data]
+HandlerResult = Tuple[StatusCode, str]
 RequestVerifier = Callable[[...], VerifierResult]
 RequestHandler = Callable[[...], HandlerResult]
 
@@ -31,6 +30,10 @@ class RESTMethod(Enum):
 
 
 RouteDescriptor = Tuple[Route, RESTMethod, RequestVerifier, RequestHandler]
+
+
+class MIMEType(Enum):
+    JSON = "application/json"
 
 
 class RouteNotFoundError(NameError):

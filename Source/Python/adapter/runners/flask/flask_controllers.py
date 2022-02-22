@@ -1,13 +1,13 @@
 from collections import defaultdict
 from functools import wraps
 from json import dumps
-from typing import Optional, Tuple, Any, Dict, Callable
+from typing import Optional, Dict, Callable
 
-from flask import request, Flask
+from flask import request, Flask, make_response, Response
 
 from adapter.auth.auth0 import extract_profile_from_flask_session
 from application.access.clients import Profile
-from application.requests.rest import RESTMethod, HandlerResult, RequestHandler
+from application.requests.rest import RESTMethod, HandlerResult, RequestHandler, MIMEType
 from application.requests.rest.controllers import RESTController, HandlerRegisterer
 from application.requests.rest.handlers import LocationsRestRequestHandler, TravelersRestRequestHandler, EventsRestRequestHandler
 from application.requests.rest.utils import with_error_response_on_raised_exceptions
@@ -31,7 +31,7 @@ class FlaskRESTController(RESTController):
         self._routes = defaultdict(dict)
 
     def register_rest_endpoint(
-            self, route: str, method: RESTMethod, *, json: bool = False, query_params: bool = False
+            self, route: str, method: RESTMethod, response_type: MIMEType = MIMEType.JSON, *, json: bool = False, query_params: bool = False
     ) -> HandlerRegisterer:
         if self._finalized:
             raise ValueError("Cannot register, controller has already been finalized.")
@@ -45,7 +45,7 @@ class FlaskRESTController(RESTController):
             @with_error_response_on_raised_exceptions
             @extract_profile_from_flask_session
             @wraps(handler_func)
-            def handler_wrapper(**kwargs) -> Tuple[Any, int]:
+            def handler_wrapper(**kwargs) -> Response:
                 args = []
                 if json:
                     if request.json is None:
@@ -56,7 +56,9 @@ class FlaskRESTController(RESTController):
 
                 response: HandlerResult = handler_func(*args, **kwargs)
                 status_code, contents = response
-                return contents, status_code
+                flask_response = make_response(contents, status_code)
+                flask_response.mimetype = response_type.value
+                return flask_response
 
             self._routes[route][method] = handler_wrapper
 

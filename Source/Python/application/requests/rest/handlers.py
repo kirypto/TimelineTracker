@@ -1,11 +1,12 @@
 from copy import deepcopy
 from http import HTTPStatus
+from json import dumps
 from typing import Set, Tuple, Dict, Union, List, Any
 
 from jsonpatch import JsonPatch, PatchOperation
 
 from application.requests.data_forms import JsonTranslator
-from application.requests.rest import RESTMethod, HandlerResult
+from application.requests.rest import RESTMethod, HandlerResult, MIMEType
 from application.requests.rest.controllers import RESTController
 from application.requests.rest.utils import with_error_response_on_raised_exceptions, parse_optional_tag_set_query_param, \
     parse_optional_position_query_param, parse_optional_positional_range_query_param
@@ -32,7 +33,7 @@ class LocationsRestRequestHandler:
         self._timeline_use_case = timeline_use_case
 
     def register_routes(self):
-        @self._rest_controller.register_rest_endpoint("/api/location", RESTMethod.POST, json=True)
+        @self._rest_controller.register_rest_endpoint("/api/location", RESTMethod.POST, MIMEType.JSON, json=True)
         def locations_post_handler(json_body: dict, **kwargs) -> HandlerResult:
             location_kwargs = {
                 "name": JsonTranslator.from_json(json_body["name"], str),
@@ -43,7 +44,7 @@ class LocationsRestRequestHandler:
             }
             location = self._location_use_case.create(**location_kwargs, **kwargs)
 
-            return HTTPStatus.CREATED, JsonTranslator.to_json(location)
+            return HTTPStatus.CREATED, dumps(JsonTranslator.to_json(location), indent=2)
 
     @with_error_response_on_raised_exceptions
     def locations_get_all_handler(self, query_params: Dict[str, str], **kwargs) -> Tuple[Union[list, dict], int]:
