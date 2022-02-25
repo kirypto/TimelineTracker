@@ -70,5 +70,6 @@ class TimelineTrackerApp:
         self._event_request_handler = request_handlers_factory.event_handler
 
         self._locations_request_handler.register_routes()
+        self._travelers_request_handler.register_routes()
 
         rest_controller.finalize()

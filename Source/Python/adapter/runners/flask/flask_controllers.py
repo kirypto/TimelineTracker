@@ -9,7 +9,7 @@ from adapter.auth.auth0 import extract_profile_from_flask_session
 from application.access.clients import Profile
 from application.requests.rest import RESTMethod, HandlerResult, RequestHandler, MIMEType
 from application.requests.rest.controllers import RESTController, HandlerRegisterer, validate_route_handler_declaration
-from application.requests.rest.handlers import TravelersRestRequestHandler, EventsRestRequestHandler
+from application.requests.rest.handlers import EventsRestRequestHandler
 from application.requests.rest.utils import with_error_response_on_raised_exceptions
 
 
@@ -81,46 +81,6 @@ class FlaskRESTController(RESTController):
             self._flask_web_app.add_url_rule(route, route, route_handler, methods=[m.value for m in method_handler_dict.keys()])
 
         self._finalized = True
-
-
-def register_travelers_routes(flask_web_app: Flask, travelers_request_handler: TravelersRestRequestHandler) -> None:
-    @flask_web_app.route("/api/traveler", methods=[_HTTPMethod.Post])
-    @extract_profile_from_flask_session
-    def api_traveler__post(*, profile: Optional[Profile]):
-        response_body, status_code = travelers_request_handler.travelers_post_handler(request.json, profile=profile)
-        return dumps(response_body, indent=2), status_code
-
-    @flask_web_app.route("/api/travelers", methods=[_HTTPMethod.Get])
-    @extract_profile_from_flask_session
-    def api_travelers__get(*, profile: Optional[Profile]):
-        response_body, status_code = travelers_request_handler.travelers_get_all_handler(dict(request.args), profile=profile)
-        return dumps(response_body, indent=2), status_code
-
-    @flask_web_app.route("/api/traveler/<traveler_id>", methods=[_HTTPMethod.Get, _HTTPMethod.Patch, _HTTPMethod.Delete])
-    @extract_profile_from_flask_session
-    def api_traveler_id__get_patch_post(traveler_id: str, *, profile: Optional[Profile]):
-        if request.method == _HTTPMethod.Get:
-            response_body, status_code = travelers_request_handler.traveler_get_handler(traveler_id, profile=profile)
-        elif request.method == _HTTPMethod.Patch:
-            response_body, status_code = travelers_request_handler.traveler_patch_handler(traveler_id, request.json, profile=profile)
-        elif request.method == _HTTPMethod.Delete:
-            response_body, status_code = travelers_request_handler.traveler_delete_handler(traveler_id, profile=profile)
-        else:
-            raise ValueError(f"Route does not support {request.method}")
-        return dumps(response_body, indent=2), status_code
-
-    @flask_web_app.route("/api/traveler/<traveler_id>/journey", methods=[_HTTPMethod.Post])
-    @extract_profile_from_flask_session
-    def api_traveler_id_journey__post(traveler_id: str, *, profile: Optional[Profile]):
-        response_body, status_code = travelers_request_handler.traveler_journey_post_handler(traveler_id, request.json, profile=profile)
-        return dumps(response_body, indent=2), status_code
-
-    @flask_web_app.route("/api/traveler/<traveler_id>/timeline", methods=[_HTTPMethod.Get])
-    @extract_profile_from_flask_session
-    def api_traveler_id_timeline__get(traveler_id: str, *, profile: Optional[Profile]):
-        response_body, status_code = travelers_request_handler.traveler_timeline_get_handler(
-            traveler_id, dict(request.args), profile=profile)
-        return dumps(response_body, indent=2), status_code
 
 
 def register_events_routes(flask_web_app: Flask, events_request_handler: EventsRestRequestHandler) -> None:

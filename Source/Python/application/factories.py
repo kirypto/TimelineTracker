@@ -67,7 +67,7 @@ class RequestHandlersFactory:
             event_use_case: EventUseCase, timeline_use_case: TimelineUseCase,
     ) -> None:
         self._location_handler = LocationsRestRequestHandler(rest_controller, location_use_case, timeline_use_case)
-        self._traveler_handler = TravelersRestRequestHandler(traveler_use_case, timeline_use_case)
+        self._traveler_handler = TravelersRestRequestHandler(rest_controller, traveler_use_case, timeline_use_case)
         self._event_handler = EventsRestRequestHandler(event_use_case)
 
 

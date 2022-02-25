@@ -133,125 +133,128 @@ class LocationsRestRequestHandler:
 class TravelersRestRequestHandler:
     _traveler_use_case: TravelerUseCase
     _timeline_use_case: TimelineUseCase
+    _rest_controller: RESTController
 
-    def __init__(self, traveler_use_case: TravelerUseCase, timeline_use_case: TimelineUseCase) -> None:
+    def __init__(self, rest_controller: RESTController, traveler_use_case: TravelerUseCase, timeline_use_case: TimelineUseCase) -> None:
+        self._rest_controller = rest_controller
         self._traveler_use_case = traveler_use_case
         self._timeline_use_case = timeline_use_case
 
-    @with_error_response_on_raised_exceptions
-    def travelers_post_handler(self, request_body: dict, **kwargs) -> Tuple[dict, int]:
-        traveler_kwargs = {
-            "name": JsonTranslator.from_json(request_body["name"], str),
-            "description": JsonTranslator.from_json(request_body.get("description", ""), str),
-            "journey": JsonTranslator.from_json(request_body["journey"], List[PositionalMove]),
-            "metadata": JsonTranslator.from_json(request_body.get("metadata", {}), Dict[str, str]),
-            "tags": JsonTranslator.from_json(request_body.get("tags", set()), Set[Tag]),
-        }
-        traveler = self._traveler_use_case.create(**traveler_kwargs, **kwargs)
+    def register_routes(self):
+        @self._rest_controller.register_rest_endpoint("/api/traveler", RESTMethod.POST, MIMEType.JSON, json=True)
+        def travelers_post_handler(request_body: dict, **kwargs) -> HandlerResult:
+            traveler_kwargs = {
+                "name": JsonTranslator.from_json(request_body["name"], str),
+                "description": JsonTranslator.from_json(request_body.get("description", ""), str),
+                "journey": JsonTranslator.from_json(request_body["journey"], List[PositionalMove]),
+                "metadata": JsonTranslator.from_json(request_body.get("metadata", {}), Dict[str, str]),
+                "tags": JsonTranslator.from_json(request_body.get("tags", set()), Set[Tag]),
+            }
+            traveler = self._traveler_use_case.create(**traveler_kwargs, **kwargs)
 
-        return JsonTranslator.to_json(traveler), HTTPStatus.CREATED
+            return HTTPStatus.CREATED, dumps(JsonTranslator.to_json(traveler), indent=2)
 
-    @with_error_response_on_raised_exceptions
-    def travelers_get_all_handler(self, query_params: Dict[str, str], **kwargs) -> Tuple[Union[list, dict], int]:
-        supported_filters = {"nameIs", "nameHas", "taggedAll", "taggedAny", "taggedOnly", "taggedNone", "journeyIntersects",
-                             "journeyIncludes"}
-        if not supported_filters.issuperset(query_params.keys()):
-            raise ValueError(f"Unsupported filter(s): {', '.join(query_params.keys() - supported_filters)}")
-        filters = {
-            "name_is": query_params.get("nameIs", None),
-            "name_has": query_params.get("nameHas", None),
-            "tagged_all": parse_optional_tag_set_query_param(query_params.get("taggedAll", None)),
-            "tagged_any": parse_optional_tag_set_query_param(query_params.get("taggedAny", None)),
-            "tagged_only": parse_optional_tag_set_query_param(query_params.get("taggedOnly", None)),
-            "tagged_none": parse_optional_tag_set_query_param(query_params.get("taggedNone", None)),
-            "journey_intersects": parse_optional_positional_range_query_param(query_params.get("journeyIntersects", None)),
-            "journey_includes": parse_optional_position_query_param(query_params.get("journeyIncludes", None)),
-        }
+        @self._rest_controller.register_rest_endpoint("/api/travelers", RESTMethod.GET, MIMEType.JSON, query_params=True)
+        def travelers_get_all_handler(query_params: Dict[str, str], **kwargs) -> HandlerResult:
+            supported_filters = {"nameIs", "nameHas", "taggedAll", "taggedAny", "taggedOnly", "taggedNone", "journeyIntersects",
+                                 "journeyIncludes"}
+            if not supported_filters.issuperset(query_params.keys()):
+                raise ValueError(f"Unsupported filter(s): {', '.join(query_params.keys() - supported_filters)}")
+            filters = {
+                "name_is": query_params.get("nameIs", None),
+                "name_has": query_params.get("nameHas", None),
+                "tagged_all": parse_optional_tag_set_query_param(query_params.get("taggedAll", None)),
+                "tagged_any": parse_optional_tag_set_query_param(query_params.get("taggedAny", None)),
+                "tagged_only": parse_optional_tag_set_query_param(query_params.get("taggedOnly", None)),
+                "tagged_none": parse_optional_tag_set_query_param(query_params.get("taggedNone", None)),
+                "journey_intersects": parse_optional_positional_range_query_param(query_params.get("journeyIntersects", None)),
+                "journey_includes": parse_optional_position_query_param(query_params.get("journeyIncludes", None)),
+            }
 
-        travelers = self._traveler_use_case.retrieve_all(**filters, **kwargs)
+            travelers = self._traveler_use_case.retrieve_all(**filters, **kwargs)
 
-        return [JsonTranslator.to_json(traveler.id) for traveler in travelers], HTTPStatus.OK
+            return HTTPStatus.OK, dumps([JsonTranslator.to_json(traveler.id) for traveler in travelers], indent=2)
 
-    @with_error_response_on_raised_exceptions
-    def traveler_get_handler(self, traveler_id_str: str, **kwargs) -> Tuple[dict, int]:
-        if not traveler_id_str.startswith("traveler-"):
-            raise ValueError(f"Cannot parse traveler id from '{traveler_id_str}")
-        traveler_id = JsonTranslator.from_json(traveler_id_str, PrefixedUUID)
+        @self._rest_controller.register_rest_endpoint("/api/traveler/<traveler_id>", RESTMethod.GET, MIMEType.JSON)
+        def traveler_get_handler(*, traveler_id: str, **kwargs) -> HandlerResult:
+            if not traveler_id.startswith("traveler-"):
+                raise ValueError(f"Cannot parse traveler id from '{traveler_id}")
+            traveler_id_ = JsonTranslator.from_json(traveler_id, PrefixedUUID)
 
-        traveler = self._traveler_use_case.retrieve(traveler_id, **kwargs)
+            traveler = self._traveler_use_case.retrieve(traveler_id_, **kwargs)
 
-        return JsonTranslator.to_json(traveler), HTTPStatus.OK
+            return HTTPStatus.OK, dumps(JsonTranslator.to_json(traveler), indent=2)
 
-    @with_error_response_on_raised_exceptions
-    def traveler_delete_handler(self, traveler_id_str: str, **kwargs) -> Tuple[Union[dict, str], int]:
-        if not traveler_id_str.startswith("traveler-"):
-            raise ValueError(f"Cannot parse traveler id from '{traveler_id_str}")
-        traveler_id = JsonTranslator.from_json(traveler_id_str, PrefixedUUID)
+        @self._rest_controller.register_rest_endpoint("/api/traveler/<traveler_id>", RESTMethod.DELETE, MIMEType.JSON)
+        def traveler_delete_handler(*, traveler_id: str, **kwargs) -> HandlerResult:
+            if not traveler_id.startswith("traveler-"):
+                raise ValueError(f"Cannot parse traveler id from '{traveler_id}")
+            traveler_id = JsonTranslator.from_json(traveler_id, PrefixedUUID)
 
-        self._traveler_use_case.delete(traveler_id, **kwargs)
+            self._traveler_use_case.delete(traveler_id, **kwargs)
 
-        return "", HTTPStatus.NO_CONTENT
+            return HTTPStatus.NO_CONTENT, dumps("", indent=2)
 
-    @with_error_response_on_raised_exceptions
-    def traveler_patch_handler(self, traveler_id_str: str, patch_operations: List[Dict[str, Any]], **kwargs) -> Tuple[dict, int]:
-        if not traveler_id_str.startswith("traveler-"):
-            raise ValueError(f"Cannot parse traveler id from '{traveler_id_str}")
-        traveler_id = JsonTranslator.from_json(traveler_id_str, PrefixedUUID)
+        @self._rest_controller.register_rest_endpoint("/api/traveler/<traveler_id>", RESTMethod.PATCH, MIMEType.JSON, json=True)
+        def traveler_patch_handler(body_patch_operations: List[Dict[str, Any]], *, traveler_id: str, **kwargs) -> HandlerResult:
+            if not traveler_id.startswith("traveler-"):
+                raise ValueError(f"Cannot parse traveler id from '{traveler_id}")
+            traveler_id_ = JsonTranslator.from_json(traveler_id, PrefixedUUID)
 
-        patch = JsonPatch([PatchOperation(operation).operation for operation in patch_operations])
-        existing_object_view = JsonTranslator.to_json(self._traveler_use_case.retrieve(traveler_id, **kwargs))
+            patch = JsonPatch([PatchOperation(operation).operation for operation in body_patch_operations])
+            existing_object_view = JsonTranslator.to_json(self._traveler_use_case.retrieve(traveler_id_, **kwargs))
 
-        modified_traveler_json = patch.apply(existing_object_view)
-        modified_traveler = JsonTranslator.from_json(modified_traveler_json, Traveler)
+            modified_traveler_json = patch.apply(existing_object_view)
+            modified_traveler = JsonTranslator.from_json(modified_traveler_json, Traveler)
 
-        if modified_traveler.id != traveler_id:
-            raise ValueError("A Traveler's 'id' cannot be modified")
+            if modified_traveler.id != traveler_id_:
+                raise ValueError("A Traveler's 'id' cannot be modified")
 
-        self._traveler_use_case.update(modified_traveler, **kwargs)
+            self._traveler_use_case.update(modified_traveler, **kwargs)
 
-        return JsonTranslator.to_json(modified_traveler), HTTPStatus.OK
+            return HTTPStatus.OK, dumps(JsonTranslator.to_json(modified_traveler), indent=2)
 
-    @with_error_response_on_raised_exceptions
-    def traveler_journey_post_handler(self, traveler_id_str: str, new_positional_move_json: dict, **kwargs) -> Tuple[dict, int]:
-        if not traveler_id_str.startswith("traveler-"):
-            raise ValueError(f"Cannot parse traveler id from '{traveler_id_str}")
-        traveler_id = JsonTranslator.from_json(traveler_id_str, PrefixedUUID)
+        @self._rest_controller.register_rest_endpoint("/api/traveler/<traveler_id>/journey", RESTMethod.POST, MIMEType.JSON, json=True)
+        def traveler_journey_post_handler(body_new_positional_move: dict, *, traveler_id: str, **kwargs) -> HandlerResult:
+            if not traveler_id.startswith("traveler-"):
+                raise ValueError(f"Cannot parse traveler id from '{traveler_id}")
+            traveler_id_ = JsonTranslator.from_json(traveler_id, PrefixedUUID)
 
-        new_positional_move = JsonTranslator.from_json(new_positional_move_json, PositionalMove)
+            new_positional_move = JsonTranslator.from_json(body_new_positional_move, PositionalMove)
 
-        existing_traveler = self._traveler_use_case.retrieve(traveler_id, **kwargs)
+            existing_traveler = self._traveler_use_case.retrieve(traveler_id_, **kwargs)
 
-        appended_journey = deepcopy(existing_traveler.journey)
-        appended_journey.append(new_positional_move)
-        modified_traveler = Traveler(
-            id=existing_traveler.id, name=existing_traveler.name, description=existing_traveler.description,
-            journey=appended_journey, tags=existing_traveler.tags, metadata=existing_traveler.metadata)
+            appended_journey = deepcopy(existing_traveler.journey)
+            appended_journey.append(new_positional_move)
+            modified_traveler = Traveler(
+                id=existing_traveler.id, name=existing_traveler.name, description=existing_traveler.description,
+                journey=appended_journey, tags=existing_traveler.tags, metadata=existing_traveler.metadata)
 
-        self._traveler_use_case.update(modified_traveler, **kwargs)
+            self._traveler_use_case.update(modified_traveler, **kwargs)
 
-        return JsonTranslator.to_json(modified_traveler), HTTPStatus.OK
+            return HTTPStatus.OK, dumps(JsonTranslator.to_json(modified_traveler), indent=2)
 
-    @with_error_response_on_raised_exceptions
-    def traveler_timeline_get_handler(
-            self, traveler_id_str: str, query_params: Dict[str, str], **kwargs
-    ) -> Tuple[List[Union[str, dict]], int]:
-        if not traveler_id_str.startswith("traveler-"):
-            raise ValueError(f"Cannot parse traveler id from '{traveler_id_str}")
-        traveler_id = JsonTranslator.from_json(traveler_id_str, PrefixedUUID)
+        @self._rest_controller.register_rest_endpoint(
+            "/api/traveler/<traveler_id>/timeline", RESTMethod.GET, MIMEType.JSON, query_params=True
+        )
+        def traveler_timeline_get_handler(query_params: Dict[str, str], *, traveler_id: str, **kwargs) -> HandlerResult:
+            if not traveler_id.startswith("traveler-"):
+                raise ValueError(f"Cannot parse traveler id from '{traveler_id}")
+            traveler_id = JsonTranslator.from_json(traveler_id, PrefixedUUID)
 
-        supported_filters = {"taggedAll", "taggedAny", "taggedOnly", "taggedNone"}
-        if not supported_filters.issuperset(query_params.keys()):
-            raise ValueError(f"Unsupported filter(s): {', '.join(query_params.keys() - supported_filters)}")
-        filters = {
-            "tagged_all": parse_optional_tag_set_query_param(query_params.get("taggedAll", None)),
-            "tagged_any": parse_optional_tag_set_query_param(query_params.get("taggedAny", None)),
-            "tagged_only": parse_optional_tag_set_query_param(query_params.get("taggedOnly", None)),
-            "tagged_none": parse_optional_tag_set_query_param(query_params.get("taggedNone", None)),
-        }
+            supported_filters = {"taggedAll", "taggedAny", "taggedOnly", "taggedNone"}
+            if not supported_filters.issuperset(query_params.keys()):
+                raise ValueError(f"Unsupported filter(s): {', '.join(query_params.keys() - supported_filters)}")
+            filters = {
+                "tagged_all": parse_optional_tag_set_query_param(query_params.get("taggedAll", None)),
+                "tagged_any": parse_optional_tag_set_query_param(query_params.get("taggedAny", None)),
+                "tagged_only": parse_optional_tag_set_query_param(query_params.get("taggedOnly", None)),
+                "tagged_none": parse_optional_tag_set_query_param(query_params.get("taggedNone", None)),
+            }
 
-        timeline = self._timeline_use_case.construct_traveler_timeline(traveler_id, **filters, **kwargs)
+            timeline = self._timeline_use_case.construct_traveler_timeline(traveler_id, **filters, **kwargs)
 
-        return JsonTranslator.to_json(timeline), HTTPStatus.OK
+            return HTTPStatus.OK, dumps(JsonTranslator.to_json(timeline), indent=2)
 
 
 class EventsRestRequestHandler:
