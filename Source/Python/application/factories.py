@@ -68,7 +68,7 @@ class RequestHandlersFactory:
     ) -> None:
         self._location_handler = LocationsRestRequestHandler(rest_controller, location_use_case, timeline_use_case)
         self._traveler_handler = TravelersRestRequestHandler(rest_controller, traveler_use_case, timeline_use_case)
-        self._event_handler = EventsRestRequestHandler(event_use_case)
+        self._event_handler = EventsRestRequestHandler(rest_controller, event_use_case)
 
 
 class RESTControllersFactory:

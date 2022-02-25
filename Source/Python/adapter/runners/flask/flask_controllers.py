@@ -1,15 +1,12 @@
 from collections import defaultdict
 from functools import wraps
-from json import dumps
-from typing import Optional, Dict, Callable
+from typing import Dict, Callable
 
 from flask import request, Flask, make_response, Response
 
 from adapter.auth.auth0 import extract_profile_from_flask_session
-from application.access.clients import Profile
 from application.requests.rest import RESTMethod, HandlerResult, RequestHandler, MIMEType
 from application.requests.rest.controllers import RESTController, HandlerRegisterer, validate_route_handler_declaration
-from application.requests.rest.handlers import EventsRestRequestHandler
 from application.requests.rest.utils import with_error_response_on_raised_exceptions
 
 
@@ -82,29 +79,3 @@ class FlaskRESTController(RESTController):
 
         self._finalized = True
 
-
-def register_events_routes(flask_web_app: Flask, events_request_handler: EventsRestRequestHandler) -> None:
-    @flask_web_app.route("/api/event", methods=[_HTTPMethod.Post])
-    @extract_profile_from_flask_session
-    def api_event__post(*, profile: Optional[Profile]):
-        response_body, status_code = events_request_handler.events_post_handler(request.json, profile=profile)
-        return dumps(response_body, indent=2), status_code
-
-    @flask_web_app.route("/api/events", methods=[_HTTPMethod.Get])
-    @extract_profile_from_flask_session
-    def api_events__get(*, profile: Optional[Profile]):
-        response_body, status_code = events_request_handler.events_get_all_handler(dict(request.args), profile=profile)
-        return dumps(response_body, indent=2), status_code
-
-    @flask_web_app.route("/api/event/<event_id>", methods=[_HTTPMethod.Get, _HTTPMethod.Patch, _HTTPMethod.Delete])
-    @extract_profile_from_flask_session
-    def api_event_id__get_patch_post(event_id: str, *, profile: Optional[Profile]):
-        if request.method == _HTTPMethod.Get:
-            response_body, status_code = events_request_handler.event_get_handler(event_id, profile=profile)
-        elif request.method == _HTTPMethod.Patch:
-            response_body, status_code = events_request_handler.event_patch_handler(event_id, request.json, profile=profile)
-        elif request.method == _HTTPMethod.Delete:
-            response_body, status_code = events_request_handler.event_delete_handler(event_id, profile=profile)
-        else:
-            raise ValueError(f"Route does not support {request.method}")
-        return dumps(response_body, indent=2), status_code

@@ -7,7 +7,6 @@ from ruamel.yaml import YAML
 from waitress import serve
 
 from adapter.auth.auth0 import setup_flask_auth, extract_profile_from_flask_session
-from adapter.runners.flask.flask_controllers import register_events_routes
 from application.access.authentication import requires_authentication
 from application.access.clients import Profile
 from application.access.errors import AuthError
@@ -101,7 +100,6 @@ def _create_timeline_tracker_flask_app(timeline_tracker_app_config: dict, auth_c
         ),
     )
     timeline_tracker_application.initialize_controllers(**controller_config)
-    register_events_routes(flask_web_app, timeline_tracker_application.event_request_handler)
 
     return flask_web_app
 
