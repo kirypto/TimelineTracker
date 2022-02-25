@@ -46,84 +46,88 @@ class LocationsRestRequestHandler:
 
             return HTTPStatus.CREATED, dumps(JsonTranslator.to_json(location), indent=2)
 
-    @with_error_response_on_raised_exceptions
-    def locations_get_all_handler(self, query_params: Dict[str, str], **kwargs) -> Tuple[Union[list, dict], int]:
-        supported_filters = {"nameIs", "nameHas", "taggedAll", "taggedAny", "taggedOnly", "taggedNone", "spanIncludes", "spanIntersects"}
-        if not supported_filters.issuperset(query_params.keys()):
-            raise ValueError(f"Unsupported filter(s): {', '.join(query_params.keys() - supported_filters)}")
-        filters = {
-            "name_is": query_params.get("nameIs", None),
-            "name_has": query_params.get("nameHas", None),
-            "tagged_all": parse_optional_tag_set_query_param(query_params.get("taggedAll", None)),
-            "tagged_any": parse_optional_tag_set_query_param(query_params.get("taggedAny", None)),
-            "tagged_only": parse_optional_tag_set_query_param(query_params.get("taggedOnly", None)),
-            "tagged_none": parse_optional_tag_set_query_param(query_params.get("taggedNone", None)),
-            "span_includes": parse_optional_position_query_param(query_params.get("spanIncludes", None)),
-            "span_intersects": parse_optional_positional_range_query_param(query_params.get("spanIntersects", None)),
-        }
+        @self._rest_controller.register_rest_endpoint("/api/locations", RESTMethod.GET, MIMEType.JSON, query_params=True)
+        def locations_get_all_handler(query_params: Dict[str, str], **kwargs) -> HandlerResult:
+            supported_filters = {
+                "nameIs", "nameHas", "taggedAll", "taggedAny", "taggedOnly", "taggedNone", "spanIncludes", "spanIntersects"
+            }
+            if not supported_filters.issuperset(query_params.keys()):
+                raise ValueError(f"Unsupported filter(s): {', '.join(query_params.keys() - supported_filters)}")
+            filters = {
+                "name_is": query_params.get("nameIs", None),
+                "name_has": query_params.get("nameHas", None),
+                "tagged_all": parse_optional_tag_set_query_param(query_params.get("taggedAll", None)),
+                "tagged_any": parse_optional_tag_set_query_param(query_params.get("taggedAny", None)),
+                "tagged_only": parse_optional_tag_set_query_param(query_params.get("taggedOnly", None)),
+                "tagged_none": parse_optional_tag_set_query_param(query_params.get("taggedNone", None)),
+                "span_includes": parse_optional_position_query_param(query_params.get("spanIncludes", None)),
+                "span_intersects": parse_optional_positional_range_query_param(query_params.get("spanIntersects", None)),
+            }
 
-        locations = self._location_use_case.retrieve_all(**filters, **kwargs)
+            locations = self._location_use_case.retrieve_all(**filters, **kwargs)
 
-        return [JsonTranslator.to_json(location.id) for location in locations], HTTPStatus.OK
+            return HTTPStatus.OK, dumps([JsonTranslator.to_json(location.id) for location in locations], indent=2)
 
-    @with_error_response_on_raised_exceptions
-    def location_get_handler(self, location_id_str: str, **kwargs) -> Tuple[dict, int]:
-        if not location_id_str.startswith("location-"):
-            raise ValueError(f"Cannot parse location id from '{location_id_str}")
-        location_id = JsonTranslator.from_json(location_id_str, PrefixedUUID)
+        @self._rest_controller.register_rest_endpoint("/api/location/<location_id>", RESTMethod.GET, MIMEType.JSON)
+        def location_get_handler(*, location_id: str, **kwargs) -> HandlerResult:
+            if not location_id.startswith("location-"):
+                raise ValueError(f"Cannot parse location id from '{location_id}")
+            _location_id = JsonTranslator.from_json(location_id, PrefixedUUID)
 
-        location = self._location_use_case.retrieve(location_id, **kwargs)
+            location = self._location_use_case.retrieve(_location_id, **kwargs)
 
-        return JsonTranslator.to_json(location), HTTPStatus.OK
+            return HTTPStatus.OK, dumps(JsonTranslator.to_json(location), indent=2)
 
-    @with_error_response_on_raised_exceptions
-    def location_delete_handler(self, location_id_str: str, **kwargs) -> Tuple[Union[dict, str], int]:
-        if not location_id_str.startswith("location-"):
-            raise ValueError(f"Cannot parse location id from '{location_id_str}")
-        location_id = JsonTranslator.from_json(location_id_str, PrefixedUUID)
+        @self._rest_controller.register_rest_endpoint("/api/location/<location_id>", RESTMethod.DELETE, MIMEType.JSON)
+        def location_delete_handler(*, location_id: str, **kwargs) -> HandlerResult:
+            if not location_id.startswith("location-"):
+                raise ValueError(f"Cannot parse location id from '{location_id}")
+            location_id_ = JsonTranslator.from_json(location_id, PrefixedUUID)
 
-        self._location_use_case.delete(location_id, **kwargs)
+            self._location_use_case.delete(location_id_, **kwargs)
 
-        return "", HTTPStatus.NO_CONTENT
+            return HTTPStatus.NO_CONTENT, ""
 
-    @with_error_response_on_raised_exceptions
-    def location_patch_handler(self, location_id_str: str, patch_operations: List[Dict[str, Any]], **kwargs) -> Tuple[dict, int]:
-        if not location_id_str.startswith("location-"):
-            raise ValueError(f"Cannot parse location id from '{location_id_str}")
-        location_id = JsonTranslator.from_json(location_id_str, PrefixedUUID)
+        @self._rest_controller.register_rest_endpoint("/api/location/<location_id>", RESTMethod.PATCH, MIMEType.JSON, json=True)
+        def location_patch_handler(body_patch_operations: List[Dict[str, Any]], *, location_id: str, **kwargs) -> HandlerResult:
+            if not location_id.startswith("location-"):
+                raise ValueError(f"Cannot parse location id from '{location_id}")
+            location_id_ = JsonTranslator.from_json(location_id, PrefixedUUID)
 
-        patch = JsonPatch([PatchOperation(operation).operation for operation in patch_operations])
-        existing_location_json = JsonTranslator.to_json(self._location_use_case.retrieve(location_id, **kwargs))
+            patch = JsonPatch([PatchOperation(operation).operation for operation in body_patch_operations])
+            existing_location_json = JsonTranslator.to_json(self._location_use_case.retrieve(location_id_, **kwargs))
 
-        modified_location_json = patch.apply(existing_location_json)
-        modified_location = JsonTranslator.from_json(modified_location_json, Location)
+            modified_location_json = patch.apply(existing_location_json)
+            modified_location = JsonTranslator.from_json(modified_location_json, Location)
 
-        if modified_location.id != location_id:
-            raise ValueError("A Location's 'id' cannot be modified")
+            if modified_location.id != location_id_:
+                raise ValueError("A Location's 'id' cannot be modified")
 
-        self._location_use_case.update(modified_location, **kwargs)
+            self._location_use_case.update(modified_location, **kwargs)
 
-        return JsonTranslator.to_json(modified_location), HTTPStatus.OK
+            return HTTPStatus.OK, dumps(JsonTranslator.to_json(modified_location), indent=2)
 
-    @with_error_response_on_raised_exceptions
-    def location_timeline_get_handler(self, location_id_str: str, query_params: Dict[str, str], **kwargs) -> Tuple[List[str], int]:
-        if not location_id_str.startswith("location-"):
-            raise ValueError(f"Cannot parse location id from '{location_id_str}")
-        location_id = JsonTranslator.from_json(location_id_str, PrefixedUUID)
+        @self._rest_controller.register_rest_endpoint(
+            "/api/location/<location_id>/timeline", RESTMethod.GET, MIMEType.JSON, query_params=True
+        )
+        def location_timeline_get_handler(query_params: Dict[str, str], *, location_id: str, **kwargs) -> HandlerResult:
+            if not location_id.startswith("location-"):
+                raise ValueError(f"Cannot parse location id from '{location_id}")
+            location_id_ = JsonTranslator.from_json(location_id, PrefixedUUID)
 
-        supported_filters = {"taggedAll", "taggedAny", "taggedOnly", "taggedNone"}
-        if not supported_filters.issuperset(query_params.keys()):
-            raise ValueError(f"Unsupported filter(s): {', '.join(query_params.keys() - supported_filters)}")
-        filters = {
-            "tagged_all": parse_optional_tag_set_query_param(query_params.get("taggedAll", None)),
-            "tagged_any": parse_optional_tag_set_query_param(query_params.get("taggedAny", None)),
-            "tagged_only": parse_optional_tag_set_query_param(query_params.get("taggedOnly", None)),
-            "tagged_none": parse_optional_tag_set_query_param(query_params.get("taggedNone", None)),
-        }
+            supported_filters = {"taggedAll", "taggedAny", "taggedOnly", "taggedNone"}
+            if not supported_filters.issuperset(query_params.keys()):
+                raise ValueError(f"Unsupported filter(s): {', '.join(query_params.keys() - supported_filters)}")
+            filters = {
+                "tagged_all": parse_optional_tag_set_query_param(query_params.get("taggedAll", None)),
+                "tagged_any": parse_optional_tag_set_query_param(query_params.get("taggedAny", None)),
+                "tagged_only": parse_optional_tag_set_query_param(query_params.get("taggedOnly", None)),
+                "tagged_none": parse_optional_tag_set_query_param(query_params.get("taggedNone", None)),
+            }
 
-        timeline = self._timeline_use_case.construct_location_timeline(location_id, **filters, **kwargs)
+            timeline = self._timeline_use_case.construct_location_timeline(location_id_, **filters, **kwargs)
 
-        return JsonTranslator.to_json(timeline), HTTPStatus.OK
+            return HTTPStatus.OK, dumps(JsonTranslator.to_json(timeline), indent=2)
 
 
 class TravelersRestRequestHandler:

@@ -9,7 +9,7 @@ from adapter.auth.auth0 import extract_profile_from_flask_session
 from application.access.clients import Profile
 from application.requests.rest import RESTMethod, HandlerResult, RequestHandler, MIMEType
 from application.requests.rest.controllers import RESTController, HandlerRegisterer, validate_route_handler_declaration
-from application.requests.rest.handlers import LocationsRestRequestHandler, TravelersRestRequestHandler, EventsRestRequestHandler
+from application.requests.rest.handlers import TravelersRestRequestHandler, EventsRestRequestHandler
 from application.requests.rest.utils import with_error_response_on_raised_exceptions
 
 
@@ -39,6 +39,9 @@ class FlaskRESTController(RESTController):
             raise ValueError(f"Cannot register, route argument must be a str but was {type(route)}.")
         if not isinstance(method, RESTMethod):
             raise ValueError(f"Cannot register, method argument must be a {type(RESTMethod).__name__} but was {type(route)}.")
+        if method in self._routes[route]:
+            # TODO kirypto 2022-Feb24: Ensure tests exist for this
+            raise ValueError(f"Cannot register, method {method} already registered for {route}")
 
         def handler_registerer(handler_func: RequestHandler) -> None:
             validate_route_handler_declaration(route, handler_func)
@@ -71,40 +74,13 @@ class FlaskRESTController(RESTController):
 
         for route, method_handler_dict in self._routes.items():
             def route_handler(*args, **kwargs):
+                request_url = request.url_rule.rule
                 rest_method = RESTMethod(request.method.upper())
-                return method_handler_dict[rest_method](*args, **kwargs)
+                return self._routes[request_url][rest_method](*args, **kwargs)
 
             self._flask_web_app.add_url_rule(route, route, route_handler, methods=[m.value for m in method_handler_dict.keys()])
 
         self._finalized = True
-
-
-def register_locations_routes(flask_web_app: Flask, locations_request_handler: LocationsRestRequestHandler) -> None:
-    @flask_web_app.route("/api/locations", methods=[_HTTPMethod.Get])
-    @extract_profile_from_flask_session
-    def api_locations__get(*, profile: Optional[Profile]):
-        response_body, status_code = locations_request_handler.locations_get_all_handler(dict(request.args), profile=profile)
-        return dumps(response_body, indent=2), status_code
-
-    @flask_web_app.route("/api/location/<location_id>", methods=[_HTTPMethod.Get, _HTTPMethod.Patch, _HTTPMethod.Delete])
-    @extract_profile_from_flask_session
-    def api_location_id__get_patch_post(location_id: str, *, profile: Optional[Profile]):
-        if request.method == _HTTPMethod.Get:
-            response_body, status_code = locations_request_handler.location_get_handler(location_id, profile=profile)
-        elif request.method == _HTTPMethod.Patch:
-            response_body, status_code = locations_request_handler.location_patch_handler(location_id, request.json, profile=profile)
-        elif request.method == _HTTPMethod.Delete:
-            response_body, status_code = locations_request_handler.location_delete_handler(location_id, profile=profile)
-        else:
-            raise ValueError(f"Route does not support {request.method}")
-        return dumps(response_body, indent=2), status_code
-
-    @flask_web_app.route("/api/location/<location_id>/timeline", methods=[_HTTPMethod.Get])
-    @extract_profile_from_flask_session
-    def api_location_id_timeline__get(location_id: str, *, profile: Optional[Profile]):
-        response_body, status_code = locations_request_handler.location_timeline_get_handler(
-            location_id, dict(request.args), profile=profile)
-        return dumps(response_body, indent=2), status_code
 
 
 def register_travelers_routes(flask_web_app: Flask, travelers_request_handler: TravelersRestRequestHandler) -> None:

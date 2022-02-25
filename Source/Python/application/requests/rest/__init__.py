@@ -13,7 +13,9 @@ RequestHandler = Callable[[...], HandlerResult]
 
 @total_ordering
 class RESTMethod(Enum):
+    DELETE = "DELETE"
     GET = "GET"
+    PATCH = "PATCH"
     POST = "POST"
     PUT = "PUT"
 
