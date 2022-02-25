@@ -29,13 +29,19 @@ class TestRESTController(ABC):
     def setup_equivalent_of_profile(self, profile: Optional[Profile]) -> None:
         pass
 
+    def fail_with_message(self, message: str) -> HandlerResult:
+        # Return HandlerResult to pass method validation
+        self.fail(message)
+        # noinspection PyUnreachableCode
+        return HTTPStatus.OK, ""
+
     def test__registered_route__should_return_error_response__when_exception_thrown(self, *_) -> None:
         # Arrange
         expected_json, expected_status_code = error_response("expected message", HTTPStatus.BAD_REQUEST)
         route = anon_route()
 
         @self.controller.register_rest_endpoint(route, RESTMethod.GET)
-        def handler(**_):
+        def handler(**_) -> HandlerResult:
             # Act
             raise ValueError("expected message")
 
@@ -92,9 +98,10 @@ class TestRESTController(ABC):
 
         # Act
         @self.controller.register_rest_endpoint(route, RESTMethod.GET)
-        def handler(*, profile: Profile = None, **_):
+        def handler(*, profile: Profile = None, **_) -> HandlerResult:
             # Assert
             self.assertEqual(expected, profile)
+            return HTTPStatus.OK, ""
 
         self.invoke(route, RESTMethod.GET)
 
@@ -104,9 +111,10 @@ class TestRESTController(ABC):
 
         # Act
         @self.controller.register_rest_endpoint(route, RESTMethod.GET, json=False)
-        def handler(*args, **_) -> None:
+        def handler(*args, **_) -> HandlerResult:
             # Assert
             self.assertEqual(0, len(args))
+            return HTTPStatus.OK, ""
 
         self.invoke(route, RESTMethod.GET, json=None)
 
@@ -117,9 +125,10 @@ class TestRESTController(ABC):
 
         # Act
         @self.controller.register_rest_endpoint(route, RESTMethod.GET, json=True)
-        def handler(json_body: Any, **_) -> None:
+        def handler(json_body: Any, **_) -> HandlerResult:
             # Assert
             self.assertEqual(expected_body, json_body)
+            return HTTPStatus.OK, ""
 
         self.invoke(route, RESTMethod.GET, json=expected_body)
 
@@ -130,8 +139,8 @@ class TestRESTController(ABC):
 
         # Act
         @self.controller.register_rest_endpoint(route, RESTMethod.GET, json=True)
-        def handler(body: Any, **_) -> None:
-            self.fail(f"Should not have invoked method as 'body' arg should not have been passed in, was {body}")
+        def handler(body: Any, **_) -> HandlerResult:
+            return self.fail_with_message(f"Should not have invoked method as 'body' arg should not have been passed in, was {body}")
 
         self.controller.finalize()
 
@@ -148,8 +157,8 @@ class TestRESTController(ABC):
         # Act
         def action():
             @self.controller.register_rest_endpoint(anon_route(), RESTMethod.GET)
-            def handler(**_) -> None:
-                self.fail("Should not make it here")
+            def handler(**_) -> HandlerResult:
+                return self.fail_with_message("Should not make it here")
 
         # Assert
         self.assertRaises(ValueError, action)
@@ -170,8 +179,8 @@ class TestRESTController(ABC):
         route = anon_route()
 
         @self.controller.register_rest_endpoint(route, RESTMethod.GET)
-        def handler(**_) -> None:
-            self.fail("Should not make it here")
+        def handler(**_) -> HandlerResult:
+            return self.fail_with_message("Should not make it here")
 
         # Act
         actual = self.invoke(route, RESTMethod.GET)
@@ -186,8 +195,8 @@ class TestRESTController(ABC):
         # Act
         def action():
             @self.controller.register_rest_endpoint(route, RESTMethod.GET)
-            def handler() -> None:
-                self.fail(f"Should not make it here.")
+            def handler() -> HandlerResult:
+                return self.fail_with_message(f"Should not make it here.")
 
         # Assert
         self.assertRaises(ValueError, action)
@@ -199,8 +208,8 @@ class TestRESTController(ABC):
         # Act
         def action():
             @self.controller.register_rest_endpoint(route, RESTMethod.GET)
-            def handler(foo, bar) -> None:
-                self.fail(f"Should not make it here. (prevent unused warnings: {foo}, {bar})")
+            def handler(foo, bar) -> HandlerResult:
+                return self.fail_with_message(f"Should not make it here. (prevent unused warnings: {foo}, {bar})")
 
         # Assert
         self.assertRaises(ValueError, action)
@@ -213,7 +222,7 @@ class TestRESTController(ABC):
 
         # Act
         @self.controller.register_rest_endpoint(route, RESTMethod.GET)
-        def handler(*, foo, bar) -> None:
-            self.fail(f"Should not make it here. (prevent unused warnings: {foo}, {bar})")
+        def handler(*, foo, bar) -> HandlerResult:
+            return self.fail_with_message(f"Should not make it here. (prevent unused warnings: {foo}, {bar})")
 
         # Assert

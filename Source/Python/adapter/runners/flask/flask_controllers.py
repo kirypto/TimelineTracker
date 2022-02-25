@@ -8,7 +8,7 @@ from flask import request, Flask, make_response, Response
 from adapter.auth.auth0 import extract_profile_from_flask_session
 from application.access.clients import Profile
 from application.requests.rest import RESTMethod, HandlerResult, RequestHandler, MIMEType
-from application.requests.rest.controllers import RESTController, HandlerRegisterer, validate_handler_accepts_route_url_parameters
+from application.requests.rest.controllers import RESTController, HandlerRegisterer, validate_route_handler_declaration
 from application.requests.rest.handlers import LocationsRestRequestHandler, TravelersRestRequestHandler, EventsRestRequestHandler
 from application.requests.rest.utils import with_error_response_on_raised_exceptions
 
@@ -41,7 +41,7 @@ class FlaskRESTController(RESTController):
             raise ValueError(f"Cannot register, method argument must be a {type(RESTMethod).__name__} but was {type(route)}.")
 
         def handler_registerer(handler_func: RequestHandler) -> None:
-            validate_handler_accepts_route_url_parameters(route, handler_func)
+            validate_route_handler_declaration(route, handler_func)
 
             @with_error_response_on_raised_exceptions
             @extract_profile_from_flask_session

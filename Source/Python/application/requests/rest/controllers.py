@@ -1,21 +1,23 @@
 import re
 from abc import ABC, abstractmethod
-from inspect import getfullargspec
+from inspect import getfullargspec, signature
 from typing import Callable
 
-from application.requests.rest import RESTMethod, RequestHandler, MIMEType
+from application.requests.rest import RESTMethod, RequestHandler, MIMEType, HandlerResult
 
 
 HandlerRegisterer = Callable[[RequestHandler], None]
 _ROUTE_URL_PARAM_PATTERN = re.compile("<([a-zA-Z_]+)>")
 
 
-def validate_handler_accepts_route_url_parameters(route: str, handler: RequestHandler) -> None:
+def validate_route_handler_declaration(route: str, handler: RequestHandler) -> None:
     handler_argument_spec = getfullargspec(handler)
     route_url_parameters = re.findall(_ROUTE_URL_PARAM_PATTERN, route)
+    if signature(handler).return_annotation != HandlerResult:
+        raise ValueError(f"Failed to register route {route}, handler must return {HandlerResult}.")
     for url_param in route_url_parameters:
         if url_param not in handler_argument_spec.kwonlyargs:
-            raise ValueError(f"Failed to register route {route}, provided handler does not accept '{url_param}' as a keyword-only arg.")
+            raise ValueError(f"Failed to register route {route}, handler does not accept '{url_param}' as a keyword-only arg.")
 
 
 class RESTController(ABC):
