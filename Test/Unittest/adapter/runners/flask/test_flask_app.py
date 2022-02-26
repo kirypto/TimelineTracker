@@ -6,7 +6,7 @@ from flask_unittest import ClientTestCase
 
 from Test.Unittest.application.requests.rest.test_controllers import TestRESTController
 from Test.Unittest.test_helpers.anons import anon_string
-from adapter.runners.flask.flask_controllers import FlaskRESTController
+from adapter.runners.flask.flask_app import FlaskRESTController
 from application.access.clients import Profile
 from application.requests.rest import RESTMethod
 from application.requests.rest.controllers import RESTController
@@ -37,9 +37,6 @@ class TestFlaskRESTController(TestRESTController, ClientTestCase):
         return self._controller
 
     def invoke(self, route: str, method: RESTMethod, *, json: Any = None, query_params: dict = None) -> Any:
-        # if body is not None or query_params is not None:
-        #     raise NotImplementedError("Testing with body or query_params not yet supported")
-
         return self._client.open(route, method=method.value, json=json, query_string=query_params)
 
     def setup_equivalent_of_profile(self, profile: Optional[Profile]) -> None:
