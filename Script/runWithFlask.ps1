@@ -30,4 +30,4 @@ if ($migrationExitCode -ne 0) {
 
 # Actually run the app
 Write-Host "    ====================   Running Application   ====================";
-python .\Source\Python\adapter\runners\flask\flask_app.py $configFilePath;
+python .\Source\Python\adapter\runners\flask_app.py $configFilePath;

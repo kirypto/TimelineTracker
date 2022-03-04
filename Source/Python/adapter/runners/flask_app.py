@@ -101,7 +101,7 @@ def _create_timeline_tracker_flask_app(timeline_tracker_app_config: dict, auth_c
 
     controller_config = dict(
         rest_controller_config=dict(
-            controller_class_path="adapter.runners.flask.flask_controllers.FlaskRESTController",
+            controller_class_path="adapter.runners.flask_app.FlaskRESTController",
             flask_web_app=flask_web_app,
         ),
     )

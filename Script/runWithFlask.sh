@@ -32,4 +32,4 @@ fi
 
 # Actually run the app
 echo "    ====================   Running Application   ====================";
-$pythonCommand ./Source/Python/adapter/runners/flask/flask_app.py $configFilePath;
+$pythonCommand ./Source/Python/adapter/runners/flask_app.py $configFilePath;

@@ -6,7 +6,7 @@ from flask_unittest import ClientTestCase
 
 from Test.Unittest.application.requests.rest.test_controllers import TestRESTController
 from Test.Unittest.test_helpers.anons import anon_string
-from adapter.runners.flask.flask_app import FlaskRESTController
+from adapter.runners.flask_app import FlaskRESTController
 from application.access.clients import Profile
 from application.requests.rest import RESTMethod
 from application.requests.rest.controllers import RESTController
