@@ -47,7 +47,10 @@ def _parse_arguments() -> Namespace:
 def _ensure_data_migrated_to_current_version(
         app_version: StrictVersion,
         *, repository_type: str, json_repositories_directory_root: str = None) -> NoReturn:
-    if repository_type == "json":
+    if repository_type == "memory":
+        # No need to migrate data
+        pass
+    elif repository_type == "json":
         if json_repositories_directory_root is None:
             error("Config file specifies json type repositories but did not provide the directory root.")
             exit(-1)

@@ -23,7 +23,7 @@ _AUTH_CONFIG = {
 
 def construct_flask_app():
     # noinspection PyProtectedMember
-    from adapter.runners.flask.flask_app import _create_timeline_tracker_flask_app
+    from adapter.runners.flask_app import _create_timeline_tracker_flask_app
     return _create_timeline_tracker_flask_app(_APP_CONFIG, _AUTH_CONFIG, anon_string())
 
 

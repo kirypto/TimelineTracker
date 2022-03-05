@@ -1,21 +1,23 @@
 from pathlib import Path
 
 from _version import __version__
-from application.factories import RepositoriesFactory, RequestHandlersFactory
+from application.factories import RepositoriesFactory, RESTControllersFactory
+from application.requests.rest.handlers import LocationsRestRequestHandler, TravelersRestRequestHandler, EventsRestRequestHandler
 from application.use_case.event_use_cases import EventUseCase
 from application.use_case.location_use_cases import LocationUseCase
 from application.use_case.timeline_use_cases import TimelineUseCase
 from application.use_case.traveler_use_cases import TravelerUseCase
-from domain.request_handling.handlers import LocationsRequestHandler, TravelersRequestHandler, EventsRequestHandler
 from util.logging import configure_logging
 
 
 class TimelineTrackerApp:
     _version: str
     _resources_folder: Path
-    _locations_request_handler: LocationsRequestHandler
-    _travelers_request_handler: TravelersRequestHandler
-    _event_request_handler: EventsRequestHandler
+
+    _location_use_case: LocationUseCase
+    _traveler_use_case: TravelerUseCase
+    _event_use_case: EventUseCase
+    _timeline_use_case: TimelineUseCase
 
     @property
     def version(self) -> str:
@@ -25,21 +27,7 @@ class TimelineTrackerApp:
     def resources_folder(self) -> Path:
         return self._resources_folder
 
-    @property
-    def locations_request_handler(self) -> LocationsRequestHandler:
-        return self._locations_request_handler
-
-    @property
-    def travelers_request_handler(self) -> TravelersRequestHandler:
-        return self._travelers_request_handler
-
-    @property
-    def event_request_handler(self) -> EventsRequestHandler:
-        return self._event_request_handler
-
-    def __init__(
-            self, *, resources_folder_path: str, repositories_config: dict, request_handlers_config: dict, logging_config: dict = None
-    ) -> None:
+    def __init__(self, *, resources_folder_path: str, repositories_config: dict, logging_config: dict = None) -> None:
         configure_logging(**(logging_config if logging_config is not None else {}))
 
         self._resources_folder = Path(resources_folder_path).resolve()
@@ -51,13 +39,16 @@ class TimelineTrackerApp:
         traveler_repository = repositories_factory.traveler_repo
         event_repository = repositories_factory.event_repo
 
-        location_use_case = LocationUseCase(location_repository, event_repository)
-        traveler_use_case = TravelerUseCase(traveler_repository, event_repository)
-        event_use_case = EventUseCase(location_repository, traveler_repository, event_repository)
-        timeline_use_case = TimelineUseCase(location_repository, traveler_repository, event_repository)
+        self._location_use_case = LocationUseCase(location_repository, event_repository)
+        self._traveler_use_case = TravelerUseCase(traveler_repository, event_repository)
+        self._event_use_case = EventUseCase(location_repository, traveler_repository, event_repository)
+        self._timeline_use_case = TimelineUseCase(location_repository, traveler_repository, event_repository)
 
-        request_handlers_factory = RequestHandlersFactory(
-            location_use_case, traveler_use_case, event_use_case, timeline_use_case, **request_handlers_config)
-        self._locations_request_handler = request_handlers_factory.location_handler
-        self._travelers_request_handler = request_handlers_factory.traveler_handler
-        self._event_request_handler = request_handlers_factory.event_handler
+    def initialize_controllers(self, *, rest_controller_config: dict) -> None:
+        rest_controller = RESTControllersFactory(**rest_controller_config).rest_controller
+
+        LocationsRestRequestHandler.register_routes(rest_controller, self._location_use_case, self._timeline_use_case)
+        TravelersRestRequestHandler.register_routes(rest_controller, self._traveler_use_case, self._timeline_use_case)
+        EventsRestRequestHandler.register_routes(rest_controller, self._event_use_case)
+
+        rest_controller.finalize()

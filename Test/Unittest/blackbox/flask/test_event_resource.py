@@ -7,7 +7,7 @@ from flask.testing import FlaskClient
 from flask_unittest import ClientTestCase
 
 from Test.Unittest.test_helpers.anons import anon_event, anon_location, anon_traveler, anon_float, anon_string, anon_route, anon_name
-from adapter.views import JsonTranslator
+from application.requests.data_forms import JsonTranslator
 from domain.positions import PositionalMove, Position, MovementType
 
 
@@ -27,7 +27,7 @@ _AUTH_CONFIG = {
 
 def construct_flask_app():
     # noinspection PyProtectedMember
-    from adapter.runners.flask.flask_app import _create_timeline_tracker_flask_app
+    from adapter.runners.flask_app import _create_timeline_tracker_flask_app
     return _create_timeline_tracker_flask_app(_APP_CONFIG, _AUTH_CONFIG, anon_string())
 
 
