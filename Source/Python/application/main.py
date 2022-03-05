@@ -13,9 +13,6 @@ from util.logging import configure_logging
 class TimelineTrackerApp:
     _version: str
     _resources_folder: Path
-    _locations_request_handler: LocationsRestRequestHandler
-    _travelers_request_handler: TravelersRestRequestHandler
-    _event_request_handler: EventsRestRequestHandler
 
     _location_use_case: LocationUseCase
     _traveler_use_case: TravelerUseCase
@@ -29,18 +26,6 @@ class TimelineTrackerApp:
     @property
     def resources_folder(self) -> Path:
         return self._resources_folder
-
-    @property
-    def locations_request_handler(self) -> LocationsRestRequestHandler:
-        return self._locations_request_handler
-
-    @property
-    def travelers_request_handler(self) -> TravelersRestRequestHandler:
-        return self._travelers_request_handler
-
-    @property
-    def event_request_handler(self) -> EventsRestRequestHandler:
-        return self._event_request_handler
 
     def __init__(self, *, resources_folder_path: str, repositories_config: dict, logging_config: dict = None) -> None:
         configure_logging(**(logging_config if logging_config is not None else {}))
