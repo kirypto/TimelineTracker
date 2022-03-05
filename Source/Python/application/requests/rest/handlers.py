@@ -8,8 +8,8 @@ from jsonpatch import JsonPatch, PatchOperation
 from application.requests.data_forms import JsonTranslator
 from application.requests.rest import RESTMethod, HandlerResult, MIMEType
 from application.requests.rest.controllers import RESTController
-from application.requests.rest.utils import parse_optional_tag_set_query_param, \
-    parse_optional_position_query_param, parse_optional_positional_range_query_param
+from application.requests.rest.utils import parse_optional_tag_set_query_param, parse_optional_position_query_param, \
+    parse_optional_positional_range_query_param
 from application.use_case.event_use_cases import EventUseCase
 from application.use_case.location_use_cases import LocationUseCase
 from application.use_case.timeline_use_cases import TimelineUseCase
@@ -23,17 +23,9 @@ from domain.travelers import Traveler
 
 
 class LocationsRestRequestHandler:
-    _location_use_case: LocationUseCase
-    _timeline_use_case: TimelineUseCase
-    _rest_controller: RESTController
-
-    def __init__(self, rest_controller: RESTController, location_use_case: LocationUseCase, timeline_use_case: TimelineUseCase) -> None:
-        self._rest_controller = rest_controller
-        self._location_use_case = location_use_case
-        self._timeline_use_case = timeline_use_case
-
-    def register_routes(self):
-        @self._rest_controller.register_rest_endpoint("/api/location", RESTMethod.POST, MIMEType.JSON, json=True)
+    @staticmethod
+    def register_routes(rest_controller: RESTController, location_use_case: LocationUseCase, timeline_use_case: TimelineUseCase) -> None:
+        @rest_controller.register_rest_endpoint("/api/location", RESTMethod.POST, MIMEType.JSON, json=True)
         def locations_post_handler(json_body: dict, **kwargs) -> HandlerResult:
             location_kwargs = {
                 "name": JsonTranslator.from_json(json_body["name"], str),
@@ -42,11 +34,11 @@ class LocationsRestRequestHandler:
                 "metadata": JsonTranslator.from_json(json_body.get("metadata", {}), Dict[str, str]),
                 "tags": JsonTranslator.from_json(json_body.get("tags", set()), Set[Tag]),
             }
-            location = self._location_use_case.create(**location_kwargs, **kwargs)
+            location = location_use_case.create(**location_kwargs, **kwargs)
 
             return HTTPStatus.CREATED, dumps(JsonTranslator.to_json(location), indent=2)
 
-        @self._rest_controller.register_rest_endpoint("/api/locations", RESTMethod.GET, MIMEType.JSON, query_params=True)
+        @rest_controller.register_rest_endpoint("/api/locations", RESTMethod.GET, MIMEType.JSON, query_params=True)
         def locations_get_all_handler(query_params: Dict[str, str], **kwargs) -> HandlerResult:
             supported_filters = {
                 "nameIs", "nameHas", "taggedAll", "taggedAny", "taggedOnly", "taggedNone", "spanIncludes", "spanIntersects"
@@ -64,38 +56,38 @@ class LocationsRestRequestHandler:
                 "span_intersects": parse_optional_positional_range_query_param(query_params.get("spanIntersects", None)),
             }
 
-            locations = self._location_use_case.retrieve_all(**filters, **kwargs)
+            locations = location_use_case.retrieve_all(**filters, **kwargs)
 
             return HTTPStatus.OK, dumps([JsonTranslator.to_json(location.id) for location in locations], indent=2)
 
-        @self._rest_controller.register_rest_endpoint("/api/location/<location_id>", RESTMethod.GET, MIMEType.JSON)
+        @rest_controller.register_rest_endpoint("/api/location/<location_id>", RESTMethod.GET, MIMEType.JSON)
         def location_get_handler(*, location_id: str, **kwargs) -> HandlerResult:
             if not location_id.startswith("location-"):
                 raise ValueError(f"Cannot parse location id from '{location_id}")
             _location_id = JsonTranslator.from_json(location_id, PrefixedUUID)
 
-            location = self._location_use_case.retrieve(_location_id, **kwargs)
+            location = location_use_case.retrieve(_location_id, **kwargs)
 
             return HTTPStatus.OK, dumps(JsonTranslator.to_json(location), indent=2)
 
-        @self._rest_controller.register_rest_endpoint("/api/location/<location_id>", RESTMethod.DELETE, MIMEType.JSON)
+        @rest_controller.register_rest_endpoint("/api/location/<location_id>", RESTMethod.DELETE, MIMEType.JSON)
         def location_delete_handler(*, location_id: str, **kwargs) -> HandlerResult:
             if not location_id.startswith("location-"):
                 raise ValueError(f"Cannot parse location id from '{location_id}")
             location_id_ = JsonTranslator.from_json(location_id, PrefixedUUID)
 
-            self._location_use_case.delete(location_id_, **kwargs)
+            location_use_case.delete(location_id_, **kwargs)
 
             return HTTPStatus.NO_CONTENT, ""
 
-        @self._rest_controller.register_rest_endpoint("/api/location/<location_id>", RESTMethod.PATCH, MIMEType.JSON, json=True)
+        @rest_controller.register_rest_endpoint("/api/location/<location_id>", RESTMethod.PATCH, MIMEType.JSON, json=True)
         def location_patch_handler(body_patch_operations: List[Dict[str, Any]], *, location_id: str, **kwargs) -> HandlerResult:
             if not location_id.startswith("location-"):
                 raise ValueError(f"Cannot parse location id from '{location_id}")
             location_id_ = JsonTranslator.from_json(location_id, PrefixedUUID)
 
             patch = JsonPatch([PatchOperation(operation).operation for operation in body_patch_operations])
-            existing_location_json = JsonTranslator.to_json(self._location_use_case.retrieve(location_id_, **kwargs))
+            existing_location_json = JsonTranslator.to_json(location_use_case.retrieve(location_id_, **kwargs))
 
             modified_location_json = patch.apply(existing_location_json)
             modified_location = JsonTranslator.from_json(modified_location_json, Location)
@@ -103,11 +95,11 @@ class LocationsRestRequestHandler:
             if modified_location.id != location_id_:
                 raise ValueError("A Location's 'id' cannot be modified")
 
-            self._location_use_case.update(modified_location, **kwargs)
+            location_use_case.update(modified_location, **kwargs)
 
             return HTTPStatus.OK, dumps(JsonTranslator.to_json(modified_location), indent=2)
 
-        @self._rest_controller.register_rest_endpoint(
+        @rest_controller.register_rest_endpoint(
             "/api/location/<location_id>/timeline", RESTMethod.GET, MIMEType.JSON, query_params=True
         )
         def location_timeline_get_handler(query_params: Dict[str, str], *, location_id: str, **kwargs) -> HandlerResult:
@@ -125,23 +117,15 @@ class LocationsRestRequestHandler:
                 "tagged_none": parse_optional_tag_set_query_param(query_params.get("taggedNone", None)),
             }
 
-            timeline = self._timeline_use_case.construct_location_timeline(location_id_, **filters, **kwargs)
+            timeline = timeline_use_case.construct_location_timeline(location_id_, **filters, **kwargs)
 
             return HTTPStatus.OK, dumps(JsonTranslator.to_json(timeline), indent=2)
 
 
 class TravelersRestRequestHandler:
-    _traveler_use_case: TravelerUseCase
-    _timeline_use_case: TimelineUseCase
-    _rest_controller: RESTController
-
-    def __init__(self, rest_controller: RESTController, traveler_use_case: TravelerUseCase, timeline_use_case: TimelineUseCase) -> None:
-        self._rest_controller = rest_controller
-        self._traveler_use_case = traveler_use_case
-        self._timeline_use_case = timeline_use_case
-
-    def register_routes(self):
-        @self._rest_controller.register_rest_endpoint("/api/traveler", RESTMethod.POST, MIMEType.JSON, json=True)
+    @staticmethod
+    def register_routes(rest_controller: RESTController, traveler_use_case: TravelerUseCase, timeline_use_case: TimelineUseCase) -> None:
+        @rest_controller.register_rest_endpoint("/api/traveler", RESTMethod.POST, MIMEType.JSON, json=True)
         def travelers_post_handler(request_body: dict, **kwargs) -> HandlerResult:
             traveler_kwargs = {
                 "name": JsonTranslator.from_json(request_body["name"], str),
@@ -150,11 +134,11 @@ class TravelersRestRequestHandler:
                 "metadata": JsonTranslator.from_json(request_body.get("metadata", {}), Dict[str, str]),
                 "tags": JsonTranslator.from_json(request_body.get("tags", set()), Set[Tag]),
             }
-            traveler = self._traveler_use_case.create(**traveler_kwargs, **kwargs)
+            traveler = traveler_use_case.create(**traveler_kwargs, **kwargs)
 
             return HTTPStatus.CREATED, dumps(JsonTranslator.to_json(traveler), indent=2)
 
-        @self._rest_controller.register_rest_endpoint("/api/travelers", RESTMethod.GET, MIMEType.JSON, query_params=True)
+        @rest_controller.register_rest_endpoint("/api/travelers", RESTMethod.GET, MIMEType.JSON, query_params=True)
         def travelers_get_all_handler(query_params: Dict[str, str], **kwargs) -> HandlerResult:
             supported_filters = {"nameIs", "nameHas", "taggedAll", "taggedAny", "taggedOnly", "taggedNone", "journeyIntersects",
                                  "journeyIncludes"}
@@ -171,38 +155,38 @@ class TravelersRestRequestHandler:
                 "journey_includes": parse_optional_position_query_param(query_params.get("journeyIncludes", None)),
             }
 
-            travelers = self._traveler_use_case.retrieve_all(**filters, **kwargs)
+            travelers = traveler_use_case.retrieve_all(**filters, **kwargs)
 
             return HTTPStatus.OK, dumps([JsonTranslator.to_json(traveler.id) for traveler in travelers], indent=2)
 
-        @self._rest_controller.register_rest_endpoint("/api/traveler/<traveler_id>", RESTMethod.GET, MIMEType.JSON)
+        @rest_controller.register_rest_endpoint("/api/traveler/<traveler_id>", RESTMethod.GET, MIMEType.JSON)
         def traveler_get_handler(*, traveler_id: str, **kwargs) -> HandlerResult:
             if not traveler_id.startswith("traveler-"):
                 raise ValueError(f"Cannot parse traveler id from '{traveler_id}")
             traveler_id_ = JsonTranslator.from_json(traveler_id, PrefixedUUID)
 
-            traveler = self._traveler_use_case.retrieve(traveler_id_, **kwargs)
+            traveler = traveler_use_case.retrieve(traveler_id_, **kwargs)
 
             return HTTPStatus.OK, dumps(JsonTranslator.to_json(traveler), indent=2)
 
-        @self._rest_controller.register_rest_endpoint("/api/traveler/<traveler_id>", RESTMethod.DELETE, MIMEType.JSON)
+        @rest_controller.register_rest_endpoint("/api/traveler/<traveler_id>", RESTMethod.DELETE, MIMEType.JSON)
         def traveler_delete_handler(*, traveler_id: str, **kwargs) -> HandlerResult:
             if not traveler_id.startswith("traveler-"):
                 raise ValueError(f"Cannot parse traveler id from '{traveler_id}")
             traveler_id = JsonTranslator.from_json(traveler_id, PrefixedUUID)
 
-            self._traveler_use_case.delete(traveler_id, **kwargs)
+            traveler_use_case.delete(traveler_id, **kwargs)
 
             return HTTPStatus.NO_CONTENT, dumps("", indent=2)
 
-        @self._rest_controller.register_rest_endpoint("/api/traveler/<traveler_id>", RESTMethod.PATCH, MIMEType.JSON, json=True)
+        @rest_controller.register_rest_endpoint("/api/traveler/<traveler_id>", RESTMethod.PATCH, MIMEType.JSON, json=True)
         def traveler_patch_handler(body_patch_operations: List[Dict[str, Any]], *, traveler_id: str, **kwargs) -> HandlerResult:
             if not traveler_id.startswith("traveler-"):
                 raise ValueError(f"Cannot parse traveler id from '{traveler_id}")
             traveler_id_ = JsonTranslator.from_json(traveler_id, PrefixedUUID)
 
             patch = JsonPatch([PatchOperation(operation).operation for operation in body_patch_operations])
-            existing_object_view = JsonTranslator.to_json(self._traveler_use_case.retrieve(traveler_id_, **kwargs))
+            existing_object_view = JsonTranslator.to_json(traveler_use_case.retrieve(traveler_id_, **kwargs))
 
             modified_traveler_json = patch.apply(existing_object_view)
             modified_traveler = JsonTranslator.from_json(modified_traveler_json, Traveler)
@@ -210,11 +194,11 @@ class TravelersRestRequestHandler:
             if modified_traveler.id != traveler_id_:
                 raise ValueError("A Traveler's 'id' cannot be modified")
 
-            self._traveler_use_case.update(modified_traveler, **kwargs)
+            traveler_use_case.update(modified_traveler, **kwargs)
 
             return HTTPStatus.OK, dumps(JsonTranslator.to_json(modified_traveler), indent=2)
 
-        @self._rest_controller.register_rest_endpoint("/api/traveler/<traveler_id>/journey", RESTMethod.POST, MIMEType.JSON, json=True)
+        @rest_controller.register_rest_endpoint("/api/traveler/<traveler_id>/journey", RESTMethod.POST, MIMEType.JSON, json=True)
         def traveler_journey_post_handler(body_new_positional_move: dict, *, traveler_id: str, **kwargs) -> HandlerResult:
             if not traveler_id.startswith("traveler-"):
                 raise ValueError(f"Cannot parse traveler id from '{traveler_id}")
@@ -222,7 +206,7 @@ class TravelersRestRequestHandler:
 
             new_positional_move = JsonTranslator.from_json(body_new_positional_move, PositionalMove)
 
-            existing_traveler = self._traveler_use_case.retrieve(traveler_id_, **kwargs)
+            existing_traveler = traveler_use_case.retrieve(traveler_id_, **kwargs)
 
             appended_journey = deepcopy(existing_traveler.journey)
             appended_journey.append(new_positional_move)
@@ -230,11 +214,11 @@ class TravelersRestRequestHandler:
                 id=existing_traveler.id, name=existing_traveler.name, description=existing_traveler.description,
                 journey=appended_journey, tags=existing_traveler.tags, metadata=existing_traveler.metadata)
 
-            self._traveler_use_case.update(modified_traveler, **kwargs)
+            traveler_use_case.update(modified_traveler, **kwargs)
 
             return HTTPStatus.OK, dumps(JsonTranslator.to_json(modified_traveler), indent=2)
 
-        @self._rest_controller.register_rest_endpoint(
+        @rest_controller.register_rest_endpoint(
             "/api/traveler/<traveler_id>/timeline", RESTMethod.GET, MIMEType.JSON, query_params=True
         )
         def traveler_timeline_get_handler(query_params: Dict[str, str], *, traveler_id: str, **kwargs) -> HandlerResult:
@@ -252,7 +236,7 @@ class TravelersRestRequestHandler:
                 "tagged_none": parse_optional_tag_set_query_param(query_params.get("taggedNone", None)),
             }
 
-            timeline = self._timeline_use_case.construct_traveler_timeline(traveler_id, **filters, **kwargs)
+            timeline = timeline_use_case.construct_traveler_timeline(traveler_id, **filters, **kwargs)
 
             return HTTPStatus.OK, dumps(JsonTranslator.to_json(timeline), indent=2)
 
@@ -261,11 +245,9 @@ class EventsRestRequestHandler:
     _event_use_case: EventUseCase
     _rest_controller: RESTController
 
-    def __init__(self, rest_controller: RESTController, event_use_case: EventUseCase) -> None:
-        self._rest_controller = rest_controller
-        self._event_use_case = event_use_case
-
-        @self._rest_controller.register_rest_endpoint("/api/event", RESTMethod.POST, MIMEType.JSON, json=True)
+    @staticmethod
+    def register_routes(rest_controller: RESTController, event_use_case: EventUseCase) -> None:
+        @rest_controller.register_rest_endpoint("/api/event", RESTMethod.POST, MIMEType.JSON, json=True)
         def events_post_handler(request_body: dict, **kwargs) -> HandlerResult:
             event_kwargs = {
                 "name": JsonTranslator.from_json(request_body["name"], str),
@@ -276,11 +258,11 @@ class EventsRestRequestHandler:
                 "affected_locations": JsonTranslator.from_json(request_body["affected_locations"], Set[PrefixedUUID]),
                 "affected_travelers": JsonTranslator.from_json(request_body["affected_travelers"], Set[PrefixedUUID]),
             }
-            event = self._event_use_case.create(**event_kwargs, **kwargs)
+            event = event_use_case.create(**event_kwargs, **kwargs)
 
             return HTTPStatus.CREATED, dumps(JsonTranslator.to_json(event), indent=2)
 
-        @self._rest_controller.register_rest_endpoint("/api/events", RESTMethod.GET, MIMEType.JSON, query_params=True)
+        @rest_controller.register_rest_endpoint("/api/events", RESTMethod.GET, MIMEType.JSON, query_params=True)
         def events_get_all_handler(query_params: Dict[str, str], **kwargs) -> HandlerResult:
             supported_filters = {
                 "nameIs", "nameHas", "taggedAll", "taggedAny", "taggedOnly", "taggedNone", "spanIncludes", "spanIntersects"
@@ -298,38 +280,38 @@ class EventsRestRequestHandler:
                 "span_intersects": parse_optional_positional_range_query_param(query_params.get("spanIntersects", None)),
             }
 
-            events = self._event_use_case.retrieve_all(**filters, **kwargs)
+            events = event_use_case.retrieve_all(**filters, **kwargs)
 
             return HTTPStatus.OK, dumps([JsonTranslator.to_json(event.id) for event in events], indent=2)
 
-        @self._rest_controller.register_rest_endpoint("/api/event/<event_id>", RESTMethod.GET, MIMEType.JSON)
+        @rest_controller.register_rest_endpoint("/api/event/<event_id>", RESTMethod.GET, MIMEType.JSON)
         def event_get_handler(*, event_id: str, **kwargs) -> HandlerResult:
             if not event_id.startswith("event-"):
                 raise ValueError(f"Cannot parse event id from '{event_id}")
             event_id_ = JsonTranslator.from_json(event_id, PrefixedUUID)
 
-            event = self._event_use_case.retrieve(event_id_, **kwargs)
+            event = event_use_case.retrieve(event_id_, **kwargs)
 
             return HTTPStatus.OK, dumps(JsonTranslator.to_json(event), indent=2)
 
-        @self._rest_controller.register_rest_endpoint("/api/event/<event_id>", RESTMethod.DELETE, MIMEType.JSON)
+        @rest_controller.register_rest_endpoint("/api/event/<event_id>", RESTMethod.DELETE, MIMEType.JSON)
         def event_delete_handler(*, event_id: str, **kwargs) -> HandlerResult:
             if not event_id.startswith("event-"):
                 raise ValueError(f"Cannot parse event id from '{event_id}")
             event_id_ = JsonTranslator.from_json(event_id, PrefixedUUID)
 
-            self._event_use_case.delete(event_id_, **kwargs)
+            event_use_case.delete(event_id_, **kwargs)
 
             return HTTPStatus.NO_CONTENT, dumps("", indent=2)
 
-        @self._rest_controller.register_rest_endpoint("/api/event/<event_id>", RESTMethod.PATCH, MIMEType.JSON, json=True)
+        @rest_controller.register_rest_endpoint("/api/event/<event_id>", RESTMethod.PATCH, MIMEType.JSON, json=True)
         def event_patch_handler(body_patch_operations: List[Dict[str, Any]], *, event_id: str, **kwargs) -> HandlerResult:
             if not event_id.startswith("event-"):
                 raise ValueError(f"Cannot parse event id from '{event_id}")
             event_id_ = JsonTranslator.from_json(event_id, PrefixedUUID)
 
             patch = JsonPatch([PatchOperation(operation).operation for operation in body_patch_operations])
-            existing_event_json = JsonTranslator.to_json(self._event_use_case.retrieve(event_id_, **kwargs))
+            existing_event_json = JsonTranslator.to_json(event_use_case.retrieve(event_id_, **kwargs))
 
             modified_event_json = patch.apply(existing_event_json)
             modified_event = JsonTranslator.from_json(modified_event_json, Event)
@@ -337,6 +319,6 @@ class EventsRestRequestHandler:
             if modified_event.id != event_id_:
                 raise ValueError("A Event's 'id' cannot be modified")
 
-            self._event_use_case.update(modified_event, **kwargs)
+            event_use_case.update(modified_event, **kwargs)
 
             return HTTPStatus.OK, dumps(JsonTranslator.to_json(modified_event), indent=2)

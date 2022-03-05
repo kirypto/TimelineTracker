@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from _version import __version__
-from application.factories import RepositoriesFactory, RequestHandlersFactory, RESTControllersFactory
+from application.factories import RepositoriesFactory, RESTControllersFactory
 from application.requests.rest.handlers import LocationsRestRequestHandler, TravelersRestRequestHandler, EventsRestRequestHandler
 from application.use_case.event_use_cases import EventUseCase
 from application.use_case.location_use_cases import LocationUseCase
@@ -62,14 +62,8 @@ class TimelineTrackerApp:
     def initialize_controllers(self, *, rest_controller_config: dict) -> None:
         rest_controller = RESTControllersFactory(**rest_controller_config).rest_controller
 
-        request_handlers_factory = RequestHandlersFactory(
-            rest_controller,
-            self._location_use_case, self._traveler_use_case, self._event_use_case, self._timeline_use_case)
-        self._locations_request_handler = request_handlers_factory.location_handler
-        self._travelers_request_handler = request_handlers_factory.traveler_handler
-        self._event_request_handler = request_handlers_factory.event_handler
-
-        self._locations_request_handler.register_routes()
-        self._travelers_request_handler.register_routes()
+        LocationsRestRequestHandler.register_routes(rest_controller, self._location_use_case, self._timeline_use_case)
+        TravelersRestRequestHandler.register_routes(rest_controller, self._traveler_use_case, self._timeline_use_case)
+        EventsRestRequestHandler.register_routes(rest_controller, self._event_use_case)
 
         rest_controller.finalize()
