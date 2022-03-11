@@ -136,10 +136,21 @@ class FlaskRESTController(RESTController):
         def handler_registerer(handler_func: RequestHandler) -> None:
             validate_route_handler_declaration(route, handler_func)
 
+            def convert_to_flask_response(func: RequestHandler) -> Callable[[...], Response]:
+                @wraps(func)
+                def wrapper(*args, **kwargs) -> Response:
+                    response: HandlerResult = func(*args, **kwargs)
+                    status_code, contents = response
+                    flask_response = make_response(contents, status_code)
+                    flask_response.mimetype = response_type.value
+                    return flask_response
+                return wrapper
+
+            @convert_to_flask_response
             @with_error_response_on_raised_exceptions
             @extract_profile_from_flask_session
             @wraps(handler_func)
-            def handler_wrapper(**kwargs) -> Response:
+            def handler_wrapper(**kwargs) -> HandlerResult:
                 args = []
                 if json:
                     if request.json is None:
@@ -148,11 +159,7 @@ class FlaskRESTController(RESTController):
                 if query_params:
                     args.append(dict(request.args))
 
-                response: HandlerResult = handler_func(*args, **kwargs)
-                status_code, contents = response
-                flask_response = make_response(contents, status_code)
-                flask_response.mimetype = response_type.value
-                return flask_response
+                return handler_func(*args, **kwargs)
 
             self._routes[route][method] = handler_wrapper
 

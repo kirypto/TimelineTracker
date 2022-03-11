@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from http import HTTPStatus
+from json import dumps
 from random import choice
 from typing import Callable, Any, Optional
 
@@ -37,7 +38,7 @@ class TestRESTController(ABC):
 
     def test__registered_route__should_return_error_response__when_exception_thrown(self, *_) -> None:
         # Arrange
-        expected_json, expected_status_code = error_response("expected message", HTTPStatus.BAD_REQUEST)
+        expected_status_code, expected_json = error_response("expected message", HTTPStatus.BAD_REQUEST)
         route = anon_route()
 
         @self.controller.register_rest_endpoint(route, RESTMethod.GET)
@@ -50,7 +51,7 @@ class TestRESTController(ABC):
 
         # Assert
         self.assertEqual(expected_status_code, actual.status_code)
-        self.assertEqual(expected_json, actual.json)
+        self.assertEqual(expected_json, dumps(actual.json))
 
     def test__registered_route__should_delegate_to_correct_handler__when_route_registered_with_multiple_methods(self, *_) -> None:
         # Arrange
@@ -135,7 +136,7 @@ class TestRESTController(ABC):
     def test__registered_route__should_return_error_response__when_body_requested_but_not_available(self, *_) -> None:
         # Arrange
         route = anon_route()
-        expected_json, expected_status_code = error_response("Json body must be provided", HTTPStatus.BAD_REQUEST)
+        expected_status_code, expected_json = error_response("Json body must be provided", HTTPStatus.BAD_REQUEST)
 
         # Act
         @self.controller.register_rest_endpoint(route, RESTMethod.GET, json=True)
@@ -148,7 +149,7 @@ class TestRESTController(ABC):
 
         # Assert
         self.assertEqual(expected_status_code, actual.status_code)
-        self.assertEqual(expected_json, actual.json)
+        self.assertEqual(expected_json, dumps(actual.json))
 
     def test__register_route__should_throw_exception__when_controller_already_finalized(self, *_) -> None:
         # Arrange

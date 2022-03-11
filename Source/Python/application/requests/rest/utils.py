@@ -1,18 +1,19 @@
 from http import HTTPStatus
-from json import loads
+from json import loads, dumps
 from logging import exception
-from typing import Union, Tuple, Optional, Set, Callable
+from typing import Union, Optional, Set
 
 from jsonpatch import InvalidJsonPatch, JsonPatchTestFailed, JsonPatchConflict
 
 from application.access.errors import AuthError
 from application.requests.data_forms import JsonTranslator
+from application.requests.rest import RequestHandler, HandlerResult
 from domain.positions import PositionalRange, Position
 from domain.tags import Tag
 
 
-def error_response(message: Union[str, BaseException], status_code: int) -> Tuple[dict, int]:
-    return {"error": str(message)}, status_code
+def error_response(message: Union[str, BaseException], status_code: int) -> HandlerResult:
+    return status_code, dumps({"error": str(message)})
 
 
 def parse_optional_tag_set_query_param(tags_query_param: Optional[str]) -> Optional[Set[Tag]]:
@@ -33,8 +34,8 @@ def parse_optional_position_query_param(position_query_param: Optional[str]) -> 
     return JsonTranslator.from_json(loads(position_query_param), Position)
 
 
-def with_error_response_on_raised_exceptions(handler_function: Callable) -> Callable:
-    def inner(*args, **kwargs):
+def with_error_response_on_raised_exceptions(handler_function: RequestHandler) -> RequestHandler:
+    def inner(*args, **kwargs) -> HandlerResult:
         try:
             return handler_function(*args, **kwargs)
         except AuthError as e:
