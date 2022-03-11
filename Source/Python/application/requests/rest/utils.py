@@ -44,9 +44,12 @@ def with_error_response_on_raised_exceptions(handler_function: RequestHandler) -
         except NameError as e:
             exception(e, exc_info=e)
             return error_response(e, HTTPStatus.NOT_FOUND)
-        except (KeyError, TypeError, ValueError, AttributeError, InvalidJsonPatch) as e:
+        except (TypeError, ValueError, AttributeError, InvalidJsonPatch) as e:
             exception(e, exc_info=e)
             return error_response(e, HTTPStatus.BAD_REQUEST)
+        except KeyError as e:
+            exception(e, exc_info=e)
+            return error_response(f"Missing key {e}", HTTPStatus.BAD_REQUEST)
         except (JsonPatchTestFailed, JsonPatchConflict) as e:
             exception(e, exc_info=e)
             return error_response(e, HTTPStatus.PRECONDITION_FAILED)
