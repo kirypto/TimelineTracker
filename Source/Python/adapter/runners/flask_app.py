@@ -23,7 +23,7 @@ def _create_flask_web_app(auth_config: dict, resource_folder: Path, version: str
     # Web Paths
     _STATIC_URL_PREFIX = "/static"
     _SWAGGER_URL = "/api/docs"  # URL for exposing Swagger UI (without trailing '/')
-    _API_SPECIFICATION_URL = f"{_STATIC_URL_PREFIX}/apiSpecification.json"  # Our API url (can of course be a local resource)
+    _API_SPECIFICATION_URL = f"{_STATIC_URL_PREFIX}/APISpec/apiSpecification.json"  # Our API url (can of course be a local resource)
 
     statically_served_files_folder = resource_folder.joinpath("StaticallyServedFiles").as_posix()
     # Construct Flask web service

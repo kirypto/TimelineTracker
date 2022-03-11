@@ -38,7 +38,7 @@ class StaticallyServedResourceTest(ClientTestCase):
         # Arrange
 
         # Act
-        actual = client.get("/static/apiSpecification.json")
+        actual = client.get("/static/APISpec/apiSpecification.json")
 
         # Assert
         self.assertEqual(200, actual.status_code)
