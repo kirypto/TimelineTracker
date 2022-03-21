@@ -2,6 +2,7 @@ from random import choices, uniform, randint, choice
 from string import ascii_letters, printable, digits, ascii_lowercase
 from typing import Type, Any, Set, List, TypeVar, Dict
 
+from application.access.clients import Profile
 from domain.collections import Range
 from domain.events import Event
 from domain.ids import PrefixedUUID, IdentifiedEntity, generate_prefixed_id
@@ -210,3 +211,7 @@ def anon_create_event_kwargs(
         "affected_travelers": _coalesce(affected_travelers, set()),
         "metadata": _coalesce(metadata, anon_metadata()),
     }
+
+
+def anon_profile() -> Profile:
+    return Profile(str(generate_prefixed_id("client")), anon_name())
