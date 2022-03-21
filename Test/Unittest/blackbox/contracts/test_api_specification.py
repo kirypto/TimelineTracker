@@ -35,9 +35,11 @@ def _get_api_spec() -> APISpecification:
 
 def _get_test_params() -> List[Tuple[str, RESTMethod]]:
     api_spec = _get_api_spec()
-    return [
-        ("/api/world/{worldId}/location", RESTMethod.POST),
-    ]
+    test_params: List[Tuple[str, RESTMethod]] = []
+    for route, methods in api_spec.get_resources().items():
+        for method in methods:
+            test_params.append((route, method))
+    return test_params
 
 
 class TestAPISpecification(TestCase):
