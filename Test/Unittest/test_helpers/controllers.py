@@ -1,10 +1,11 @@
 from collections import defaultdict
+from http import HTTPStatus
 from typing import Any, Dict, Optional
 
 from application.access.clients import Profile
 from application.requests.rest import RESTMethod, MIMEType, RequestHandler, HandlerResult
 from application.requests.rest.controllers import RESTController, HandlerRegisterer, validate_route_handler_declaration
-from application.requests.rest.utils import with_error_response_on_raised_exceptions
+from application.requests.rest.utils import with_error_response_on_raised_exceptions, error_response
 
 
 class TestableRESTController(RESTController):
@@ -34,6 +35,11 @@ class TestableRESTController(RESTController):
         pass
 
     def invoke(self, route: str, method: RESTMethod, *, json: Any = None, query_params: Dict[str, Any] = None) -> HandlerResult:
+        if route not in self._handlers:
+            return error_response(f"No route registered for {route}", HTTPStatus.NOT_FOUND)
+        elif method not in self._handlers[route]:
+            return error_response(f"Method {method} not supported for {route}", HTTPStatus.METHOD_NOT_ALLOWED)
+
         args = []
         if json is not None:
             args.append(json)

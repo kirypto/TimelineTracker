@@ -1,8 +1,12 @@
+from http import HTTPStatus
 from json import loads, dumps
 from pathlib import Path
+from typing import List, Tuple
 from unittest import TestCase
 from unittest.mock import patch, MagicMock
 from uuid import UUID
+
+from parameterized import parameterized
 
 from Test.Unittest.test_helpers.controllers import TestableRESTController
 from application.main import TimelineTrackerApp
@@ -20,13 +24,25 @@ _CONFIG = {
 }
 
 
-def dummy_id_generator(prefix: str) -> PrefixedUUID:
+def _dummy_id_generator(prefix: str) -> PrefixedUUID:
     return PrefixedUUID(prefix, UUID("abad1dea-0000-4000-8000-000000000000"))
 
 
+def _get_api_spec() -> APISpecification:
+    api_spec_file = Path(__file__).parents[4].joinpath("Source/Resources/StaticallyServedFiles/APISpec/apiSpecification.json")
+    return APISpecification(loads(api_spec_file.read_text()))
+
+
+def _get_test_params() -> List[Tuple[str, RESTMethod]]:
+    api_spec = _get_api_spec()
+    return [
+        ("/api/world/{worldId}/location", RESTMethod.POST),
+    ]
+
+
 class TestAPISpecification(TestCase):
+    api_spec: APISpecification = _get_api_spec()
     controller: TestableRESTController
-    api_spec: APISpecification
 
     @patch("application.main.RESTControllersFactory")
     def setUp(
@@ -47,27 +63,30 @@ class TestAPISpecification(TestCase):
         api_spec_file = Path(__file__).parents[4].joinpath("Source/Resources/StaticallyServedFiles/APISpec/apiSpecification.json")
         self.api_spec = APISpecification(loads(api_spec_file.read_text()))
 
+    @parameterized.expand(_get_test_params())
     @patch("application.use_case.event_use_cases.generate_prefixed_id")
     @patch("application.use_case.traveler_use_cases.generate_prefixed_id")
     @patch("application.use_case.location_use_cases.generate_prefixed_id")
-    def test__api_route__should_return_expected_response__when_invoked(
+    def test__api_route__(
             self,
+            route, method,
             location_id_generator_mock: MagicMock, traveler_id_generator_mock: MagicMock, event_id_generator_mock: MagicMock,
     ) -> None:
         # Arrange
-        location_id_generator_mock.side_effect = dummy_id_generator
-        traveler_id_generator_mock.side_effect = dummy_id_generator
-        event_id_generator_mock.side_effect = dummy_id_generator
+        location_id_generator_mock.side_effect = _dummy_id_generator
+        traveler_id_generator_mock.side_effect = _dummy_id_generator
+        event_id_generator_mock.side_effect = _dummy_id_generator
 
         self.controller.profile = anon_profile()
-        json_body = self.api_spec.get_resource_request_body_examples("/api/world/{worldId}/location", RESTMethod.POST) \
-            .get("application/json")
-        expected_response_bodies = self.api_spec.get_resource_response_body_examples("/api/world/{worldId}/location", RESTMethod.POST)
+        json_body = self.api_spec.get_resource_request_body_examples(route, method).get("application/json")
+        expected_response_bodies = self.api_spec.get_resource_response_body_examples(route, method)
 
         # Act
-        actual_status_code, actual_response_body = self.controller.invoke("/api/location", RESTMethod.POST, json=json_body)
+        actual_status_code, actual_response_body = self.controller.invoke(route, method, json=json_body)
 
         # Assert
+        self.assertNotEqual(HTTPStatus.NOT_FOUND, actual_status_code, f"Resource {method} {route} not registered")
+        self.assertNotEqual(HTTPStatus.METHOD_NOT_ALLOWED, actual_status_code, f"Resource {method} {route} not registered")
         actual_status_code_str = str(actual_status_code.real)
         self.assertIn(actual_status_code_str, expected_response_bodies)
         expected_response_body = dumps(expected_response_bodies.get(actual_status_code_str).get("application/json"), indent=2)

@@ -7,3 +7,4 @@ flask-cors==3.0.10
 waitress==2.1.1
 authlib==0.15.5 # Updating requires changes to implementation. See issue #104
 openapi3==1.6.5
+parameterized==0.8.1
