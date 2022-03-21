@@ -1,9 +1,8 @@
 from unittest import TestCase
-from uuid import uuid4
 
 from Test.Unittest.test_helpers.anons import anon_name, anon_description, anon_id_prefix, anon_location, anon_positional_range, anon_tag
 from domain.descriptors import NamedEntity, DescribedEntity
-from domain.ids import PrefixedUUID, IdentifiedEntity
+from domain.ids import IdentifiedEntity, generate_prefixed_id
 from domain.locations import Location
 from domain.positions import SpanningEntity
 from domain.tags import TaggedEntity
@@ -18,10 +17,10 @@ class TestLocation(TestCase):
         tags = {anon_tag()}
 
         # Act
-        def Action(): _ = Location(id=PrefixedUUID(prefix=anon_id_prefix(), uuid=uuid4()), span=span, name=name, description=description, tags=tags)
+        def action(): _ = Location(id=generate_prefixed_id(anon_id_prefix()), span=span, name=name, description=description, tags=tags)
 
         # Assert
-        self.assertRaises(ValueError, Action)
+        self.assertRaises(ValueError, action)
 
     def test__isinstance__should_be_named(self) -> None:
         # Arrange

@@ -1,9 +1,8 @@
 from typing import Set
-from uuid import uuid4
 
 from application.access.authentication import requires_authentication
 from application.use_case.filtering_use_cases import FilteringUseCase
-from domain.ids import PrefixedUUID
+from domain.ids import PrefixedUUID, generate_prefixed_id
 from domain.persistence.repositories import TravelerRepository, EventRepository
 from domain.travelers import Traveler
 
@@ -23,7 +22,7 @@ class TravelerUseCase:
 
     @requires_authentication()
     def create(self, **kwargs) -> Traveler:
-        kwargs["id"] = PrefixedUUID(prefix="traveler", uuid=uuid4())
+        kwargs["id"] = generate_prefixed_id("traveler")
 
         traveler = Traveler(**kwargs)
         self._traveler_repository.save(traveler)
@@ -72,5 +71,5 @@ class TravelerUseCase:
         linked_events = self._event_repository.retrieve_all(traveler_id=updated_traveler.id)
         for linked_event in linked_events:
             if not any([linked_event.span.includes(move.position) for move in updated_traveler.journey]):
-                raise ValueError(f"Cannot modify traveler, currently linked to Event {linked_event.id} and the modification would cause them to no "
-                                 f"longer intersect")
+                raise ValueError(f"Cannot modify traveler, currently linked to Event {linked_event.id} and the modification would cause "
+                                 f"them to no longer intersect")

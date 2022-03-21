@@ -1,12 +1,11 @@
 from unittest import TestCase
-from uuid import uuid4
 
 from Test.Unittest.test_helpers.anons import anon_name, anon_description, anon_id_prefix, anon_traveler, anon_positional_range, anon_tag
 from domain.descriptors import NamedEntity, DescribedEntity
-from domain.ids import PrefixedUUID, IdentifiedEntity
-from domain.travelers import Traveler
+from domain.ids import IdentifiedEntity, generate_prefixed_id
 from domain.positions import JourneyingEntity
 from domain.tags import TaggedEntity
+from domain.travelers import Traveler
 
 
 class TestTraveler(TestCase):
@@ -18,10 +17,11 @@ class TestTraveler(TestCase):
         tags = {anon_tag()}
 
         # Act
-        def Action(): _ = Traveler(id=PrefixedUUID(prefix=anon_id_prefix(), uuid=uuid4()), span=span, name=name, description=description, tags=tags)
+        def action(): _ = Traveler(id=generate_prefixed_id(prefix=anon_id_prefix()), span=span, name=name, description=description,
+                                   tags=tags)
 
         # Assert
-        self.assertRaises(ValueError, Action)
+        self.assertRaises(ValueError, action)
 
     def test__isinstance__should_be_named(self) -> None:
         # Arrange

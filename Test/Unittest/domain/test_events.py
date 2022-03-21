@@ -1,11 +1,10 @@
 from unittest import TestCase
-from uuid import uuid4
 
 from Test.Unittest.test_helpers.anons import anon_positional_range, anon_name, anon_event, anon_id_prefix, anon_tag, anon_description, \
     anon_prefixed_id
 from domain.descriptors import DescribedEntity, NamedEntity
 from domain.events import Event
-from domain.ids import PrefixedUUID, IdentifiedEntity
+from domain.ids import IdentifiedEntity, generate_prefixed_id
 from domain.positions import SpanningEntity
 from domain.tags import TaggedEntity
 
@@ -19,10 +18,10 @@ class TestEvent(TestCase):
         tags = {anon_tag()}
 
         # Act
-        def Action(): _ = Event(id=PrefixedUUID(prefix=anon_id_prefix(), uuid=uuid4()), span=span, name=name, description=description, tags=tags)
+        def action(): _ = Event(id=generate_prefixed_id(prefix=anon_id_prefix()), span=span, name=name, description=description, tags=tags)
 
         # Assert
-        self.assertRaises(ValueError, Action)
+        self.assertRaises(ValueError, action)
 
     def test__init__should_initialize_traveler_ids_empty__when_no_ids_given(self) -> None:
         # Arrange
@@ -34,7 +33,7 @@ class TestEvent(TestCase):
         # Assert
         self.assertSetEqual(set(), actual)
 
-    def test__init__should_initialize_traveler_ids_empty__when_no_ids_given(self) -> None:
+    def test__init__should_initialize_location_ids_empty__when_no_ids_given(self) -> None:
         # Arrange
         event = Event(id=anon_prefixed_id(prefix="event"), name=anon_name(), span=anon_positional_range())
 
@@ -110,10 +109,12 @@ class TestEvent(TestCase):
         event = anon_event()
 
         # Act
-        def Action(): event.affected_travelers = set()
+        def action():
+            # noinspection PyPropertyAccess
+            event.affected_travelers = set()
 
         # Assert
-        self.assertRaises(AttributeError, Action)
+        self.assertRaises(AttributeError, action)
 
     def test__affected_locations__should_not_allow_external_mutation(self) -> None:
         # Arrange
@@ -131,10 +132,12 @@ class TestEvent(TestCase):
         event = anon_event()
 
         # Act
-        def Action(): event.affected_locations = set()
+        def action():
+            # noinspection PyPropertyAccess
+            event.affected_locations = set()
 
         # Assert
-        self.assertRaises(AttributeError, Action)
+        self.assertRaises(AttributeError, action)
 
     def test__equality__should_correctly_compare_attributes(self) -> None:
         # Arrange
@@ -147,16 +150,16 @@ class TestEvent(TestCase):
         name = anon_name()
         description = anon_description()
         span = anon_positional_range()
-        event_a = Event(affected_locations={location_id_1}, affected_travelers={location_id_1}, id=event_id_1, name=name, description=description,
-                        span=span)
-        event_b = Event(affected_locations={location_id_1}, affected_travelers={location_id_1}, id=event_id_1, name=name, description=description,
-                        span=span)
-        event_c = Event(affected_locations={location_id_2}, affected_travelers={location_id_1}, id=event_id_1, name=name, description=description,
-                        span=span)
-        event_d = Event(affected_locations={location_id_1}, affected_travelers={location_id_2}, id=event_id_1, name=name, description=description,
-                        span=span)
-        event_e = Event(affected_locations={location_id_1}, affected_travelers={location_id_1}, id=event_id_2, name=name, description=description,
-                        span=span)
+        event_a = Event(affected_locations={location_id_1}, affected_travelers={traveler_id_1}, id=event_id_1, name=name,
+                        description=description, span=span)
+        event_b = Event(affected_locations={location_id_1}, affected_travelers={traveler_id_1}, id=event_id_1, name=name,
+                        description=description, span=span)
+        event_c = Event(affected_locations={location_id_2}, affected_travelers={traveler_id_1}, id=event_id_1, name=name,
+                        description=description, span=span)
+        event_d = Event(affected_locations={location_id_1}, affected_travelers={traveler_id_2}, id=event_id_1, name=name,
+                        description=description, span=span)
+        event_e = Event(affected_locations={location_id_1}, affected_travelers={traveler_id_1}, id=event_id_2, name=name,
+                        description=description, span=span)
 
         # Act
         actual_a_equals_b = event_a == event_b
@@ -183,7 +186,7 @@ class TestEvent(TestCase):
         event = anon_event()
 
         # Act
-        def Action(): _ = {event}
+        def action(): _ = {event}
 
         # Assert
-        Action()
+        action()

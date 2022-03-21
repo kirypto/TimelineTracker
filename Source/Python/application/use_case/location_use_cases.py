@@ -1,9 +1,8 @@
 from typing import Set
-from uuid import uuid4
 
 from application.access.authentication import requires_authentication
 from application.use_case.filtering_use_cases import FilteringUseCase
-from domain.ids import PrefixedUUID
+from domain.ids import PrefixedUUID, generate_prefixed_id
 from domain.locations import Location
 from domain.persistence.repositories import LocationRepository, EventRepository
 
@@ -23,7 +22,7 @@ class LocationUseCase:
 
     @requires_authentication()
     def create(self, **kwargs) -> Location:
-        kwargs["id"] = PrefixedUUID("location", uuid4())
+        kwargs["id"] = generate_prefixed_id("location")
         location = Location(**kwargs)
 
         self._location_repository.save(location)

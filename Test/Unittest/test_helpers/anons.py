@@ -1,11 +1,10 @@
 from random import choices, uniform, randint, choice
 from string import ascii_letters, printable, digits, ascii_lowercase
 from typing import Type, Any, Set, List, TypeVar, Dict
-from uuid import uuid4
 
 from domain.collections import Range
 from domain.events import Event
-from domain.ids import PrefixedUUID, IdentifiedEntity
+from domain.ids import PrefixedUUID, IdentifiedEntity, generate_prefixed_id
 from domain.locations import Location
 from domain.positions import Position, PositionalRange, MovementType, PositionalMove
 from domain.tags import Tag, TaggedEntity
@@ -92,7 +91,7 @@ def anon_string(num_chars: int = 10) -> str:
 
 
 def anon_prefixed_id(*, prefix: str = None) -> PrefixedUUID:
-    return PrefixedUUID(_coalesce(prefix, anon_id_prefix(20)), uuid4())
+    return generate_prefixed_id(_coalesce(prefix, anon_id_prefix(20)))
 
 
 def anon_position(continuum: float = None, reality: int = None) -> Position:

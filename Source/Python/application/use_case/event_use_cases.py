@@ -1,10 +1,9 @@
 from typing import Set
-from uuid import uuid4
 
 from application.access.authentication import requires_authentication
 from application.use_case.filtering_use_cases import FilteringUseCase
 from domain.events import Event
-from domain.ids import PrefixedUUID
+from domain.ids import PrefixedUUID, generate_prefixed_id
 from domain.persistence.repositories import EventRepository, TravelerRepository, LocationRepository
 
 
@@ -13,7 +12,9 @@ class EventUseCase:
     _traveler_repository: TravelerRepository
     _event_repository: EventRepository
 
-    def __init__(self, location_repository: LocationRepository, traveler_repository: TravelerRepository,  event_repository: EventRepository) -> None:
+    def __init__(
+            self, location_repository: LocationRepository, traveler_repository: TravelerRepository,  event_repository: EventRepository
+    ) -> None:
         if not isinstance(location_repository, LocationRepository):
             raise TypeError(f"Argument 'location_repository' must be of type {LocationRepository}")
         if not isinstance(traveler_repository, TravelerRepository):
@@ -27,7 +28,7 @@ class EventUseCase:
 
     @requires_authentication()
     def create(self, **kwargs) -> Event:
-        kwargs["id"] = PrefixedUUID("event", uuid4())
+        kwargs["id"] = generate_prefixed_id("event")
         event = Event(**kwargs)
 
         self._validate_affected_entities(event)
