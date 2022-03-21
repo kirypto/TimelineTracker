@@ -11,6 +11,8 @@ from application.requests.rest import RESTMethod
 
 
 JSONObject = Union[dict, str, int, list]
+StatusCode = str
+ContentType = str
 
 
 def construct_json_obj_from_schema(schema: Schema) -> JSONObject:
@@ -51,18 +53,18 @@ class APISpecification(OpenAPI):
             for route_url, path_obj in self.paths.items()
         }
 
-    def get_resource_request_body_examples(self, route: str, method: RESTMethod) -> Dict[str, JSONObject]:
+    def get_resource_request_body_examples(self, route: str, method: RESTMethod) -> Dict[ContentType, JSONObject]:
         resource_op: Operation = getattr(self.paths.get(route), method.value.lower())
         if resource_op.requestBody is None:
             return {}
-        examples: Dict[str, JSONObject] = {}
+        examples: Dict[ContentType, JSONObject] = {}
         for content_type, content_media in resource_op.requestBody.content.items():
             examples[content_type] = construct_json_obj_from_schema(content_media.schema)
         return examples
 
-    def get_resource_response_body_examples(self, route: str, method: RESTMethod) -> Dict[str, Dict[str, JSONObject]]:
+    def get_resource_response_body_examples(self, route: str, method: RESTMethod) -> Dict[StatusCode, Dict[ContentType, JSONObject]]:
         resource_op: Operation = getattr(self.paths.get(route), method.value.lower())
-        examples: Dict[str, Dict[str, JSONObject]] = defaultdict(dict)
+        examples: Dict[StatusCode, Dict[ContentType, JSONObject]] = defaultdict(dict)
         for status_code, media_for_status_code in resource_op.responses.items():
             if not media_for_status_code.content:
                 examples[status_code]["*/*"] = {}
