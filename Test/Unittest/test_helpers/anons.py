@@ -10,6 +10,7 @@ from domain.locations import Location
 from domain.positions import Position, PositionalRange, MovementType, PositionalMove
 from domain.tags import Tag, TaggedEntity
 from domain.travelers import Traveler
+from domain.worlds import World
 
 
 _T = TypeVar("_T")
@@ -129,6 +130,17 @@ def anon_location(
     return Location(
         id=_coalesce(id, anon_prefixed_id(prefix="location")),
         span=_coalesce(span, anon_positional_range()),
+        name=_coalesce(name, anon_name()),
+        description=anon_description(),
+        tags=_coalesce(tags, {anon_tag()}),
+        metadata=_coalesce(metadata, anon_metadata()),
+    )
+
+
+# noinspection PyShadowingBuiltins
+def anon_world(*, id: PrefixedUUID = None, name: str = None, tags: Set[Tag] = None, metadata: Dict[str, str] = None) -> World:
+    return World(
+        id=_coalesce(id, anon_prefixed_id(prefix="world")),
         name=_coalesce(name, anon_name()),
         description=anon_description(),
         tags=_coalesce(tags, {anon_tag()}),
