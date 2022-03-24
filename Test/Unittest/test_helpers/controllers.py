@@ -19,7 +19,7 @@ class TestableRESTController(RESTController):
     def register_rest_endpoint(self, route: str, method: RESTMethod, response_type: MIMEType = MIMEType.JSON, *, json: bool = False,
                                query_params: bool = False) -> HandlerRegisterer:
         def handler_registerer(handler_func: RequestHandler) -> None:
-            validate_route_handler_declaration(route, handler_func)
+            validate_route_handler_declaration(route, handler_func, json, query_params)
 
             @with_error_response_on_raised_exceptions
             def handler_wrapper(*args, **kwargs) -> HandlerResult:

@@ -134,7 +134,7 @@ class FlaskRESTController(RESTController):
             raise ValueError(f"Cannot register, method {method} already registered for {route}")
 
         def handler_registerer(handler_func: RequestHandler) -> None:
-            validate_route_handler_declaration(route, handler_func)
+            validate_route_handler_declaration(route, handler_func, json, query_params)
 
             def convert_to_flask_response(func: RequestHandler) -> Callable[[...], Response]:
                 @wraps(func)

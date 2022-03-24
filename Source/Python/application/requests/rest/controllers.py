@@ -10,7 +10,7 @@ HandlerRegisterer = Callable[[RequestHandler], None]
 _ROUTE_URL_PARAM_PATTERN = re.compile("<([a-zA-Z_]+)>")
 
 
-def validate_route_handler_declaration(route: str, handler: RequestHandler) -> None:
+def validate_route_handler_declaration(route: str, handler: RequestHandler, json: bool, query_params: bool) -> None:
     handler_argument_spec = getfullargspec(handler)
     route_url_parameters = re.findall(_ROUTE_URL_PARAM_PATTERN, route)
     if signature(handler).return_annotation != HandlerResult:
@@ -18,6 +18,9 @@ def validate_route_handler_declaration(route: str, handler: RequestHandler) -> N
     for url_param in route_url_parameters:
         if url_param not in handler_argument_spec.kwonlyargs:
             raise ValueError(f"Failed to register route {route}, handler does not accept '{url_param}' as a keyword-only arg.")
+    expected_args_count = int(json) + int(query_params)
+    if len(handler_argument_spec.args) != expected_args_count:
+        raise ValueError(f"Failed to register route {route}, handler's positional args do not match expected amounts for requested params")
 
 
 class RESTController(ABC):
