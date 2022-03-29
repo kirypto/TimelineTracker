@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from Test.Unittest.domain.persistence.test_repositories import TestLocationsRepository, TestTravelerRepository, TestEventRepository, \
+from Test.Unittest.test_domain.persistence.test_repositories import TestLocationsRepository, TestTravelerRepository, TestEventRepository, \
     TestWorldsRepository
 from adapter.persistence.in_memory_repositories import InMemoryLocationRepository, InMemoryTravelerRepository, InMemoryEventRepository, \
     InMemoryWorldRepository

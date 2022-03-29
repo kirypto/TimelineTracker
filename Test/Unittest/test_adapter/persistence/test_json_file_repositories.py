@@ -2,7 +2,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.case import TestCase
 
-from Test.Unittest.domain.persistence.test_repositories import TestLocationsRepository, TestTravelerRepository, TestEventRepository, \
+from Test.Unittest.test_domain.persistence.test_repositories import TestLocationsRepository, TestTravelerRepository, TestEventRepository, \
     TestWorldsRepository
 from adapter.persistence.json_file_repositories import JsonFileLocationRepository, JsonFileTravelerRepository, JsonFileEventRepository, \
     JsonFileWorldRepository

@@ -4,7 +4,7 @@ from flask import Flask
 from flask.testing import FlaskClient
 from flask_unittest import ClientTestCase
 
-from Test.Unittest.application.requests.rest.test_controllers import TestRESTController
+from Test.Unittest.test_application.requests.rest.test_controllers import TestRESTController
 from Test.Unittest.test_helpers.anons import anon_string
 from adapter.runners.flask_app import FlaskRESTController
 from application.access.clients import Profile

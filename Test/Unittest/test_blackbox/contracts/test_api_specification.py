@@ -82,7 +82,7 @@ class TestAPISpecification(TestCase):
         event_id_generator_mock.side_effect = _dummy_id_generator
 
         self.controller.profile = anon_profile()
-        json_body = self.api_spec.get_resource_request_body_examples(route, method).get("application/json")
+        json_body = self.api_spec.get_resource_request_body_examples(route, method).get("test_application/json")
         expected_response_bodies = self.api_spec.get_resource_response_body_examples(route, method)
 
         # Act
@@ -94,5 +94,5 @@ class TestAPISpecification(TestCase):
         self.assertNotEqual(HTTPStatus.NOT_IMPLEMENTED, actual_status_code, f"Resource {method} {route} has not been implemented")
         actual_status_code_str = str(actual_status_code.real)
         self.assertIn(actual_status_code_str, expected_response_bodies)
-        expected_response_body = dumps(expected_response_bodies.get(actual_status_code_str).get("application/json"), indent=2)
+        expected_response_body = dumps(expected_response_bodies.get(actual_status_code_str).get("test_application/json"), indent=2)
         self.assertEqual(expected_response_body, actual_response_body)
