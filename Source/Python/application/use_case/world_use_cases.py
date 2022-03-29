@@ -1,20 +1,25 @@
-from logging import error
 from typing import Set
 
 from application.access.authentication import requires_authentication
 from domain.ids import generate_prefixed_id, PrefixedUUID
+from domain.persistence.repositories import WorldRepository
 from domain.worlds import World
 
 
 class WorldUseCase:
+    _world_repository: WorldRepository
+
+    def __init__(self, world_repository: WorldRepository) -> None:
+        self._world_repository = world_repository
+
     @requires_authentication()
     def create(self, **kwargs) -> World:
         kwargs["id"] = generate_prefixed_id("world")
-        location = World(**kwargs)
+        world = World(**kwargs)
 
-        error(f"{self.create.__name__} method does not currently save the created world")
+        self._world_repository.save(world)
 
-        return location
+        return world
 
     @requires_authentication()
     def retrieve(self, world_id: PrefixedUUID) -> World:

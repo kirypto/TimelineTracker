@@ -38,11 +38,12 @@ class TimelineTrackerApp:
             raise ValueError(f"The provided resources folder does not exist or was not a directory. Was '{self._resources_folder}'.")
 
         repositories_factory = RepositoriesFactory(**repositories_config)
+        world_repository = repositories_factory.world_repo
         location_repository = repositories_factory.location_repo
         traveler_repository = repositories_factory.traveler_repo
         event_repository = repositories_factory.event_repo
 
-        self._world_use_case = WorldUseCase()
+        self._world_use_case = WorldUseCase(world_repository)
         self._location_use_case = LocationUseCase(location_repository, event_repository)
         self._traveler_use_case = TravelerUseCase(traveler_repository, event_repository)
         self._event_use_case = EventUseCase(location_repository, traveler_repository, event_repository)

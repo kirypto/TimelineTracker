@@ -192,8 +192,3 @@ class JsonFileEventRepository(EventRepository):
             self._event_ids_by_location_id[location_id].remove(event_id)
         for traveler_id in self._event_ids_by_traveler_id:
             self._event_ids_by_traveler_id[traveler_id].remove(event_id)
-
-
-location_repository_class = JsonFileLocationRepository
-traveler_repository_class = JsonFileTravelerRepository
-event_repository_class = JsonFileEventRepository

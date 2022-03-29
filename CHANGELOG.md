@@ -23,6 +23,8 @@ All notable changes to this project will be documented in this file.
 - Rework internal logic for REST request handling to improve code flow and simplicity.
 - Change default `host` in `sampleConfig.md` and `apiSpecification.json` from `localhost` to `127.0.0.1`.
 - Modify entity descriptions to append a single new-line character once whitespace is stripped.
+- Change repository config to accept python class path to allow custom implementations to be used.
+  - Update config examples accordingly.
 
 ---
 
