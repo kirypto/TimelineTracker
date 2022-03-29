@@ -122,6 +122,15 @@ class JsonTranslator(Generic[T]):
                     JsonTranslator.from_json(key, str): JsonTranslator.from_json(val, str)
                     for key, val in string_dict.items()
                 }
+            if type_ is World:
+                world_json: dict = value
+                return World(**{
+                    "id": JsonTranslator.from_json(world_json["id"], PrefixedUUID),
+                    "name": JsonTranslator.from_json(world_json["name"], str),
+                    "description": JsonTranslator.from_json(world_json["description"], str),
+                    "tags": JsonTranslator.from_json(world_json["tags"], Set[Tag]),
+                    "attributes": JsonTranslator.from_json(world_json["attributes"], Dict[str, str]),
+                })
             if type_ is Location:
                 location_json: dict = value
                 return Location(**{

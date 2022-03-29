@@ -1,13 +1,14 @@
 from abc import ABC, abstractmethod
 from typing import Callable, Any
 
-from Test.Unittest.test_helpers.anons import anon_location, anon_anything, anon_traveler, anon_event, anon_positional_range
+from Test.Unittest.test_helpers.anons import anon_location, anon_anything, anon_traveler, anon_event, anon_positional_range, anon_world
 from domain.events import Event
 from domain.ids import PrefixedUUID
 from domain.locations import Location
-from domain.persistence.repositories import LocationRepository, TravelerRepository, EventRepository
+from domain.persistence.repositories import WorldRepository, LocationRepository, TravelerRepository, EventRepository
 from domain.positions import PositionalMove, Position, MovementType
 from domain.travelers import Traveler
+from domain.worlds import World
 
 
 class TestSRDRepository(ABC):
@@ -34,10 +35,10 @@ class TestSRDRepository(ABC):
         invalid_type = anon_anything(not_type=Location)
 
         # Act
-        def Action(): self.repository.save(invalid_type)
+        def action(): self.repository.save(invalid_type)
 
         # Assert
-        self.assertRaises(TypeError, Action)
+        self.assertRaises(TypeError, action)
 
     def test__save__should_not_throw_exception__when_storing_valid_entity(self) -> None:
         # Arrange
@@ -54,20 +55,20 @@ class TestSRDRepository(ABC):
         invalid_type = anon_anything(not_type=valid_type)
 
         # Act
-        def Action(): self.repository.retrieve(invalid_type)
+        def action(): self.repository.retrieve(invalid_type)
 
         # Assert
-        self.assertRaises(TypeError, Action)
+        self.assertRaises(TypeError, action)
 
     def test__retrieve__should_raise_exception__when_no_stored_entity_matches_the_given_identifier(self) -> None:
         # Arrange
         anon_identifier = self.get_entity_identifier(self.anon_entity())
 
         # Act
-        def Action(): self.repository.retrieve(anon_identifier)
+        def action(): self.repository.retrieve(anon_identifier)
 
         # Assert
-        self.assertRaises(NameError, Action)
+        self.assertRaises(NameError, action)
 
     def test__retrieve__should_return_saved_entity__when_stored_entity_matches_the_given_identifier(self) -> None:
         # Arrange
@@ -132,10 +133,23 @@ class TestSRDRepository(ABC):
         anon_entity_identifier = self.get_entity_identifier(self.anon_entity())
 
         # Act
-        def Action(): self.repository.delete(anon_entity_identifier)
+        def action(): self.repository.delete(anon_entity_identifier)
 
         # Assert
-        self.assertRaises(NameError, Action)
+        self.assertRaises(NameError, action)
+
+
+class TestWorldsRepository(TestSRDRepository):
+    @property
+    @abstractmethod
+    def repository(self) -> WorldRepository:
+        pass
+
+    def anon_entity(self) -> World:
+        return anon_world()
+
+    def get_entity_identifier(self, entity: World) -> PrefixedUUID:
+        return entity.id
 
 
 class TestLocationsRepository(TestSRDRepository):

@@ -5,8 +5,9 @@ from typing import Set, Dict, TypeVar, Generic, Type
 from domain.events import Event
 from domain.ids import PrefixedUUID, IdentifiedEntity
 from domain.locations import Location
-from domain.persistence.repositories import LocationRepository, TravelerRepository, EventRepository
+from domain.persistence.repositories import LocationRepository, TravelerRepository, EventRepository, WorldRepository
 from domain.travelers import Traveler
+from domain.worlds import World
 
 
 _T = TypeVar('_T', bound=IdentifiedEntity)
@@ -45,6 +46,25 @@ class _InMemoryIdentifiedEntityRepository(Generic[_T]):
             raise NameError(f"No stored entity with id '{entity_id}'")
 
         self._entities_by_id.pop(entity_id)
+
+
+class InMemoryWorldRepository(WorldRepository):
+    _inner_repo: _InMemoryIdentifiedEntityRepository
+
+    def __init__(self) -> None:
+        self._inner_repo = _InMemoryIdentifiedEntityRepository(World)
+
+    def save(self, world: World) -> None:
+        self._inner_repo.save(world)
+
+    def retrieve(self, world_id: PrefixedUUID) -> World:
+        return self._inner_repo.retrieve(world_id)
+
+    def retrieve_all(self) -> Set[World]:
+        return self._inner_repo.retrieve_all()
+
+    def delete(self, world_id: PrefixedUUID) -> None:
+        return self._inner_repo.delete(world_id)
 
 
 class InMemoryLocationRepository(LocationRepository):

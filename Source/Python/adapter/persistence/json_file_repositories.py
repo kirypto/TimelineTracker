@@ -7,12 +7,14 @@ from application.requests.data_forms import JsonTranslator
 from domain.events import Event
 from domain.ids import PrefixedUUID, IdentifiedEntity
 from domain.locations import Location
-from domain.persistence.repositories import LocationRepository, TravelerRepository, EventRepository
+from domain.persistence.repositories import LocationRepository, TravelerRepository, EventRepository, WorldRepository
 from domain.travelers import Traveler
+from domain.worlds import World
 
 
 _T = TypeVar('_T', bound=IdentifiedEntity)
 _METADATA_VERSION_FILE = "repository_version.metadata"
+_WORLD_REPO_DIR_NAME = "WorldRepo"
 _LOCATION_REPO_DIR_NAME = "LocationRepo"
 _TRAVELER_REPO_DIR_NAME = "TravelerRepo"
 _EVENT_REPO_DIR_NAME = "EventRepo"
@@ -22,8 +24,7 @@ class _JsonFileIdentifiedEntityRepository(Generic[_T]):
     _repo_path: Path
     _entity_type: Type[_T]
 
-    def __init__(self, repo_name: str, entity_type: Type[_T], *,
-                 json_repositories_directory_root: str) -> None:
+    def __init__(self, repo_name: str, entity_type: Type[_T], *, json_repositories_directory_root: str) -> None:
         root_repos_path = Path(json_repositories_directory_root)
         if not root_repos_path.exists() or not root_repos_path.is_dir():
             raise ValueError(f"The path '{root_repos_path}' is not a valid directory and cannot be used.")
@@ -86,6 +87,25 @@ class _JsonFileIdentifiedEntityRepository(Generic[_T]):
 
         entity_json = loads(entity_path.read_text(encoding="utf8"))
         return JsonTranslator.from_json(entity_json, self._entity_type)
+
+
+class JsonFileWorldRepository(WorldRepository):
+    _inner_repo: _JsonFileIdentifiedEntityRepository[World]
+
+    def __init__(self, **kwargs) -> None:
+        self._inner_repo = _JsonFileIdentifiedEntityRepository(_WORLD_REPO_DIR_NAME, World, **kwargs)
+
+    def save(self, world: World) -> None:
+        self._inner_repo.save(world)
+
+    def retrieve(self, world_id: PrefixedUUID) -> World:
+        return self._inner_repo.retrieve(world_id)
+
+    def retrieve_all(self) -> Set[World]:
+        return self._inner_repo.retrieve_all()
+
+    def delete(self, world_id: PrefixedUUID) -> None:
+        self._inner_repo.delete(world_id)
 
 
 class JsonFileLocationRepository(LocationRepository):

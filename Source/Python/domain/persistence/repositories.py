@@ -5,6 +5,25 @@ from domain.events import Event
 from domain.ids import PrefixedUUID
 from domain.locations import Location
 from domain.travelers import Traveler
+from domain.worlds import World
+
+
+class WorldRepository(ABC):
+    @abstractmethod
+    def save(self, world: World) -> None:
+        pass
+
+    @abstractmethod
+    def retrieve(self, world_id: PrefixedUUID) -> World:
+        pass
+
+    @abstractmethod
+    def retrieve_all(self) -> Set[World]:
+        pass
+
+    @abstractmethod
+    def delete(self, world_id: PrefixedUUID) -> None:
+        pass
 
 
 class LocationRepository(ABC):
