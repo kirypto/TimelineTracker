@@ -3,10 +3,10 @@ from unittest import TestCase
 from unittest.mock import patch, MagicMock
 
 from Test.Unittest.test_helpers.anons import anon_prefixed_id, anon_positional_range, anon_name, anon_description, anon_tag, \
-    anon_create_location_kwargs, anon_location, anon_anything, anon_event, anon_metadata
+    anon_create_location_kwargs, anon_location, anon_anything, anon_event, anon_attribute
 from adapter.persistence.in_memory_repositories import InMemoryLocationRepository, InMemoryEventRepository
-from application.use_case.location_use_cases import LocationUseCase
 from application.access.clients import Profile
+from application.use_case.location_use_cases import LocationUseCase
 from domain.locations import Location
 from domain.persistence.repositories import EventRepository
 
@@ -185,10 +185,10 @@ class TestLocationUseCase(TestCase):
         expected_description = anon_description()
         expected_span = anon_positional_range()
         expected_tags = {anon_tag(), anon_tag()}
-        expected_metadata = anon_metadata()
+        expected_attributes = anon_attribute()
         modified_location = Location(
             id=location.id, name=expected_name, description=expected_description, span=expected_span, tags=expected_tags,
-            metadata=expected_metadata)
+            attributes=expected_attributes)
 
         # Act
         self.location_use_case.update(modified_location, profile=self.profile)
@@ -199,7 +199,7 @@ class TestLocationUseCase(TestCase):
         self.assertEqual(expected_description, actual.description)
         self.assertEqual(expected_span, actual.span)
         self.assertEqual(expected_tags, actual.tags)
-        self.assertEqual(expected_metadata, actual.metadata)
+        self.assertEqual(expected_attributes, actual.attributes)
 
     def test__delete__should_delete__when_location_exists(self) -> None:
         # Arrange

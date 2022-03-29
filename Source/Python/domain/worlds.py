@@ -1,16 +1,15 @@
 from domain.descriptors import DescribedEntity, NamedEntity
 from domain.ids import IdentifiedEntity, PrefixedUUID
-from domain.metadata import MetadataEntity
+from domain.metadata import AttributedEntity
 from domain.tags import TaggedEntity
 
 
-class World(IdentifiedEntity, NamedEntity, DescribedEntity, TaggedEntity, MetadataEntity):
+class World(IdentifiedEntity, NamedEntity, DescribedEntity, TaggedEntity, AttributedEntity):
     def __init__(self, **kwargs) -> None:
         if "id" in kwargs:
             self.validate_id(kwargs["id"])
         super().__init__(**kwargs)
 
-    # noinspection PyShadowingBuiltins
     @classmethod
     def validate_id(cls, id: PrefixedUUID) -> None:
         if not isinstance(id, PrefixedUUID):

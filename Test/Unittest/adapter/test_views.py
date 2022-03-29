@@ -86,7 +86,7 @@ class TestValueTranslator(TestCase):
         self.assertIn("description", actual)
         self.assertIn("span", actual)
         self.assertIn("tags", actual)
-        self.assertIn("metadata", actual)
+        self.assertIn("attributes", actual)
 
     def test__to_json__should_translate_traveler_to_json_dict(self) -> None:
         # Arrange
@@ -102,7 +102,7 @@ class TestValueTranslator(TestCase):
         self.assertIn("description", actual)
         self.assertIn("journey", actual)
         self.assertIn("tags", actual)
-        self.assertIn("metadata", actual)
+        self.assertIn("attributes", actual)
 
     def test__to_json__should_translate_event_to_json_dict(self) -> None:
         # Arrange
@@ -118,7 +118,7 @@ class TestValueTranslator(TestCase):
         self.assertIn("description", actual)
         self.assertIn("span", actual)
         self.assertIn("tags", actual)
-        self.assertIn("metadata", actual)
+        self.assertIn("attributes", actual)
 
     def test__to_json__should_return_sorted_list_of_string_tags__when_set_of_tags_given(self) -> None:
         # Arrange

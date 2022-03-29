@@ -31,7 +31,7 @@ class WorldsRESTRequestHandler:
             world_kwargs = {
                 "name": JsonTranslator.from_json(json_body["name"], str),
                 "description": JsonTranslator.from_json(json_body.get("description", ""), str),
-                "metadata": JsonTranslator.from_json(json_body.get("metadata", {}), Dict[str, str]),
+                "attributes": JsonTranslator.from_json(json_body.get("attributes", {}), Dict[str, str]),
                 "tags": JsonTranslator.from_json(json_body.get("tags", set()), Set[Tag]),
             }
             location = world_use_case.create(**world_kwargs, **kwargs)
@@ -48,7 +48,7 @@ class LocationsRestRequestHandler:
                 "name": JsonTranslator.from_json(json_body["name"], str),
                 "description": JsonTranslator.from_json(json_body.get("description", ""), str),
                 "span": JsonTranslator.from_json(json_body["span"], PositionalRange),
-                "metadata": JsonTranslator.from_json(json_body.get("metadata", {}), Dict[str, str]),
+                "attributes": JsonTranslator.from_json(json_body.get("attributes", {}), Dict[str, str]),
                 "tags": JsonTranslator.from_json(json_body.get("tags", set()), Set[Tag]),
             }
             location = location_use_case.create(**location_kwargs, **kwargs)
@@ -148,7 +148,7 @@ class TravelersRestRequestHandler:
                 "name": JsonTranslator.from_json(request_body["name"], str),
                 "description": JsonTranslator.from_json(request_body.get("description", ""), str),
                 "journey": JsonTranslator.from_json(request_body["journey"], List[PositionalMove]),
-                "metadata": JsonTranslator.from_json(request_body.get("metadata", {}), Dict[str, str]),
+                "attributes": JsonTranslator.from_json(request_body.get("attributes", {}), Dict[str, str]),
                 "tags": JsonTranslator.from_json(request_body.get("tags", set()), Set[Tag]),
             }
             traveler = traveler_use_case.create(**traveler_kwargs, **kwargs)
@@ -229,7 +229,7 @@ class TravelersRestRequestHandler:
             appended_journey.append(new_positional_move)
             modified_traveler = Traveler(
                 id=existing_traveler.id, name=existing_traveler.name, description=existing_traveler.description,
-                journey=appended_journey, tags=existing_traveler.tags, metadata=existing_traveler.metadata)
+                journey=appended_journey, tags=existing_traveler.tags, attributes=existing_traveler.attributes)
 
             traveler_use_case.update(modified_traveler, **kwargs)
 
@@ -270,7 +270,7 @@ class EventsRestRequestHandler:
                 "name": JsonTranslator.from_json(request_body["name"], str),
                 "description": JsonTranslator.from_json(request_body.get("description", ""), str),
                 "span": JsonTranslator.from_json(request_body["span"], PositionalRange),
-                "metadata": JsonTranslator.from_json(request_body.get("metadata", {}), Dict[str, str]),
+                "attributes": JsonTranslator.from_json(request_body.get("attributes", {}), Dict[str, str]),
                 "tags": JsonTranslator.from_json(request_body.get("tags", set()), Set[Tag]),
                 "affected_locations": JsonTranslator.from_json(request_body["affected_locations"], Set[PrefixedUUID]),
                 "affected_travelers": JsonTranslator.from_json(request_body["affected_travelers"], Set[PrefixedUUID]),

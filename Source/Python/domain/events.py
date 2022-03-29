@@ -2,12 +2,12 @@ from typing import Set
 
 from domain.descriptors import NamedEntity, DescribedEntity
 from domain.ids import IdentifiedEntity, PrefixedUUID
-from domain.metadata import MetadataEntity
+from domain.metadata import AttributedEntity
 from domain.positions import SpanningEntity
 from domain.tags import TaggedEntity
 
 
-class Event(IdentifiedEntity, NamedEntity, DescribedEntity, SpanningEntity, TaggedEntity, MetadataEntity):
+class Event(IdentifiedEntity, NamedEntity, DescribedEntity, SpanningEntity, TaggedEntity, AttributedEntity):
     _affected_locations: Set[PrefixedUUID]
     _affected_travelers: Set[PrefixedUUID]
 
@@ -19,7 +19,9 @@ class Event(IdentifiedEntity, NamedEntity, DescribedEntity, SpanningEntity, Tagg
     def affected_travelers(self) -> Set[PrefixedUUID]:
         return set(self._affected_travelers)
 
-    def __init__(self, *, affected_locations: Set[PrefixedUUID] = frozenset(), affected_travelers: Set[PrefixedUUID] = frozenset(), **kwargs) -> None:
+    def __init__(
+            self, *, affected_locations: Set[PrefixedUUID] = frozenset(), affected_travelers: Set[PrefixedUUID] = frozenset(), **kwargs
+    ) -> None:
         if "id" in kwargs:
             self.validate_id(kwargs["id"])
         super().__init__(**kwargs)

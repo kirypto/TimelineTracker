@@ -3,7 +3,7 @@ from unittest import TestCase
 from unittest.mock import patch, MagicMock
 
 from Test.Unittest.test_helpers.anons import anon_journey, anon_prefixed_id, anon_name, anon_description, anon_tag, \
-    anon_create_traveler_kwargs, anon_traveler, anon_anything, anon_positional_range, anon_event, anon_metadata
+    anon_create_traveler_kwargs, anon_traveler, anon_anything, anon_positional_range, anon_event, anon_attribute
 from adapter.persistence.in_memory_repositories import InMemoryTravelerRepository, InMemoryEventRepository
 from application.access.clients import Profile
 from application.use_case.traveler_use_cases import TravelerUseCase
@@ -190,10 +190,10 @@ class TestTravelerUseCase(TestCase):
         expected_description = anon_description()
         expected_journey = anon_journey()
         expected_tags = {anon_tag(), anon_tag()}
-        expected_metadata = anon_metadata()
+        expected_attributes = anon_attribute()
         modified_traveler = Traveler(
             id=traveler.id, name=expected_name, description=expected_description, journey=expected_journey,
-            tags=expected_tags, metadata=expected_metadata)
+            tags=expected_tags, attributes=expected_attributes)
 
         # Act
         self.traveler_use_case.update(modified_traveler, profile=self.profile)
@@ -204,7 +204,7 @@ class TestTravelerUseCase(TestCase):
         self.assertEqual(expected_description, actual.description)
         self.assertEqual(expected_journey, actual.journey)
         self.assertEqual(expected_tags, actual.tags)
-        self.assertEqual(expected_metadata, actual.metadata)
+        self.assertEqual(expected_attributes, actual.attributes)
 
     def test__delete__should_delete__when_traveler_exists(self) -> None:
         # Arrange

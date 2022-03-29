@@ -1,54 +1,54 @@
 from unittest import TestCase
 
-from Test.Unittest.test_helpers.anons import anon_metadata_key, anon_metadata_value, anon_metadata, anon_anything, anon_description
+from Test.Unittest.test_helpers.anons import anon_attribute_key, anon_attribute_value, anon_attribute, anon_anything, anon_description
 from domain.base_entity import BaseEntity
-from domain.metadata import MetadataEntity
+from domain.metadata import AttributedEntity
 
 
-class TestMetadataEntity(TestCase):
-    def test__init__should_initialize_empty__when_no_metadata_given(self) -> None:
+class TestAttributedEntity(TestCase):
+    def test__init__should_initialize_empty__when_no_attributed_given(self) -> None:
         # Arrange
-        metadata_entity = MetadataEntity()
+        attributed_entity = AttributedEntity()
 
         # Act
-        actual = metadata_entity.metadata
+        actual = attributed_entity.attributes
 
         # Assert
         self.assertDictEqual({}, actual)
 
-    def test__init__should_initialize_metadata__when_metadata_given(self) -> None:
+    def test__init__should_initialize_attributed__when_attributed_given(self) -> None:
         # Arrange
-        expected = anon_metadata()
-        metadata_entity = MetadataEntity(metadata=expected)
+        expected = anon_attribute()
+        attributed_entity = AttributedEntity(attributes=expected)
 
         # Act
-        actual = metadata_entity.metadata
+        actual = attributed_entity.attributes
 
         # Assert
         self.assertDictEqual(expected, actual)
 
-    def test__init__should_strip_metadata_whitespace__when_metadata_keys_or_values_have_whitespace(self) -> None:
+    def test__init__should_strip_attributed_whitespace__when_attributed_keys_or_values_have_whitespace(self) -> None:
         # Arrange
-        metadata_key = anon_metadata_key()
-        metadata_value = anon_metadata_value()
-        expected = {metadata_key: metadata_value}
-        metadata_entity = MetadataEntity(metadata={f" {metadata_key}\t": f"\n{metadata_value}\t"})
+        attributed_key = anon_attribute_key()
+        attributed_value = anon_attribute_value()
+        expected = {attributed_key: attributed_value}
+        attributed_entity = AttributedEntity(attributes={f" {attributed_key}\t": f"\n{attributed_value}\t"})
 
         # Act
-        actual = metadata_entity.metadata
+        actual = attributed_entity.attributes
 
         # Assert
         self.assertDictEqual(expected, actual)
 
     def test__init__should_support_kwargs(self) -> None:
         # Arrange
-        class TestKwargs(MetadataEntity, _Other):
+        class TestKwargs(AttributedEntity, _Other):
             pass
 
         # Act
         expected = "other"
 
-        def action(): return TestKwargs(metadata=anon_metadata(), other=expected)
+        def action(): return TestKwargs(attributes=anon_attribute(), other=expected)
 
         actual = action()
 
@@ -59,97 +59,97 @@ class TestMetadataEntity(TestCase):
         # Arrange
 
         # Act
-        def action(): MetadataEntity(metadata=anon_anything(not_type=dict))
+        def action(): AttributedEntity(attributes=anon_anything(not_type=dict))
 
         # Assert
         self.assertRaises(TypeError, action)
 
     def test__init__should_reject_empty_key(self) -> None:
         # Arrange
-        value = anon_metadata_value()
+        value = anon_attribute_value()
 
         # Act
-        def action(): MetadataEntity(metadata={"": value})
+        def action(): AttributedEntity(attributes={"": value})
 
         # Assert
         self.assertRaises(ValueError, action)
 
     def test__init__should_reject_empty_value(self) -> None:
         # Arrange
-        key = anon_metadata_key()
+        key = anon_attribute_key()
 
         # Act
-        def action(): MetadataEntity(metadata={key: ""})
+        def action(): AttributedEntity(attributes={key: ""})
 
         # Assert
         self.assertRaises(ValueError, action)
 
-    def test__init__should_reject_metadata_keys_of_invalid_type(self) -> None:
+    def test__init__should_reject_attributed_keys_of_invalid_type(self) -> None:
         # Arrange
-        metadata = {anon_anything(not_type=str): anon_metadata_value()}
+        attributed = {anon_anything(not_type=str): anon_attribute_value()}
 
         # Act
-        def action(): MetadataEntity(metadata=metadata)
+        def action(): AttributedEntity(attributes=attributed)
 
         # Assert
         self.assertRaises(TypeError, action)
 
-    def test__init__should_reject_metadata_keys_with_invalid_chars(self) -> None:
+    def test__init__should_reject_attributed_keys_with_invalid_chars(self) -> None:
         # Arrange
-        metadata = {anon_description(): anon_metadata_value()}
+        attributed = {anon_description(): anon_attribute_value()}
 
         # Act
-        def action(): MetadataEntity(metadata=metadata)
+        def action(): AttributedEntity(attributes=attributed)
 
         # Assert
         self.assertRaises(ValueError, action)
 
-    def test__init__should_reject_metadata_values_of_invalid_type(self) -> None:
+    def test__init__should_reject_attributed_values_of_invalid_type(self) -> None:
         # Arrange
-        metadata = {anon_metadata_key(): anon_anything(not_type=str)}
+        attributed = {anon_attribute_key(): anon_anything(not_type=str)}
 
         # Act
-        def action(): MetadataEntity(metadata=metadata)
+        def action(): AttributedEntity(attributes=attributed)
 
         # Assert
         self.assertRaises(TypeError, action)
 
-    def test__metadata__should_not_allow_external_mutation(self) -> None:
+    def test__attributes__should_not_allow_external_mutation(self) -> None:
         # Arrange
-        expected = anon_metadata()
-        metadata_entity = MetadataEntity(metadata=expected)
-        metadata = metadata_entity.metadata
+        expected = anon_attribute()
+        attributed_entity = AttributedEntity(attributes=expected)
+        attributed = attributed_entity.attributes
 
         # Act
-        metadata[anon_metadata_key()] = anon_metadata_value()
+        attributed[anon_attribute_key()] = anon_attribute_value()
 
         # Assert
-        self.assertDictEqual(expected, metadata_entity.metadata)
+        self.assertDictEqual(expected, attributed_entity.attributes)
 
-    def test__metadata__should_not_be_settable(self) -> None:
+    def test__attributes__should_not_be_settable(self) -> None:
         # Arrange
-        metadata_entity = MetadataEntity()
+        attributed_entity = AttributedEntity()
 
         # Act
         # noinspection PyPropertyAccess
-        def action(): metadata_entity.metadata = anon_metadata()
+        def action(): attributed_entity.attributes = anon_attribute()
 
         # Assert
         self.assertRaises(AttributeError, action)
 
     def test__equality__should_correctly_compare_attributes(self) -> None:
         # Arrange
-        metadata_dict_1 = anon_metadata()
-        metadata_dict_2 = anon_metadata()
-        metadata_entity_a = MetadataEntity(metadata=metadata_dict_1)
-        metadata_entity_b = MetadataEntity(metadata=metadata_dict_1)
-        metadata_entity_c = MetadataEntity(metadata=metadata_dict_2)
+        attributes_dict_1 = anon_attribute()
+        attributes_dict_2 = anon_attribute()
+        attributed_entity_a = AttributedEntity(attributes=attributes_dict_1)
+        attributed_entity_b = AttributedEntity(attributes=attributes_dict_1)
+        attributed_entity_c = AttributedEntity(attributes=attributes_dict_2)
 
         # Act
-        actual_a_equals_b = metadata_entity_a == metadata_entity_b
-        actual_a_not_equals_b = metadata_entity_a != metadata_entity_b
-        actual_a_equals_c = metadata_entity_a == metadata_entity_c
-        actual_a_not_equals_c = metadata_entity_a != metadata_entity_c
+        actual_a_equals_b = attributed_entity_a == attributed_entity_b
+        actual_a_not_equals_b = attributed_entity_a != attributed_entity_b
+        actual_a_equals_c = attributed_entity_a == attributed_entity_c
+        actual_a_not_equals_c = attributed_entity_a != attributed_entity_c
 
         # Assert
         self.assertTrue(actual_a_equals_b)
@@ -157,22 +157,22 @@ class TestMetadataEntity(TestCase):
         self.assertFalse(actual_a_equals_c)
         self.assertTrue(actual_a_not_equals_c)
 
-    def test__hash__should_be_hashable__when_has_no_metadata(self) -> None:
+    def test__hash__should_be_hashable__when_has_no_attributed(self) -> None:
         # Arrange
-        metadata_entity = MetadataEntity()
+        attributed_entity = AttributedEntity()
 
         # Act
-        def action(): _ = {metadata_entity}
+        def action(): _ = {attributed_entity}
 
         # Assert
         action()
 
-    def test__hash__should_be_hashable__when_has_metadata(self) -> None:
+    def test__hash__should_be_hashable__when_has_attributed(self) -> None:
         # Arrange
-        metadata_entity = MetadataEntity(metadata=anon_metadata())
+        attributed_entity = AttributedEntity(attributes=anon_attribute())
 
         # Act
-        def action(): _ = {metadata_entity}
+        def action(): _ = {attributed_entity}
 
         # Assert
         action()

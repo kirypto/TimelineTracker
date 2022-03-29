@@ -130,7 +130,7 @@ class JsonTranslator(Generic[T]):
                     "description": JsonTranslator.from_json(location_json["description"], str),
                     "span": JsonTranslator.from_json(location_json["span"], PositionalRange),
                     "tags": JsonTranslator.from_json(location_json["tags"], Set[Tag]),
-                    "metadata": JsonTranslator.from_json(location_json["metadata"], Dict[str, str]),
+                    "attributes": JsonTranslator.from_json(location_json["attributes"], Dict[str, str]),
                 })
             if type_ is Traveler:
                 traveler_json: dict = value
@@ -140,7 +140,7 @@ class JsonTranslator(Generic[T]):
                     "description": JsonTranslator.from_json(traveler_json["description"], str),
                     "journey": JsonTranslator.from_json(traveler_json["journey"], List[PositionalMove]),
                     "tags": JsonTranslator.from_json(traveler_json["tags"], Set[Tag]),
-                    "metadata": JsonTranslator.from_json(traveler_json["metadata"], Dict[str, str]),
+                    "attributes": JsonTranslator.from_json(traveler_json["attributes"], Dict[str, str]),
                 })
             if type_ is Event:
                 event_json: dict = value
@@ -150,7 +150,7 @@ class JsonTranslator(Generic[T]):
                     "description": JsonTranslator.from_json(event_json["description"], str),
                     "span": JsonTranslator.from_json(event_json["span"], PositionalRange),
                     "tags": JsonTranslator.from_json(event_json["tags"], Set[Tag]),
-                    "metadata": JsonTranslator.from_json(event_json["metadata"], Dict[str, str]),
+                    "attributes": JsonTranslator.from_json(event_json["attributes"], Dict[str, str]),
                     "affected_locations": JsonTranslator.from_json(event_json["affected_locations"], Set[PrefixedUUID]),
                     "affected_travelers": JsonTranslator.from_json(event_json["affected_travelers"], Set[PrefixedUUID]),
                 })

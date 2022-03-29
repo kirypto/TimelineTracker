@@ -4,44 +4,44 @@ from typing import Dict
 from domain.base_entity import BaseEntity
 
 
-class MetadataEntity(BaseEntity):
-    _metadata: Dict[str, str]
+class AttributedEntity(BaseEntity):
+    _attributes: Dict[str, str]
 
     @property
-    def metadata(self) -> Dict[str, str]:
-        return dict(self._metadata)
+    def attributes(self) -> Dict[str, str]:
+        return dict(self._attributes)
 
-    def __init__(self, *, metadata: Dict[str, str] = None, **kwargs) -> None:
-        if metadata is not None:
-            metadata = self._validate_metadata(metadata)
+    def __init__(self, *, attributes: Dict[str, str] = None, **kwargs) -> None:
+        if attributes is not None:
+            attributes = self._validate_attributes(attributes)
         else:
-            metadata = {}
-        self._metadata = metadata
+            attributes = {}
+        self._attributes = attributes
         super().__init__(**kwargs)
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, MetadataEntity):
+        if not isinstance(other, AttributedEntity):
             return False
-        return self._metadata == other._metadata and super().__eq__(other)
+        return self._attributes == other._attributes and super().__eq__(other)
 
     def __hash__(self) -> int:
-        return hash((MetadataEntity, frozenset(self._metadata.items()), super().__hash__()))
+        return hash((AttributedEntity, frozenset(self._attributes.items()), super().__hash__()))
 
-    def _validate_metadata(self, metadata: Dict[str, str]) -> Dict[str, str]:
-        if not isinstance(metadata, dict):
-            raise TypeError(f"{self.__class__.__name__} attribute 'metadata' must be a dictionary")
-        stripped_metadata = {}
-        for key, value in metadata.items():
+    def _validate_attributes(self, attributes: Dict[str, str]) -> Dict[str, str]:
+        if not isinstance(attributes, dict):
+            raise TypeError(f"{self.__class__.__name__} attribute 'attributes' must be a dictionary")
+        stripped_attributes = {}
+        for key, value in attributes.items():
             if type(key) is not str:
-                raise TypeError(f"{self.__class__.__name__} attribute 'metadata' dictionary keys must be strings, was {type(key)}")
+                raise TypeError(f"{self.__class__.__name__} attribute 'attributes' dictionary keys must be strings, was {type(key)}")
             if type(value) is not str:
-                raise TypeError(f"{self.__class__.__name__} attribute 'metadata' dictionary values must be strings, was {type(value)}")
+                raise TypeError(f"{self.__class__.__name__} attribute 'attributes' dictionary values must be strings, was {type(value)}")
             key = key.strip()
             if not match(r"^[\w\-.]+$", key):
-                raise ValueError(f"{self.__class__.__name__} attribute 'metadata' dictionary keys must be non-empty and can only contain "
+                raise ValueError(f"{self.__class__.__name__} attribute 'attributes' dictionary keys must be non-empty and can only contain "
                                  f"alphanumeric, underscore, dash, and decimal characters; was '{key}'")
             value = value.strip()
             if len(value) == 0:
-                raise ValueError(f"{self.__class__.__name__} attribute 'metadata' dictionary values must be non-empty")
-            stripped_metadata[key] = value
-        return stripped_metadata
+                raise ValueError(f"{self.__class__.__name__} attribute 'attributes' dictionary values must be non-empty")
+            stripped_attributes[key] = value
+        return stripped_attributes

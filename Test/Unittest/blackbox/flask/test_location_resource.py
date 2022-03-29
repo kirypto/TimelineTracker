@@ -59,7 +59,7 @@ class LocationResourceTest(ClientTestCase):
     def test__post_location__should_create_location__optional_args_left_out(self, client: FlaskClient) -> None:
         # Arrange
         body = JsonTranslator.to_json(anon_location())
-        optional_arg_names = {"description", "metadata", "tags"}
+        optional_arg_names = {"description", "attributes", "tags"}
         for arg_name in optional_arg_names:
             body = copy(body)
             body.pop(arg_name)
@@ -113,7 +113,7 @@ class LocationResourceTest(ClientTestCase):
 
     def test__patch_location__should_allow_editing_name(self, client: FlaskClient) -> None:
         # Arrange
-        body = JsonTranslator.to_json(anon_location(tags=set(), metadata={}))
+        body = JsonTranslator.to_json(anon_location(tags=set(), attributes={}))
         response = client.post("/api/location", json=body)
         expected_json = parse_json(response.data)
         location_id = expected_json["id"]
@@ -160,14 +160,14 @@ class LocationResourceTest(ClientTestCase):
         self.assertEqual(200, actual.status_code)
         self.assertEqual(expected_json, parse_json(actual.data))
 
-    def test__patch_location__should_allow_editing_metadata(self, client: FlaskClient) -> None:
+    def test__patch_location__should_allow_editing_attributes(self, client: FlaskClient) -> None:
         # Arrange
         body = JsonTranslator.to_json(anon_location())
         response = client.post("/api/location", json=body)
         expected_json = parse_json(response.data)
         location_id = expected_json["id"]
-        expected_json["metadata"]["new-key"] = "new-val"
-        patch = [{"op": "add", "path": "/metadata/new-key", "value": "new-val"}]
+        expected_json["attributes"]["new-key"] = "new-val"
+        patch = [{"op": "add", "path": "/attributes/new-key", "value": "new-val"}]
 
         # Act
         actual = client.patch(f"/api/location/{location_id}", json=patch)
