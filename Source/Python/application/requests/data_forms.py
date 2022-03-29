@@ -9,6 +9,7 @@ from domain.locations import Location
 from domain.positions import PositionalRange, PositionalMove, Position, MovementType
 from domain.tags import Tag
 from domain.travelers import Traveler
+from domain.worlds import World
 
 
 T = TypeVar("T")
@@ -48,11 +49,10 @@ class JsonTranslator(Generic[T]):
                 JsonTranslator.to_json(key): JsonTranslator.to_json(val)
                 for key, val in value.items()
             }
-        if type(value) in {Location, Event, Traveler, PositionalRange, Position, Range, PositionalMove}:
-            location: Location = value
+        if type(value) in {World, Location, Event, Traveler, PositionalRange, Position, Range, PositionalMove}:
             return {
                 str(key).removeprefix("_"): JsonTranslator.to_json(val)
-                for key, val in vars(location).items()
+                for key, val in vars(value).items()
             }
         raise TypeError(f"Unsupported type {type(value)}")
 

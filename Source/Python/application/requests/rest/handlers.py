@@ -14,12 +14,29 @@ from application.use_case.event_use_cases import EventUseCase
 from application.use_case.location_use_cases import LocationUseCase
 from application.use_case.timeline_use_cases import TimelineUseCase
 from application.use_case.traveler_use_cases import TravelerUseCase
+from application.use_case.world_use_cases import WorldUseCase
 from domain.events import Event
 from domain.ids import PrefixedUUID
 from domain.locations import Location
 from domain.positions import PositionalRange, PositionalMove
 from domain.tags import Tag
 from domain.travelers import Traveler
+
+
+class WorldsRESTRequestHandler:
+    @staticmethod
+    def register_routes(rest_controller: RESTController, world_use_case: WorldUseCase) -> None:
+        @rest_controller.register_rest_endpoint("/api/world", RESTMethod.POST, MIMEType.JSON, json=True)
+        def world_post_handler(json_body: dict, **kwargs) -> HandlerResult:
+            world_kwargs = {
+                "name": JsonTranslator.from_json(json_body["name"], str),
+                "description": JsonTranslator.from_json(json_body.get("description", ""), str),
+                "metadata": JsonTranslator.from_json(json_body.get("metadata", {}), Dict[str, str]),
+                "tags": JsonTranslator.from_json(json_body.get("tags", set()), Set[Tag]),
+            }
+            location = world_use_case.create(**world_kwargs, **kwargs)
+
+            return HTTPStatus.CREATED, dumps(JsonTranslator.to_json(location), indent=2)
 
 
 class LocationsRestRequestHandler:

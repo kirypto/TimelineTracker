@@ -69,12 +69,14 @@ class TestAPISpecification(TestCase):
     @patch("application.use_case.event_use_cases.generate_prefixed_id")
     @patch("application.use_case.traveler_use_cases.generate_prefixed_id")
     @patch("application.use_case.location_use_cases.generate_prefixed_id")
+    @patch("application.use_case.world_use_cases.generate_prefixed_id")
     def test__api_route__(
             self,
-            route, method,
-            location_id_generator_mock: MagicMock, traveler_id_generator_mock: MagicMock, event_id_generator_mock: MagicMock,
+            route, method, world_id_generator_mock: MagicMock, location_id_generator_mock: MagicMock,
+            traveler_id_generator_mock: MagicMock, event_id_generator_mock: MagicMock,
     ) -> None:
         # Arrange
+        world_id_generator_mock.side_effect = _dummy_id_generator
         location_id_generator_mock.side_effect = _dummy_id_generator
         traveler_id_generator_mock.side_effect = _dummy_id_generator
         event_id_generator_mock.side_effect = _dummy_id_generator
@@ -89,6 +91,7 @@ class TestAPISpecification(TestCase):
         # Assert
         self.assertNotEqual(HTTPStatus.NOT_FOUND, actual_status_code, f"Resource {method} {route} not registered")
         self.assertNotEqual(HTTPStatus.METHOD_NOT_ALLOWED, actual_status_code, f"Resource {method} {route} not registered")
+        self.assertNotEqual(HTTPStatus.NOT_IMPLEMENTED, actual_status_code, f"Resource {method} {route} has not been implemented")
         actual_status_code_str = str(actual_status_code.real)
         self.assertIn(actual_status_code_str, expected_response_bodies)
         expected_response_body = dumps(expected_response_bodies.get(actual_status_code_str).get("application/json"), indent=2)
