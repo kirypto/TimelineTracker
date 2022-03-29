@@ -111,7 +111,7 @@ class TestDescribedEntity(TestCase):
         actual = DescribedEntity()
 
         # Assert
-        self.assertEqual("", actual.description)
+        self.assertEqual("\n", actual.description)
 
     def test__init__should_initialize_with_provided_value(self) -> None:
         # Arrange
