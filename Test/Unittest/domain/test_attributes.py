@@ -1,8 +1,8 @@
 from unittest import TestCase
 
 from Test.Unittest.test_helpers.anons import anon_attribute_key, anon_attribute_value, anon_attribute, anon_anything, anon_description
+from domain.attributes import AttributedEntity
 from domain.base_entity import BaseEntity
-from domain.metadata import AttributedEntity
 
 
 class TestAttributedEntity(TestCase):

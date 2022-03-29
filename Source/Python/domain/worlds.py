@@ -1,6 +1,6 @@
+from domain.attributes import AttributedEntity
 from domain.descriptors import DescribedEntity, NamedEntity
 from domain.ids import IdentifiedEntity, PrefixedUUID
-from domain.metadata import AttributedEntity
 from domain.tags import TaggedEntity
 
 

@@ -1,8 +1,8 @@
 from typing import Set
 
+from domain.attributes import AttributedEntity
 from domain.descriptors import NamedEntity, DescribedEntity
 from domain.ids import IdentifiedEntity, PrefixedUUID
-from domain.metadata import AttributedEntity
 from domain.positions import SpanningEntity
 from domain.tags import TaggedEntity
 
