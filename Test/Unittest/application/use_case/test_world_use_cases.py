@@ -2,7 +2,7 @@ from unittest import TestCase
 from unittest.mock import patch, MagicMock
 
 from Test.Unittest.test_helpers.anons import anon_prefixed_id, anon_name, anon_description, anon_tag, anon_create_world_kwargs, \
-    anon_world, anon_anything, anon_attribute
+    anon_world, anon_anything, anon_attributes
 from application.access.clients import Profile
 from application.use_case.world_use_cases import WorldUseCase
 from domain.worlds import World
@@ -40,7 +40,7 @@ class TestWorldUseCase(TestCase):
         expected_name = anon_name()
         expected_description = anon_description()
         expected_tags = {anon_tag()}
-        expected_attributes = anon_attribute()
+        expected_attributes = anon_attributes()
 
         # Act
         world = self.world_use_case.create(
@@ -146,7 +146,7 @@ class TestWorldUseCase(TestCase):
         expected_name = anon_name()
         expected_description = anon_description()
         expected_tags = {anon_tag(), anon_tag()}
-        expected_attributes = anon_attribute()
+        expected_attributes = anon_attributes()
         modified_world = World(
             id=world.id, name=expected_name, description=expected_description, tags=expected_tags, attributes=expected_attributes)
 

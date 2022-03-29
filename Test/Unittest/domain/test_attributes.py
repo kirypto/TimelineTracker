@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from Test.Unittest.test_helpers.anons import anon_attribute_key, anon_attribute_value, anon_attribute, anon_anything, anon_description
+from Test.Unittest.test_helpers.anons import anon_attribute_key, anon_attribute_value, anon_attributes, anon_anything, anon_description
 from domain.attributes import AttributedEntity
 from domain.base_entity import BaseEntity
 
@@ -18,7 +18,7 @@ class TestAttributedEntity(TestCase):
 
     def test__init__should_initialize_attributed__when_attributed_given(self) -> None:
         # Arrange
-        expected = anon_attribute()
+        expected = anon_attributes()
         attributed_entity = AttributedEntity(attributes=expected)
 
         # Act
@@ -48,7 +48,7 @@ class TestAttributedEntity(TestCase):
         # Act
         expected = "other"
 
-        def action(): return TestKwargs(attributes=anon_attribute(), other=expected)
+        def action(): return TestKwargs(attributes=anon_attributes(), other=expected)
 
         actual = action()
 
@@ -116,7 +116,7 @@ class TestAttributedEntity(TestCase):
 
     def test__attributes__should_not_allow_external_mutation(self) -> None:
         # Arrange
-        expected = anon_attribute()
+        expected = anon_attributes()
         attributed_entity = AttributedEntity(attributes=expected)
         attributed = attributed_entity.attributes
 
@@ -132,15 +132,15 @@ class TestAttributedEntity(TestCase):
 
         # Act
         # noinspection PyPropertyAccess
-        def action(): attributed_entity.attributes = anon_attribute()
+        def action(): attributed_entity.attributes = anon_attributes()
 
         # Assert
         self.assertRaises(AttributeError, action)
 
     def test__equality__should_correctly_compare_attributes(self) -> None:
         # Arrange
-        attributes_dict_1 = anon_attribute()
-        attributes_dict_2 = anon_attribute()
+        attributes_dict_1 = anon_attributes()
+        attributes_dict_2 = anon_attributes()
         attributed_entity_a = AttributedEntity(attributes=attributes_dict_1)
         attributed_entity_b = AttributedEntity(attributes=attributes_dict_1)
         attributed_entity_c = AttributedEntity(attributes=attributes_dict_2)
@@ -169,7 +169,7 @@ class TestAttributedEntity(TestCase):
 
     def test__hash__should_be_hashable__when_has_attributed(self) -> None:
         # Arrange
-        attributed_entity = AttributedEntity(attributes=anon_attribute())
+        attributed_entity = AttributedEntity(attributes=anon_attributes())
 
         # Act
         def action(): _ = {attributed_entity}

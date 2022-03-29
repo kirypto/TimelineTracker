@@ -69,7 +69,7 @@ def anon_attribute_value() -> str:
     return "".join(choices(printable, k=50)).strip()
 
 
-def anon_attribute() -> Dict[str, str]:
+def anon_attributes() -> Dict[str, str]:
     return {
         anon_attribute_key(): anon_attribute_value()
         for _ in range(anon_int(1, 3))
@@ -132,7 +132,7 @@ def anon_location(
         name=_coalesce(name, anon_name()),
         description=anon_description(),
         tags=_coalesce(tags, {anon_tag()}),
-        attributes=_coalesce(attributes, anon_attribute()),
+        attributes=_coalesce(attributes, anon_attributes()),
     )
 
 
@@ -142,7 +142,7 @@ def anon_world(*, id: PrefixedUUID = None, name: str = None, tags: Set[Tag] = No
         name=_coalesce(name, anon_name()),
         description=anon_description(),
         tags=_coalesce(tags, {anon_tag()}),
-        attributes=_coalesce(attributes, anon_attribute()),
+        attributes=_coalesce(attributes, anon_attributes()),
     )
 
 
@@ -167,7 +167,7 @@ def anon_traveler(*, name: str = None, tags: Set[Tag] = None, journey: List[Posi
         description=anon_description(),
         journey=_coalesce(journey, anon_journey()),
         tags=_coalesce(tags, {anon_tag()}),
-        attributes=_coalesce(attributes, anon_attribute())
+        attributes=_coalesce(attributes, anon_attributes())
     )
 
 
@@ -180,7 +180,7 @@ def anon_event(
         id=anon_prefixed_id(prefix="event"), name=anon_name(), description=anon_description(),
         span=_coalesce(span, anon_positional_range()),
         tags=_coalesce(tags, {anon_tag()}),
-        attributes=_coalesce(attributes, anon_attribute())
+        attributes=_coalesce(attributes, anon_attributes())
     )
 
 
@@ -191,7 +191,7 @@ def anon_create_world_kwargs(
         "name": _coalesce(name, anon_name()),
         "description": _coalesce(description, anon_description()),
         "tags": _coalesce(tags, {anon_tag()}),
-        "attributes": _coalesce(attributes, anon_attribute()),
+        "attributes": _coalesce(attributes, anon_attributes()),
     }
 
 
@@ -203,7 +203,7 @@ def anon_create_location_kwargs(
         "description": _coalesce(description, anon_description()),
         "span": _coalesce(span, anon_positional_range()),
         "tags": _coalesce(tags, {anon_tag()}),
-        "attributes": _coalesce(attributes, anon_attribute()),
+        "attributes": _coalesce(attributes, anon_attributes()),
     }
 
 
@@ -215,7 +215,7 @@ def anon_create_traveler_kwargs(
         "description": _coalesce(description, anon_description()),
         "journey": _coalesce(journey, anon_journey()),
         "tags": _coalesce(tags, {anon_tag()}),
-        "attributes": _coalesce(attributes, anon_attribute()),
+        "attributes": _coalesce(attributes, anon_attributes()),
     }
 
 
@@ -230,7 +230,7 @@ def anon_create_event_kwargs(
         "tags": _coalesce(tags, {anon_tag()}),
         "affected_locations": _coalesce(affected_locations, set()),
         "affected_travelers": _coalesce(affected_travelers, set()),
-        "attributes": _coalesce(attributes, anon_attribute()),
+        "attributes": _coalesce(attributes, anon_attributes()),
     }
 
 
