@@ -184,6 +184,17 @@ def anon_event(
     )
 
 
+def anon_create_world_kwargs(
+        *, name: str = None, description: str = None, tags: Set[Tag] = None, attributes: Dict[str, str] = None
+) -> dict:
+    return {
+        "name": _coalesce(name, anon_name()),
+        "description": _coalesce(description, anon_description()),
+        "tags": _coalesce(tags, {anon_tag()}),
+        "attributes": _coalesce(attributes, anon_attribute()),
+    }
+
+
 def anon_create_location_kwargs(
         *, name: str = None, description: str = None, span: PositionalRange = None, tags: Set[Tag] = None, attributes: Dict[str, str] = None
 ) -> dict:
