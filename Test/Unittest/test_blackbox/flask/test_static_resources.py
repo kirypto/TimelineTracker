@@ -4,14 +4,20 @@ from typing import Any
 
 from flask_unittest import ClientTestCase
 
-from Test.Unittest.test_helpers.anons import anon_string, anon_route
+from adapter.persistence.in_memory_repositories import InMemoryEventRepository, InMemoryTravelerRepository, InMemoryLocationRepository, \
+    InMemoryWorldRepository
+from test_helpers import get_fully_qualified_name
+from test_helpers.anons import anon_string, anon_route
 
 
 _PORT = 54321
 _HOST = "localhost"
 _APP_CONFIG = {
     "repositories_config": {
-        "repository_type": "memory",
+        "world_repo_class_path": get_fully_qualified_name(InMemoryWorldRepository),
+        "location_repo_class_path": get_fully_qualified_name(InMemoryLocationRepository),
+        "traveler_repo_class_path": get_fully_qualified_name(InMemoryTravelerRepository),
+        "event_repo_class_path": get_fully_qualified_name(InMemoryEventRepository),
     },
     "resources_folder_path": Path(__file__).parents[4].joinpath("Source/Resources/").resolve().as_posix(),
 }

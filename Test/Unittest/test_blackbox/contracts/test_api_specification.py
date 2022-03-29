@@ -8,18 +8,24 @@ from uuid import UUID
 
 from parameterized import parameterized
 
-from Test.Unittest.test_helpers.controllers import TestableRESTController
+from adapter.persistence.in_memory_repositories import InMemoryEventRepository, InMemoryTravelerRepository, InMemoryLocationRepository, \
+    InMemoryWorldRepository
 from application.main import TimelineTrackerApp
 from application.requests.rest import RESTMethod
 from domain.ids import PrefixedUUID
+from test_helpers import get_fully_qualified_name
 from test_helpers.anons import anon_profile
+from test_helpers.controllers import TestableRESTController
 from test_helpers.specifications import APISpecification
 
 
 _CONFIG = {
     "resources_folder_path": Path(__file__).parents[4].joinpath("Source/Resources"),
     "repositories_config": {
-        "repository_type": "memory"
+        "world_repo_class_path": get_fully_qualified_name(InMemoryWorldRepository),
+        "location_repo_class_path": get_fully_qualified_name(InMemoryLocationRepository),
+        "traveler_repo_class_path": get_fully_qualified_name(InMemoryTravelerRepository),
+        "event_repo_class_path": get_fully_qualified_name(InMemoryEventRepository),
     },
 }
 
@@ -82,7 +88,7 @@ class TestAPISpecification(TestCase):
         event_id_generator_mock.side_effect = _dummy_id_generator
 
         self.controller.profile = anon_profile()
-        json_body = self.api_spec.get_resource_request_body_examples(route, method).get("test_application/json")
+        json_body = self.api_spec.get_resource_request_body_examples(route, method).get("application/json")
         expected_response_bodies = self.api_spec.get_resource_response_body_examples(route, method)
 
         # Act
@@ -94,5 +100,5 @@ class TestAPISpecification(TestCase):
         self.assertNotEqual(HTTPStatus.NOT_IMPLEMENTED, actual_status_code, f"Resource {method} {route} has not been implemented")
         actual_status_code_str = str(actual_status_code.real)
         self.assertIn(actual_status_code_str, expected_response_bodies)
-        expected_response_body = dumps(expected_response_bodies.get(actual_status_code_str).get("test_application/json"), indent=2)
+        expected_response_body = dumps(expected_response_bodies.get(actual_status_code_str).get("application/json"), indent=2)
         self.assertEqual(expected_response_body, actual_response_body)

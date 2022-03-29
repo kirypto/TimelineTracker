@@ -3,6 +3,7 @@ from unittest.mock import patch, MagicMock
 
 from Test.Unittest.test_helpers.anons import anon_prefixed_id, anon_name, anon_description, anon_tag, anon_create_world_kwargs, \
     anon_world, anon_anything, anon_attributes
+from adapter.persistence.in_memory_repositories import InMemoryWorldRepository
 from application.access.clients import Profile
 from application.use_case.world_use_cases import WorldUseCase
 from domain.worlds import World
@@ -13,7 +14,7 @@ class TestWorldUseCase(TestCase):
     profile: Profile
 
     def setUp(self) -> None:
-        self.world_use_case = WorldUseCase()
+        self.world_use_case = WorldUseCase(InMemoryWorldRepository())
         self.profile = Profile(anon_name(), anon_name())
 
     def test__create__should_not_require_id_passed_in(self) -> None:
