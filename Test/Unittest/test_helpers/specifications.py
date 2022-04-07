@@ -1,10 +1,10 @@
 from collections import defaultdict
 from json import loads
 from pathlib import Path
-from typing import Dict, Set, Union, Optional
+from typing import Dict, Set, Union, Optional, List
 
 from openapi3 import OpenAPI
-from openapi3.paths import Operation
+from openapi3.paths import Operation, Parameter
 from openapi3.schemas import Schema
 
 from application.requests.rest import RESTMethod
@@ -61,6 +61,16 @@ class APISpecification(OpenAPI):
         for content_type, content_media in resource_op.requestBody.content.items():
             examples[content_type] = construct_json_obj_from_schema(content_media.schema)
         return examples
+
+    def get_resource_request_query_param_examples(self, route: str, method: RESTMethod) -> Optional[Dict[str, str]]:
+        resource_op: Operation = getattr(self.paths.get(route), method.value.lower())
+        if not resource_op.parameters:
+            return None
+        parameters: List[Parameter] = resource_op.parameters
+        return {
+            parameter.name: parameter.example
+            for parameter in parameters
+        }
 
     def get_resource_response_body_examples(self, route: str, method: RESTMethod) -> Dict[StatusCode, Dict[ContentType, JSONObject]]:
         resource_op: Operation = getattr(self.paths.get(route), method.value.lower())

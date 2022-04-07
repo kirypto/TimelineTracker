@@ -89,10 +89,11 @@ class TestAPISpecification(TestCase):
 
         self.controller.profile = anon_profile()
         json_body = self.api_spec.get_resource_request_body_examples(route, method).get("application/json")
+        query_params = self.api_spec.get_resource_request_query_param_examples(route, method)
         expected_response_bodies = self.api_spec.get_resource_response_body_examples(route, method)
 
         # Act
-        actual_status_code, actual_response_body = self.controller.invoke(route, method, json=json_body)
+        actual_status_code, actual_response_body = self.controller.invoke(route, method, json=json_body, query_params=query_params)
 
         # Assert
         self.assertNotEqual(HTTPStatus.NOT_FOUND, actual_status_code, f"Resource {method} {route} not registered")
