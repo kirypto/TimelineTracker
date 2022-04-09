@@ -1,11 +1,13 @@
 from http import HTTPStatus
 from json import loads, dumps
 from pathlib import Path
+from re import findall, compile as compile_pattern
 from typing import List, Tuple
 from unittest import TestCase
 from unittest.mock import patch, MagicMock
 from uuid import UUID
 
+from inflection import underscore
 from parameterized import parameterized
 
 from adapter.persistence.in_memory_repositories import InMemoryEventRepository, InMemoryTravelerRepository, InMemoryLocationRepository, \
@@ -30,6 +32,7 @@ _CONFIG = {
         "event_repo_class_path": get_fully_qualified_name(InMemoryEventRepository),
     },
 }
+_OPENAPI_URL_PARAM_PATTERN = compile_pattern(r"{\w+}")
 
 
 def _dummy_id_generator(prefix: str) -> PrefixedUUID:
@@ -48,6 +51,15 @@ def _get_test_params() -> List[Tuple[str, RESTMethod]]:
         for method in methods:
             test_params.append((route, method))
     return test_params
+
+
+def _correct_url_params(route: str) -> str:
+    translated_route = route
+    openapi_url_params = findall(_OPENAPI_URL_PARAM_PATTERN, route)
+    for openapi_param in openapi_url_params:
+        converted_param = f"<{underscore(openapi_param[1:-1])}>"
+        translated_route = translated_route.replace(openapi_param, converted_param, 1)
+    return translated_route
 
 
 class TestAPISpecification(TestCase):
@@ -101,9 +113,10 @@ class TestAPISpecification(TestCase):
         json_body = self.api_spec.get_resource_request_body_examples(route, method).get("application/json")
         query_params = self.api_spec.get_resource_request_query_param_examples(route, method)
         expected_response_bodies = self.api_spec.get_resource_response_body_examples(route, method)
+        internal_route = _correct_url_params(route)
 
         # Act
-        actual_status_code, actual_response_body = self.controller.invoke(route, method, json=json_body, query_params=query_params)
+        actual_status_code, actual_response_body = self.controller.invoke(internal_route, method, json=json_body, query_params=query_params)
 
         # Assert
         self.assertNotEqual(HTTPStatus.NOT_FOUND, actual_status_code, f"Resource {method} {route} not registered")
