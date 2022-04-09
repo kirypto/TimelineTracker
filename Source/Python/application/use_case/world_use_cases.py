@@ -1,6 +1,7 @@
 from typing import Set
 
 from application.access.authentication import requires_authentication
+from application.use_case.filtering_use_cases import FilteringUseCase
 from domain.ids import generate_prefixed_id, PrefixedUUID
 from domain.persistence.repositories import WorldRepository
 from domain.worlds import World
@@ -27,7 +28,13 @@ class WorldUseCase:
 
     @requires_authentication()
     def retrieve_all(self, **kwargs) -> Set[World]:
-        raise NotImplementedError(f"{self.retrieve_all} has not been implemented")
+        all_worlds = self._world_repository.retrieve_all()
+        name_filtered_worlds, kwargs = FilteringUseCase.filter_named_entities(all_worlds, **kwargs)
+        tag_filtered_worlds, kwargs = FilteringUseCase.filter_tagged_entities(name_filtered_worlds, **kwargs)
+        if kwargs:
+            raise ValueError(f"Unknown filters: {','.join(kwargs)}")
+
+        return tag_filtered_worlds
 
     @requires_authentication()
     def update(self, world: World) -> None:

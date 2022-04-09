@@ -12,7 +12,9 @@ from adapter.persistence.in_memory_repositories import InMemoryEventRepository, 
     InMemoryWorldRepository
 from application.main import TimelineTrackerApp
 from application.requests.rest import RESTMethod
+from application.use_case.world_use_cases import WorldUseCase
 from domain.ids import PrefixedUUID
+from domain.tags import Tag
 from test_helpers import get_fully_qualified_name
 from test_helpers.anons import anon_profile
 from test_helpers.controllers import TestableRESTController
@@ -51,6 +53,7 @@ def _get_test_params() -> List[Tuple[str, RESTMethod]]:
 class TestAPISpecification(TestCase):
     api_spec: APISpecification = _get_api_spec()
     controller: TestableRESTController
+    world_use_case: WorldUseCase
 
     @patch("application.main.RESTControllersFactory")
     def setUp(
@@ -58,6 +61,7 @@ class TestAPISpecification(TestCase):
     ) -> None:
         self.controller = TestableRESTController()
         timeline_tracker_application = TimelineTrackerApp(**_CONFIG)
+        self.world_use_case = timeline_tracker_application._world_use_case
 
         def rest_controller_factory(**_):
             factory_result = MagicMock()  # Container to store rest_controller property
@@ -70,6 +74,11 @@ class TestAPISpecification(TestCase):
 
         api_spec_file = Path(__file__).parents[4].joinpath("Source/Resources/StaticallyServedFiles/APISpec/apiSpecification.json")
         self.api_spec = APISpecification(loads(api_spec_file.read_text()))
+        self.controller.profile = anon_profile()
+
+    def _set_up_for(self, route: str, method: RESTMethod) -> None:
+        if route == "/api/worlds" and method == RESTMethod.GET:
+            self.world_use_case.create(name="The Great Pyramid", profile=self.controller.profile, tags=set(map(Tag, {"important"})))
 
     @parameterized.expand(_get_test_params())
     @patch("application.use_case.event_use_cases.generate_prefixed_id")
@@ -87,7 +96,8 @@ class TestAPISpecification(TestCase):
         traveler_id_generator_mock.side_effect = _dummy_id_generator
         event_id_generator_mock.side_effect = _dummy_id_generator
 
-        self.controller.profile = anon_profile()
+        self._set_up_for(route, method)
+
         json_body = self.api_spec.get_resource_request_body_examples(route, method).get("application/json")
         query_params = self.api_spec.get_resource_request_query_param_examples(route, method)
         expected_response_bodies = self.api_spec.get_resource_response_body_examples(route, method)

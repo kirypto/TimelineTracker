@@ -38,6 +38,24 @@ class WorldsRESTRequestHandler:
 
             return HTTPStatus.CREATED, dumps(JsonTranslator.to_json(location), indent=2)
 
+        @rest_controller.register_rest_endpoint("/api/worlds", RESTMethod.GET, MIMEType.JSON, query_params=True)
+        def worlds_get_handler(query_params: Dict[str, str], **kwargs) -> HandlerResult:
+            supported_filters = {"nameIs", "nameHas", "taggedAll", "taggedAny", "taggedOnly", "taggedNone"}
+            if not supported_filters.issuperset(query_params.keys()):
+                raise ValueError(f"Unsupported filter(s): {', '.join(query_params.keys() - supported_filters)}")
+            filters = {
+                "name_is": query_params.get("nameIs", None),
+                "name_has": query_params.get("nameHas", None),
+                "tagged_all": parse_optional_tag_set_query_param(query_params.get("taggedAll", None)),
+                "tagged_any": parse_optional_tag_set_query_param(query_params.get("taggedAny", None)),
+                "tagged_only": parse_optional_tag_set_query_param(query_params.get("taggedOnly", None)),
+                "tagged_none": parse_optional_tag_set_query_param(query_params.get("taggedNone", None)),
+            }
+
+            worlds = world_use_case.retrieve_all(**filters, **kwargs)
+
+            return HTTPStatus.OK, dumps([JsonTranslator.to_json(world.id) for world in worlds], indent=2)
+
 
 class LocationsRestRequestHandler:
     @staticmethod
