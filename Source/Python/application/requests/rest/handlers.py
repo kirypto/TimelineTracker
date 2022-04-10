@@ -56,6 +56,16 @@ class WorldsRESTRequestHandler:
 
             return HTTPStatus.OK, dumps([JsonTranslator.to_json(world.id) for world in worlds], indent=2)
 
+        @rest_controller.register_rest_endpoint("/api/world/<world_id>", RESTMethod.DELETE, MIMEType.JSON)
+        def world_delete_handler(*, world_id: str, **kwargs) -> HandlerResult:
+            if not world_id.startswith("world-"):
+                raise ValueError(f"Cannot parse world id from '{world_id}")
+            world_id_ = JsonTranslator.from_json(world_id, PrefixedUUID)
+
+            world_use_case.delete(world_id_, **kwargs)
+
+            return HTTPStatus.NO_CONTENT, ""
+
 
 class LocationsRestRequestHandler:
     @staticmethod

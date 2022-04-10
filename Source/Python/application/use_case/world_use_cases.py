@@ -42,4 +42,4 @@ class WorldUseCase:
 
     @requires_authentication()
     def delete(self, world_id: PrefixedUUID) -> None:
-        raise NotImplementedError(f"{self.delete} has not been implemented")
+        self._world_repository.delete(world_id)
