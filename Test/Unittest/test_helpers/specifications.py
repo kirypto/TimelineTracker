@@ -77,7 +77,7 @@ class APISpecification(OpenAPI):
         examples: Dict[StatusCode, Dict[ContentType, JSONObject]] = defaultdict(dict)
         for status_code, media_for_status_code in resource_op.responses.items():
             if not media_for_status_code.content:
-                examples[status_code]["*/*"] = {}
+                examples[status_code]["*/*"] = ""
             else:
                 for content_type, content_media in media_for_status_code.content.items():
                     examples[status_code][content_type] = construct_json_obj_from_schema(content_media.schema)
