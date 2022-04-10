@@ -24,6 +24,9 @@ class WorldUseCase:
 
     @requires_authentication()
     def retrieve(self, world_id: PrefixedUUID) -> World:
+        if not world_id.prefix == "world":
+            raise ValueError("Argument 'world_id' must be prefixed with 'world'")
+
         return self._world_repository.retrieve(world_id)
 
     @requires_authentication()
@@ -43,4 +46,7 @@ class WorldUseCase:
 
     @requires_authentication()
     def delete(self, world_id: PrefixedUUID) -> None:
+        if not world_id.prefix == "world":
+            raise ValueError("Argument 'world_id' must be prefixed with 'world'")
+
         self._world_repository.delete(world_id)
