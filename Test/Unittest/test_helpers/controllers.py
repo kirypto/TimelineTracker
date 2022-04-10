@@ -34,7 +34,10 @@ class TestableRESTController(RESTController):
     def finalize(self) -> None:
         pass
 
-    def invoke(self, route: str, method: RESTMethod, *, json: Any = None, query_params: Dict[str, Any] = None) -> HandlerResult:
+    def invoke(
+            self, route: str, method: RESTMethod,
+            *, url_params: Dict[str, str] = None, json: Any = None, query_params: Dict[str, Any] = None
+    ) -> HandlerResult:
         if route not in self._handlers:
             return error_response(f"No route registered for {route}", HTTPStatus.NOT_FOUND)
         elif method not in self._handlers[route]:
@@ -45,4 +48,5 @@ class TestableRESTController(RESTController):
             args.append(json)
         if query_params is not None:
             args.append(query_params)
-        return self._handlers[route][method](*args)
+        kwargs = url_params if url_params is not None else {}
+        return self._handlers[route][method](*args, **kwargs)
