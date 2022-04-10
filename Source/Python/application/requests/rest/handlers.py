@@ -21,6 +21,7 @@ from domain.locations import Location
 from domain.positions import PositionalRange, PositionalMove
 from domain.tags import Tag
 from domain.travelers import Traveler
+from domain.worlds import World
 
 
 class WorldsRESTRequestHandler:
@@ -65,6 +66,25 @@ class WorldsRESTRequestHandler:
             world = world_use_case.retrieve(world_id_, **kwargs)
 
             return HTTPStatus.OK, dumps(JsonTranslator.to_json(world), indent=2)
+
+        @rest_controller.register_rest_endpoint("/api/world/<world_id>", RESTMethod.PATCH, MIMEType.JSON, json=True)
+        def world_patch_handler(body_patch_operations: List[Dict[str, Any]], *, world_id: str, **kwargs) -> HandlerResult:
+            if not world_id.startswith("world-"):
+                raise ValueError(f"Cannot parse world id from '{world_id}")
+            world_id_ = JsonTranslator.from_json(world_id, PrefixedUUID)
+
+            patch = JsonPatch([PatchOperation(operation).operation for operation in body_patch_operations])
+            existing_world_json = JsonTranslator.to_json(world_use_case.retrieve(world_id_, **kwargs))
+
+            modified_world_json = patch.apply(existing_world_json)
+            modified_world = JsonTranslator.from_json(modified_world_json, World)
+
+            if modified_world.id != world_id_:
+                raise ValueError("A World's 'id' cannot be modified")
+
+            world_use_case.update(modified_world, **kwargs)
+
+            return HTTPStatus.OK, dumps(JsonTranslator.to_json(modified_world), indent=2)
 
         @rest_controller.register_rest_endpoint("/api/world/<world_id>", RESTMethod.DELETE, MIMEType.JSON)
         def world_delete_handler(*, world_id: str, **kwargs) -> HandlerResult:

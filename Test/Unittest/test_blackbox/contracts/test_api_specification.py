@@ -106,7 +106,7 @@ class TestAPISpecification(TestCase):
         default_tags = set(map(Tag, {"important"}))
         if route == "/api/worlds" and method == RESTMethod.GET:
             self.world_use_case.create(name="The Great Pyramid", tags=default_tags, profile=self.controller.profile)
-        elif route == "/api/world/{worldId}" and method in {RESTMethod.DELETE, RESTMethod.GET}:
+        elif route == "/api/world/{worldId}" and method in {RESTMethod.DELETE, RESTMethod.GET, RESTMethod.PATCH}:
             world = self.world_use_case.create(
                 name="The Milky Way", tags=default_tags, attributes={"key1": "Value A", "key2": "Value B"},
                 description="The Milky Way is the galaxy that includes our Solar System, with the name describing the galaxy's appearance "

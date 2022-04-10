@@ -38,7 +38,8 @@ class WorldUseCase:
 
     @requires_authentication()
     def update(self, world: World) -> None:
-        raise NotImplementedError(f"{self.update} has not been implemented")
+        self._world_repository.retrieve(world.id)
+        self._world_repository.save(world)
 
     @requires_authentication()
     def delete(self, world_id: PrefixedUUID) -> None:
