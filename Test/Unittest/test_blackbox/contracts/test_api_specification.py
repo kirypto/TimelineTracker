@@ -18,7 +18,7 @@ from application.use_case.world_use_cases import WorldUseCase
 from domain.ids import PrefixedUUID
 from domain.tags import Tag
 from test_helpers import get_fully_qualified_name
-from test_helpers.anons import anon_profile, anon_name
+from test_helpers.anons import anon_profile
 from test_helpers.controllers import TestableRESTController
 from test_helpers.specifications import APISpecification, StatusCode, ContentType, JSONObject
 
@@ -103,10 +103,15 @@ class TestAPISpecification(TestCase):
         self.controller.profile = anon_profile()
 
     def _set_up_for(self, route: str, method: RESTMethod) -> Optional[Dict[str, str]]:
+        default_tags = set(map(Tag, {"important"}))
         if route == "/api/worlds" and method == RESTMethod.GET:
-            self.world_use_case.create(name="The Great Pyramid", tags=set(map(Tag, {"important"})), profile=self.controller.profile)
-        elif route == "/api/world/{worldId}" and method == RESTMethod.DELETE:
-            world = self.world_use_case.create(name=anon_name(), profile=self.controller.profile)
+            self.world_use_case.create(name="The Great Pyramid", tags=default_tags, profile=self.controller.profile)
+        elif route == "/api/world/{worldId}" and method in {RESTMethod.DELETE, RESTMethod.GET}:
+            world = self.world_use_case.create(
+                name="The Milky Way", tags=default_tags, attributes={"key1": "Value A", "key2": "Value B"},
+                description="The Milky Way is the galaxy that includes our Solar System, with the name describing the galaxy's appearance "
+                            "from Earth.\n",
+                profile=self.controller.profile)
             return {"world_id": str(world.id)}
 
         return None

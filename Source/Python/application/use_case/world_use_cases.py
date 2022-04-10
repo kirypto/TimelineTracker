@@ -24,7 +24,7 @@ class WorldUseCase:
 
     @requires_authentication()
     def retrieve(self, world_id: PrefixedUUID) -> World:
-        raise NotImplementedError(f"{self.retrieve} has not been implemented")
+        return self._world_repository.retrieve(world_id)
 
     @requires_authentication()
     def retrieve_all(self, **kwargs) -> Set[World]:

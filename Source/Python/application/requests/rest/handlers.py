@@ -34,9 +34,9 @@ class WorldsRESTRequestHandler:
                 "attributes": JsonTranslator.from_json(json_body.get("attributes", {}), Dict[str, str]),
                 "tags": JsonTranslator.from_json(json_body.get("tags", set()), Set[Tag]),
             }
-            location = world_use_case.create(**world_kwargs, **kwargs)
+            world = world_use_case.create(**world_kwargs, **kwargs)
 
-            return HTTPStatus.CREATED, dumps(JsonTranslator.to_json(location), indent=2)
+            return HTTPStatus.CREATED, dumps(JsonTranslator.to_json(world), indent=2)
 
         @rest_controller.register_rest_endpoint("/api/worlds", RESTMethod.GET, MIMEType.JSON, query_params=True)
         def worlds_get_handler(query_params: Dict[str, str], **kwargs) -> HandlerResult:
@@ -55,6 +55,16 @@ class WorldsRESTRequestHandler:
             worlds = world_use_case.retrieve_all(**filters, **kwargs)
 
             return HTTPStatus.OK, dumps([JsonTranslator.to_json(world.id) for world in worlds], indent=2)
+
+        @rest_controller.register_rest_endpoint("/api/world/<world_id>", RESTMethod.GET, MIMEType.JSON)
+        def world_get_handler(*, world_id: str, **kwargs) -> HandlerResult:
+            if not world_id.startswith("world-"):
+                raise ValueError(f"Cannot parse world id from '{world_id}")
+            world_id_ = JsonTranslator.from_json(world_id, PrefixedUUID)
+
+            world = world_use_case.retrieve(world_id_, **kwargs)
+
+            return HTTPStatus.OK, dumps(JsonTranslator.to_json(world), indent=2)
 
         @rest_controller.register_rest_endpoint("/api/world/<world_id>", RESTMethod.DELETE, MIMEType.JSON)
         def world_delete_handler(*, world_id: str, **kwargs) -> HandlerResult:
