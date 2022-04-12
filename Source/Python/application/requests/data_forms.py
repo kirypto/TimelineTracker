@@ -1,3 +1,4 @@
+from json import dumps, loads
 from math import isinf
 from typing import Any, Set, List, Generic, TypeVar, Type, Union, Dict
 from uuid import UUID
@@ -55,6 +56,10 @@ class JsonTranslator(Generic[T]):
                 for key, val in vars(value).items()
             }
         raise TypeError(f"Unsupported type {type(value)}")
+
+    @staticmethod
+    def to_json_str(value: T, *, indent: int = 2) -> str:
+        return dumps(JsonTranslator.to_json(value), indent=indent)
 
     @staticmethod
     def from_json(value: Any, type_: Type[T]) -> T:
@@ -173,3 +178,7 @@ class JsonTranslator(Generic[T]):
                 name = str(type_).split(".")[-1]
             raise type(e)(f"Error when parsing {name}: {e}")
         raise TypeError(f"Unsupported type {type_}")
+
+    @staticmethod
+    def from_json_str(value: str, type_: Type[T]) -> T:
+        return JsonTranslator.from_json(loads(value), type_)

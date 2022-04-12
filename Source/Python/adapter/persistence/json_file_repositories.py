@@ -1,5 +1,5 @@
 from collections import defaultdict
-from json import dumps, loads
+from json import dumps
 from pathlib import Path
 from typing import Set, Type, Generic, TypeVar, Dict
 
@@ -85,8 +85,8 @@ class _JsonFileIdentifiedEntityRepository(Generic[_T]):
         if not entity_path.exists():
             raise NameError(f"No stored entity with id {entity_id_str}")
 
-        entity_json = loads(entity_path.read_text(encoding="utf8"))
-        return JsonTranslator.from_json(entity_json, self._entity_type)
+        entity_json = entity_path.read_text(encoding="utf8")
+        return JsonTranslator.from_json_str(entity_json, self._entity_type)
 
 
 class JsonFileWorldRepository(WorldRepository):

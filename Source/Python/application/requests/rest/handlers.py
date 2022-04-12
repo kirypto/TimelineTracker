@@ -37,7 +37,7 @@ class WorldsRESTRequestHandler:
             }
             world = world_use_case.create(**world_kwargs, **kwargs)
 
-            return HTTPStatus.CREATED, dumps(JsonTranslator.to_json(world), indent=2)
+            return HTTPStatus.CREATED, JsonTranslator.to_json_str(world)
 
         @rest_controller.register_rest_endpoint("/api/worlds", RESTMethod.GET, MIMEType.JSON, query_params=True)
         def worlds_get_handler(query_params: Dict[str, str], **kwargs) -> HandlerResult:
@@ -53,9 +53,9 @@ class WorldsRESTRequestHandler:
                 "tagged_none": parse_optional_tag_set_query_param(query_params.get("taggedNone", None)),
             }
 
-            worlds = world_use_case.retrieve_all(**filters, **kwargs)
+            world_ids = [world.id for world in world_use_case.retrieve_all(**filters, **kwargs)]
 
-            return HTTPStatus.OK, dumps([JsonTranslator.to_json(world.id) for world in worlds], indent=2)
+            return HTTPStatus.OK, JsonTranslator.to_json_str(world_ids)
 
         @rest_controller.register_rest_endpoint("/api/world/<world_id>", RESTMethod.GET, MIMEType.JSON)
         def world_get_handler(*, world_id: str, **kwargs) -> HandlerResult:
@@ -65,7 +65,7 @@ class WorldsRESTRequestHandler:
 
             world = world_use_case.retrieve(world_id_, **kwargs)
 
-            return HTTPStatus.OK, dumps(JsonTranslator.to_json(world), indent=2)
+            return HTTPStatus.OK, JsonTranslator.to_json_str(world)
 
         @rest_controller.register_rest_endpoint("/api/world/<world_id>", RESTMethod.PATCH, MIMEType.JSON, json=True)
         def world_patch_handler(body_patch_operations: List[Dict[str, Any]], *, world_id: str, **kwargs) -> HandlerResult:
@@ -84,7 +84,7 @@ class WorldsRESTRequestHandler:
 
             world_use_case.update(modified_world, **kwargs)
 
-            return HTTPStatus.OK, dumps(JsonTranslator.to_json(modified_world), indent=2)
+            return HTTPStatus.OK, JsonTranslator.to_json_str(modified_world)
 
         @rest_controller.register_rest_endpoint("/api/world/<world_id>", RESTMethod.DELETE, MIMEType.JSON)
         def world_delete_handler(*, world_id: str, **kwargs) -> HandlerResult:
@@ -111,7 +111,7 @@ class LocationsRestRequestHandler:
             }
             location = location_use_case.create(**location_kwargs, **kwargs)
 
-            return HTTPStatus.CREATED, dumps(JsonTranslator.to_json(location), indent=2)
+            return HTTPStatus.CREATED, JsonTranslator.to_json_str(location)
 
         @rest_controller.register_rest_endpoint("/api/locations", RESTMethod.GET, MIMEType.JSON, query_params=True)
         def locations_get_all_handler(query_params: Dict[str, str], **kwargs) -> HandlerResult:
@@ -131,9 +131,9 @@ class LocationsRestRequestHandler:
                 "span_intersects": parse_optional_positional_range_query_param(query_params.get("spanIntersects", None)),
             }
 
-            locations = location_use_case.retrieve_all(**filters, **kwargs)
+            location_ids = [location.id for location in location_use_case.retrieve_all(**filters, **kwargs)]
 
-            return HTTPStatus.OK, dumps([JsonTranslator.to_json(location.id) for location in locations], indent=2)
+            return HTTPStatus.OK, JsonTranslator.to_json_str(location_ids)
 
         @rest_controller.register_rest_endpoint("/api/location/<location_id>", RESTMethod.GET, MIMEType.JSON)
         def location_get_handler(*, location_id: str, **kwargs) -> HandlerResult:
@@ -143,7 +143,7 @@ class LocationsRestRequestHandler:
 
             location = location_use_case.retrieve(_location_id, **kwargs)
 
-            return HTTPStatus.OK, dumps(JsonTranslator.to_json(location), indent=2)
+            return HTTPStatus.OK, JsonTranslator.to_json_str(location)
 
         @rest_controller.register_rest_endpoint("/api/location/<location_id>", RESTMethod.DELETE, MIMEType.JSON)
         def location_delete_handler(*, location_id: str, **kwargs) -> HandlerResult:
@@ -172,7 +172,7 @@ class LocationsRestRequestHandler:
 
             location_use_case.update(modified_location, **kwargs)
 
-            return HTTPStatus.OK, dumps(JsonTranslator.to_json(modified_location), indent=2)
+            return HTTPStatus.OK, JsonTranslator.to_json_str(modified_location)
 
         @rest_controller.register_rest_endpoint(
             "/api/location/<location_id>/timeline", RESTMethod.GET, MIMEType.JSON, query_params=True
@@ -194,7 +194,7 @@ class LocationsRestRequestHandler:
 
             timeline = timeline_use_case.construct_location_timeline(location_id_, **filters, **kwargs)
 
-            return HTTPStatus.OK, dumps(JsonTranslator.to_json(timeline), indent=2)
+            return HTTPStatus.OK, JsonTranslator.to_json_str(timeline)
 
 
 class TravelersRestRequestHandler:
@@ -211,7 +211,7 @@ class TravelersRestRequestHandler:
             }
             traveler = traveler_use_case.create(**traveler_kwargs, **kwargs)
 
-            return HTTPStatus.CREATED, dumps(JsonTranslator.to_json(traveler), indent=2)
+            return HTTPStatus.CREATED, JsonTranslator.to_json_str(traveler)
 
         @rest_controller.register_rest_endpoint("/api/travelers", RESTMethod.GET, MIMEType.JSON, query_params=True)
         def travelers_get_all_handler(query_params: Dict[str, str], **kwargs) -> HandlerResult:
@@ -230,9 +230,9 @@ class TravelersRestRequestHandler:
                 "journey_includes": parse_optional_position_query_param(query_params.get("journeyIncludes", None)),
             }
 
-            travelers = traveler_use_case.retrieve_all(**filters, **kwargs)
+            traveler_ids = [traveler.id for traveler in traveler_use_case.retrieve_all(**filters, **kwargs)]
 
-            return HTTPStatus.OK, dumps([JsonTranslator.to_json(traveler.id) for traveler in travelers], indent=2)
+            return HTTPStatus.OK, JsonTranslator.to_json_str(traveler_ids)
 
         @rest_controller.register_rest_endpoint("/api/traveler/<traveler_id>", RESTMethod.GET, MIMEType.JSON)
         def traveler_get_handler(*, traveler_id: str, **kwargs) -> HandlerResult:
@@ -242,7 +242,7 @@ class TravelersRestRequestHandler:
 
             traveler = traveler_use_case.retrieve(traveler_id_, **kwargs)
 
-            return HTTPStatus.OK, dumps(JsonTranslator.to_json(traveler), indent=2)
+            return HTTPStatus.OK, JsonTranslator.to_json_str(traveler)
 
         @rest_controller.register_rest_endpoint("/api/traveler/<traveler_id>", RESTMethod.DELETE, MIMEType.JSON)
         def traveler_delete_handler(*, traveler_id: str, **kwargs) -> HandlerResult:
@@ -271,7 +271,7 @@ class TravelersRestRequestHandler:
 
             traveler_use_case.update(modified_traveler, **kwargs)
 
-            return HTTPStatus.OK, dumps(JsonTranslator.to_json(modified_traveler), indent=2)
+            return HTTPStatus.OK, JsonTranslator.to_json_str(modified_traveler)
 
         @rest_controller.register_rest_endpoint("/api/traveler/<traveler_id>/journey", RESTMethod.POST, MIMEType.JSON, json=True)
         def traveler_journey_post_handler(body_new_positional_move: dict, *, traveler_id: str, **kwargs) -> HandlerResult:
@@ -291,7 +291,7 @@ class TravelersRestRequestHandler:
 
             traveler_use_case.update(modified_traveler, **kwargs)
 
-            return HTTPStatus.OK, dumps(JsonTranslator.to_json(modified_traveler), indent=2)
+            return HTTPStatus.OK, JsonTranslator.to_json_str(modified_traveler)
 
         @rest_controller.register_rest_endpoint(
             "/api/traveler/<traveler_id>/timeline", RESTMethod.GET, MIMEType.JSON, query_params=True
@@ -313,7 +313,7 @@ class TravelersRestRequestHandler:
 
             timeline = timeline_use_case.construct_traveler_timeline(traveler_id, **filters, **kwargs)
 
-            return HTTPStatus.OK, dumps(JsonTranslator.to_json(timeline), indent=2)
+            return HTTPStatus.OK, JsonTranslator.to_json_str(timeline)
 
 
 class EventsRestRequestHandler:
@@ -335,7 +335,7 @@ class EventsRestRequestHandler:
             }
             event = event_use_case.create(**event_kwargs, **kwargs)
 
-            return HTTPStatus.CREATED, dumps(JsonTranslator.to_json(event), indent=2)
+            return HTTPStatus.CREATED, JsonTranslator.to_json_str(event)
 
         @rest_controller.register_rest_endpoint("/api/events", RESTMethod.GET, MIMEType.JSON, query_params=True)
         def events_get_all_handler(query_params: Dict[str, str], **kwargs) -> HandlerResult:
@@ -355,9 +355,9 @@ class EventsRestRequestHandler:
                 "span_intersects": parse_optional_positional_range_query_param(query_params.get("spanIntersects", None)),
             }
 
-            events = event_use_case.retrieve_all(**filters, **kwargs)
+            event_ids = [event.id for event in event_use_case.retrieve_all(**filters, **kwargs)]
 
-            return HTTPStatus.OK, dumps([JsonTranslator.to_json(event.id) for event in events], indent=2)
+            return HTTPStatus.OK, JsonTranslator.to_json_str(event_ids)
 
         @rest_controller.register_rest_endpoint("/api/event/<event_id>", RESTMethod.GET, MIMEType.JSON)
         def event_get_handler(*, event_id: str, **kwargs) -> HandlerResult:
@@ -367,7 +367,7 @@ class EventsRestRequestHandler:
 
             event = event_use_case.retrieve(event_id_, **kwargs)
 
-            return HTTPStatus.OK, dumps(JsonTranslator.to_json(event), indent=2)
+            return HTTPStatus.OK, JsonTranslator.to_json_str(event)
 
         @rest_controller.register_rest_endpoint("/api/event/<event_id>", RESTMethod.DELETE, MIMEType.JSON)
         def event_delete_handler(*, event_id: str, **kwargs) -> HandlerResult:
@@ -396,4 +396,4 @@ class EventsRestRequestHandler:
 
             event_use_case.update(modified_event, **kwargs)
 
-            return HTTPStatus.OK, dumps(JsonTranslator.to_json(modified_event), indent=2)
+            return HTTPStatus.OK, JsonTranslator.to_json_str(modified_event)
