@@ -24,6 +24,30 @@ from domain.travelers import Traveler
 from domain.worlds import World
 
 
+def _parse_world_id(world_id_raw: str) -> PrefixedUUID:
+    if not world_id_raw.startswith("world-"):
+        raise ValueError(f"Cannot parse world id from '{world_id_raw}")
+    return JsonTranslator.from_json(world_id_raw, PrefixedUUID)
+
+
+def _parse_location_id(location_id_raw: str) -> PrefixedUUID:
+    if not location_id_raw.startswith("location-"):
+        raise ValueError(f"Cannot parse location id from '{location_id_raw}")
+    return JsonTranslator.from_json(location_id_raw, PrefixedUUID)
+
+
+def _parse_traveler_id(traveler_id_raw: str) -> PrefixedUUID:
+    if not traveler_id_raw.startswith("traveler-"):
+        raise ValueError(f"Cannot parse traveler id from '{traveler_id_raw}")
+    return JsonTranslator.from_json(traveler_id_raw, PrefixedUUID)
+
+
+def _parse_event_id(event_id_raw: str) -> PrefixedUUID:
+    if not event_id_raw.startswith("event-"):
+        raise ValueError(f"Cannot parse event id from '{event_id_raw}")
+    return JsonTranslator.from_json(event_id_raw, PrefixedUUID)
+
+
 class WorldsRESTRequestHandler:
     @staticmethod
     def register_routes(rest_controller: RESTController, world_use_case: WorldUseCase) -> None:
@@ -59,9 +83,7 @@ class WorldsRESTRequestHandler:
 
         @rest_controller.register_rest_endpoint("/api/world/<world_id>", RESTMethod.GET, MIMEType.JSON)
         def world_get_handler(*, world_id: str, **kwargs) -> HandlerResult:
-            if not world_id.startswith("world-"):
-                raise ValueError(f"Cannot parse world id from '{world_id}")
-            world_id_ = JsonTranslator.from_json(world_id, PrefixedUUID)
+            world_id_ = _parse_world_id(world_id)
 
             world = world_use_case.retrieve(world_id_, **kwargs)
 
@@ -69,9 +91,7 @@ class WorldsRESTRequestHandler:
 
         @rest_controller.register_rest_endpoint("/api/world/<world_id>", RESTMethod.PATCH, MIMEType.JSON, json=True)
         def world_patch_handler(body_patch_operations: List[Dict[str, Any]], *, world_id: str, **kwargs) -> HandlerResult:
-            if not world_id.startswith("world-"):
-                raise ValueError(f"Cannot parse world id from '{world_id}")
-            world_id_ = JsonTranslator.from_json(world_id, PrefixedUUID)
+            world_id_ = _parse_world_id(world_id)
 
             patch = JsonPatch([PatchOperation(operation).operation for operation in body_patch_operations])
             existing_world_json = JsonTranslator.to_json(world_use_case.retrieve(world_id_, **kwargs))
@@ -88,9 +108,7 @@ class WorldsRESTRequestHandler:
 
         @rest_controller.register_rest_endpoint("/api/world/<world_id>", RESTMethod.DELETE, MIMEType.JSON)
         def world_delete_handler(*, world_id: str, **kwargs) -> HandlerResult:
-            if not world_id.startswith("world-"):
-                raise ValueError(f"Cannot parse world id from '{world_id}")
-            world_id_ = JsonTranslator.from_json(world_id, PrefixedUUID)
+            world_id_ = _parse_world_id(world_id)
 
             world_use_case.delete(world_id_, **kwargs)
 
@@ -137,9 +155,7 @@ class LocationsRestRequestHandler:
 
         @rest_controller.register_rest_endpoint("/api/location/<location_id>", RESTMethod.GET, MIMEType.JSON)
         def location_get_handler(*, location_id: str, **kwargs) -> HandlerResult:
-            if not location_id.startswith("location-"):
-                raise ValueError(f"Cannot parse location id from '{location_id}")
-            _location_id = JsonTranslator.from_json(location_id, PrefixedUUID)
+            _location_id = _parse_location_id(location_id)
 
             location = location_use_case.retrieve(_location_id, **kwargs)
 
@@ -147,9 +163,7 @@ class LocationsRestRequestHandler:
 
         @rest_controller.register_rest_endpoint("/api/location/<location_id>", RESTMethod.DELETE, MIMEType.JSON)
         def location_delete_handler(*, location_id: str, **kwargs) -> HandlerResult:
-            if not location_id.startswith("location-"):
-                raise ValueError(f"Cannot parse location id from '{location_id}")
-            location_id_ = JsonTranslator.from_json(location_id, PrefixedUUID)
+            location_id_ = _parse_location_id(location_id)
 
             location_use_case.delete(location_id_, **kwargs)
 
@@ -157,9 +171,7 @@ class LocationsRestRequestHandler:
 
         @rest_controller.register_rest_endpoint("/api/location/<location_id>", RESTMethod.PATCH, MIMEType.JSON, json=True)
         def location_patch_handler(body_patch_operations: List[Dict[str, Any]], *, location_id: str, **kwargs) -> HandlerResult:
-            if not location_id.startswith("location-"):
-                raise ValueError(f"Cannot parse location id from '{location_id}")
-            location_id_ = JsonTranslator.from_json(location_id, PrefixedUUID)
+            location_id_ = _parse_location_id(location_id)
 
             patch = JsonPatch([PatchOperation(operation).operation for operation in body_patch_operations])
             existing_location_json = JsonTranslator.to_json(location_use_case.retrieve(location_id_, **kwargs))
@@ -178,9 +190,7 @@ class LocationsRestRequestHandler:
             "/api/location/<location_id>/timeline", RESTMethod.GET, MIMEType.JSON, query_params=True
         )
         def location_timeline_get_handler(query_params: Dict[str, str], *, location_id: str, **kwargs) -> HandlerResult:
-            if not location_id.startswith("location-"):
-                raise ValueError(f"Cannot parse location id from '{location_id}")
-            location_id_ = JsonTranslator.from_json(location_id, PrefixedUUID)
+            location_id_ = _parse_location_id(location_id)
 
             supported_filters = {"taggedAll", "taggedAny", "taggedOnly", "taggedNone"}
             if not supported_filters.issuperset(query_params.keys()):
@@ -236,9 +246,7 @@ class TravelersRestRequestHandler:
 
         @rest_controller.register_rest_endpoint("/api/traveler/<traveler_id>", RESTMethod.GET, MIMEType.JSON)
         def traveler_get_handler(*, traveler_id: str, **kwargs) -> HandlerResult:
-            if not traveler_id.startswith("traveler-"):
-                raise ValueError(f"Cannot parse traveler id from '{traveler_id}")
-            traveler_id_ = JsonTranslator.from_json(traveler_id, PrefixedUUID)
+            traveler_id_ = _parse_traveler_id(traveler_id)
 
             traveler = traveler_use_case.retrieve(traveler_id_, **kwargs)
 
@@ -246,9 +254,7 @@ class TravelersRestRequestHandler:
 
         @rest_controller.register_rest_endpoint("/api/traveler/<traveler_id>", RESTMethod.DELETE, MIMEType.JSON)
         def traveler_delete_handler(*, traveler_id: str, **kwargs) -> HandlerResult:
-            if not traveler_id.startswith("traveler-"):
-                raise ValueError(f"Cannot parse traveler id from '{traveler_id}")
-            traveler_id = JsonTranslator.from_json(traveler_id, PrefixedUUID)
+            traveler_id = _parse_traveler_id(traveler_id)
 
             traveler_use_case.delete(traveler_id, **kwargs)
 
@@ -256,9 +262,7 @@ class TravelersRestRequestHandler:
 
         @rest_controller.register_rest_endpoint("/api/traveler/<traveler_id>", RESTMethod.PATCH, MIMEType.JSON, json=True)
         def traveler_patch_handler(body_patch_operations: List[Dict[str, Any]], *, traveler_id: str, **kwargs) -> HandlerResult:
-            if not traveler_id.startswith("traveler-"):
-                raise ValueError(f"Cannot parse traveler id from '{traveler_id}")
-            traveler_id_ = JsonTranslator.from_json(traveler_id, PrefixedUUID)
+            traveler_id_ = _parse_traveler_id(traveler_id)
 
             patch = JsonPatch([PatchOperation(operation).operation for operation in body_patch_operations])
             existing_object_view = JsonTranslator.to_json(traveler_use_case.retrieve(traveler_id_, **kwargs))
@@ -275,9 +279,7 @@ class TravelersRestRequestHandler:
 
         @rest_controller.register_rest_endpoint("/api/traveler/<traveler_id>/journey", RESTMethod.POST, MIMEType.JSON, json=True)
         def traveler_journey_post_handler(body_new_positional_move: dict, *, traveler_id: str, **kwargs) -> HandlerResult:
-            if not traveler_id.startswith("traveler-"):
-                raise ValueError(f"Cannot parse traveler id from '{traveler_id}")
-            traveler_id_ = JsonTranslator.from_json(traveler_id, PrefixedUUID)
+            traveler_id_ = _parse_traveler_id(traveler_id)
 
             new_positional_move = JsonTranslator.from_json(body_new_positional_move, PositionalMove)
 
@@ -297,9 +299,7 @@ class TravelersRestRequestHandler:
             "/api/traveler/<traveler_id>/timeline", RESTMethod.GET, MIMEType.JSON, query_params=True
         )
         def traveler_timeline_get_handler(query_params: Dict[str, str], *, traveler_id: str, **kwargs) -> HandlerResult:
-            if not traveler_id.startswith("traveler-"):
-                raise ValueError(f"Cannot parse traveler id from '{traveler_id}")
-            traveler_id = JsonTranslator.from_json(traveler_id, PrefixedUUID)
+            traveler_id = _parse_traveler_id(traveler_id)
 
             supported_filters = {"taggedAll", "taggedAny", "taggedOnly", "taggedNone"}
             if not supported_filters.issuperset(query_params.keys()):
@@ -361,9 +361,7 @@ class EventsRestRequestHandler:
 
         @rest_controller.register_rest_endpoint("/api/event/<event_id>", RESTMethod.GET, MIMEType.JSON)
         def event_get_handler(*, event_id: str, **kwargs) -> HandlerResult:
-            if not event_id.startswith("event-"):
-                raise ValueError(f"Cannot parse event id from '{event_id}")
-            event_id_ = JsonTranslator.from_json(event_id, PrefixedUUID)
+            event_id_ = _parse_event_id(event_id)
 
             event = event_use_case.retrieve(event_id_, **kwargs)
 
@@ -371,9 +369,7 @@ class EventsRestRequestHandler:
 
         @rest_controller.register_rest_endpoint("/api/event/<event_id>", RESTMethod.DELETE, MIMEType.JSON)
         def event_delete_handler(*, event_id: str, **kwargs) -> HandlerResult:
-            if not event_id.startswith("event-"):
-                raise ValueError(f"Cannot parse event id from '{event_id}")
-            event_id_ = JsonTranslator.from_json(event_id, PrefixedUUID)
+            event_id_ = _parse_event_id(event_id)
 
             event_use_case.delete(event_id_, **kwargs)
 
@@ -381,9 +377,7 @@ class EventsRestRequestHandler:
 
         @rest_controller.register_rest_endpoint("/api/event/<event_id>", RESTMethod.PATCH, MIMEType.JSON, json=True)
         def event_patch_handler(body_patch_operations: List[Dict[str, Any]], *, event_id: str, **kwargs) -> HandlerResult:
-            if not event_id.startswith("event-"):
-                raise ValueError(f"Cannot parse event id from '{event_id}")
-            event_id_ = JsonTranslator.from_json(event_id, PrefixedUUID)
+            event_id_ = _parse_event_id(event_id)
 
             patch = JsonPatch([PatchOperation(operation).operation for operation in body_patch_operations])
             existing_event_json = JsonTranslator.to_json(event_use_case.retrieve(event_id_, **kwargs))
