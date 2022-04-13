@@ -1,4 +1,3 @@
-from http import HTTPStatus
 from json import loads, dumps
 from pathlib import Path
 from re import findall, compile as compile_pattern
@@ -144,10 +143,12 @@ class TestAPISpecification(TestCase):
             internal_route, method, url_params=url_params, json=json_body, query_params=query_params)
 
         # Assert
-        self.assertNotEqual(HTTPStatus.NOT_FOUND, actual_status_code, f"Resource {method} {route} not registered")
-        self.assertNotEqual(HTTPStatus.METHOD_NOT_ALLOWED, actual_status_code, f"Resource {method} {route} not registered")
-        self.assertNotEqual(HTTPStatus.NOT_IMPLEMENTED, actual_status_code, f"Resource {method} {route} has not been implemented")
+        self.assertNotErrorResponse(actual_response_body)
         actual_status_code_str = str(actual_status_code.real)
         self.assertIn(actual_status_code_str, expected_response_bodies)
         expected_response_body = _extract_response_body(actual_status_code_str, "application/json", expected_response_bodies)
         self.assertEqual(expected_response_body, actual_response_body)
+
+    def assertNotErrorResponse(self, response_body: str) -> None:
+        if response_body.startswith('{"error":'):
+            self.fail(loads(response_body)["error"])
