@@ -118,8 +118,8 @@ class WorldsRESTRequestHandler:
 class LocationsRestRequestHandler:
     @staticmethod
     def register_routes(rest_controller: RESTController, location_use_case: LocationUseCase, timeline_use_case: TimelineUseCase) -> None:
-        @rest_controller.register_rest_endpoint("/api/location", RESTMethod.POST, MIMEType.JSON, json=True)
-        def locations_post_handler(json_body: dict, **kwargs) -> HandlerResult:
+        @rest_controller.register_rest_endpoint("/api/world/<world_id>/location", RESTMethod.POST, MIMEType.JSON, json=True)
+        def locations_post_handler(json_body: dict, *, world_id: str, **kwargs) -> HandlerResult:
             location_kwargs = {
                 "name": JsonTranslator.from_json(json_body["name"], str),
                 "description": JsonTranslator.from_json(json_body.get("description", ""), str),
@@ -210,8 +210,8 @@ class LocationsRestRequestHandler:
 class TravelersRestRequestHandler:
     @staticmethod
     def register_routes(rest_controller: RESTController, traveler_use_case: TravelerUseCase, timeline_use_case: TimelineUseCase) -> None:
-        @rest_controller.register_rest_endpoint("/api/traveler", RESTMethod.POST, MIMEType.JSON, json=True)
-        def travelers_post_handler(request_body: dict, **kwargs) -> HandlerResult:
+        @rest_controller.register_rest_endpoint("/api/world/<world_id>/traveler", RESTMethod.POST, MIMEType.JSON, json=True)
+        def travelers_post_handler(request_body: dict, *, world_id: str, **kwargs) -> HandlerResult:
             traveler_kwargs = {
                 "name": JsonTranslator.from_json(request_body["name"], str),
                 "description": JsonTranslator.from_json(request_body.get("description", ""), str),
@@ -322,8 +322,8 @@ class EventsRestRequestHandler:
 
     @staticmethod
     def register_routes(rest_controller: RESTController, event_use_case: EventUseCase) -> None:
-        @rest_controller.register_rest_endpoint("/api/event", RESTMethod.POST, MIMEType.JSON, json=True)
-        def events_post_handler(request_body: dict, **kwargs) -> HandlerResult:
+        @rest_controller.register_rest_endpoint("/api/world/<world_id>/event", RESTMethod.POST, MIMEType.JSON, json=True)
+        def events_post_handler(request_body: dict, *, world_id: str, **kwargs) -> HandlerResult:
             event_kwargs = {
                 "name": JsonTranslator.from_json(request_body["name"], str),
                 "description": JsonTranslator.from_json(request_body.get("description", ""), str),

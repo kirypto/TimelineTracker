@@ -13,11 +13,15 @@ from adapter.persistence.in_memory_repositories import InMemoryEventRepository, 
     InMemoryWorldRepository
 from application.main import TimelineTrackerApp
 from application.requests.rest import RESTMethod
+from application.use_case.location_use_cases import LocationUseCase
+from application.use_case.traveler_use_cases import TravelerUseCase
 from application.use_case.world_use_cases import WorldUseCase
+from domain.collections import Range
 from domain.ids import PrefixedUUID
+from domain.positions import PositionalRange, PositionalMove, MovementType, Position
 from domain.tags import Tag
 from test_helpers import get_fully_qualified_name
-from test_helpers.anons import anon_profile
+from test_helpers.anons import anon_profile, anon_name
 from test_helpers.controllers import TestableRESTController
 from test_helpers.specifications import APISpecification, StatusCode, ContentType, JSONObject
 
@@ -79,6 +83,8 @@ class TestAPISpecification(TestCase):
     api_spec: APISpecification = _get_api_spec()
     controller: TestableRESTController
     world_use_case: WorldUseCase
+    location_use_case: LocationUseCase
+    traveler_use_case: TravelerUseCase
 
     @patch("application.main.RESTControllersFactory")
     def setUp(
@@ -87,6 +93,8 @@ class TestAPISpecification(TestCase):
         self.controller = TestableRESTController()
         timeline_tracker_application = TimelineTrackerApp(**_CONFIG)
         self.world_use_case = timeline_tracker_application._world_use_case
+        self.location_use_case = timeline_tracker_application._location_use_case
+        self.traveler_use_case = timeline_tracker_application._traveler_use_case
 
         def rest_controller_factory(**_):
             factory_result = MagicMock()  # Container to store rest_controller property
@@ -111,6 +119,17 @@ class TestAPISpecification(TestCase):
                 description="The Milky Way is the galaxy that includes our Solar System, with the name describing the galaxy's appearance "
                             "from Earth.\n",
                 profile=self.controller.profile)
+            return {"world_id": str(world.id)}
+        elif route in {"/api/world/{worldId}/location", "/api/world/{worldId}/traveler", "/api/world/{worldId}/event"} \
+                and method == RESTMethod.POST:
+            world = self.world_use_case.create(name=anon_name(), profile=self.controller.profile)
+            if route == "/api/world/{worldId}/event":
+                zero_range = Range(0., 0.)
+                span = PositionalRange(latitude=zero_range, longitude=zero_range, altitude=zero_range, continuum=zero_range, reality={0})
+                zero_position = Position(latitude=0., longitude=0., altitude=0., continuum=0., reality=0)
+                journey = [PositionalMove(position=zero_position, movement_type=MovementType.IMMEDIATE)]
+                self.location_use_case.create(name=anon_name(), span=span, profile=self.controller.profile)
+                self.traveler_use_case.create(name=anon_name(), journey=journey, profile=self.controller.profile)
             return {"world_id": str(world.id)}
 
         return None

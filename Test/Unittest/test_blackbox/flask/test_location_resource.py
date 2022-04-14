@@ -9,8 +9,9 @@ from flask_unittest import ClientTestCase
 from adapter.persistence.in_memory_repositories import InMemoryEventRepository, InMemoryTravelerRepository, InMemoryLocationRepository, \
     InMemoryWorldRepository
 from application.requests.data_forms import JsonTranslator
+from domain.ids import PrefixedUUID
 from test_helpers import get_fully_qualified_name
-from test_helpers.anons import anon_location, anon_float, anon_string, anon_route, anon_name
+from test_helpers.anons import anon_location, anon_float, anon_string, anon_route, anon_name, anon_prefixed_id
 
 
 _PORT = 54321
@@ -42,10 +43,12 @@ def parse_json(json_bytes: bytes) -> Any:
 
 class LocationResourceTest(ClientTestCase):
     app = construct_flask_app()
+    world_id: PrefixedUUID
 
     def setUp(self, client: FlaskClient) -> None:
         with client.session_transaction() as session:
             session["profile"] = {"user_id": anon_string(), "name": anon_name()}
+        self.world_id = anon_prefixed_id(prefix="world")
 
     def tearDown(self, client: FlaskClient) -> None:
         with client.session_transaction() as session:
@@ -56,7 +59,7 @@ class LocationResourceTest(ClientTestCase):
         body = JsonTranslator.to_json(anon_location())
 
         # Act
-        actual = client.post("/api/location", json=body)
+        actual = client.post(f"/api/world/{self.world_id}/location", json=body)
 
         # Assert
         self.assertEqual(201, actual.status_code)
@@ -71,7 +74,7 @@ class LocationResourceTest(ClientTestCase):
             body.pop(arg_name)
 
             # Act
-            actual = client.post("/api/location", json=body)
+            actual = client.post(f"/api/world/{self.world_id}/location", json=body)
 
             # Assert
             self.assertEqual(201, actual.status_code, msg=f"POST failed when '{arg_name}' was not provided")
@@ -79,7 +82,7 @@ class LocationResourceTest(ClientTestCase):
     def test__get_locations__should_return_existing_locations(self, client: FlaskClient) -> None:
         # Arrange
         body = JsonTranslator.to_json(anon_location())
-        response = client.post("/api/location", json=body)
+        response = client.post(f"/api/world/{self.world_id}/location", json=body)
         expected_id = parse_json(response.data)["id"]
 
         # Act
@@ -92,7 +95,7 @@ class LocationResourceTest(ClientTestCase):
     def test__get_location__should_return_existing_location(self, client: FlaskClient) -> None:
         # Arrange
         body = JsonTranslator.to_json(anon_location())
-        response = client.post("/api/location", json=body)
+        response = client.post(f"/api/world/{self.world_id}/location", json=body)
         expected_json = parse_json(response.data)
         location_id = expected_json["id"]
 
@@ -107,7 +110,7 @@ class LocationResourceTest(ClientTestCase):
     def test__delete_location__should_remove(self, client: FlaskClient) -> None:
         # Arrange
         body = JsonTranslator.to_json(anon_location())
-        response = client.post("/api/location", json=body)
+        response = client.post(f"/api/world/{self.world_id}/location", json=body)
         location_id = parse_json(response.data)["id"]
 
         # Act
@@ -120,7 +123,7 @@ class LocationResourceTest(ClientTestCase):
     def test__patch_location__should_allow_editing_name(self, client: FlaskClient) -> None:
         # Arrange
         body = JsonTranslator.to_json(anon_location(tags=set(), attributes={}))
-        response = client.post("/api/location", json=body)
+        response = client.post(f"/api/world/{self.world_id}/location", json=body)
         expected_json = parse_json(response.data)
         location_id = expected_json["id"]
         expected_json["name"] = "New Name"
@@ -136,7 +139,7 @@ class LocationResourceTest(ClientTestCase):
     def test__patch_location__should_allow_editing_tags(self, client: FlaskClient) -> None:
         # Arrange
         body = JsonTranslator.to_json(anon_location())
-        response = client.post("/api/location", json=body)
+        response = client.post(f"/api/world/{self.world_id}/location", json=body)
         expected_json = parse_json(response.data)
         location_id = expected_json["id"]
         expected_json["tags"][0] = "new-tag"
@@ -152,7 +155,7 @@ class LocationResourceTest(ClientTestCase):
     def test__patch_location__should_allow_editing_span(self, client: FlaskClient) -> None:
         # Arrange
         body = JsonTranslator.to_json(anon_location())
-        response = client.post("/api/location", json=body)
+        response = client.post(f"/api/world/{self.world_id}/location", json=body)
         expected_json = parse_json(response.data)
         location_id = expected_json["id"]
         expected_continuum_low = anon_float(-999999.9, expected_json["span"]["continuum"]["high"])
@@ -169,7 +172,7 @@ class LocationResourceTest(ClientTestCase):
     def test__patch_location__should_allow_editing_attributes(self, client: FlaskClient) -> None:
         # Arrange
         body = JsonTranslator.to_json(anon_location())
-        response = client.post("/api/location", json=body)
+        response = client.post(f"/api/world/{self.world_id}/location", json=body)
         expected_json = parse_json(response.data)
         location_id = expected_json["id"]
         expected_json["attributes"]["new-key"] = "new-val"

@@ -9,9 +9,10 @@ from flask_unittest import ClientTestCase
 from adapter.persistence.in_memory_repositories import InMemoryWorldRepository, InMemoryLocationRepository, InMemoryTravelerRepository, \
     InMemoryEventRepository
 from application.requests.data_forms import JsonTranslator
+from domain.ids import PrefixedUUID
 from domain.positions import PositionalMove, Position, MovementType
 from test_helpers import get_fully_qualified_name
-from test_helpers.anons import anon_event, anon_location, anon_traveler, anon_float, anon_string, anon_route, anon_name
+from test_helpers.anons import anon_event, anon_location, anon_traveler, anon_float, anon_string, anon_route, anon_name, anon_prefixed_id
 
 
 _PORT = 54321
@@ -43,10 +44,13 @@ def parse_json(json_bytes: bytes) -> Any:
 
 class EventResourceTest(ClientTestCase):
     app = construct_flask_app()
+    world_id: PrefixedUUID
 
     def setUp(self, client: FlaskClient) -> None:
         with client.session_transaction() as session:
             session["profile"] = {"user_id": anon_string(), "name": anon_name()}
+
+        self.world_id = anon_prefixed_id(prefix="world")
 
     def tearDown(self, client: FlaskClient) -> None:
         with client.session_transaction() as session:
@@ -57,7 +61,7 @@ class EventResourceTest(ClientTestCase):
         body = JsonTranslator.to_json(anon_event())
 
         # Act
-        actual = client.post("/api/event", json=body)
+        actual = client.post(f"/api/world/{self.world_id}/event", json=body)
 
         # Assert
         self.assertEqual(201, actual.status_code)
@@ -72,7 +76,7 @@ class EventResourceTest(ClientTestCase):
             body.pop(arg_name)
 
             # Act
-            actual = client.post("/api/event", json=body)
+            actual = client.post(f"/api/world/{self.world_id}/event", json=body)
 
             # Assert
             self.assertEqual(201, actual.status_code, msg=f"POST failed when '{arg_name}' was not provided")
@@ -80,7 +84,7 @@ class EventResourceTest(ClientTestCase):
     def test__get_events__should_return_existing_events(self, client: FlaskClient) -> None:
         # Arrange
         body = JsonTranslator.to_json(anon_event())
-        response = client.post("/api/event", json=body)
+        response = client.post(f"/api/world/{self.world_id}/event", json=body)
         expected_id = parse_json(response.data)["id"]
 
         # Act
@@ -93,7 +97,7 @@ class EventResourceTest(ClientTestCase):
     def test__get_event__should_return_existing_event(self, client: FlaskClient) -> None:
         # Arrange
         body = JsonTranslator.to_json(anon_event())
-        response = client.post("/api/event", json=body)
+        response = client.post(f"/api/world/{self.world_id}/event", json=body)
         expected_json = parse_json(response.data)
         event_id = expected_json["id"]
 
@@ -108,7 +112,7 @@ class EventResourceTest(ClientTestCase):
     def test__delete_event__should_remove(self, client: FlaskClient) -> None:
         # Arrange
         body = JsonTranslator.to_json(anon_event())
-        response = client.post("/api/event", json=body)
+        response = client.post(f"/api/world/{self.world_id}/event", json=body)
         event_id = parse_json(response.data)["id"]
 
         # Act
@@ -121,7 +125,7 @@ class EventResourceTest(ClientTestCase):
     def test__patch_event__should_allow_editing_name(self, client: FlaskClient) -> None:
         # Arrange
         body = JsonTranslator.to_json(anon_event(tags=set(), attributes={}))
-        response = client.post("/api/event", json=body)
+        response = client.post(f"/api/world/{self.world_id}/event", json=body)
         expected_json = parse_json(response.data)
         event_id = expected_json["id"]
         expected_json["name"] = "New Name"
@@ -137,7 +141,7 @@ class EventResourceTest(ClientTestCase):
     def test__patch_event__should_allow_editing_tags(self, client: FlaskClient) -> None:
         # Arrange
         body = JsonTranslator.to_json(anon_event())
-        response = client.post("/api/event", json=body)
+        response = client.post(f"/api/world/{self.world_id}/event", json=body)
         expected_json = parse_json(response.data)
         event_id = expected_json["id"]
         expected_json["tags"][0] = "new-tag"
@@ -153,7 +157,7 @@ class EventResourceTest(ClientTestCase):
     def test__patch_event__should_allow_editing_span(self, client: FlaskClient) -> None:
         # Arrange
         body = JsonTranslator.to_json(anon_event())
-        response = client.post("/api/event", json=body)
+        response = client.post(f"/api/world/{self.world_id}/event", json=body)
         expected_json = parse_json(response.data)
         event_id = expected_json["id"]
         expected_continuum_low = anon_float(-999999.9, expected_json["span"]["continuum"]["high"])
@@ -170,7 +174,7 @@ class EventResourceTest(ClientTestCase):
     def test__patch_event__should_allow_editing_attributes(self, client: FlaskClient) -> None:
         # Arrange
         body = JsonTranslator.to_json(anon_event())
-        response = client.post("/api/event", json=body)
+        response = client.post(f"/api/world/{self.world_id}/event", json=body)
         expected_json = parse_json(response.data)
         event_id = expected_json["id"]
         expected_json["attributes"]["new-key"] = "new-val"
@@ -188,8 +192,8 @@ class EventResourceTest(ClientTestCase):
         event = anon_event()
         body = JsonTranslator.to_json(event)
         location = anon_location(span=event.span)
-        location_id = parse_json(client.post("/api/location", json=JsonTranslator.to_json(location)).data)["id"]
-        response = client.post("/api/event", json=body)
+        location_id = parse_json(client.post(f"/api/world/{self.world_id}/location", json=JsonTranslator.to_json(location)).data)["id"]
+        response = client.post(f"/api/world/{self.world_id}/event", json=body)
         expected_json = parse_json(response.data)
         event_id = expected_json["id"]
         expected_json["affected_locations"].append(location_id)
@@ -213,8 +217,8 @@ class EventResourceTest(ClientTestCase):
             continuum=event.span.continuum.low,
             reality=next(iter(event.span.reality)),
         ))])
-        traveler_id = parse_json(client.post("/api/traveler", json=JsonTranslator.to_json(traveler)).data)["id"]
-        response = client.post("/api/event", json=body)
+        traveler_id = parse_json(client.post(f"/api/world/{self.world_id}/traveler", json=JsonTranslator.to_json(traveler)).data)["id"]
+        response = client.post(f"/api/world/{self.world_id}/event", json=body)
         expected_json = parse_json(response.data)
         event_id = expected_json["id"]
         expected_json["affected_travelers"].append(traveler_id)
