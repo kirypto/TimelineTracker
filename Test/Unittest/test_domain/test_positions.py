@@ -75,11 +75,12 @@ class TestPosition(TestCase):
         # Arrange
 
         # Act
+        # noinspection PyTypeChecker
         def invalid_reality(): Position(reality=anon_float(),
                                         latitude=anon_float(), longitude=anon_float(), altitude=anon_float(), continuum=anon_float())
 
         # Assert
-        self.assertRaises(ValueError, invalid_reality)
+        self.assertRaises(TypeError, invalid_reality)
 
     def test__properties__should_not_be_mutable(self) -> None:
         # Arrange

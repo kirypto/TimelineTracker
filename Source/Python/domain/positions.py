@@ -13,7 +13,7 @@ class Position:
     _longitude: float
     _altitude: float
     _continuum: float
-    _reality: float
+    _reality: int
 
     @property
     def latitude(self) -> float:
@@ -32,10 +32,10 @@ class Position:
         return self._continuum
 
     @property
-    def reality(self) -> float:
+    def reality(self) -> int:
         return self._reality
 
-    def __init__(self, *, latitude: float, longitude: float, altitude: float, continuum: float, reality: float, **kwargs) -> None:
+    def __init__(self, *, latitude: float, longitude: float, altitude: float, continuum: float, reality: int, **kwargs) -> None:
         def validate_type(argument_name, value, acceptable_types):
             if type(value) not in acceptable_types:
                 raise TypeError(f"{self.__class__.__name__} attribute '{argument_name}' must be one of types {acceptable_types}, was "
@@ -48,9 +48,9 @@ class Position:
         self._longitude = validate_type("longitude", longitude, [float, int])
         self._altitude = validate_type("altitude", altitude, [float, int])
         self._continuum = validate_type("continuum", continuum, [float, int])
-        self._reality = validate_type("reality", reality, [float, int])
-        if not self._reality.is_integer():
-            raise ValueError(f"{self.__class__.__name__} attribute 'reality' must be a whole number, was '{reality}'")
+        # if not self._reality.is_integer():
+        #     raise ValueError(f"{self.__class__.__name__} attribute 'reality' must be a whole number, was '{reality}'")
+        self._reality = validate_type("reality", reality, [int])
         super().__init__(**kwargs)
 
     def __eq__(self, other: object) -> bool:

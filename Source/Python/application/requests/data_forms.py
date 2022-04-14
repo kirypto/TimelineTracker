@@ -116,7 +116,7 @@ class JsonTranslator(Generic[T]):
                     "longitude": JsonTranslator.from_json(position_json["longitude"], float),
                     "altitude": JsonTranslator.from_json(position_json["altitude"], float),
                     "continuum": JsonTranslator.from_json(position_json["continuum"], float),
-                    "reality": JsonTranslator.from_json(position_json["reality"], float),
+                    "reality": JsonTranslator.from_json(position_json["reality"], int),
                 })
             if type_ is MovementType:
                 movement_type_raw: str = value
