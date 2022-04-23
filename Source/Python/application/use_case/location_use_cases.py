@@ -21,7 +21,7 @@ class LocationUseCase:
         self._event_repository = event_repository
 
     @requires_authentication()
-    def create(self, **kwargs) -> Location:
+    def create(self, world_id: PrefixedUUID, **kwargs) -> Location:
         kwargs["id"] = generate_prefixed_id("location")
         location = Location(**kwargs)
 

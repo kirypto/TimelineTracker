@@ -7,6 +7,7 @@ from Test.Unittest.test_helpers.anons import anon_prefixed_id, anon_positional_r
 from adapter.persistence.in_memory_repositories import InMemoryLocationRepository, InMemoryEventRepository
 from application.access.clients import Profile
 from application.use_case.location_use_cases import LocationUseCase
+from domain.ids import PrefixedUUID
 from domain.locations import Location
 from domain.persistence.repositories import EventRepository
 
@@ -15,17 +16,19 @@ class TestLocationUseCase(TestCase):
     event_repository: EventRepository
     location_use_case: LocationUseCase
     profile: Profile
+    world_id: PrefixedUUID
 
     def setUp(self) -> None:
         self.event_repository = InMemoryEventRepository()
         self.location_use_case = LocationUseCase(InMemoryLocationRepository(), self.event_repository)
         self.profile = Profile(anon_name(), anon_name())
+        self.world_id = anon_prefixed_id(prefix="world")
 
     def test__create__should_not_require_id_passed_in(self) -> None:
         # Arrange
 
         # Act
-        location = self.location_use_case.create(name=anon_name(), span=anon_positional_range(), profile=self.profile)
+        location = self.location_use_case.create(self.world_id, name=anon_name(), span=anon_positional_range(), profile=self.profile)
 
         # Assert
         self.assertTrue(hasattr(location, "id"))
@@ -35,7 +38,8 @@ class TestLocationUseCase(TestCase):
         undesired_id = anon_prefixed_id()
 
         # Act
-        location = self.location_use_case.create(id=undesired_id, name=anon_name(), span=anon_positional_range(), profile=self.profile)
+        location = self.location_use_case.create(self.world_id, id=undesired_id, name=anon_name(), span=anon_positional_range(),
+                                                 profile=self.profile)
 
         # Assert
         self.assertNotEqual(undesired_id, location.id)
@@ -48,7 +52,7 @@ class TestLocationUseCase(TestCase):
         expected_tags = {anon_tag()}
 
         # Act
-        location = self.location_use_case.create(span=expected_span, name=expected_name, description=expected_description,
+        location = self.location_use_case.create(self.world_id, span=expected_span, name=expected_name, description=expected_description,
                                                  profile=self.profile, tags=expected_tags)
 
         # Assert
@@ -59,7 +63,7 @@ class TestLocationUseCase(TestCase):
 
     def test__retrieve__should_return_saved__when_exists(self) -> None:
         # Arrange
-        expected = self.location_use_case.create(**anon_create_location_kwargs(), profile=self.profile)
+        expected = self.location_use_case.create(self.world_id, profile=self.profile, **anon_create_location_kwargs())
 
         # Act
         actual = self.location_use_case.retrieve(expected.id, profile=self.profile)
@@ -87,8 +91,8 @@ class TestLocationUseCase(TestCase):
 
     def test__retrieve_all__should_return_all_saved__when_no_filters_provided(self) -> None:
         # Arrange
-        location_a = self.location_use_case.create(**anon_create_location_kwargs(), profile=self.profile)
-        location_b = self.location_use_case.create(**anon_create_location_kwargs(), profile=self.profile)
+        location_a = self.location_use_case.create(self.world_id, profile=self.profile, **anon_create_location_kwargs())
+        location_b = self.location_use_case.create(self.world_id, profile=self.profile, **anon_create_location_kwargs())
         expected = {location_a, location_b}
 
         # Act
@@ -103,7 +107,7 @@ class TestLocationUseCase(TestCase):
         # Arrange
         expected_output = {anon_location()}
         filter_named_entities_mock.return_value = expected_output, {}
-        expected_input = {self.location_use_case.create(**anon_create_location_kwargs(), profile=self.profile)}
+        expected_input = {self.location_use_case.create(self.world_id, profile=self.profile, **anon_create_location_kwargs())}
 
         # Act
         actual = self.location_use_case.retrieve_all(profile=self.profile)
@@ -118,7 +122,7 @@ class TestLocationUseCase(TestCase):
         # Arrange
         expected_output = {anon_location()}
         filter_tagged_entities_mock.return_value = expected_output, {}
-        expected_input = {self.location_use_case.create(**anon_create_location_kwargs(), profile=self.profile)}
+        expected_input = {self.location_use_case.create(self.world_id, profile=self.profile, **anon_create_location_kwargs())}
 
         # Act
         actual = self.location_use_case.retrieve_all(profile=self.profile)
@@ -133,7 +137,7 @@ class TestLocationUseCase(TestCase):
         # Arrange
         expected_output = {anon_location()}
         filter_spanning_entities_mock.return_value = expected_output, {}
-        expected_input = {self.location_use_case.create(**anon_create_location_kwargs(), profile=self.profile)}
+        expected_input = {self.location_use_case.create(self.world_id, profile=self.profile, **anon_create_location_kwargs())}
 
         # Act
         actual = self.location_use_case.retrieve_all(profile=self.profile)
@@ -164,7 +168,7 @@ class TestLocationUseCase(TestCase):
         # Arrange
         span = anon_positional_range()
         location_kwargs = anon_create_location_kwargs(span=span)
-        location = self.location_use_case.create(**location_kwargs, profile=self.profile)
+        location = self.location_use_case.create(self.world_id, profile=self.profile, **location_kwargs)
         self.event_repository.save(anon_event(affected_locations={location.id}, span=span))
         modified_kwargs = deepcopy(location_kwargs)
         modified_kwargs["id"] = location.id
@@ -180,7 +184,7 @@ class TestLocationUseCase(TestCase):
 
     def test__update__should_update_provided_attributes__when_attributes_provided(self) -> None:
         # Arrange
-        location = self.location_use_case.create(**anon_create_location_kwargs(), profile=self.profile)
+        location = self.location_use_case.create(self.world_id, profile=self.profile, **anon_create_location_kwargs())
         expected_name = anon_name()
         expected_description = anon_description()
         expected_span = anon_positional_range()
@@ -203,7 +207,7 @@ class TestLocationUseCase(TestCase):
 
     def test__delete__should_delete__when_location_exists(self) -> None:
         # Arrange
-        location = self.location_use_case.create(**anon_create_location_kwargs(), profile=self.profile)
+        location = self.location_use_case.create(self.world_id, profile=self.profile, **anon_create_location_kwargs())
 
         # Act
         self.location_use_case.delete(location.id, profile=self.profile)
@@ -231,7 +235,7 @@ class TestLocationUseCase(TestCase):
 
     def test__delete__should_reject_attempts_to_delete_locations_that_are_linked_to_an_event(self) -> None:
         # Arrange
-        location = self.location_use_case.create(**anon_create_location_kwargs(), profile=self.profile)
+        location = self.location_use_case.create(self.world_id, profile=self.profile, **anon_create_location_kwargs())
         self.event_repository.save(anon_event(affected_locations={location.id}))
 
         # Act

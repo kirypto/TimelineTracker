@@ -21,7 +21,7 @@ from domain.locations import Location
 from domain.positions import PositionalRange, PositionalMove
 from domain.tags import Tag
 from domain.travelers import Traveler
-from domain.worlds import World
+from domain.worlds import World, to_world_id
 
 
 def _parse_world_id(world_id_raw: str) -> PrefixedUUID:
@@ -127,7 +127,7 @@ class LocationsRestRequestHandler:
                 "attributes": JsonTranslator.from_json(json_body.get("attributes", {}), Dict[str, str]),
                 "tags": JsonTranslator.from_json(json_body.get("tags", set()), Set[Tag]),
             }
-            location = location_use_case.create(**location_kwargs, **kwargs)
+            location = location_use_case.create(to_world_id(world_id), **location_kwargs, **kwargs)
 
             return HTTPStatus.CREATED, JsonTranslator.to_json_str(location)
 
