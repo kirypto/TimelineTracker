@@ -27,7 +27,7 @@ class EventUseCase:
         self._event_repository = event_repository
 
     @requires_authentication()
-    def create(self, **kwargs) -> Event:
+    def create(self, world_id: PrefixedUUID, **kwargs) -> Event:
         kwargs["id"] = generate_prefixed_id("event")
         event = Event(**kwargs)
 

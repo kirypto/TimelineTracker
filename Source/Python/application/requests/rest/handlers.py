@@ -333,7 +333,7 @@ class EventsRestRequestHandler:
                 "affected_locations": JsonTranslator.from_json(request_body["affected_locations"], Set[PrefixedUUID]),
                 "affected_travelers": JsonTranslator.from_json(request_body["affected_travelers"], Set[PrefixedUUID]),
             }
-            event = event_use_case.create(**event_kwargs, **kwargs)
+            event = event_use_case.create(to_world_id(world_id), **event_kwargs, **kwargs)
 
             return HTTPStatus.CREATED, JsonTranslator.to_json_str(event)
 

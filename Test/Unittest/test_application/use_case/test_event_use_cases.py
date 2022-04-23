@@ -8,6 +8,7 @@ from adapter.persistence.in_memory_repositories import InMemoryEventRepository, 
 from application.access.clients import Profile
 from application.use_case.event_use_cases import EventUseCase
 from domain.events import Event
+from domain.ids import PrefixedUUID
 from domain.persistence.repositories import TravelerRepository, LocationRepository
 from domain.positions import PositionalMove, MovementType, Position
 
@@ -17,18 +18,20 @@ class TestEventUseCase(TestCase):
     location_repository: LocationRepository
     traveler_repository: TravelerRepository
     profile: Profile
+    world_id: PrefixedUUID
 
     def setUp(self) -> None:
         self.location_repository = InMemoryLocationRepository()
         self.traveler_repository = InMemoryTravelerRepository()
         self.event_use_case = EventUseCase(self.location_repository, self.traveler_repository, InMemoryEventRepository())
         self.profile = Profile(anon_name(), anon_name())
+        self.world_id = anon_prefixed_id(prefix="world")
 
     def test__create__should_not_require_id_passed_in(self) -> None:
         # Arrange
 
         # Act
-        event = self.event_use_case.create(name=anon_name(), span=anon_positional_range(), profile=self.profile)
+        event = self.event_use_case.create(self.world_id, name=anon_name(), span=anon_positional_range(), profile=self.profile)
 
         # Assert
         self.assertTrue(hasattr(event, "id"))
@@ -38,7 +41,7 @@ class TestEventUseCase(TestCase):
         undesired_id = anon_prefixed_id()
 
         # Act
-        event = self.event_use_case.create(id=undesired_id, name=anon_name(), span=anon_positional_range(), profile=self.profile)
+        event = self.event_use_case.create(self.world_id, id=undesired_id, name=anon_name(), span=anon_positional_range(), profile=self.profile)
 
         # Assert
         self.assertNotEqual(undesired_id, event.id)
@@ -51,8 +54,8 @@ class TestEventUseCase(TestCase):
         expected_tags = {anon_tag()}
 
         # Act
-        event = self.event_use_case.create(span=expected_span, name=expected_name, description=expected_description, profile=self.profile,
-                                           tags=expected_tags, affected_locations=set(), affected_travelers=set())
+        event = self.event_use_case.create(self.world_id, span=expected_span, name=expected_name, description=expected_description,
+                                           profile=self.profile, tags=expected_tags, affected_locations=set(), affected_travelers=set())
 
         # Assert
         self.assertEqual(expected_span, event.span)
@@ -74,7 +77,7 @@ class TestEventUseCase(TestCase):
         self.traveler_repository.save(traveler)
 
         # Act
-        event = self.event_use_case.create(span=span, name=anon_name(), description=anon_description(), tags={anon_tag()},
+        event = self.event_use_case.create(self.world_id, span=span, name=anon_name(), description=anon_description(), tags={anon_tag()},
                                            affected_travelers={traveler.id}, affected_locations={location.id}, profile=self.profile)
 
         # Assert
@@ -87,9 +90,8 @@ class TestEventUseCase(TestCase):
         self.location_repository.save(location)
 
         # Act
-        def action(): self.event_use_case.create(
-            span=anon_positional_range(), name=anon_name(), description=anon_description(), tags={anon_tag()},
-            affected_locations={location.id}, profile=self.profile)
+        def action(): self.event_use_case.create(self.world_id, span=anon_positional_range(), name=anon_name(), description=anon_description(),
+                                                 tags={anon_tag()}, affected_locations={location.id}, profile=self.profile)
 
         # Assert
         self.assertRaises(ValueError, action)
@@ -100,16 +102,15 @@ class TestEventUseCase(TestCase):
         self.traveler_repository.save(traveler)
 
         # Act
-        def action(): self.event_use_case.create(
-            span=anon_positional_range(), name=anon_name(), description=anon_description(), tags={anon_tag()},
-            affected_travelers={traveler.id}, profile=self.profile)
+        def action(): self.event_use_case.create(self.world_id, span=anon_positional_range(), name=anon_name(), description=anon_description(),
+                                                 tags={anon_tag()}, affected_travelers={traveler.id}, profile=self.profile)
 
         # Assert
         self.assertRaises(ValueError, action)
 
     def test__retrieve__should_return_saved__when_exists(self) -> None:
         # Arrange
-        expected = self.event_use_case.create(**anon_create_event_kwargs(), profile=self.profile)
+        expected = self.event_use_case.create(self.world_id, profile=self.profile, **anon_create_event_kwargs())
 
         # Act
         actual = self.event_use_case.retrieve(expected.id, profile=self.profile)
@@ -137,8 +138,8 @@ class TestEventUseCase(TestCase):
 
     def test__retrieve_all__should_return_all_saved__when_no_filters_provided(self) -> None:
         # Arrange
-        event_a = self.event_use_case.create(**anon_create_event_kwargs(), profile=self.profile)
-        event_b = self.event_use_case.create(**anon_create_event_kwargs(), profile=self.profile)
+        event_a = self.event_use_case.create(self.world_id, profile=self.profile, **anon_create_event_kwargs())
+        event_b = self.event_use_case.create(self.world_id, profile=self.profile, **anon_create_event_kwargs())
         expected = {event_a, event_b}
 
         # Act
@@ -153,7 +154,7 @@ class TestEventUseCase(TestCase):
         # Arrange
         expected_output = {anon_event()}
         filter_named_entities_mock.return_value = expected_output, {}
-        expected_input = {self.event_use_case.create(**anon_create_event_kwargs(), profile=self.profile)}
+        expected_input = {self.event_use_case.create(self.world_id, profile=self.profile, **anon_create_event_kwargs())}
 
         # Act
         actual = self.event_use_case.retrieve_all(profile=self.profile)
@@ -168,7 +169,7 @@ class TestEventUseCase(TestCase):
         # Arrange
         expected_output = {anon_event()}
         filter_tagged_entities_mock.return_value = expected_output, {}
-        expected_input = {self.event_use_case.create(**anon_create_event_kwargs(), profile=self.profile)}
+        expected_input = {self.event_use_case.create(self.world_id, profile=self.profile, **anon_create_event_kwargs())}
 
         # Act
         actual = self.event_use_case.retrieve_all(profile=self.profile)
@@ -183,7 +184,7 @@ class TestEventUseCase(TestCase):
         # Arrange
         expected_output = {anon_event()}
         filter_spanning_entities_mock.return_value = expected_output, {}
-        expected_input = {self.event_use_case.create(**anon_create_event_kwargs(), profile=self.profile)}
+        expected_input = {self.event_use_case.create(self.world_id, profile=self.profile, **anon_create_event_kwargs())}
 
         # Act
         actual = self.event_use_case.retrieve_all(profile=self.profile)
@@ -213,7 +214,7 @@ class TestEventUseCase(TestCase):
     def test__update__should_reject_affected_locations_that_do_not_intersect_event(self) -> None:
         # Arrange
         event_kwargs = anon_create_event_kwargs()
-        event = self.event_use_case.create(**event_kwargs, profile=self.profile)
+        event = self.event_use_case.create(self.world_id, profile=self.profile, **event_kwargs)
         location = anon_location()
         self.location_repository.save(location)
         modified_kwargs = deepcopy(event_kwargs)
@@ -230,7 +231,7 @@ class TestEventUseCase(TestCase):
     def test__update__should_reject_affected_travelers_that_do_not_intersect_event(self) -> None:
         # Arrange
         event_kwargs = anon_create_event_kwargs()
-        event = self.event_use_case.create(**event_kwargs, profile=self.profile)
+        event = self.event_use_case.create(self.world_id, profile=self.profile, **event_kwargs)
         traveler = anon_traveler()
         self.traveler_repository.save(traveler)
         modified_kwargs = deepcopy(event_kwargs)
@@ -246,7 +247,7 @@ class TestEventUseCase(TestCase):
 
     def test__update__should_update_provided_attributes__when_attributes_provided(self) -> None:
         # Arrange
-        event = self.event_use_case.create(**anon_create_event_kwargs(), profile=self.profile)
+        event = self.event_use_case.create(self.world_id, profile=self.profile, **anon_create_event_kwargs())
         expected_name = anon_name()
         expected_description = anon_description()
         expected_span = anon_positional_range()
@@ -269,7 +270,7 @@ class TestEventUseCase(TestCase):
 
     def test__delete__should_delete__when_event_exists(self) -> None:
         # Arrange
-        event = self.event_use_case.create(**anon_create_event_kwargs(), profile=self.profile)
+        event = self.event_use_case.create(self.world_id, profile=self.profile, **anon_create_event_kwargs())
 
         # Act
         self.event_use_case.delete(event.id, profile=self.profile)
