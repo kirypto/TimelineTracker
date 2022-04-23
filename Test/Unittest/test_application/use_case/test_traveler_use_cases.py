@@ -7,6 +7,7 @@ from Test.Unittest.test_helpers.anons import anon_journey, anon_prefixed_id, ano
 from adapter.persistence.in_memory_repositories import InMemoryTravelerRepository, InMemoryEventRepository
 from application.access.clients import Profile
 from application.use_case.traveler_use_cases import TravelerUseCase
+from domain.ids import PrefixedUUID
 from domain.persistence.repositories import EventRepository
 from domain.positions import PositionalMove, MovementType, Position
 from domain.travelers import Traveler
@@ -16,17 +17,19 @@ class TestTravelerUseCase(TestCase):
     event_repository: EventRepository
     traveler_use_case: TravelerUseCase
     profile: Profile
+    world_id: PrefixedUUID
 
     def setUp(self) -> None:
         self.event_repository = InMemoryEventRepository()
         self.traveler_use_case = TravelerUseCase(InMemoryTravelerRepository(), self.event_repository)
         self.profile = Profile(anon_name(), anon_name())
+        self.world_id = anon_prefixed_id(prefix="world")
 
     def test__create__should_not_require_id_passed_in(self) -> None:
         # Arrange
 
         # Act
-        traveler = self.traveler_use_case.create(name=anon_name(), journey=anon_journey(), profile=self.profile)
+        traveler = self.traveler_use_case.create(self.world_id, name=anon_name(), journey=anon_journey(), profile=self.profile)
 
         # Assert
         self.assertTrue(hasattr(traveler, "id"))
@@ -36,7 +39,8 @@ class TestTravelerUseCase(TestCase):
         undesired_id = anon_prefixed_id()
 
         # Act
-        traveler = self.traveler_use_case.create(id=undesired_id, name=anon_name(), journey=anon_journey(), profile=self.profile)
+        traveler = self.traveler_use_case.create(self.world_id, id=undesired_id, name=anon_name(), journey=anon_journey(),
+                                                 profile=self.profile)
 
         # Assert
         self.assertNotEqual(undesired_id, traveler.id)
@@ -49,8 +53,8 @@ class TestTravelerUseCase(TestCase):
         expected_tags = {anon_tag()}
 
         # Act
-        traveler = self.traveler_use_case.create(journey=expected_journey, name=expected_name, description=expected_description,
-                                                 tags=expected_tags, profile=self.profile)
+        traveler = self.traveler_use_case.create(self.world_id, journey=expected_journey, name=expected_name,
+                                                 description=expected_description, tags=expected_tags, profile=self.profile)
 
         # Assert
         self.assertEqual(expected_journey, traveler.journey)
@@ -60,7 +64,7 @@ class TestTravelerUseCase(TestCase):
 
     def test__retrieve__should_return_saved__when_exists(self) -> None:
         # Arrange
-        expected = self.traveler_use_case.create(**anon_create_traveler_kwargs(), profile=self.profile)
+        expected = self.traveler_use_case.create(self.world_id, profile=self.profile, **anon_create_traveler_kwargs())
 
         # Act
         actual = self.traveler_use_case.retrieve(expected.id, profile=self.profile)
@@ -88,8 +92,8 @@ class TestTravelerUseCase(TestCase):
 
     def test__retrieve_all__should_return_all_saved__when_no_filters_provided(self) -> None:
         # Arrange
-        traveler_a = self.traveler_use_case.create(**anon_create_traveler_kwargs(), profile=self.profile)
-        traveler_b = self.traveler_use_case.create(**anon_create_traveler_kwargs(), profile=self.profile)
+        traveler_a = self.traveler_use_case.create(self.world_id, profile=self.profile, **anon_create_traveler_kwargs())
+        traveler_b = self.traveler_use_case.create(self.world_id, profile=self.profile, **anon_create_traveler_kwargs())
         expected = {traveler_a, traveler_b}
 
         # Act
@@ -104,7 +108,7 @@ class TestTravelerUseCase(TestCase):
         # Arrange
         expected_output = {anon_traveler()}
         filter_named_entities_mock.return_value = expected_output, {}
-        expected_input = {self.traveler_use_case.create(**anon_create_traveler_kwargs(), profile=self.profile)}
+        expected_input = {self.traveler_use_case.create(self.world_id, profile=self.profile, **anon_create_traveler_kwargs())}
 
         # Act
         actual = self.traveler_use_case.retrieve_all(profile=self.profile)
@@ -119,7 +123,7 @@ class TestTravelerUseCase(TestCase):
         # Arrange
         expected_output = {anon_traveler()}
         filter_tagged_entities_mock.return_value = expected_output, {}
-        expected_input = {self.traveler_use_case.create(**anon_create_traveler_kwargs(), profile=self.profile)}
+        expected_input = {self.traveler_use_case.create(self.world_id, profile=self.profile, **anon_create_traveler_kwargs())}
 
         # Act
         actual = self.traveler_use_case.retrieve_all(profile=self.profile)
@@ -134,7 +138,7 @@ class TestTravelerUseCase(TestCase):
         # Arrange
         expected_output = {anon_traveler()}
         filter_journeying_entities_mock.return_value = expected_output, {}
-        expected_input = {self.traveler_use_case.create(**anon_create_traveler_kwargs(), profile=self.profile)}
+        expected_input = {self.traveler_use_case.create(self.world_id, profile=self.profile, **anon_create_traveler_kwargs())}
 
         # Act
         actual = self.traveler_use_case.retrieve_all(profile=self.profile)
@@ -169,7 +173,7 @@ class TestTravelerUseCase(TestCase):
                               continuum=span.continuum.low, reality=next(iter(span.reality))),
             movement_type=MovementType.IMMEDIATE)]
         traveler_kwargs = anon_create_traveler_kwargs(journey=journey)
-        traveler = self.traveler_use_case.create(**traveler_kwargs, profile=self.profile)
+        traveler = self.traveler_use_case.create(self.world_id, profile=self.profile, **traveler_kwargs)
         self.event_repository.save(anon_event(affected_travelers={traveler.id}, span=span))
         modified_kwargs = deepcopy(traveler_kwargs)
         modified_kwargs["id"] = traveler.id
@@ -185,7 +189,7 @@ class TestTravelerUseCase(TestCase):
 
     def test__update__should_update_provided_attributes__when_attributes_provided(self) -> None:
         # Arrange
-        traveler = self.traveler_use_case.create(**anon_create_traveler_kwargs(), profile=self.profile)
+        traveler = self.traveler_use_case.create(self.world_id, profile=self.profile, **anon_create_traveler_kwargs())
         expected_name = anon_name()
         expected_description = anon_description()
         expected_journey = anon_journey()
@@ -208,7 +212,7 @@ class TestTravelerUseCase(TestCase):
 
     def test__delete__should_delete__when_traveler_exists(self) -> None:
         # Arrange
-        traveler = self.traveler_use_case.create(**anon_create_traveler_kwargs(), profile=self.profile)
+        traveler = self.traveler_use_case.create(self.world_id, profile=self.profile, **anon_create_traveler_kwargs())
 
         # Act
         self.traveler_use_case.delete(traveler.id, profile=self.profile)
@@ -236,7 +240,7 @@ class TestTravelerUseCase(TestCase):
 
     def test__delete__should_reject_attempts_to_delete_travelers_that_are_linked_to_an_event(self) -> None:
         # Arrange
-        traveler = self.traveler_use_case.create(**anon_create_traveler_kwargs(), profile=self.profile)
+        traveler = self.traveler_use_case.create(self.world_id, profile=self.profile, **anon_create_traveler_kwargs())
         self.event_repository.save(anon_event(affected_travelers={traveler.id}))
 
         # Act

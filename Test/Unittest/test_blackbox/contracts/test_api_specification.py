@@ -129,7 +129,7 @@ class TestAPISpecification(TestCase):
                 zero_position = Position(latitude=0., longitude=0., altitude=0., continuum=0., reality=0)
                 journey = [PositionalMove(position=zero_position, movement_type=MovementType.IMMEDIATE)]
                 self.location_use_case.create(world.id, name=anon_name(), span=span, profile=self.controller.profile)
-                self.traveler_use_case.create(name=anon_name(), journey=journey, profile=self.controller.profile)
+                self.traveler_use_case.create(world.id, name=anon_name(), journey=journey, profile=self.controller.profile)
             return {"world_id": str(world.id)}
 
         return None

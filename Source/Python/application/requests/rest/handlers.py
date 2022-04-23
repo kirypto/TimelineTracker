@@ -219,7 +219,7 @@ class TravelersRestRequestHandler:
                 "attributes": JsonTranslator.from_json(request_body.get("attributes", {}), Dict[str, str]),
                 "tags": JsonTranslator.from_json(request_body.get("tags", set()), Set[Tag]),
             }
-            traveler = traveler_use_case.create(**traveler_kwargs, **kwargs)
+            traveler = traveler_use_case.create(to_world_id(world_id), **traveler_kwargs, **kwargs)
 
             return HTTPStatus.CREATED, JsonTranslator.to_json_str(traveler)
 

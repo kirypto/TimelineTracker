@@ -21,7 +21,7 @@ class TravelerUseCase:
         self._traveler_repository = traveler_repository
 
     @requires_authentication()
-    def create(self, **kwargs) -> Traveler:
+    def create(self, world_id: PrefixedUUID, **kwargs) -> Traveler:
         kwargs["id"] = generate_prefixed_id("traveler")
 
         traveler = Traveler(**kwargs)
