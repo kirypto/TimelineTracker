@@ -88,7 +88,7 @@ class EventResourceTest(ClientTestCase):
         expected_id = parse_json(response.data)["id"]
 
         # Act
-        actual = client.get(f"/api/events")
+        actual = client.get(f"/api/world/{self.world_id}/events")
 
         # Assert
         self.assertEqual(200, actual.status_code)
@@ -103,7 +103,7 @@ class EventResourceTest(ClientTestCase):
 
         # Act
 
-        actual = client.get(f"/api/event/{event_id}")
+        actual = client.get(f"/api/world/{self.world_id}/event/{event_id}")
 
         # Assert
         self.assertEqual(200, actual.status_code)
@@ -116,11 +116,11 @@ class EventResourceTest(ClientTestCase):
         event_id = parse_json(response.data)["id"]
 
         # Act
-        actual = client.delete(f"/api/event/{event_id}")
+        actual = client.delete(f"/api/world/{self.world_id}/event/{event_id}")
 
         # Assert
         self.assertEqual(204, actual.status_code)
-        self.assertEqual(404, client.get(f"/api/event/{event_id}").status_code)
+        self.assertEqual(404, client.get(f"/api/world/{self.world_id}/event/{event_id}").status_code)
 
     def test__patch_event__should_allow_editing_name(self, client: FlaskClient) -> None:
         # Arrange
@@ -132,7 +132,7 @@ class EventResourceTest(ClientTestCase):
         patch = [{"op": "replace", "path": "/name", "value": "New Name"}]
 
         # Act
-        actual = client.patch(f"/api/event/{event_id}", json=patch)
+        actual = client.patch(f"/api/world/{self.world_id}/event/{event_id}", json=patch)
 
         # Assert
         self.assertEqual(200, actual.status_code)
@@ -148,7 +148,7 @@ class EventResourceTest(ClientTestCase):
         patch = [{"op": "replace", "path": "/tags/0", "value": "new-tag"}]
 
         # Act
-        actual = client.patch(f"/api/event/{event_id}", json=patch)
+        actual = client.patch(f"/api/world/{self.world_id}/event/{event_id}", json=patch)
 
         # Assert
         self.assertEqual(200, actual.status_code)
@@ -165,7 +165,7 @@ class EventResourceTest(ClientTestCase):
         patch = [{"op": "replace", "path": "/span/continuum/low", "value": expected_continuum_low}]
 
         # Act
-        actual = client.patch(f"/api/event/{event_id}", json=patch)
+        actual = client.patch(f"/api/world/{self.world_id}/event/{event_id}", json=patch)
 
         # Assert
         self.assertEqual(200, actual.status_code)
@@ -181,7 +181,7 @@ class EventResourceTest(ClientTestCase):
         patch = [{"op": "add", "path": "/attributes/new-key", "value": "new-val"}]
 
         # Act
-        actual = client.patch(f"/api/event/{event_id}", json=patch)
+        actual = client.patch(f"/api/world/{self.world_id}/event/{event_id}", json=patch)
 
         # Assert
         self.assertEqual(200, actual.status_code)
@@ -200,7 +200,7 @@ class EventResourceTest(ClientTestCase):
         patch = [{"op": "add", "path": "/affected_locations/0", "value": location_id}]
 
         # Act
-        actual = client.patch(f"/api/event/{event_id}", json=patch)
+        actual = client.patch(f"/api/world/{self.world_id}/event/{event_id}", json=patch)
 
         # Assert
         self.assertEqual(200, actual.status_code)
@@ -225,7 +225,7 @@ class EventResourceTest(ClientTestCase):
         patch = [{"op": "add", "path": "/affected_travelers/0", "value": traveler_id}]
 
         # Act
-        actual = client.patch(f"/api/event/{event_id}", json=patch)
+        actual = client.patch(f"/api/world/{self.world_id}/event/{event_id}", json=patch)
 
         # Assert
         self.assertEqual(200, actual.status_code)

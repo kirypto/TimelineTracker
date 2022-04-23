@@ -131,8 +131,8 @@ class LocationsRestRequestHandler:
 
             return HTTPStatus.CREATED, JsonTranslator.to_json_str(location)
 
-        @rest_controller.register_rest_endpoint("/api/locations", RESTMethod.GET, MIMEType.JSON, query_params=True)
-        def locations_get_all_handler(query_params: Dict[str, str], **kwargs) -> HandlerResult:
+        @rest_controller.register_rest_endpoint("/api/world/<world_id>/locations", RESTMethod.GET, MIMEType.JSON, query_params=True)
+        def locations_get_all_handler(query_params: Dict[str, str], *, world_id: str, **kwargs) -> HandlerResult:
             supported_filters = {
                 "nameIs", "nameHas", "taggedAll", "taggedAny", "taggedOnly", "taggedNone", "spanIncludes", "spanIntersects"
             }
@@ -153,24 +153,24 @@ class LocationsRestRequestHandler:
 
             return HTTPStatus.OK, JsonTranslator.to_json_str(location_ids)
 
-        @rest_controller.register_rest_endpoint("/api/location/<location_id>", RESTMethod.GET, MIMEType.JSON)
-        def location_get_handler(*, location_id: str, **kwargs) -> HandlerResult:
+        @rest_controller.register_rest_endpoint("/api/world/<world_id>/location/<location_id>", RESTMethod.GET, MIMEType.JSON)
+        def location_get_handler(*, world_id: str, location_id: str, **kwargs) -> HandlerResult:
             _location_id = _parse_location_id(location_id)
 
             location = location_use_case.retrieve(_location_id, **kwargs)
 
             return HTTPStatus.OK, JsonTranslator.to_json_str(location)
 
-        @rest_controller.register_rest_endpoint("/api/location/<location_id>", RESTMethod.DELETE, MIMEType.JSON)
-        def location_delete_handler(*, location_id: str, **kwargs) -> HandlerResult:
+        @rest_controller.register_rest_endpoint("/api/world/<world_id>/location/<location_id>", RESTMethod.DELETE, MIMEType.JSON)
+        def location_delete_handler(*, world_id: str, location_id: str, **kwargs) -> HandlerResult:
             location_id_ = _parse_location_id(location_id)
 
             location_use_case.delete(location_id_, **kwargs)
 
             return HTTPStatus.NO_CONTENT, ""
 
-        @rest_controller.register_rest_endpoint("/api/location/<location_id>", RESTMethod.PATCH, MIMEType.JSON, json=True)
-        def location_patch_handler(body_patch_operations: List[Dict[str, Any]], *, location_id: str, **kwargs) -> HandlerResult:
+        @rest_controller.register_rest_endpoint("/api/world/<world_id>/location/<location_id>", RESTMethod.PATCH, MIMEType.JSON, json=True)
+        def location_patch_handler(body_patch_operations: List[Dict[str, Any]], *, world_id: str, location_id: str, **kwargs) -> HandlerResult:
             location_id_ = _parse_location_id(location_id)
 
             patch = JsonPatch([PatchOperation(operation).operation for operation in body_patch_operations])
@@ -187,9 +187,9 @@ class LocationsRestRequestHandler:
             return HTTPStatus.OK, JsonTranslator.to_json_str(modified_location)
 
         @rest_controller.register_rest_endpoint(
-            "/api/location/<location_id>/timeline", RESTMethod.GET, MIMEType.JSON, query_params=True
+            "/api/world/<world_id>/location/<location_id>/timeline", RESTMethod.GET, MIMEType.JSON, query_params=True
         )
-        def location_timeline_get_handler(query_params: Dict[str, str], *, location_id: str, **kwargs) -> HandlerResult:
+        def location_timeline_get_handler(query_params: Dict[str, str], *, world_id: str, location_id: str, **kwargs) -> HandlerResult:
             location_id_ = _parse_location_id(location_id)
 
             supported_filters = {"taggedAll", "taggedAny", "taggedOnly", "taggedNone"}
@@ -223,8 +223,8 @@ class TravelersRestRequestHandler:
 
             return HTTPStatus.CREATED, JsonTranslator.to_json_str(traveler)
 
-        @rest_controller.register_rest_endpoint("/api/travelers", RESTMethod.GET, MIMEType.JSON, query_params=True)
-        def travelers_get_all_handler(query_params: Dict[str, str], **kwargs) -> HandlerResult:
+        @rest_controller.register_rest_endpoint("/api/world/<world_id>/travelers", RESTMethod.GET, MIMEType.JSON, query_params=True)
+        def travelers_get_all_handler(query_params: Dict[str, str], *, world_id: str, **kwargs) -> HandlerResult:
             supported_filters = {"nameIs", "nameHas", "taggedAll", "taggedAny", "taggedOnly", "taggedNone", "journeyIntersects",
                                  "journeyIncludes"}
             if not supported_filters.issuperset(query_params.keys()):
@@ -244,24 +244,24 @@ class TravelersRestRequestHandler:
 
             return HTTPStatus.OK, JsonTranslator.to_json_str(traveler_ids)
 
-        @rest_controller.register_rest_endpoint("/api/traveler/<traveler_id>", RESTMethod.GET, MIMEType.JSON)
-        def traveler_get_handler(*, traveler_id: str, **kwargs) -> HandlerResult:
+        @rest_controller.register_rest_endpoint("/api/world/<world_id>/traveler/<traveler_id>", RESTMethod.GET, MIMEType.JSON)
+        def traveler_get_handler(*, world_id: str, traveler_id: str, **kwargs) -> HandlerResult:
             traveler_id_ = _parse_traveler_id(traveler_id)
 
             traveler = traveler_use_case.retrieve(traveler_id_, **kwargs)
 
             return HTTPStatus.OK, JsonTranslator.to_json_str(traveler)
 
-        @rest_controller.register_rest_endpoint("/api/traveler/<traveler_id>", RESTMethod.DELETE, MIMEType.JSON)
-        def traveler_delete_handler(*, traveler_id: str, **kwargs) -> HandlerResult:
+        @rest_controller.register_rest_endpoint("/api/world/<world_id>/traveler/<traveler_id>", RESTMethod.DELETE, MIMEType.JSON)
+        def traveler_delete_handler(*, world_id: str, traveler_id: str, **kwargs) -> HandlerResult:
             traveler_id = _parse_traveler_id(traveler_id)
 
             traveler_use_case.delete(traveler_id, **kwargs)
 
             return HTTPStatus.NO_CONTENT, dumps("", indent=2)
 
-        @rest_controller.register_rest_endpoint("/api/traveler/<traveler_id>", RESTMethod.PATCH, MIMEType.JSON, json=True)
-        def traveler_patch_handler(body_patch_operations: List[Dict[str, Any]], *, traveler_id: str, **kwargs) -> HandlerResult:
+        @rest_controller.register_rest_endpoint("/api/world/<world_id>/traveler/<traveler_id>", RESTMethod.PATCH, MIMEType.JSON, json=True)
+        def traveler_patch_handler(body_patch_operations: List[Dict[str, Any]], *, world_id: str, traveler_id: str, **kwargs) -> HandlerResult:
             traveler_id_ = _parse_traveler_id(traveler_id)
 
             patch = JsonPatch([PatchOperation(operation).operation for operation in body_patch_operations])
@@ -277,8 +277,8 @@ class TravelersRestRequestHandler:
 
             return HTTPStatus.OK, JsonTranslator.to_json_str(modified_traveler)
 
-        @rest_controller.register_rest_endpoint("/api/traveler/<traveler_id>/journey", RESTMethod.POST, MIMEType.JSON, json=True)
-        def traveler_journey_post_handler(body_new_positional_move: dict, *, traveler_id: str, **kwargs) -> HandlerResult:
+        @rest_controller.register_rest_endpoint("/api/world/<world_id>/traveler/<traveler_id>/journey", RESTMethod.POST, MIMEType.JSON, json=True)
+        def traveler_journey_post_handler(body_new_positional_move: dict, *, world_id: str, traveler_id: str, **kwargs) -> HandlerResult:
             traveler_id_ = _parse_traveler_id(traveler_id)
 
             new_positional_move = JsonTranslator.from_json(body_new_positional_move, PositionalMove)
@@ -296,9 +296,9 @@ class TravelersRestRequestHandler:
             return HTTPStatus.OK, JsonTranslator.to_json_str(modified_traveler)
 
         @rest_controller.register_rest_endpoint(
-            "/api/traveler/<traveler_id>/timeline", RESTMethod.GET, MIMEType.JSON, query_params=True
+            "/api/world/<world_id>/traveler/<traveler_id>/timeline", RESTMethod.GET, MIMEType.JSON, query_params=True
         )
-        def traveler_timeline_get_handler(query_params: Dict[str, str], *, traveler_id: str, **kwargs) -> HandlerResult:
+        def traveler_timeline_get_handler(query_params: Dict[str, str], *, world_id: str, traveler_id: str, **kwargs) -> HandlerResult:
             traveler_id = _parse_traveler_id(traveler_id)
 
             supported_filters = {"taggedAll", "taggedAny", "taggedOnly", "taggedNone"}
@@ -337,8 +337,8 @@ class EventsRestRequestHandler:
 
             return HTTPStatus.CREATED, JsonTranslator.to_json_str(event)
 
-        @rest_controller.register_rest_endpoint("/api/events", RESTMethod.GET, MIMEType.JSON, query_params=True)
-        def events_get_all_handler(query_params: Dict[str, str], **kwargs) -> HandlerResult:
+        @rest_controller.register_rest_endpoint("/api/world/<world_id>/events", RESTMethod.GET, MIMEType.JSON, query_params=True)
+        def events_get_all_handler(query_params: Dict[str, str], *, world_id: str, **kwargs) -> HandlerResult:
             supported_filters = {
                 "nameIs", "nameHas", "taggedAll", "taggedAny", "taggedOnly", "taggedNone", "spanIncludes", "spanIntersects"
             }
@@ -359,24 +359,24 @@ class EventsRestRequestHandler:
 
             return HTTPStatus.OK, JsonTranslator.to_json_str(event_ids)
 
-        @rest_controller.register_rest_endpoint("/api/event/<event_id>", RESTMethod.GET, MIMEType.JSON)
-        def event_get_handler(*, event_id: str, **kwargs) -> HandlerResult:
+        @rest_controller.register_rest_endpoint("/api/world/<world_id>/event/<event_id>", RESTMethod.GET, MIMEType.JSON)
+        def event_get_handler(*, world_id: str, event_id: str, **kwargs) -> HandlerResult:
             event_id_ = _parse_event_id(event_id)
 
             event = event_use_case.retrieve(event_id_, **kwargs)
 
             return HTTPStatus.OK, JsonTranslator.to_json_str(event)
 
-        @rest_controller.register_rest_endpoint("/api/event/<event_id>", RESTMethod.DELETE, MIMEType.JSON)
-        def event_delete_handler(*, event_id: str, **kwargs) -> HandlerResult:
+        @rest_controller.register_rest_endpoint("/api/world/<world_id>/event/<event_id>", RESTMethod.DELETE, MIMEType.JSON)
+        def event_delete_handler(*, world_id: str, event_id: str, **kwargs) -> HandlerResult:
             event_id_ = _parse_event_id(event_id)
 
             event_use_case.delete(event_id_, **kwargs)
 
             return HTTPStatus.NO_CONTENT, dumps("", indent=2)
 
-        @rest_controller.register_rest_endpoint("/api/event/<event_id>", RESTMethod.PATCH, MIMEType.JSON, json=True)
-        def event_patch_handler(body_patch_operations: List[Dict[str, Any]], *, event_id: str, **kwargs) -> HandlerResult:
+        @rest_controller.register_rest_endpoint("/api/world/<world_id>/event/<event_id>", RESTMethod.PATCH, MIMEType.JSON, json=True)
+        def event_patch_handler(body_patch_operations: List[Dict[str, Any]], *, world_id: str, event_id: str, **kwargs) -> HandlerResult:
             event_id_ = _parse_event_id(event_id)
 
             patch = JsonPatch([PatchOperation(operation).operation for operation in body_patch_operations])

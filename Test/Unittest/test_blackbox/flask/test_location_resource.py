@@ -86,7 +86,7 @@ class LocationResourceTest(ClientTestCase):
         expected_id = parse_json(response.data)["id"]
 
         # Act
-        actual = client.get(f"/api/locations")
+        actual = client.get(f"/api/world/{self.world_id}/locations")
 
         # Assert
         self.assertEqual(200, actual.status_code)
@@ -101,7 +101,7 @@ class LocationResourceTest(ClientTestCase):
 
         # Act
 
-        actual = client.get(f"/api/location/{location_id}")
+        actual = client.get(f"/api/world/{self.world_id}/location/{location_id}")
 
         # Assert
         self.assertEqual(200, actual.status_code)
@@ -114,11 +114,11 @@ class LocationResourceTest(ClientTestCase):
         location_id = parse_json(response.data)["id"]
 
         # Act
-        actual = client.delete(f"/api/location/{location_id}")
+        actual = client.delete(f"/api/world/{self.world_id}/location/{location_id}")
 
         # Assert
         self.assertEqual(204, actual.status_code)
-        self.assertEqual(404, client.get(f"/api/location/{location_id}").status_code)
+        self.assertEqual(404, client.get(f"/api/world/{self.world_id}/location/{location_id}").status_code)
 
     def test__patch_location__should_allow_editing_name(self, client: FlaskClient) -> None:
         # Arrange
@@ -130,7 +130,7 @@ class LocationResourceTest(ClientTestCase):
         patch = [{"op": "replace", "path": "/name", "value": "New Name"}]
 
         # Act
-        actual = client.patch(f"/api/location/{location_id}", json=patch)
+        actual = client.patch(f"/api/world/{self.world_id}/location/{location_id}", json=patch)
 
         # Assert
         self.assertEqual(200, actual.status_code)
@@ -146,7 +146,7 @@ class LocationResourceTest(ClientTestCase):
         patch = [{"op": "replace", "path": "/tags/0", "value": "new-tag"}]
 
         # Act
-        actual = client.patch(f"/api/location/{location_id}", json=patch)
+        actual = client.patch(f"/api/world/{self.world_id}/location/{location_id}", json=patch)
 
         # Assert
         self.assertEqual(200, actual.status_code)
@@ -163,7 +163,7 @@ class LocationResourceTest(ClientTestCase):
         patch = [{"op": "replace", "path": "/span/continuum/low", "value": expected_continuum_low}]
 
         # Act
-        actual = client.patch(f"/api/location/{location_id}", json=patch)
+        actual = client.patch(f"/api/world/{self.world_id}/location/{location_id}", json=patch)
 
         # Assert
         self.assertEqual(200, actual.status_code)
@@ -179,7 +179,7 @@ class LocationResourceTest(ClientTestCase):
         patch = [{"op": "add", "path": "/attributes/new-key", "value": "new-val"}]
 
         # Act
-        actual = client.patch(f"/api/location/{location_id}", json=patch)
+        actual = client.patch(f"/api/world/{self.world_id}/location/{location_id}", json=patch)
 
         # Assert
         self.assertEqual(200, actual.status_code)

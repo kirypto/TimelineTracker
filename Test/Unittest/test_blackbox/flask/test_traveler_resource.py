@@ -86,7 +86,7 @@ class TravelerResourceTest(ClientTestCase):
         expected_id = parse_json(response.data)["id"]
 
         # Act
-        actual = client.get(f"/api/travelers")
+        actual = client.get(f"/api/world/{self.world_id}/travelers")
 
         # Assert
         self.assertEqual(200, actual.status_code)
@@ -101,7 +101,7 @@ class TravelerResourceTest(ClientTestCase):
 
         # Act
 
-        actual = client.get(f"/api/traveler/{traveler_id}")
+        actual = client.get(f"/api/world/{self.world_id}/traveler/{traveler_id}")
 
         # Assert
         self.assertEqual(200, actual.status_code)
@@ -114,11 +114,11 @@ class TravelerResourceTest(ClientTestCase):
         traveler_id = parse_json(response.data)["id"]
 
         # Act
-        actual = client.delete(f"/api/traveler/{traveler_id}")
+        actual = client.delete(f"/api/world/{self.world_id}/traveler/{traveler_id}")
 
         # Assert
         self.assertEqual(204, actual.status_code)
-        self.assertEqual(404, client.get(f"/api/traveler/{traveler_id}").status_code)
+        self.assertEqual(404, client.get(f"/api/world/{self.world_id}/traveler/{traveler_id}").status_code)
 
     def test__patch_traveler__should_allow_editing_name(self, client: FlaskClient) -> None:
         # Arrange
@@ -130,7 +130,7 @@ class TravelerResourceTest(ClientTestCase):
         patch = [{"op": "replace", "path": "/name", "value": "New Name"}]
 
         # Act
-        actual = client.patch(f"/api/traveler/{traveler_id}", json=patch)
+        actual = client.patch(f"/api/world/{self.world_id}/traveler/{traveler_id}", json=patch)
 
         # Assert
         self.assertEqual(200, actual.status_code)
@@ -146,7 +146,7 @@ class TravelerResourceTest(ClientTestCase):
         patch = [{"op": "replace", "path": "/tags/0", "value": "new-tag"}]
 
         # Act
-        actual = client.patch(f"/api/traveler/{traveler_id}", json=patch)
+        actual = client.patch(f"/api/world/{self.world_id}/traveler/{traveler_id}", json=patch)
 
         # Assert
         self.assertEqual(200, actual.status_code)
@@ -162,7 +162,7 @@ class TravelerResourceTest(ClientTestCase):
         patch = [{"op": "replace", "path": "/journey/0/position/continuum", "value": -4321.01234}]
 
         # Act
-        actual = client.patch(f"/api/traveler/{traveler_id}", json=patch)
+        actual = client.patch(f"/api/world/{self.world_id}/traveler/{traveler_id}", json=patch)
 
         # Assert
         self.assertEqual(200, actual.status_code)
@@ -178,7 +178,7 @@ class TravelerResourceTest(ClientTestCase):
         patch = [{"op": "add", "path": "/attributes/new-key", "value": "new-val"}]
 
         # Act
-        actual = client.patch(f"/api/traveler/{traveler_id}", json=patch)
+        actual = client.patch(f"/api/world/{self.world_id}/traveler/{traveler_id}", json=patch)
 
         # Assert
         self.assertEqual(200, actual.status_code)
