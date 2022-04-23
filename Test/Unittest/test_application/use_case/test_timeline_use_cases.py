@@ -8,6 +8,7 @@ from adapter.persistence.in_memory_repositories import InMemoryLocationRepositor
 from application.access.clients import Profile
 from application.use_case.timeline_use_cases import TimelineUseCase
 from domain.collections import Range
+from domain.ids import PrefixedUUID
 from domain.persistence.repositories import LocationRepository, TravelerRepository, EventRepository
 from domain.positions import Position, PositionalMove, MovementType, PositionalRange
 
@@ -18,6 +19,7 @@ class TestTimelineUseCase(TestCase):
     event_repository: EventRepository
     timeline_use_case: TimelineUseCase
     profile: Profile
+    world_id: PrefixedUUID
 
     def setUp(self) -> None:
         self.location_repository = InMemoryLocationRepository()
@@ -26,13 +28,14 @@ class TestTimelineUseCase(TestCase):
         self.timeline_use_case = TimelineUseCase(self.location_repository, self.traveler_repository, self.event_repository)
         self.maxDiff = None
         self.profile = Profile(anon_name(), anon_name())
+        self.world_id = anon_prefixed_id(prefix="world")
 
     def test__construct_location_timeline__should_reject_nonexistent_location(self) -> None:
         # Arrange
         location_id = anon_prefixed_id(prefix="location")
 
         # Act
-        def action(): self.timeline_use_case.construct_location_timeline(location_id, profile=self.profile)
+        def action(): self.timeline_use_case.construct_location_timeline(self.world_id, location_id, profile=self.profile)
 
         # Assert
         self.assertRaises(NameError, action)
@@ -62,7 +65,7 @@ class TestTimelineUseCase(TestCase):
             self.event_repository.save(event)
 
         # Act
-        actual = self.timeline_use_case.construct_location_timeline(location_id, profile=self.profile)
+        actual = self.timeline_use_case.construct_location_timeline(self.world_id, location_id, profile=self.profile)
 
         # Assert
         self.assertListEqual(expected_timeline, actual)
@@ -83,7 +86,7 @@ class TestTimelineUseCase(TestCase):
         expected_output = [event.id]
 
         # Act
-        actual = self.timeline_use_case.construct_location_timeline(location.id, profile=self.profile)
+        actual = self.timeline_use_case.construct_location_timeline(self.world_id, location.id, profile=self.profile)
 
         # Assert
         filter_tagged_entities_mock.assert_called_once_with(expected_input)
@@ -94,7 +97,7 @@ class TestTimelineUseCase(TestCase):
         traveler_id = anon_prefixed_id(prefix="traveler")
 
         # Act
-        def action(): self.timeline_use_case.construct_traveler_timeline(traveler_id, profile=self.profile)
+        def action(): self.timeline_use_case.construct_traveler_timeline(self.world_id, traveler_id, profile=self.profile)
 
         # Assert
         self.assertRaises(NameError, action)
@@ -145,7 +148,7 @@ class TestTimelineUseCase(TestCase):
         ]
 
         # Act
-        actual = self.timeline_use_case.construct_traveler_timeline(traveler.id, profile=self.profile)
+        actual = self.timeline_use_case.construct_traveler_timeline(self.world_id, traveler.id, profile=self.profile)
 
         # Assert
         self.assertListEqual(expected_timeline, actual)
@@ -176,7 +179,7 @@ class TestTimelineUseCase(TestCase):
         ]
 
         # Act
-        actual = self.timeline_use_case.construct_traveler_timeline(traveler.id, profile=self.profile)
+        actual = self.timeline_use_case.construct_traveler_timeline(self.world_id, traveler.id, profile=self.profile)
 
         # Assert
         self.assertListEqual(expected_timeline, actual)
@@ -208,7 +211,7 @@ class TestTimelineUseCase(TestCase):
         ]
 
         # Act
-        actual = self.timeline_use_case.construct_traveler_timeline(traveler.id, profile=self.profile)
+        actual = self.timeline_use_case.construct_traveler_timeline(self.world_id, traveler.id, profile=self.profile)
 
         # Assert
         self.assertListEqual(expected_timeline, actual)
@@ -257,7 +260,7 @@ class TestTimelineUseCase(TestCase):
         ]
 
         # Act
-        actual = self.timeline_use_case.construct_traveler_timeline(traveler.id, profile=self.profile)
+        actual = self.timeline_use_case.construct_traveler_timeline(self.world_id, traveler.id, profile=self.profile)
 
         # Assert
         self.assertListEqual(expected_timeline, actual)
@@ -281,7 +284,7 @@ class TestTimelineUseCase(TestCase):
         expected_output = [positional_move, event.id]
 
         # Act
-        actual = self.timeline_use_case.construct_traveler_timeline(traveler.id, profile=self.profile)
+        actual = self.timeline_use_case.construct_traveler_timeline(self.world_id, traveler.id, profile=self.profile)
 
         # Assert
         filter_tagged_entities_mock.assert_called_once_with(expected_input)

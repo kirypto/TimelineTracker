@@ -22,7 +22,7 @@ class TimelineUseCase:
         self._event_repository = event_repository
 
     @requires_authentication()
-    def construct_location_timeline(self, location_id: PrefixedUUID, **filter_kwargs) -> List[PrefixedUUID]:
+    def construct_location_timeline(self, world_id: PrefixedUUID, location_id: PrefixedUUID, **filter_kwargs) -> List[PrefixedUUID]:
         def get_continuum(e: Event) -> Range:
             return e.span.continuum
 
@@ -37,7 +37,7 @@ class TimelineUseCase:
         return [event.id for event in events_ordered_by_continuum]
 
     @requires_authentication()
-    def construct_traveler_timeline(self, traveler_id: PrefixedUUID, **filter_kwargs) -> List[Union[PrefixedUUID, PositionalMove]]:
+    def construct_traveler_timeline(self, world_id: PrefixedUUID, traveler_id: PrefixedUUID, **filter_kwargs) -> List[Union[PrefixedUUID, PositionalMove]]:
         traveler = self._traveler_repository.retrieve(traveler_id)
         events = self._event_repository.retrieve_all(traveler_id=traveler_id)
 

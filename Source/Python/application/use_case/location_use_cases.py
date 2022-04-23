@@ -30,14 +30,14 @@ class LocationUseCase:
         return location
 
     @requires_authentication()
-    def retrieve(self, location_id: PrefixedUUID) -> Location:
+    def retrieve(self, world_id: PrefixedUUID, location_id: PrefixedUUID) -> Location:
         if not location_id.prefix == "location":
             raise ValueError("Argument 'location_id' must be prefixed with 'location'")
 
         return self._location_repository.retrieve(location_id)
 
     @requires_authentication()
-    def retrieve_all(self, **kwargs) -> Set[Location]:
+    def retrieve_all(self, world_id: PrefixedUUID, **kwargs) -> Set[Location]:
         all_locations = self._location_repository.retrieve_all()
         name_filtered_locations, kwargs = FilteringUseCase.filter_named_entities(all_locations, **kwargs)
         tag_filtered_locations, kwargs = FilteringUseCase.filter_tagged_entities(name_filtered_locations, **kwargs)
@@ -48,14 +48,14 @@ class LocationUseCase:
         return span_filtered_locations
 
     @requires_authentication()
-    def update(self, location: Location) -> None:
+    def update(self, world_id: PrefixedUUID, location: Location) -> None:
         self._location_repository.retrieve(location.id)
         self._validate_linked_events_still_intersect_for_update(location)
 
         self._location_repository.save(location)
 
     @requires_authentication()
-    def delete(self, location_id: PrefixedUUID) -> None:
+    def delete(self, world_id: PrefixedUUID, location_id: PrefixedUUID) -> None:
         if not location_id.prefix == "location":
             raise ValueError("Argument 'location_id' must be prefixed with 'location'")
 

@@ -67,7 +67,7 @@ class TestTravelerUseCase(TestCase):
         expected = self.traveler_use_case.create(self.world_id, profile=self.profile, **anon_create_traveler_kwargs())
 
         # Act
-        actual = self.traveler_use_case.retrieve(expected.id, profile=self.profile)
+        actual = self.traveler_use_case.retrieve(self.world_id, expected.id, profile=self.profile)
 
         # Assert
         self.assertEqual(expected, actual)
@@ -76,7 +76,7 @@ class TestTravelerUseCase(TestCase):
         # Arrange
 
         # Act
-        def action(): self.traveler_use_case.retrieve(anon_prefixed_id(prefix="traveler"), profile=self.profile)
+        def action(): self.traveler_use_case.retrieve(self.world_id, anon_prefixed_id(prefix="traveler"), profile=self.profile)
 
         # Assert
         self.assertRaises(NameError, action)
@@ -85,7 +85,7 @@ class TestTravelerUseCase(TestCase):
         # Arrange
 
         # Act
-        def action(): self.traveler_use_case.retrieve(anon_prefixed_id(), profile=self.profile)
+        def action(): self.traveler_use_case.retrieve(self.world_id, anon_prefixed_id(), profile=self.profile)
 
         # Assert
         self.assertRaises(ValueError, action)
@@ -97,7 +97,7 @@ class TestTravelerUseCase(TestCase):
         expected = {traveler_a, traveler_b}
 
         # Act
-        actual = self.traveler_use_case.retrieve_all(profile=self.profile)
+        actual = self.traveler_use_case.retrieve_all(self.world_id, profile=self.profile)
 
         # Assert
         self.assertSetEqual(expected, actual)
@@ -111,7 +111,7 @@ class TestTravelerUseCase(TestCase):
         expected_input = {self.traveler_use_case.create(self.world_id, profile=self.profile, **anon_create_traveler_kwargs())}
 
         # Act
-        actual = self.traveler_use_case.retrieve_all(profile=self.profile)
+        actual = self.traveler_use_case.retrieve_all(self.world_id, profile=self.profile)
 
         # Assert
         self.assertEqual(expected_output, actual)
@@ -126,7 +126,7 @@ class TestTravelerUseCase(TestCase):
         expected_input = {self.traveler_use_case.create(self.world_id, profile=self.profile, **anon_create_traveler_kwargs())}
 
         # Act
-        actual = self.traveler_use_case.retrieve_all(profile=self.profile)
+        actual = self.traveler_use_case.retrieve_all(self.world_id, profile=self.profile)
 
         # Assert
         self.assertEqual(expected_output, actual)
@@ -141,7 +141,7 @@ class TestTravelerUseCase(TestCase):
         expected_input = {self.traveler_use_case.create(self.world_id, profile=self.profile, **anon_create_traveler_kwargs())}
 
         # Act
-        actual = self.traveler_use_case.retrieve_all(profile=self.profile)
+        actual = self.traveler_use_case.retrieve_all(self.world_id, profile=self.profile)
 
         # Assert
         filter_journeying_entities_mock.assert_called_once_with(expected_input)
@@ -151,7 +151,7 @@ class TestTravelerUseCase(TestCase):
         # Arrange
 
         # Act
-        def action(): self.traveler_use_case.retrieve_all(unsupported_filter=anon_anything(), profile=self.profile)
+        def action(): self.traveler_use_case.retrieve_all(self.world_id, unsupported_filter=anon_anything(), profile=self.profile)
 
         # Assert
         self.assertRaises(ValueError, action)
@@ -160,7 +160,7 @@ class TestTravelerUseCase(TestCase):
         # Arrange
 
         # Act
-        def action(): self.traveler_use_case.update(anon_traveler(), profile=self.profile)
+        def action(): self.traveler_use_case.update(self.world_id, anon_traveler(), profile=self.profile)
 
         # Assert
         self.assertRaises(NameError, action)
@@ -182,7 +182,7 @@ class TestTravelerUseCase(TestCase):
 
         # Act
         # noinspection PyArgumentList
-        def action(): self.traveler_use_case.update(modified_traveler, profile=self.profile)
+        def action(): self.traveler_use_case.update(self.world_id, modified_traveler, profile=self.profile)
 
         # Assert
         self.assertRaises(ValueError, action)
@@ -200,10 +200,10 @@ class TestTravelerUseCase(TestCase):
             tags=expected_tags, attributes=expected_attributes)
 
         # Act
-        self.traveler_use_case.update(modified_traveler, profile=self.profile)
+        self.traveler_use_case.update(self.world_id, modified_traveler, profile=self.profile)
 
         # Assert
-        actual = self.traveler_use_case.retrieve(traveler.id, profile=self.profile)
+        actual = self.traveler_use_case.retrieve(self.world_id, traveler.id, profile=self.profile)
         self.assertEqual(expected_name, actual.name)
         self.assertEqual(expected_description, actual.description)
         self.assertEqual(expected_journey, actual.journey)
@@ -215,16 +215,16 @@ class TestTravelerUseCase(TestCase):
         traveler = self.traveler_use_case.create(self.world_id, profile=self.profile, **anon_create_traveler_kwargs())
 
         # Act
-        self.traveler_use_case.delete(traveler.id, profile=self.profile)
+        self.traveler_use_case.delete(self.world_id, traveler.id, profile=self.profile)
 
         # Assert
-        self.assertRaises(NameError, lambda: self.traveler_use_case.retrieve(traveler.id, profile=self.profile))
+        self.assertRaises(NameError, lambda: self.traveler_use_case.retrieve(self.world_id, traveler.id, profile=self.profile))
 
     def test__delete__should_raise_exception__when_not_exits(self) -> None:
         # Arrange
 
         # Act
-        def action(): self.traveler_use_case.delete(anon_prefixed_id(prefix="traveler"), profile=self.profile)
+        def action(): self.traveler_use_case.delete(self.world_id, anon_prefixed_id(prefix="traveler"), profile=self.profile)
 
         # Assert
         self.assertRaises(NameError, action)
@@ -233,7 +233,7 @@ class TestTravelerUseCase(TestCase):
         # Arrange
 
         # Act
-        def action(): self.traveler_use_case.delete(anon_prefixed_id(), profile=self.profile)
+        def action(): self.traveler_use_case.delete(self.world_id, anon_prefixed_id(), profile=self.profile)
 
         # Assert
         self.assertRaises(ValueError, action)
@@ -244,7 +244,7 @@ class TestTravelerUseCase(TestCase):
         self.event_repository.save(anon_event(affected_travelers={traveler.id}))
 
         # Act
-        def action(): self.traveler_use_case.delete(traveler.id, profile=self.profile)
+        def action(): self.traveler_use_case.delete(self.world_id, traveler.id, profile=self.profile)
 
         # Assert
         self.assertRaises(ValueError, action)

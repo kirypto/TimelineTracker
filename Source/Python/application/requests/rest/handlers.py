@@ -149,7 +149,7 @@ class LocationsRestRequestHandler:
                 "span_intersects": parse_optional_positional_range_query_param(query_params.get("spanIntersects", None)),
             }
 
-            location_ids = [location.id for location in location_use_case.retrieve_all(**filters, **kwargs)]
+            location_ids = [location.id for location in location_use_case.retrieve_all(to_world_id(world_id), **filters, **kwargs)]
 
             return HTTPStatus.OK, JsonTranslator.to_json_str(location_ids)
 
@@ -157,7 +157,7 @@ class LocationsRestRequestHandler:
         def location_get_handler(*, world_id: str, location_id: str, **kwargs) -> HandlerResult:
             _location_id = _parse_location_id(location_id)
 
-            location = location_use_case.retrieve(_location_id, **kwargs)
+            location = location_use_case.retrieve(to_world_id(world_id), _location_id, **kwargs)
 
             return HTTPStatus.OK, JsonTranslator.to_json_str(location)
 
@@ -165,16 +165,18 @@ class LocationsRestRequestHandler:
         def location_delete_handler(*, world_id: str, location_id: str, **kwargs) -> HandlerResult:
             location_id_ = _parse_location_id(location_id)
 
-            location_use_case.delete(location_id_, **kwargs)
+            location_use_case.delete(to_world_id(world_id), location_id_, **kwargs)
 
             return HTTPStatus.NO_CONTENT, ""
 
         @rest_controller.register_rest_endpoint("/api/world/<world_id>/location/<location_id>", RESTMethod.PATCH, MIMEType.JSON, json=True)
-        def location_patch_handler(body_patch_operations: List[Dict[str, Any]], *, world_id: str, location_id: str, **kwargs) -> HandlerResult:
+        def location_patch_handler(
+                body_patch_operations: List[Dict[str, Any]], *, world_id: str, location_id: str, **kwargs
+        ) -> HandlerResult:
             location_id_ = _parse_location_id(location_id)
 
             patch = JsonPatch([PatchOperation(operation).operation for operation in body_patch_operations])
-            existing_location_json = JsonTranslator.to_json(location_use_case.retrieve(location_id_, **kwargs))
+            existing_location_json = JsonTranslator.to_json(location_use_case.retrieve(to_world_id(world_id), location_id_, **kwargs))
 
             modified_location_json = patch.apply(existing_location_json)
             modified_location = JsonTranslator.from_json(modified_location_json, Location)
@@ -182,7 +184,7 @@ class LocationsRestRequestHandler:
             if modified_location.id != location_id_:
                 raise ValueError("A Location's 'id' cannot be modified")
 
-            location_use_case.update(modified_location, **kwargs)
+            location_use_case.update(to_world_id(world_id), modified_location, **kwargs)
 
             return HTTPStatus.OK, JsonTranslator.to_json_str(modified_location)
 
@@ -202,7 +204,7 @@ class LocationsRestRequestHandler:
                 "tagged_none": parse_optional_tag_set_query_param(query_params.get("taggedNone", None)),
             }
 
-            timeline = timeline_use_case.construct_location_timeline(location_id_, **filters, **kwargs)
+            timeline = timeline_use_case.construct_location_timeline(to_world_id(world_id), location_id_, **filters, **kwargs)
 
             return HTTPStatus.OK, JsonTranslator.to_json_str(timeline)
 
@@ -240,7 +242,7 @@ class TravelersRestRequestHandler:
                 "journey_includes": parse_optional_position_query_param(query_params.get("journeyIncludes", None)),
             }
 
-            traveler_ids = [traveler.id for traveler in traveler_use_case.retrieve_all(**filters, **kwargs)]
+            traveler_ids = [traveler.id for traveler in traveler_use_case.retrieve_all(to_world_id(world_id), **filters, **kwargs)]
 
             return HTTPStatus.OK, JsonTranslator.to_json_str(traveler_ids)
 
@@ -248,7 +250,7 @@ class TravelersRestRequestHandler:
         def traveler_get_handler(*, world_id: str, traveler_id: str, **kwargs) -> HandlerResult:
             traveler_id_ = _parse_traveler_id(traveler_id)
 
-            traveler = traveler_use_case.retrieve(traveler_id_, **kwargs)
+            traveler = traveler_use_case.retrieve(to_world_id(world_id), traveler_id_, **kwargs)
 
             return HTTPStatus.OK, JsonTranslator.to_json_str(traveler)
 
@@ -256,16 +258,18 @@ class TravelersRestRequestHandler:
         def traveler_delete_handler(*, world_id: str, traveler_id: str, **kwargs) -> HandlerResult:
             traveler_id = _parse_traveler_id(traveler_id)
 
-            traveler_use_case.delete(traveler_id, **kwargs)
+            traveler_use_case.delete(to_world_id(world_id), traveler_id, **kwargs)
 
             return HTTPStatus.NO_CONTENT, dumps("", indent=2)
 
         @rest_controller.register_rest_endpoint("/api/world/<world_id>/traveler/<traveler_id>", RESTMethod.PATCH, MIMEType.JSON, json=True)
-        def traveler_patch_handler(body_patch_operations: List[Dict[str, Any]], *, world_id: str, traveler_id: str, **kwargs) -> HandlerResult:
+        def traveler_patch_handler(
+                body_patch_operations: List[Dict[str, Any]], *, world_id: str, traveler_id: str, **kwargs
+        ) -> HandlerResult:
             traveler_id_ = _parse_traveler_id(traveler_id)
 
             patch = JsonPatch([PatchOperation(operation).operation for operation in body_patch_operations])
-            existing_object_view = JsonTranslator.to_json(traveler_use_case.retrieve(traveler_id_, **kwargs))
+            existing_object_view = JsonTranslator.to_json(traveler_use_case.retrieve(to_world_id(world_id), traveler_id_, **kwargs))
 
             modified_traveler_json = patch.apply(existing_object_view)
             modified_traveler = JsonTranslator.from_json(modified_traveler_json, Traveler)
@@ -273,17 +277,19 @@ class TravelersRestRequestHandler:
             if modified_traveler.id != traveler_id_:
                 raise ValueError("A Traveler's 'id' cannot be modified")
 
-            traveler_use_case.update(modified_traveler, **kwargs)
+            traveler_use_case.update(to_world_id(world_id), modified_traveler, **kwargs)
 
             return HTTPStatus.OK, JsonTranslator.to_json_str(modified_traveler)
 
-        @rest_controller.register_rest_endpoint("/api/world/<world_id>/traveler/<traveler_id>/journey", RESTMethod.POST, MIMEType.JSON, json=True)
+        @rest_controller.register_rest_endpoint(
+            "/api/world/<world_id>/traveler/<traveler_id>/journey", RESTMethod.POST, MIMEType.JSON, json=True
+        )
         def traveler_journey_post_handler(body_new_positional_move: dict, *, world_id: str, traveler_id: str, **kwargs) -> HandlerResult:
             traveler_id_ = _parse_traveler_id(traveler_id)
 
             new_positional_move = JsonTranslator.from_json(body_new_positional_move, PositionalMove)
 
-            existing_traveler = traveler_use_case.retrieve(traveler_id_, **kwargs)
+            existing_traveler = traveler_use_case.retrieve(to_world_id(world_id), traveler_id_, **kwargs)
 
             appended_journey = deepcopy(existing_traveler.journey)
             appended_journey.append(new_positional_move)
@@ -291,7 +297,7 @@ class TravelersRestRequestHandler:
                 id=existing_traveler.id, name=existing_traveler.name, description=existing_traveler.description,
                 journey=appended_journey, tags=existing_traveler.tags, attributes=existing_traveler.attributes)
 
-            traveler_use_case.update(modified_traveler, **kwargs)
+            traveler_use_case.update(to_world_id(world_id), modified_traveler, **kwargs)
 
             return HTTPStatus.OK, JsonTranslator.to_json_str(modified_traveler)
 
@@ -311,7 +317,7 @@ class TravelersRestRequestHandler:
                 "tagged_none": parse_optional_tag_set_query_param(query_params.get("taggedNone", None)),
             }
 
-            timeline = timeline_use_case.construct_traveler_timeline(traveler_id, **filters, **kwargs)
+            timeline = timeline_use_case.construct_traveler_timeline(to_world_id(world_id), traveler_id, **filters, **kwargs)
 
             return HTTPStatus.OK, JsonTranslator.to_json_str(timeline)
 
@@ -355,7 +361,7 @@ class EventsRestRequestHandler:
                 "span_intersects": parse_optional_positional_range_query_param(query_params.get("spanIntersects", None)),
             }
 
-            event_ids = [event.id for event in event_use_case.retrieve_all(**filters, **kwargs)]
+            event_ids = [event.id for event in event_use_case.retrieve_all(to_world_id(world_id), **filters, **kwargs)]
 
             return HTTPStatus.OK, JsonTranslator.to_json_str(event_ids)
 
@@ -363,7 +369,7 @@ class EventsRestRequestHandler:
         def event_get_handler(*, world_id: str, event_id: str, **kwargs) -> HandlerResult:
             event_id_ = _parse_event_id(event_id)
 
-            event = event_use_case.retrieve(event_id_, **kwargs)
+            event = event_use_case.retrieve(to_world_id(world_id), event_id_, **kwargs)
 
             return HTTPStatus.OK, JsonTranslator.to_json_str(event)
 
@@ -371,7 +377,7 @@ class EventsRestRequestHandler:
         def event_delete_handler(*, world_id: str, event_id: str, **kwargs) -> HandlerResult:
             event_id_ = _parse_event_id(event_id)
 
-            event_use_case.delete(event_id_, **kwargs)
+            event_use_case.delete(to_world_id(world_id), event_id_, **kwargs)
 
             return HTTPStatus.NO_CONTENT, dumps("", indent=2)
 
@@ -380,7 +386,7 @@ class EventsRestRequestHandler:
             event_id_ = _parse_event_id(event_id)
 
             patch = JsonPatch([PatchOperation(operation).operation for operation in body_patch_operations])
-            existing_event_json = JsonTranslator.to_json(event_use_case.retrieve(event_id_, **kwargs))
+            existing_event_json = JsonTranslator.to_json(event_use_case.retrieve(to_world_id(world_id), event_id_, **kwargs))
 
             modified_event_json = patch.apply(existing_event_json)
             modified_event = JsonTranslator.from_json(modified_event_json, Event)
@@ -388,6 +394,6 @@ class EventsRestRequestHandler:
             if modified_event.id != event_id_:
                 raise ValueError("A Event's 'id' cannot be modified")
 
-            event_use_case.update(modified_event, **kwargs)
+            event_use_case.update(to_world_id(world_id), modified_event, **kwargs)
 
             return HTTPStatus.OK, JsonTranslator.to_json_str(modified_event)

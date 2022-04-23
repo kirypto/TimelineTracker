@@ -29,14 +29,14 @@ class TravelerUseCase:
         return traveler
 
     @requires_authentication()
-    def retrieve(self, traveler_id: PrefixedUUID) -> Traveler:
+    def retrieve(self, world_id: PrefixedUUID, traveler_id: PrefixedUUID) -> Traveler:
         if not traveler_id.prefix == "traveler":
             raise ValueError("Argument 'traveler_id' must be prefixed with 'traveler'")
 
         return self._traveler_repository.retrieve(traveler_id)
 
     @requires_authentication()
-    def retrieve_all(self, **kwargs) -> Set[Traveler]:
+    def retrieve_all(self, world_id: PrefixedUUID, **kwargs) -> Set[Traveler]:
         all_travelers = self._traveler_repository.retrieve_all()
         name_filtered_travelers, kwargs = FilteringUseCase.filter_named_entities(all_travelers, **kwargs)
         tag_filtered_travelers, kwargs = FilteringUseCase.filter_tagged_entities(name_filtered_travelers, **kwargs)
@@ -47,14 +47,14 @@ class TravelerUseCase:
         return journey_filtered_travelers
 
     @requires_authentication()
-    def update(self, traveler: Traveler) -> None:
+    def update(self, world_id: PrefixedUUID, traveler: Traveler) -> None:
         self._traveler_repository.retrieve(traveler.id)
         self._validate_linked_events_still_intersect_for_update(traveler)
 
         self._traveler_repository.save(traveler)
 
     @requires_authentication()
-    def delete(self, traveler_id: PrefixedUUID) -> None:
+    def delete(self, world_id: PrefixedUUID, traveler_id: PrefixedUUID) -> None:
         if not traveler_id.prefix == "traveler":
             raise ValueError("Argument 'traveler_id' must be prefixed with 'traveler'")
 

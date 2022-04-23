@@ -113,7 +113,7 @@ class TestEventUseCase(TestCase):
         expected = self.event_use_case.create(self.world_id, profile=self.profile, **anon_create_event_kwargs())
 
         # Act
-        actual = self.event_use_case.retrieve(expected.id, profile=self.profile)
+        actual = self.event_use_case.retrieve(self.world_id, expected.id, profile=self.profile)
 
         # Assert
         self.assertEqual(expected, actual)
@@ -122,7 +122,7 @@ class TestEventUseCase(TestCase):
         # Arrange
 
         # Act
-        def action(): self.event_use_case.retrieve(anon_prefixed_id(prefix="event"), profile=self.profile)
+        def action(): self.event_use_case.retrieve(self.world_id, anon_prefixed_id(prefix="event"), profile=self.profile)
 
         # Assert
         self.assertRaises(NameError, action)
@@ -131,7 +131,7 @@ class TestEventUseCase(TestCase):
         # Arrange
 
         # Act
-        def action(): self.event_use_case.retrieve(anon_prefixed_id(), profile=self.profile)
+        def action(): self.event_use_case.retrieve(self.world_id, anon_prefixed_id(), profile=self.profile)
 
         # Assert
         self.assertRaises(ValueError, action)
@@ -143,7 +143,7 @@ class TestEventUseCase(TestCase):
         expected = {event_a, event_b}
 
         # Act
-        actual = self.event_use_case.retrieve_all(profile=self.profile)
+        actual = self.event_use_case.retrieve_all(self.world_id, profile=self.profile)
 
         # Assert
         self.assertSetEqual(expected, actual)
@@ -157,7 +157,7 @@ class TestEventUseCase(TestCase):
         expected_input = {self.event_use_case.create(self.world_id, profile=self.profile, **anon_create_event_kwargs())}
 
         # Act
-        actual = self.event_use_case.retrieve_all(profile=self.profile)
+        actual = self.event_use_case.retrieve_all(self.world_id, profile=self.profile)
 
         # Assert
         filter_named_entities_mock.assert_called_once_with(expected_input)
@@ -172,7 +172,7 @@ class TestEventUseCase(TestCase):
         expected_input = {self.event_use_case.create(self.world_id, profile=self.profile, **anon_create_event_kwargs())}
 
         # Act
-        actual = self.event_use_case.retrieve_all(profile=self.profile)
+        actual = self.event_use_case.retrieve_all(self.world_id, profile=self.profile)
 
         # Assert
         filter_tagged_entities_mock.assert_called_once_with(expected_input)
@@ -187,7 +187,7 @@ class TestEventUseCase(TestCase):
         expected_input = {self.event_use_case.create(self.world_id, profile=self.profile, **anon_create_event_kwargs())}
 
         # Act
-        actual = self.event_use_case.retrieve_all(profile=self.profile)
+        actual = self.event_use_case.retrieve_all(self.world_id, profile=self.profile)
 
         # Assert
         filter_spanning_entities_mock.assert_called_once_with(expected_input)
@@ -197,7 +197,7 @@ class TestEventUseCase(TestCase):
         # Arrange
 
         # Act
-        def action(): self.event_use_case.retrieve_all(unsupported_filter=anon_anything(), profile=self.profile)
+        def action(): self.event_use_case.retrieve_all(self.world_id, unsupported_filter=anon_anything(), profile=self.profile)
 
         # Assert
         self.assertRaises(ValueError, action)
@@ -206,7 +206,7 @@ class TestEventUseCase(TestCase):
         # Arrange
 
         # Act
-        def action(): self.event_use_case.update(anon_event(), profile=self.profile)
+        def action(): self.event_use_case.update(self.world_id, anon_event(), profile=self.profile)
 
         # Assert
         self.assertRaises(NameError, action)
@@ -223,7 +223,7 @@ class TestEventUseCase(TestCase):
         modified_event = Event(**modified_kwargs)
 
         # Act
-        def action(): self.event_use_case.update(modified_event, profile=self.profile)
+        def action(): self.event_use_case.update(self.world_id, modified_event, profile=self.profile)
 
         # Assert
         self.assertRaises(ValueError, action)
@@ -240,7 +240,7 @@ class TestEventUseCase(TestCase):
         modified_event = Event(**modified_kwargs)
 
         # Act
-        def action(): self.event_use_case.update(modified_event, profile=self.profile)
+        def action(): self.event_use_case.update(self.world_id, modified_event, profile=self.profile)
 
         # Assert
         self.assertRaises(ValueError, action)
@@ -258,10 +258,10 @@ class TestEventUseCase(TestCase):
             attributes=expected_attributes)
 
         # Act
-        self.event_use_case.update(modified_event, profile=self.profile)
+        self.event_use_case.update(self.world_id, modified_event, profile=self.profile)
 
         # Assert
-        actual = self.event_use_case.retrieve(event.id, profile=self.profile)
+        actual = self.event_use_case.retrieve(self.world_id, event.id, profile=self.profile)
         self.assertEqual(expected_name, actual.name)
         self.assertEqual(expected_description, actual.description)
         self.assertEqual(expected_span, actual.span)
@@ -273,16 +273,16 @@ class TestEventUseCase(TestCase):
         event = self.event_use_case.create(self.world_id, profile=self.profile, **anon_create_event_kwargs())
 
         # Act
-        self.event_use_case.delete(event.id, profile=self.profile)
+        self.event_use_case.delete(self.world_id, event.id, profile=self.profile)
 
         # Assert
-        self.assertRaises(NameError, lambda: self.event_use_case.retrieve(event.id, profile=self.profile))
+        self.assertRaises(NameError, lambda: self.event_use_case.retrieve(self.world_id, event.id, profile=self.profile))
 
     def test__delete__should_raise_exception__when_not_exits(self) -> None:
         # Arrange
 
         # Act
-        def action(): self.event_use_case.delete(anon_prefixed_id(prefix="event"), profile=self.profile)
+        def action(): self.event_use_case.delete(self.world_id, anon_prefixed_id(prefix="event"), profile=self.profile)
 
         # Assert
         self.assertRaises(NameError, action)
@@ -291,7 +291,7 @@ class TestEventUseCase(TestCase):
         # Arrange
 
         # Act
-        def action(): self.event_use_case.delete(anon_prefixed_id(), profile=self.profile)
+        def action(): self.event_use_case.delete(self.world_id, anon_prefixed_id(), profile=self.profile)
 
         # Assert
         self.assertRaises(ValueError, action)

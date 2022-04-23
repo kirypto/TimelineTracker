@@ -66,7 +66,7 @@ class TestLocationUseCase(TestCase):
         expected = self.location_use_case.create(self.world_id, profile=self.profile, **anon_create_location_kwargs())
 
         # Act
-        actual = self.location_use_case.retrieve(expected.id, profile=self.profile)
+        actual = self.location_use_case.retrieve(self.world_id, expected.id, profile=self.profile)
 
         # Assert
         self.assertEqual(expected, actual)
@@ -75,7 +75,7 @@ class TestLocationUseCase(TestCase):
         # Arrange
 
         # Act
-        def action(): self.location_use_case.retrieve(anon_prefixed_id(prefix="location"), profile=self.profile)
+        def action(): self.location_use_case.retrieve(self.world_id, anon_prefixed_id(prefix="location"), profile=self.profile)
 
         # Assert
         self.assertRaises(NameError, action)
@@ -84,7 +84,7 @@ class TestLocationUseCase(TestCase):
         # Arrange
 
         # Act
-        def action(): self.location_use_case.retrieve(anon_prefixed_id(), profile=self.profile)
+        def action(): self.location_use_case.retrieve(self.world_id, anon_prefixed_id(), profile=self.profile)
 
         # Assert
         self.assertRaises(ValueError, action)
@@ -96,7 +96,7 @@ class TestLocationUseCase(TestCase):
         expected = {location_a, location_b}
 
         # Act
-        actual = self.location_use_case.retrieve_all(profile=self.profile)
+        actual = self.location_use_case.retrieve_all(self.world_id, profile=self.profile)
 
         # Assert
         self.assertSetEqual(expected, actual)
@@ -110,7 +110,7 @@ class TestLocationUseCase(TestCase):
         expected_input = {self.location_use_case.create(self.world_id, profile=self.profile, **anon_create_location_kwargs())}
 
         # Act
-        actual = self.location_use_case.retrieve_all(profile=self.profile)
+        actual = self.location_use_case.retrieve_all(self.world_id, profile=self.profile)
         
         # Assert
         filter_named_entities_mock.assert_called_once_with(expected_input)
@@ -125,7 +125,7 @@ class TestLocationUseCase(TestCase):
         expected_input = {self.location_use_case.create(self.world_id, profile=self.profile, **anon_create_location_kwargs())}
 
         # Act
-        actual = self.location_use_case.retrieve_all(profile=self.profile)
+        actual = self.location_use_case.retrieve_all(self.world_id, profile=self.profile)
 
         # Assert
         filter_tagged_entities_mock.assert_called_once_with(expected_input)
@@ -140,7 +140,7 @@ class TestLocationUseCase(TestCase):
         expected_input = {self.location_use_case.create(self.world_id, profile=self.profile, **anon_create_location_kwargs())}
 
         # Act
-        actual = self.location_use_case.retrieve_all(profile=self.profile)
+        actual = self.location_use_case.retrieve_all(self.world_id, profile=self.profile)
 
         # Assert
         filter_spanning_entities_mock.assert_called_once_with(expected_input)
@@ -150,7 +150,7 @@ class TestLocationUseCase(TestCase):
         # Arrange
 
         # Act
-        def action(): self.location_use_case.retrieve_all(unsupported_filter=anon_anything(), profile=self.profile)
+        def action(): self.location_use_case.retrieve_all(self.world_id, unsupported_filter=anon_anything(), profile=self.profile)
 
         # Assert
         self.assertRaises(ValueError, action)
@@ -159,7 +159,7 @@ class TestLocationUseCase(TestCase):
         # Arrange
 
         # Act
-        def action(): self.location_use_case.update(anon_location(), profile=self.profile)
+        def action(): self.location_use_case.update(self.world_id, anon_location(), profile=self.profile)
 
         # Assert
         self.assertRaises(NameError, action)
@@ -177,7 +177,7 @@ class TestLocationUseCase(TestCase):
 
         # Act
         # noinspection PyArgumentList
-        def action(): self.location_use_case.update(modified_location, profile=self.profile)
+        def action(): self.location_use_case.update(self.world_id, modified_location, profile=self.profile)
 
         # Assert
         self.assertRaises(ValueError, action)
@@ -195,10 +195,10 @@ class TestLocationUseCase(TestCase):
             attributes=expected_attributes)
 
         # Act
-        self.location_use_case.update(modified_location, profile=self.profile)
+        self.location_use_case.update(self.world_id, modified_location, profile=self.profile)
 
         # Assert
-        actual = self.location_use_case.retrieve(location.id, profile=self.profile)
+        actual = self.location_use_case.retrieve(self.world_id, location.id, profile=self.profile)
         self.assertEqual(expected_name, actual.name)
         self.assertEqual(expected_description, actual.description)
         self.assertEqual(expected_span, actual.span)
@@ -210,16 +210,16 @@ class TestLocationUseCase(TestCase):
         location = self.location_use_case.create(self.world_id, profile=self.profile, **anon_create_location_kwargs())
 
         # Act
-        self.location_use_case.delete(location.id, profile=self.profile)
+        self.location_use_case.delete(self.world_id, location.id, profile=self.profile)
 
         # Assert
-        self.assertRaises(NameError, lambda: self.location_use_case.retrieve(location.id, profile=self.profile))
+        self.assertRaises(NameError, lambda: self.location_use_case.retrieve(self.world_id, location.id, profile=self.profile))
 
     def test__delete__should_reject_ids_that_do_not_exist(self) -> None:
         # Arrange
 
         # Act
-        def action(): self.location_use_case.delete(anon_prefixed_id(prefix="location"), profile=self.profile)
+        def action(): self.location_use_case.delete(self.world_id, anon_prefixed_id(prefix="location"), profile=self.profile)
 
         # Assert
         self.assertRaises(NameError, action)
@@ -228,7 +228,7 @@ class TestLocationUseCase(TestCase):
         # Arrange
 
         # Act
-        def action(): self.location_use_case.delete(anon_prefixed_id(), profile=self.profile)
+        def action(): self.location_use_case.delete(self.world_id, anon_prefixed_id(), profile=self.profile)
 
         # Assert
         self.assertRaises(ValueError, action)
@@ -239,7 +239,7 @@ class TestLocationUseCase(TestCase):
         self.event_repository.save(anon_event(affected_locations={location.id}))
 
         # Act
-        def action(): self.location_use_case.delete(location.id, profile=self.profile)
+        def action(): self.location_use_case.delete(self.world_id, location.id, profile=self.profile)
 
         # Assert
         self.assertRaises(ValueError, action)

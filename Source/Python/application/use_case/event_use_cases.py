@@ -38,14 +38,14 @@ class EventUseCase:
         return event
 
     @requires_authentication()
-    def retrieve(self, event_id: PrefixedUUID) -> Event:
+    def retrieve(self, world_id: PrefixedUUID, event_id: PrefixedUUID) -> Event:
         if not event_id.prefix == "event":
             raise ValueError("Argument 'event_id' must be prefixed with 'event'")
 
         return self._event_repository.retrieve(event_id)
 
     @requires_authentication()
-    def retrieve_all(self, **kwargs) -> Set[Event]:
+    def retrieve_all(self, world_id: PrefixedUUID, **kwargs) -> Set[Event]:
         all_events = self._event_repository.retrieve_all()
         name_filtered_events, kwargs = FilteringUseCase.filter_named_entities(all_events, **kwargs)
         tag_filtered_events, kwargs = FilteringUseCase.filter_tagged_entities(name_filtered_events, **kwargs)
@@ -56,7 +56,7 @@ class EventUseCase:
         return span_filtered_events
 
     @requires_authentication()
-    def update(self, event: Event) -> None:
+    def update(self, world_id: PrefixedUUID, event: Event) -> None:
         self._event_repository.retrieve(event.id)
 
         self._validate_affected_entities(event)
@@ -64,7 +64,7 @@ class EventUseCase:
         self._event_repository.save(event)
 
     @requires_authentication()
-    def delete(self, event_id: PrefixedUUID) -> None:
+    def delete(self, world_id: PrefixedUUID, event_id: PrefixedUUID) -> None:
         if not event_id.prefix == "event":
             raise ValueError("Argument 'event_id' must be prefixed with 'event'")
 
