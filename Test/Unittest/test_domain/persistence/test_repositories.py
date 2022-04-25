@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Callable, Any, Collection
+from functools import wraps
+from typing import Callable, Any, Iterable, Collection
 
 from Test.Unittest.test_helpers.anons import anon_location, anon_anything, anon_traveler, anon_event, anon_positional_range, anon_world
 from domain.events import Event
@@ -10,6 +11,18 @@ from domain.positions import PositionalMove, Position, MovementType
 from domain.travelers import Traveler
 from domain.worlds import World
 from test_helpers.anons import anon_prefixed_id
+
+
+def test_only_applies_if_preceding_ids_are_non_empty(test_item: Callable) -> Callable:
+    @wraps(test_item)
+    def wrapped_test(self: "TestSRDRepository", *args):
+        # only run the test if preceding args are non-empty, else auto-pass
+        if len(self.preceding_ids) > 0:
+            test_item(self, *args)
+        else:
+            print(f"Skipping '{type(self).__name__}.{test_item.__name__}' as it has empty preceding args")
+
+    return wrapped_test
 
 
 class TestSRDRepository(ABC):
@@ -29,6 +42,10 @@ class TestSRDRepository(ABC):
         pass
 
     @abstractmethod
+    def anon_preceding_ids(self) -> Iterable[Any]:
+        pass
+
+    @abstractmethod
     def anon_entity(self) -> Any:
         pass
 
@@ -38,7 +55,7 @@ class TestSRDRepository(ABC):
 
     def test__save__should_reject_invalid_types(self) -> None:
         # Arrange
-        invalid_type = anon_anything(not_type=Location)
+        invalid_type = anon_anything(not_type=type(self.anon_entity()))
 
         # Act
         def action(): self.repository.save(*self.preceding_ids, invalid_type)
@@ -68,10 +85,10 @@ class TestSRDRepository(ABC):
 
     def test__retrieve__should_raise_exception__when_no_stored_entity_matches_the_given_identifier(self) -> None:
         # Arrange
-        anon_identifier = self.get_entity_identifier(self.anon_entity())
+        entity_id = self.get_entity_identifier(self.anon_entity())
 
         # Act
-        def action(): self.repository.retrieve(*self.preceding_ids, anon_identifier)
+        def action(): self.repository.retrieve(*self.preceding_ids, entity_id)
 
         # Assert
         self.assertRaises(NameError, action)
@@ -79,14 +96,27 @@ class TestSRDRepository(ABC):
     def test__retrieve__should_return_saved_entity__when_stored_entity_matches_the_given_identifier(self) -> None:
         # Arrange
         expected_entity = self.anon_entity()
-        entity_identifier = self.get_entity_identifier(expected_entity)
+        entity_id = self.get_entity_identifier(expected_entity)
         self.repository.save(*self.preceding_ids, expected_entity)
 
         # Act
-        actual = self.repository.retrieve(*self.preceding_ids, entity_identifier)
+        actual = self.repository.retrieve(*self.preceding_ids, entity_id)
 
         # Assert
         self.assertEqual(expected_entity, actual)
+
+    @test_only_applies_if_preceding_ids_are_non_empty
+    def test__retrieve__should_raise_exception__when_stored_entity_matches_but_exists_with_other_preceding_ids(self) -> None:
+        # Arrange
+        entity = self.anon_entity()
+        entity_id = self.get_entity_identifier(entity)
+        self.repository.save(*self.anon_preceding_ids(), entity)
+
+        # Act
+        def action(): self.repository.retrieve(*self.preceding_ids, entity_id)
+
+        # Assert
+        self.assertRaises(NameError, action)
 
     def test__retrieve_all__should_return_empty_set__when_no_entities_stored(self) -> None:
         # Arrange
@@ -98,7 +128,20 @@ class TestSRDRepository(ABC):
         # Assert
         self.assertSetEqual(expected, actual)
 
-    def test__retrieve_all__should_return_all_stored_entities__when_entities_stored(self) -> None:
+    @test_only_applies_if_preceding_ids_are_non_empty
+    def test__retrieve_all__should_return_empty_set__when_all_stored_with_other_preceding_ids(self) -> None:
+        # Arrange
+        expected = set()
+        for _ in range(4):
+            self.repository.save(*self.anon_preceding_ids(), self.anon_entity())
+
+        # Act
+        actual = self.repository.retrieve_all(*self.preceding_ids)
+
+        # Assert
+        self.assertSetEqual(expected, actual)
+
+    def test__retrieve_all__should_return_all_stored_entities__when_entities_stored_with_same_preceding_ids(self) -> None:
         # Arrange
         expected = {self.anon_entity(), self.anon_entity()}
         for entity in expected:
@@ -109,7 +152,22 @@ class TestSRDRepository(ABC):
 
         # Assert
         self.assertSetEqual(expected, actual)
-        
+
+    @test_only_applies_if_preceding_ids_are_non_empty
+    def test__retrieve_all__should_return_only_entities_for_preceding_ids__when_some_stored_with_other_preceding_ids(self) -> None:
+        # Arrange
+        expected = {self.anon_entity(), self.anon_entity()}
+        for entity in expected:
+            self.repository.save(*self.preceding_ids, entity)
+        for _ in range(2):
+            self.repository.save(*self.anon_preceding_ids(), self.anon_entity())
+
+        # Act
+        actual = self.repository.retrieve_all(*self.preceding_ids)
+
+        # Assert
+        self.assertSetEqual(expected, actual)
+
     def test__retrieve_all__should_not_return_deleted_entities__when_previously_existing_entities_are_deleted(self) -> None:
         # Arrange
         entity = self.anon_entity()
@@ -144,6 +202,19 @@ class TestSRDRepository(ABC):
         # Assert
         self.assertRaises(NameError, action)
 
+    @test_only_applies_if_preceding_ids_are_non_empty
+    def test__delete__should_raise_exception__when_matching_entity_stored_but_with_different_preceding_ids(self) -> None:
+        # Arrange
+        entity = self.anon_entity()
+        entity_id = self.get_entity_identifier(entity)
+        self.repository.save(*self.anon_preceding_ids(), entity)
+
+        # Act
+        def action(): self.repository.delete(*self.preceding_ids, entity_id)
+
+        # Assert
+        self.assertRaises(NameError, action)
+
 
 class TestWorldsRepository(TestSRDRepository):
     @property
@@ -153,6 +224,9 @@ class TestWorldsRepository(TestSRDRepository):
 
     @property
     def preceding_ids(self) -> Collection[Any]:
+        return []
+
+    def anon_preceding_ids(self) -> Iterable[Any]:
         return []
 
     def anon_entity(self) -> World:
@@ -174,6 +248,9 @@ class TestLocationsRepository(TestSRDRepository):
     def preceding_ids(self) -> Collection[Any]:
         return [self._world_id]
 
+    def anon_preceding_ids(self) -> Iterable[Any]:
+        return [anon_prefixed_id(prefix="world")]
+
     def anon_entity(self) -> Location:
         return anon_location()
 
@@ -193,6 +270,9 @@ class TestTravelerRepository(TestSRDRepository):
     def preceding_ids(self) -> Collection[Any]:
         return [self._world_id]
 
+    def anon_preceding_ids(self) -> Iterable[Any]:
+        return [anon_prefixed_id(prefix="world")]
+
     def anon_entity(self) -> Traveler:
         return anon_traveler()
 
@@ -211,6 +291,9 @@ class TestEventRepository(TestSRDRepository):
     @property
     def preceding_ids(self) -> Collection[Any]:
         return [self._world_id]
+
+    def anon_preceding_ids(self) -> Iterable[Any]:
+        return [anon_prefixed_id(prefix="world")]
 
     def anon_entity(self) -> Event:
         return anon_event()
