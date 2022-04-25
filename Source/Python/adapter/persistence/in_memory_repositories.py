@@ -73,16 +73,16 @@ class InMemoryLocationRepository(LocationRepository):
     def __init__(self) -> None:
         self._inner_repo = _InMemoryIdentifiedEntityRepository(Location)
 
-    def save(self, location: Location) -> None:
+    def save(self, world_id: PrefixedUUID, location: Location) -> None:
         self._inner_repo.save(location)
 
-    def retrieve(self, location_id: PrefixedUUID) -> Location:
+    def retrieve(self, world_id: PrefixedUUID, location_id: PrefixedUUID) -> Location:
         return self._inner_repo.retrieve(location_id)
 
-    def retrieve_all(self) -> Set[Location]:
+    def retrieve_all(self, world_id: PrefixedUUID) -> Set[Location]:
         return self._inner_repo.retrieve_all()
 
-    def delete(self, location_id: PrefixedUUID) -> None:
+    def delete(self, world_id: PrefixedUUID, location_id: PrefixedUUID) -> None:
         return self._inner_repo.delete(location_id)
 
 
@@ -92,16 +92,16 @@ class InMemoryTravelerRepository(TravelerRepository):
     def __init__(self) -> None:
         self._inner_repo = _InMemoryIdentifiedEntityRepository(Traveler)
 
-    def save(self, traveler: Traveler) -> None:
+    def save(self, world_id: PrefixedUUID, traveler: Traveler) -> None:
         self._inner_repo.save(traveler)
 
-    def retrieve(self, traveler_id: PrefixedUUID) -> Traveler:
+    def retrieve(self, world_id: PrefixedUUID, traveler_id: PrefixedUUID) -> Traveler:
         return self._inner_repo.retrieve(traveler_id)
 
-    def retrieve_all(self) -> Set[Traveler]:
+    def retrieve_all(self, world_id: PrefixedUUID) -> Set[Traveler]:
         return self._inner_repo.retrieve_all()
 
-    def delete(self, traveler_id: PrefixedUUID) -> None:
+    def delete(self, world_id: PrefixedUUID, traveler_id: PrefixedUUID) -> None:
         return self._inner_repo.delete(traveler_id)
 
 
@@ -115,17 +115,17 @@ class InMemoryEventRepository(EventRepository):
         self._event_ids_by_location_id = defaultdict(set)
         self._event_ids_by_traveler_id = defaultdict(set)
 
-    def save(self, event: Event) -> None:
+    def save(self, world_id: PrefixedUUID, event: Event) -> None:
         self._inner_repo.save(event)
         for location_id in event.affected_locations:
             self._event_ids_by_location_id[location_id].add(event.id)
         for traveler_id in event.affected_travelers:
             self._event_ids_by_traveler_id[traveler_id].add(event.id)
 
-    def retrieve(self, event_id: PrefixedUUID) -> Event:
+    def retrieve(self, world_id: PrefixedUUID, event_id: PrefixedUUID) -> Event:
         return self._inner_repo.retrieve(event_id)
 
-    def retrieve_all(self, *, location_id: PrefixedUUID = None, traveler_id: PrefixedUUID = None) -> Set[Event]:
+    def retrieve_all(self, world_id: PrefixedUUID, *, location_id: PrefixedUUID = None, traveler_id: PrefixedUUID = None) -> Set[Event]:
         if location_id is None and traveler_id is None:
             # Neither filter provided, return all
             return self._inner_repo.retrieve_all()
@@ -136,11 +136,11 @@ class InMemoryEventRepository(EventRepository):
             # Both filters provided, return events linked to both
             desired_event_ids = events_linked_to_provided_location_id.intersection(events_linked_to_provided_traveler_id)
         else:
-            # Only on filter provided, return events linked to that one (union with empty set)
+            # Only one filter provided, return events linked to that one (union with empty set)
             desired_event_ids = events_linked_to_provided_location_id.union(events_linked_to_provided_traveler_id)
-        return {self.retrieve(event_id) for event_id in desired_event_ids}
+        return {self.retrieve(world_id, event_id) for event_id in desired_event_ids}
 
-    def delete(self, event_id: PrefixedUUID) -> None:
+    def delete(self, world_id: PrefixedUUID, event_id: PrefixedUUID) -> None:
         self._inner_repo.delete(event_id)
         for location_id in self._event_ids_by_location_id:
             self._event_ids_by_location_id[location_id].remove(event_id)

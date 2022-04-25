@@ -174,7 +174,7 @@ class TestTravelerUseCase(TestCase):
             movement_type=MovementType.IMMEDIATE)]
         traveler_kwargs = anon_create_traveler_kwargs(journey=journey)
         traveler = self.traveler_use_case.create(self.world_id, profile=self.profile, **traveler_kwargs)
-        self.event_repository.save(anon_event(affected_travelers={traveler.id}, span=span))
+        self.event_repository.save(self.world_id, anon_event(affected_travelers={traveler.id}, span=span))
         modified_kwargs = deepcopy(traveler_kwargs)
         modified_kwargs["id"] = traveler.id
         modified_kwargs["journey"] = anon_journey()
@@ -241,7 +241,7 @@ class TestTravelerUseCase(TestCase):
     def test__delete__should_reject_attempts_to_delete_travelers_that_are_linked_to_an_event(self) -> None:
         # Arrange
         traveler = self.traveler_use_case.create(self.world_id, profile=self.profile, **anon_create_traveler_kwargs())
-        self.event_repository.save(anon_event(affected_travelers={traveler.id}))
+        self.event_repository.save(self.world_id, anon_event(affected_travelers={traveler.id}))
 
         # Act
         def action(): self.traveler_use_case.delete(self.world_id, traveler.id, profile=self.profile)

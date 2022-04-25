@@ -28,53 +28,53 @@ class WorldRepository(ABC):
 
 class LocationRepository(ABC):
     @abstractmethod
-    def save(self, location: Location) -> None:
+    def save(self, world_id: PrefixedUUID, location: Location) -> None:
         pass
 
     @abstractmethod
-    def retrieve(self, location_id: PrefixedUUID) -> Location:
+    def retrieve(self, world_id: PrefixedUUID, location_id: PrefixedUUID) -> Location:
         pass
 
     @abstractmethod
-    def retrieve_all(self) -> Set[Location]:
+    def retrieve_all(self, world_id: PrefixedUUID) -> Set[Location]:
         pass
 
     @abstractmethod
-    def delete(self, location_id: PrefixedUUID) -> None:
+    def delete(self, world_id: PrefixedUUID, location_id: PrefixedUUID) -> None:
         pass
 
 
 class TravelerRepository(ABC):
     @abstractmethod
-    def save(self, traveler: Traveler) -> None:
+    def save(self, world_id: PrefixedUUID, traveler: Traveler) -> None:
         pass
 
     @abstractmethod
-    def retrieve(self, traveler_id: PrefixedUUID) -> Traveler:
+    def retrieve(self, world_id: PrefixedUUID, traveler_id: PrefixedUUID) -> Traveler:
         pass
 
     @abstractmethod
-    def retrieve_all(self) -> Set[Traveler]:
+    def retrieve_all(self, world_id: PrefixedUUID) -> Set[Traveler]:
         pass
 
     @abstractmethod
-    def delete(self, traveler_id: PrefixedUUID) -> None:
+    def delete(self, world_id: PrefixedUUID, traveler_id: PrefixedUUID) -> None:
         pass
 
 
 class EventRepository(ABC):
     @abstractmethod
-    def save(self, event: Event) -> None:
+    def save(self, world_id: PrefixedUUID, event: Event) -> None:
         pass
 
     @abstractmethod
-    def retrieve(self, event_id: PrefixedUUID) -> Event:
+    def retrieve(self, world_id: PrefixedUUID, event_id: PrefixedUUID) -> Event:
         pass
 
     @abstractmethod
-    def retrieve_all(self, *, location_id: PrefixedUUID = None, traveler_id: PrefixedUUID = None) -> Set[Event]:
+    def retrieve_all(self, world_id: PrefixedUUID, *, location_id: PrefixedUUID = None, traveler_id: PrefixedUUID = None) -> Set[Event]:
         pass
 
     @abstractmethod
-    def delete(self, event_id: PrefixedUUID) -> None:
+    def delete(self, world_id: PrefixedUUID, event_id: PrefixedUUID) -> None:
         pass

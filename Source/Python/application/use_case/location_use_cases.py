@@ -25,7 +25,7 @@ class LocationUseCase:
         kwargs["id"] = generate_prefixed_id("location")
         location = Location(**kwargs)
 
-        self._location_repository.save(location)
+        self._location_repository.save(world_id, location)
 
         return location
 
@@ -34,11 +34,11 @@ class LocationUseCase:
         if not location_id.prefix == "location":
             raise ValueError("Argument 'location_id' must be prefixed with 'location'")
 
-        return self._location_repository.retrieve(location_id)
+        return self._location_repository.retrieve(world_id, location_id)
 
     @requires_authentication()
     def retrieve_all(self, world_id: PrefixedUUID, **kwargs) -> Set[Location]:
-        all_locations = self._location_repository.retrieve_all()
+        all_locations = self._location_repository.retrieve_all(world_id)
         name_filtered_locations, kwargs = FilteringUseCase.filter_named_entities(all_locations, **kwargs)
         tag_filtered_locations, kwargs = FilteringUseCase.filter_tagged_entities(name_filtered_locations, **kwargs)
         span_filtered_locations, kwargs = FilteringUseCase.filter_spanning_entities(tag_filtered_locations, **kwargs)
@@ -49,27 +49,27 @@ class LocationUseCase:
 
     @requires_authentication()
     def update(self, world_id: PrefixedUUID, location: Location) -> None:
-        self._location_repository.retrieve(location.id)
-        self._validate_linked_events_still_intersect_for_update(location)
+        self._location_repository.retrieve(world_id, location.id)
+        self._validate_linked_events_still_intersect_for_update(world_id, location)
 
-        self._location_repository.save(location)
+        self._location_repository.save(world_id, location)
 
     @requires_authentication()
     def delete(self, world_id: PrefixedUUID, location_id: PrefixedUUID) -> None:
         if not location_id.prefix == "location":
             raise ValueError("Argument 'location_id' must be prefixed with 'location'")
 
-        self._validate_no_linked_events_for_delete(location_id)
+        self._validate_no_linked_events_for_delete(world_id, location_id)
 
-        return self._location_repository.delete(location_id)
+        return self._location_repository.delete(world_id, location_id)
 
-    def _validate_no_linked_events_for_delete(self, location_id: PrefixedUUID) -> None:
-        linked_event_ids = [str(event.id) for event in self._event_repository.retrieve_all(location_id=location_id)]
+    def _validate_no_linked_events_for_delete(self, world_id: PrefixedUUID, location_id: PrefixedUUID) -> None:
+        linked_event_ids = [str(event.id) for event in self._event_repository.retrieve_all(world_id, location_id=location_id)]
         if linked_event_ids:
             raise ValueError(f"Cannot delete location, currently linked to the following Events {','.join(linked_event_ids)}")
 
-    def _validate_linked_events_still_intersect_for_update(self, updated_location: Location) -> None:
-        linked_events = self._event_repository.retrieve_all(location_id=updated_location.id)
+    def _validate_linked_events_still_intersect_for_update(self, world_id: PrefixedUUID, updated_location: Location) -> None:
+        linked_events = self._event_repository.retrieve_all(world_id, location_id=updated_location.id)
         for linked_event in linked_events:
             if not linked_event.span.intersects(updated_location.span):
                 raise ValueError(f"Cannot modify location, currently linked to Event {linked_event.id} and the modification would "

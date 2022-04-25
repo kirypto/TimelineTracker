@@ -73,8 +73,8 @@ class TestEventUseCase(TestCase):
             position=Position(latitude=span.latitude.low, longitude=span.longitude.low, altitude=span.altitude.low,
                               continuum=span.continuum.low, reality=next(iter(span.reality))), movement_type=MovementType.IMMEDIATE)]
         traveler = anon_traveler(journey=journey)
-        self.location_repository.save(location)
-        self.traveler_repository.save(traveler)
+        self.location_repository.save(self.world_id, location)
+        self.traveler_repository.save(self.world_id, traveler)
 
         # Act
         event = self.event_use_case.create(self.world_id, span=span, name=anon_name(), description=anon_description(), tags={anon_tag()},
@@ -87,7 +87,7 @@ class TestEventUseCase(TestCase):
     def test__create__should_reject_affected_locations_that_do_not_intersect_event(self) -> None:
         # Arrange
         location = anon_location()
-        self.location_repository.save(location)
+        self.location_repository.save(self.world_id, location)
 
         # Act
         def action(): self.event_use_case.create(self.world_id, span=anon_positional_range(), name=anon_name(), description=anon_description(),
@@ -99,7 +99,7 @@ class TestEventUseCase(TestCase):
     def test__create__should_reject_affected_travelers_that_do_not_intersect_event(self) -> None:
         # Arrange
         traveler = anon_traveler()
-        self.traveler_repository.save(traveler)
+        self.traveler_repository.save(self.world_id, traveler)
 
         # Act
         def action(): self.event_use_case.create(self.world_id, span=anon_positional_range(), name=anon_name(), description=anon_description(),
@@ -216,7 +216,7 @@ class TestEventUseCase(TestCase):
         event_kwargs = anon_create_event_kwargs()
         event = self.event_use_case.create(self.world_id, profile=self.profile, **event_kwargs)
         location = anon_location()
-        self.location_repository.save(location)
+        self.location_repository.save(self.world_id, location)
         modified_kwargs = deepcopy(event_kwargs)
         modified_kwargs["id"] = event.id
         modified_kwargs["affected_locations"] = {location.id}
@@ -233,7 +233,7 @@ class TestEventUseCase(TestCase):
         event_kwargs = anon_create_event_kwargs()
         event = self.event_use_case.create(self.world_id, profile=self.profile, **event_kwargs)
         traveler = anon_traveler()
-        self.traveler_repository.save(traveler)
+        self.traveler_repository.save(self.world_id, traveler)
         modified_kwargs = deepcopy(event_kwargs)
         modified_kwargs["id"] = event.id
         modified_kwargs["affected_travelers"] = {traveler.id}

@@ -31,9 +31,9 @@ class EventUseCase:
         kwargs["id"] = generate_prefixed_id("event")
         event = Event(**kwargs)
 
-        self._validate_affected_entities(event)
+        self._validate_affected_entities(world_id, event)
 
-        self._event_repository.save(event)
+        self._event_repository.save(world_id, event)
 
         return event
 
@@ -42,11 +42,11 @@ class EventUseCase:
         if not event_id.prefix == "event":
             raise ValueError("Argument 'event_id' must be prefixed with 'event'")
 
-        return self._event_repository.retrieve(event_id)
+        return self._event_repository.retrieve(world_id, event_id)
 
     @requires_authentication()
     def retrieve_all(self, world_id: PrefixedUUID, **kwargs) -> Set[Event]:
-        all_events = self._event_repository.retrieve_all()
+        all_events = self._event_repository.retrieve_all(world_id)
         name_filtered_events, kwargs = FilteringUseCase.filter_named_entities(all_events, **kwargs)
         tag_filtered_events, kwargs = FilteringUseCase.filter_tagged_entities(name_filtered_events, **kwargs)
         span_filtered_events, kwargs = FilteringUseCase.filter_spanning_entities(tag_filtered_events, **kwargs)
@@ -57,26 +57,26 @@ class EventUseCase:
 
     @requires_authentication()
     def update(self, world_id: PrefixedUUID, event: Event) -> None:
-        self._event_repository.retrieve(event.id)
+        self._event_repository.retrieve(world_id, event.id)
 
-        self._validate_affected_entities(event)
+        self._validate_affected_entities(world_id, event)
 
-        self._event_repository.save(event)
+        self._event_repository.save(world_id, event)
 
     @requires_authentication()
     def delete(self, world_id: PrefixedUUID, event_id: PrefixedUUID) -> None:
         if not event_id.prefix == "event":
             raise ValueError("Argument 'event_id' must be prefixed with 'event'")
 
-        return self._event_repository.delete(event_id)
+        return self._event_repository.delete(world_id, event_id)
 
-    def _validate_affected_entities(self, updated_event: Event) -> None:
+    def _validate_affected_entities(self, world_id: PrefixedUUID, updated_event: Event) -> None:
         for affected_location_id in updated_event.affected_locations:
-            location = self._location_repository.retrieve(affected_location_id)
+            location = self._location_repository.retrieve(world_id, affected_location_id)
             if not location.span.intersects(updated_event.span):
                 raise ValueError(f"Event's span does not intersect with {affected_location_id}'s span")
 
         for affected_traveler_id in updated_event.affected_travelers:
-            traveler = self._traveler_repository.retrieve(affected_traveler_id)
+            traveler = self._traveler_repository.retrieve(world_id, affected_traveler_id)
             if not any([updated_event.span.includes(positional_move.position) for positional_move in traveler.journey]):
                 raise ValueError(f"Event's span does not intersect with {affected_traveler_id}'s journey")
