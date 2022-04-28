@@ -103,6 +103,12 @@ class JsonTranslator(Generic[T]):
             if type_ is List[PositionalMove]:
                 movements_json: list = value
                 return [JsonTranslator.from_json(move, PositionalMove) for move in movements_json]
+            if type_ is Dict[PrefixedUUID, Set[PrefixedUUID]]:
+                id_dict: dict = value
+                return {
+                    JsonTranslator.from_json(key, PrefixedUUID): JsonTranslator.from_json(val, Set[PrefixedUUID])
+                    for key, val in id_dict.items()
+                }
             if type_ is PositionalMove:
                 positional_movement_json: dict = value
                 return PositionalMove(**{

@@ -1,7 +1,6 @@
-from collections import defaultdict
 from json import dumps
 from pathlib import Path
-from typing import Set, Type, Generic, TypeVar, Dict
+from typing import Set, Type, Generic, TypeVar, Dict, Any, Optional
 
 from application.requests.data_forms import JsonTranslator
 from domain.events import Event
@@ -18,6 +17,7 @@ _WORLD_REPO_DIR_NAME = "WorldRepo"
 _LOCATION_REPO_DIR_NAME = "LocationRepo"
 _TRAVELER_REPO_DIR_NAME = "TravelerRepo"
 _EVENT_REPO_DIR_NAME = "EventRepo"
+_TIndex = TypeVar('_TIndex')
 
 
 class _JsonFileIdentifiedEntityRepository(Generic[_T]):
@@ -26,6 +26,7 @@ class _JsonFileIdentifiedEntityRepository(Generic[_T]):
 
     def __init__(self, repo_name: str, entity_type: Type[_T], *, json_repositories_directory_root: str) -> None:
         root_repos_path = Path(json_repositories_directory_root)
+        print(root_repos_path.as_posix())
         if not root_repos_path.exists() or not root_repos_path.is_dir():
             raise ValueError(f"The path '{root_repos_path}' is not a valid directory and cannot be used.")
         repo_path = root_repos_path.joinpath(repo_name)
@@ -76,6 +77,24 @@ class _JsonFileIdentifiedEntityRepository(Generic[_T]):
 
         deleted_suffix_path = entity_path.with_suffix(f"{entity_path.suffix}.deleted")
         entity_path.rename(deleted_suffix_path)
+
+    def save_index(self, name: str, index: Any) -> None:
+        index_path = self._repo_path.joinpath(f"{name}.index")
+        if index_path.exists() and not index_path.is_file():
+            raise FileExistsError(
+                f"Could not save index {name}, an uncontrolled non-file object already exists at path '{index_path.as_posix()}'.")
+
+        index_path.write_text(JsonTranslator.to_json_str(index), encoding="utf8")
+
+    def retrieve_index(self, name: str, type_: Type[_TIndex]) -> Optional[_TIndex]:
+        index_path = self._repo_path.joinpath(f"{name}.index")
+        if not index_path.exists():
+            return None
+        if not index_path.is_file():
+            raise FileExistsError(
+                f"Could not retrieve index {name}, an uncontrolled non-file object already exists at path '{index_path.as_posix()}'.")
+
+        return JsonTranslator.from_json_str(index_path.read_text(encoding="utf8"), type_)
 
     def _retrieve_entity_from_json_file(self, entity_id_str: str) -> _T:
         entity_path = self._repo_path.joinpath(f"{entity_id_str}.json")
@@ -148,25 +167,14 @@ class JsonFileTravelerRepository(TravelerRepository):
 
 class JsonFileEventRepository(EventRepository):
     _inner_repo: _JsonFileIdentifiedEntityRepository[Event]
-    _event_ids_by_location_id: Dict[PrefixedUUID, Set[PrefixedUUID]]
-    _event_ids_by_traveler_id: Dict[PrefixedUUID, Set[PrefixedUUID]]
 
     def __init__(self, **kwargs) -> None:
         self._inner_repo = _JsonFileIdentifiedEntityRepository(_EVENT_REPO_DIR_NAME, Event, **kwargs)
-        self._event_ids_by_location_id = defaultdict(set)
-        self._event_ids_by_traveler_id = defaultdict(set)
-        for event in self._inner_repo.retrieve_all():
-            for location_id in event.affected_locations:
-                self._event_ids_by_location_id[location_id].add(event.id)
-            for traveler_id in event.affected_travelers:
-                self._event_ids_by_traveler_id[traveler_id].add(event.id)
 
     def save(self, world_id: PrefixedUUID, event: Event) -> None:
         self._inner_repo.save(event)
-        for location_id in event.affected_locations:
-            self._event_ids_by_location_id[location_id].add(event.id)
-        for traveler_id in event.affected_travelers:
-            self._event_ids_by_traveler_id[traveler_id].add(event.id)
+        self._add_to_index("event_ids_by_location_id", event.affected_locations, event.id)
+        self._add_to_index("event_ids_by_traveler_id", event.affected_travelers, event.id)
 
     def retrieve(self, world_id: PrefixedUUID, event_id: PrefixedUUID) -> Event:
         return self._inner_repo.retrieve(event_id)
@@ -176,8 +184,8 @@ class JsonFileEventRepository(EventRepository):
             # Neither filter provided, return all
             return self._inner_repo.retrieve_all()
 
-        events_linked_to_provided_location_id = self._event_ids_by_location_id[location_id] if location_id is not None else set()
-        events_linked_to_provided_traveler_id = self._event_ids_by_traveler_id[traveler_id] if traveler_id is not None else set()
+        events_linked_to_provided_location_id = self._retrieve_from_index("event_ids_by_location_id", location_id)
+        events_linked_to_provided_traveler_id = self._retrieve_from_index("event_ids_by_traveler_id", traveler_id)
         if location_id is not None and traveler_id is not None:
             # Both filters provided, return events linked to both
             desired_event_ids = events_linked_to_provided_location_id.intersection(events_linked_to_provided_traveler_id)
@@ -188,7 +196,30 @@ class JsonFileEventRepository(EventRepository):
 
     def delete(self, world_id: PrefixedUUID, event_id: PrefixedUUID) -> None:
         self._inner_repo.delete(event_id)
-        for location_id in self._event_ids_by_location_id:
-            self._event_ids_by_location_id[location_id].remove(event_id)
-        for traveler_id in self._event_ids_by_traveler_id:
-            self._event_ids_by_traveler_id[traveler_id].remove(event_id)
+        self._strip_value_from_index_entries("event_ids_by_location_id", event_id)
+        self._strip_value_from_index_entries("event_ids_by_traveler_id", event_id)
+
+    def _strip_value_from_index_entries(self, name: str, value: PrefixedUUID) -> None:
+        index = self._inner_repo.retrieve_index(name, Dict[PrefixedUUID, Set[PrefixedUUID]])
+        if index is None:
+            return
+        for key in index:
+            index[key].remove(value)
+        self._inner_repo.save_index(name, index)
+
+    def _retrieve_from_index(self, name: str, key: PrefixedUUID) -> Set[PrefixedUUID]:
+        index = self._inner_repo.retrieve_index(name, Dict[PrefixedUUID, Set[PrefixedUUID]])
+        if index is None or key not in index:
+            return set()
+        return index.get(key)
+
+    def _add_to_index(self, name: str, keys: Set[PrefixedUUID], val: PrefixedUUID) -> None:
+        index = self._inner_repo.retrieve_index(name, Dict[PrefixedUUID, Set[PrefixedUUID]])
+        if index is None:
+            index = {}
+        for key in keys:
+            if key in index:
+                index[key].add(val)
+            else:
+                index[key] = {val}
+        self._inner_repo.save_index(name, index)
