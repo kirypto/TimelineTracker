@@ -1,6 +1,6 @@
-from json import dumps
+from json import dumps, loads
 from pathlib import Path
-from typing import Set, Type, Generic, TypeVar, Dict, Any, Optional
+from typing import Set, Type, Generic, TypeVar, Dict, Optional, List
 
 from application.requests.data_forms import JsonTranslator
 from domain.events import Event
@@ -78,15 +78,15 @@ class _JsonFileIdentifiedEntityRepository(Generic[_T]):
         deleted_suffix_path = entity_path.with_suffix(f"{entity_path.suffix}.deleted")
         entity_path.rename(deleted_suffix_path)
 
-    def save_index(self, name: str, index: Any) -> None:
+    def save_index(self, name: str, index: str) -> None:
         index_path = self._repo_path.joinpath(f"{name}.index")
         if index_path.exists() and not index_path.is_file():
             raise FileExistsError(
                 f"Could not save index {name}, an uncontrolled non-file object already exists at path '{index_path.as_posix()}'.")
 
-        index_path.write_text(JsonTranslator.to_json_str(index), encoding="utf8")
+        index_path.write_text(index, encoding="utf8")
 
-    def retrieve_index(self, name: str, type_: Type[_TIndex]) -> Optional[_TIndex]:
+    def retrieve_index(self, name: str) -> Optional[str]:
         index_path = self._repo_path.joinpath(f"{name}.index")
         if not index_path.exists():
             return None
@@ -94,7 +94,7 @@ class _JsonFileIdentifiedEntityRepository(Generic[_T]):
             raise FileExistsError(
                 f"Could not retrieve index {name}, an uncontrolled non-file object already exists at path '{index_path.as_posix()}'.")
 
-        return JsonTranslator.from_json_str(index_path.read_text(encoding="utf8"), type_)
+        return index_path.read_text(encoding="utf8")
 
     def _retrieve_entity_from_json_file(self, entity_id_str: str) -> _T:
         entity_path = self._repo_path.joinpath(f"{entity_id_str}.json")
@@ -200,26 +200,30 @@ class JsonFileEventRepository(EventRepository):
         self._strip_value_from_index_entries("event_ids_by_traveler_id", event_id)
 
     def _strip_value_from_index_entries(self, name: str, value: PrefixedUUID) -> None:
-        index = self._inner_repo.retrieve_index(name, Dict[PrefixedUUID, Set[PrefixedUUID]])
-        if index is None:
+        index_str = self._inner_repo.retrieve_index(name)
+        if index_str is None:
             return
+        index: Dict[str, List[str]] = loads(index_str)
         for key in index:
-            index[key].remove(value)
-        self._inner_repo.save_index(name, index)
+            index[key] = list(set(index[key]) - {str(name)})
+        self._inner_repo.save_index(name, dumps(index))
 
     def _retrieve_from_index(self, name: str, key: PrefixedUUID) -> Set[PrefixedUUID]:
-        index = self._inner_repo.retrieve_index(name, Dict[PrefixedUUID, Set[PrefixedUUID]])
-        if index is None or key not in index:
+        index_str = self._inner_repo.retrieve_index(name)
+        if index_str is None:
             return set()
-        return index.get(key)
+        index: Dict[str, List[str]] = loads(index_str)
+        return JsonTranslator.from_json(index.get(str(key), set()), Set[PrefixedUUID])
 
     def _add_to_index(self, name: str, keys: Set[PrefixedUUID], val: PrefixedUUID) -> None:
-        index = self._inner_repo.retrieve_index(name, Dict[PrefixedUUID, Set[PrefixedUUID]])
-        if index is None:
+        index_str = self._inner_repo.retrieve_index(name)
+        if index_str is None:
             index = {}
-        for key in keys:
+        else:
+            index: Dict[str, List[str]] = loads(index_str)
+        for key in map(str, keys):
             if key in index:
-                index[key].add(val)
+                index[key].append(str(val))
             else:
-                index[key] = {val}
-        self._inner_repo.save_index(name, index)
+                index[key] = [str(val)]
+        self._inner_repo.save_index(name, dumps(index))
