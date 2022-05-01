@@ -60,9 +60,9 @@ class TestTimelineUseCase(TestCase):
         events = [event_1, event_2, event_3, event_4, event_5, event_6, event_7]
         expected_timeline = [event.id for event in events]
         shuffle(events)
-        self.location_repository.save(self.world_id, anon_location(id=location_id))
+        self.location_repository.save(anon_location(id=location_id))
         for event in events:
-            self.event_repository.save(self.world_id, event)
+            self.event_repository.save(event)
 
         # Act
         actual = self.timeline_use_case.construct_location_timeline(self.world_id, location_id, profile=self.profile)
@@ -78,8 +78,8 @@ class TestTimelineUseCase(TestCase):
         location = anon_location(span=span)
         event = anon_event(span=span, affected_locations={location.id})
 
-        self.location_repository.save(self.world_id, location)
-        self.event_repository.save(self.world_id, event)
+        self.location_repository.save(location)
+        self.event_repository.save(event)
 
         filter_tagged_entities_mock.return_value = {event}, {}
         expected_input = {event}
@@ -132,9 +132,9 @@ class TestTimelineUseCase(TestCase):
         on_ground_event = anon_event(span=near_ground_span, affected_travelers={traveler.id})
         in_air_event = anon_event(span=in_air_span, affected_travelers={traveler.id})
 
-        self.traveler_repository.save(self.world_id, traveler)
-        self.event_repository.save(self.world_id, on_ground_event)
-        self.event_repository.save(self.world_id, in_air_event)
+        self.traveler_repository.save(traveler)
+        self.event_repository.save(on_ground_event)
+        self.event_repository.save(in_air_event)
 
         expected_timeline = [
             initially_on_ground,
@@ -169,8 +169,8 @@ class TestTimelineUseCase(TestCase):
         ])
         event = anon_event(span=affected_area, affected_travelers={traveler.id})
 
-        self.traveler_repository.save(self.world_id, traveler)
-        self.event_repository.save(self.world_id, event)
+        self.traveler_repository.save(traveler)
+        self.event_repository.save(event)
 
         expected_timeline = [
             outside_affected_area,
@@ -201,8 +201,8 @@ class TestTimelineUseCase(TestCase):
         ])
         event = anon_event(span=affected_area, affected_travelers={traveler.id})
 
-        self.traveler_repository.save(self.world_id, traveler)
-        self.event_repository.save(self.world_id, event)
+        self.traveler_repository.save(traveler)
+        self.event_repository.save(event)
 
         expected_timeline = [
             outside_affected_area,
@@ -245,8 +245,8 @@ class TestTimelineUseCase(TestCase):
         ])
         event = anon_event(span=affected_area, affected_travelers={traveler.id})
 
-        self.traveler_repository.save(self.world_id, traveler)
-        self.event_repository.save(self.world_id, event)
+        self.traveler_repository.save(traveler)
+        self.event_repository.save(event)
 
         expected_timeline = [
             pos_mov_1_outside_affected_area,
@@ -276,8 +276,8 @@ class TestTimelineUseCase(TestCase):
         traveler = anon_traveler(journey=[positional_move])
         event = anon_event(span=span, affected_travelers={traveler.id})
 
-        self.traveler_repository.save(self.world_id, traveler)
-        self.event_repository.save(self.world_id, event)
+        self.traveler_repository.save(traveler)
+        self.event_repository.save(event)
 
         filter_tagged_entities_mock.return_value = {event}, {}
         expected_input = {event}

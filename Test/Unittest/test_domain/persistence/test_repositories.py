@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
-from functools import wraps
-from typing import Callable, Any, Iterable, Collection
+from typing import Callable, Any
 
 from Test.Unittest.test_helpers.anons import anon_location, anon_anything, anon_traveler, anon_event, anon_positional_range, anon_world
 from domain.events import Event
@@ -10,19 +9,6 @@ from domain.persistence.repositories import WorldRepository, LocationRepository,
 from domain.positions import PositionalMove, Position, MovementType
 from domain.travelers import Traveler
 from domain.worlds import World
-from test_helpers.anons import anon_prefixed_id
-
-
-def test_only_applies_if_preceding_ids_are_non_empty(test_item: Callable) -> Callable:
-    @wraps(test_item)
-    def wrapped_test(self: "TestSRDRepository", *args):
-        # only run the test if preceding args are non-empty, else auto-pass
-        if len(self.preceding_ids) > 0:
-            test_item(self, *args)
-        else:
-            print(f"Skipping '{type(self).__name__}.{test_item.__name__}' as it has empty preceding args")
-
-    return wrapped_test
 
 
 class TestSRDRepository(ABC):
@@ -36,15 +22,6 @@ class TestSRDRepository(ABC):
     def repository(self) -> Any:
         pass
 
-    @property
-    @abstractmethod
-    def preceding_ids(self) -> Collection[Any]:
-        pass
-
-    @abstractmethod
-    def anon_preceding_ids(self) -> Iterable[Any]:
-        pass
-
     @abstractmethod
     def anon_entity(self) -> Any:
         pass
@@ -55,10 +32,10 @@ class TestSRDRepository(ABC):
 
     def test__save__should_reject_invalid_types(self) -> None:
         # Arrange
-        invalid_type = anon_anything(not_type=type(self.anon_entity()))
+        invalid_type = anon_anything(not_type=Location)
 
         # Act
-        def action(): self.repository.save(*self.preceding_ids, invalid_type)
+        def action(): self.repository.save(invalid_type)
 
         # Assert
         self.assertRaises(TypeError, action)
@@ -68,7 +45,7 @@ class TestSRDRepository(ABC):
         entity = self.anon_entity()
 
         # Act
-        self.repository.save(*self.preceding_ids, entity)
+        self.repository.save(entity)
 
         # Assert
 
@@ -78,17 +55,17 @@ class TestSRDRepository(ABC):
         invalid_type = anon_anything(not_type=valid_type)
 
         # Act
-        def action(): self.repository.retrieve(*self.preceding_ids, invalid_type)
+        def action(): self.repository.retrieve(invalid_type)
 
         # Assert
         self.assertRaises(TypeError, action)
 
     def test__retrieve__should_raise_exception__when_no_stored_entity_matches_the_given_identifier(self) -> None:
         # Arrange
-        entity_id = self.get_entity_identifier(self.anon_entity())
+        anon_identifier = self.get_entity_identifier(self.anon_entity())
 
         # Act
-        def action(): self.repository.retrieve(*self.preceding_ids, entity_id)
+        def action(): self.repository.retrieve(anon_identifier)
 
         # Assert
         self.assertRaises(NameError, action)
@@ -96,86 +73,45 @@ class TestSRDRepository(ABC):
     def test__retrieve__should_return_saved_entity__when_stored_entity_matches_the_given_identifier(self) -> None:
         # Arrange
         expected_entity = self.anon_entity()
-        entity_id = self.get_entity_identifier(expected_entity)
-        self.repository.save(*self.preceding_ids, expected_entity)
+        entity_identifier = self.get_entity_identifier(expected_entity)
+        self.repository.save(expected_entity)
 
         # Act
-        actual = self.repository.retrieve(*self.preceding_ids, entity_id)
+        actual = self.repository.retrieve(entity_identifier)
 
         # Assert
         self.assertEqual(expected_entity, actual)
-
-    @test_only_applies_if_preceding_ids_are_non_empty
-    def test__retrieve__should_raise_exception__when_stored_entity_matches_but_exists_with_other_preceding_ids(self) -> None:
-        # Arrange
-        entity = self.anon_entity()
-        entity_id = self.get_entity_identifier(entity)
-        self.repository.save(*self.anon_preceding_ids(), entity)
-
-        # Act
-        def action(): self.repository.retrieve(*self.preceding_ids, entity_id)
-
-        # Assert
-        self.assertRaises(NameError, action)
 
     def test__retrieve_all__should_return_empty_set__when_no_entities_stored(self) -> None:
         # Arrange
         expected = set()
 
         # Act
-        actual = self.repository.retrieve_all(*self.preceding_ids)
+        actual = self.repository.retrieve_all()
 
         # Assert
         self.assertSetEqual(expected, actual)
 
-    @test_only_applies_if_preceding_ids_are_non_empty
-    def test__retrieve_all__should_return_empty_set__when_all_stored_with_other_preceding_ids(self) -> None:
-        # Arrange
-        expected = set()
-        for _ in range(4):
-            self.repository.save(*self.anon_preceding_ids(), self.anon_entity())
-
-        # Act
-        actual = self.repository.retrieve_all(*self.preceding_ids)
-
-        # Assert
-        self.assertSetEqual(expected, actual)
-
-    def test__retrieve_all__should_return_all_stored_entities__when_entities_stored_with_same_preceding_ids(self) -> None:
+    def test__retrieve_all__should_return_all_stored_entities__when_entities_stored(self) -> None:
         # Arrange
         expected = {self.anon_entity(), self.anon_entity()}
         for entity in expected:
-            self.repository.save(*self.preceding_ids, entity)
+            self.repository.save(entity)
 
         # Act
-        actual = self.repository.retrieve_all(*self.preceding_ids)
+        actual = self.repository.retrieve_all()
 
         # Assert
         self.assertSetEqual(expected, actual)
-
-    @test_only_applies_if_preceding_ids_are_non_empty
-    def test__retrieve_all__should_return_only_entities_for_preceding_ids__when_some_stored_with_other_preceding_ids(self) -> None:
-        # Arrange
-        expected = {self.anon_entity(), self.anon_entity()}
-        for entity in expected:
-            self.repository.save(*self.preceding_ids, entity)
-        for _ in range(2):
-            self.repository.save(*self.anon_preceding_ids(), self.anon_entity())
-
-        # Act
-        actual = self.repository.retrieve_all(*self.preceding_ids)
-
-        # Assert
-        self.assertSetEqual(expected, actual)
-
+        
     def test__retrieve_all__should_not_return_deleted_entities__when_previously_existing_entities_are_deleted(self) -> None:
         # Arrange
         entity = self.anon_entity()
-        self.repository.save(*self.preceding_ids, entity)
-        self.repository.delete(*self.preceding_ids, entity.id)
+        self.repository.save(entity)
+        self.repository.delete(entity.id)
 
         # Act
-        actual = self.repository.retrieve_all(*self.preceding_ids)
+        actual = self.repository.retrieve_all()
 
         # Assert
         self.assertSetEqual(set(), actual)
@@ -184,33 +120,20 @@ class TestSRDRepository(ABC):
         # Arrange
         entity = self.anon_entity()
         entity_identifier = self.get_entity_identifier(entity)
-        self.repository.save(*self.preceding_ids, entity)
+        self.repository.save(entity)
 
         # Act
-        self.repository.delete(*self.preceding_ids, entity_identifier)
+        self.repository.delete(entity_identifier)
 
         # Assert
-        self.assertRaises(NameError, lambda: self.repository.retrieve(*self.preceding_ids, entity_identifier))
+        self.assertRaises(NameError, lambda: self.repository.retrieve(entity_identifier))
 
     def test__delete__should_raise_exception__when_no_matching_entity_stored(self) -> None:
         # Arrange
         anon_entity_identifier = self.get_entity_identifier(self.anon_entity())
 
         # Act
-        def action(): self.repository.delete(*self.preceding_ids, anon_entity_identifier)
-
-        # Assert
-        self.assertRaises(NameError, action)
-
-    @test_only_applies_if_preceding_ids_are_non_empty
-    def test__delete__should_raise_exception__when_matching_entity_stored_but_with_different_preceding_ids(self) -> None:
-        # Arrange
-        entity = self.anon_entity()
-        entity_id = self.get_entity_identifier(entity)
-        self.repository.save(*self.anon_preceding_ids(), entity)
-
-        # Act
-        def action(): self.repository.delete(*self.preceding_ids, entity_id)
+        def action(): self.repository.delete(anon_entity_identifier)
 
         # Assert
         self.assertRaises(NameError, action)
@@ -222,13 +145,6 @@ class TestWorldsRepository(TestSRDRepository):
     def repository(self) -> WorldRepository:
         pass
 
-    @property
-    def preceding_ids(self) -> Collection[Any]:
-        return []
-
-    def anon_preceding_ids(self) -> Iterable[Any]:
-        return []
-
     def anon_entity(self) -> World:
         return anon_world()
 
@@ -237,19 +153,10 @@ class TestWorldsRepository(TestSRDRepository):
 
 
 class TestLocationsRepository(TestSRDRepository):
-    _world_id: PrefixedUUID = anon_prefixed_id(prefix="world")
-
     @property
     @abstractmethod
     def repository(self) -> LocationRepository:
         pass
-
-    @property
-    def preceding_ids(self) -> Collection[Any]:
-        return [self._world_id]
-
-    def anon_preceding_ids(self) -> Iterable[Any]:
-        return [anon_prefixed_id(prefix="world")]
 
     def anon_entity(self) -> Location:
         return anon_location()
@@ -259,19 +166,10 @@ class TestLocationsRepository(TestSRDRepository):
 
 
 class TestTravelerRepository(TestSRDRepository):
-    _world_id: PrefixedUUID = anon_prefixed_id(prefix="world")
-
     @property
     @abstractmethod
     def repository(self) -> TravelerRepository:
         pass
-
-    @property
-    def preceding_ids(self) -> Collection[Any]:
-        return [self._world_id]
-
-    def anon_preceding_ids(self) -> Iterable[Any]:
-        return [anon_prefixed_id(prefix="world")]
 
     def anon_entity(self) -> Traveler:
         return anon_traveler()
@@ -281,19 +179,10 @@ class TestTravelerRepository(TestSRDRepository):
 
 
 class TestEventRepository(TestSRDRepository):
-    _world_id: PrefixedUUID = anon_prefixed_id(prefix="world")
-
     @property
     @abstractmethod
     def repository(self) -> EventRepository:
         pass
-
-    @property
-    def preceding_ids(self) -> Collection[Any]:
-        return [self._world_id]
-
-    def anon_preceding_ids(self) -> Iterable[Any]:
-        return [anon_prefixed_id(prefix="world")]
 
     def anon_entity(self) -> Event:
         return anon_event()
@@ -307,12 +196,12 @@ class TestEventRepository(TestSRDRepository):
         location = anon_location(span=span)
         linked_event = anon_event(span=span, affected_locations={location.id})
         other_event = anon_event()
-        self.repository.save(*self.preceding_ids, event=linked_event)
-        self.repository.save(*self.preceding_ids, event=other_event)
+        self.repository.save(linked_event)
+        self.repository.save(other_event)
         expected = {linked_event}
 
         # Act
-        actual = self.repository.retrieve_all(*self.preceding_ids, location_id=location.id)
+        actual = self.repository.retrieve_all(location_id=location.id)
 
         # Assert
         self.assertSetEqual(expected, actual)
@@ -326,12 +215,12 @@ class TestEventRepository(TestSRDRepository):
         traveler = anon_traveler(journey=journey)
         linked_event = anon_event(span=span, affected_travelers={traveler.id})
         other_event = anon_event()
-        self.repository.save(*self.preceding_ids, event=linked_event)
-        self.repository.save(*self.preceding_ids, event=other_event)
+        self.repository.save(linked_event)
+        self.repository.save(other_event)
         expected = {linked_event}
 
         # Act
-        actual = self.repository.retrieve_all(*self.preceding_ids, traveler_id=traveler.id)
+        actual = self.repository.retrieve_all(traveler_id=traveler.id)
 
         # Assert
         self.assertSetEqual(expected, actual)
@@ -348,13 +237,13 @@ class TestEventRepository(TestSRDRepository):
         linked_event_traveler_only = anon_event(span=span, affected_travelers={traveler.id})
         linked_event_location_only = anon_event(span=span, affected_locations={location.id})
         linked_event_both = anon_event(span=span, affected_travelers={traveler.id}, affected_locations={location.id})
-        self.repository.save(*self.preceding_ids, event=linked_event_traveler_only)
-        self.repository.save(*self.preceding_ids, event=linked_event_location_only)
-        self.repository.save(*self.preceding_ids, event=linked_event_both)
+        self.repository.save(linked_event_traveler_only)
+        self.repository.save(linked_event_location_only)
+        self.repository.save(linked_event_both)
         expected = {linked_event_both}
 
         # Act
-        actual = self.repository.retrieve_all(*self.preceding_ids, location_id=location.id, traveler_id=traveler.id)
+        actual = self.repository.retrieve_all(traveler_id=traveler.id, location_id=location.id)
 
         # Assert
         self.assertSetEqual(expected, actual)

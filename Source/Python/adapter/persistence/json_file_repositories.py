@@ -133,16 +133,16 @@ class JsonFileLocationRepository(LocationRepository):
     def __init__(self, **kwargs) -> None:
         self._inner_repo = _JsonFileIdentifiedEntityRepository(_LOCATION_REPO_DIR_NAME, Location, **kwargs)
 
-    def save(self, world_id: PrefixedUUID, location: Location) -> None:
+    def save(self, location: Location) -> None:
         self._inner_repo.save(location)
 
-    def retrieve(self, world_id: PrefixedUUID, location_id: PrefixedUUID) -> Location:
+    def retrieve(self, location_id: PrefixedUUID) -> Location:
         return self._inner_repo.retrieve(location_id)
 
-    def retrieve_all(self, world_id: PrefixedUUID) -> Set[Location]:
+    def retrieve_all(self) -> Set[Location]:
         return self._inner_repo.retrieve_all()
 
-    def delete(self, world_id: PrefixedUUID, location_id: PrefixedUUID) -> None:
+    def delete(self, location_id: PrefixedUUID) -> None:
         self._inner_repo.delete(location_id)
 
 
@@ -152,16 +152,16 @@ class JsonFileTravelerRepository(TravelerRepository):
     def __init__(self, **kwargs) -> None:
         self._inner_repo = _JsonFileIdentifiedEntityRepository(_TRAVELER_REPO_DIR_NAME, Traveler, **kwargs)
 
-    def save(self, world_id: PrefixedUUID, traveler: Traveler) -> None:
+    def save(self, traveler: Traveler) -> None:
         self._inner_repo.save(traveler)
 
-    def retrieve(self, world_id: PrefixedUUID, traveler_id: PrefixedUUID) -> Traveler:
+    def retrieve(self, traveler_id: PrefixedUUID) -> Traveler:
         return self._inner_repo.retrieve(traveler_id)
 
-    def retrieve_all(self, world_id: PrefixedUUID) -> Set[Traveler]:
+    def retrieve_all(self) -> Set[Traveler]:
         return self._inner_repo.retrieve_all()
 
-    def delete(self, world_id: PrefixedUUID, traveler_id: PrefixedUUID) -> None:
+    def delete(self, traveler_id: PrefixedUUID) -> None:
         self._inner_repo.delete(traveler_id)
 
 
@@ -171,15 +171,15 @@ class JsonFileEventRepository(EventRepository):
     def __init__(self, **kwargs) -> None:
         self._inner_repo = _JsonFileIdentifiedEntityRepository(_EVENT_REPO_DIR_NAME, Event, **kwargs)
 
-    def save(self, world_id: PrefixedUUID, event: Event) -> None:
+    def save(self, event: Event) -> None:
         self._inner_repo.save(event)
         self._add_to_index("event_ids_by_location_id", event.affected_locations, event.id)
         self._add_to_index("event_ids_by_traveler_id", event.affected_travelers, event.id)
 
-    def retrieve(self, world_id: PrefixedUUID, event_id: PrefixedUUID) -> Event:
+    def retrieve(self, event_id: PrefixedUUID) -> Event:
         return self._inner_repo.retrieve(event_id)
 
-    def retrieve_all(self, world_id: PrefixedUUID, *, location_id: PrefixedUUID = None, traveler_id: PrefixedUUID = None) -> Set[Event]:
+    def retrieve_all(self, *, location_id: PrefixedUUID = None, traveler_id: PrefixedUUID = None) -> Set[Event]:
         if location_id is None and traveler_id is None:
             # Neither filter provided, return all
             return self._inner_repo.retrieve_all()
@@ -190,11 +190,11 @@ class JsonFileEventRepository(EventRepository):
             # Both filters provided, return events linked to both
             desired_event_ids = events_linked_to_provided_location_id.intersection(events_linked_to_provided_traveler_id)
         else:
-            # Only one filter provided, return events linked to that one (union with empty set)
+            # Only on filter provided, return events linked to that one (union with empty set)
             desired_event_ids = events_linked_to_provided_location_id.union(events_linked_to_provided_traveler_id)
-        return {self.retrieve(world_id, event_id) for event_id in desired_event_ids}
+        return {self.retrieve(event_id) for event_id in desired_event_ids}
 
-    def delete(self, world_id: PrefixedUUID, event_id: PrefixedUUID) -> None:
+    def delete(self, event_id: PrefixedUUID) -> None:
         self._inner_repo.delete(event_id)
         self._strip_value_from_index_entries("event_ids_by_location_id", event_id)
         self._strip_value_from_index_entries("event_ids_by_traveler_id", event_id)

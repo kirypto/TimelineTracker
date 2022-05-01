@@ -169,7 +169,7 @@ class TestLocationUseCase(TestCase):
         span = anon_positional_range()
         location_kwargs = anon_create_location_kwargs(span=span)
         location = self.location_use_case.create(self.world_id, profile=self.profile, **location_kwargs)
-        self.event_repository.save(self.world_id, anon_event(affected_locations={location.id}, span=span))
+        self.event_repository.save(anon_event(affected_locations={location.id}, span=span))
         modified_kwargs = deepcopy(location_kwargs)
         modified_kwargs["id"] = location.id
         modified_kwargs["span"] = anon_positional_range()
@@ -236,7 +236,7 @@ class TestLocationUseCase(TestCase):
     def test__delete__should_reject_attempts_to_delete_locations_that_are_linked_to_an_event(self) -> None:
         # Arrange
         location = self.location_use_case.create(self.world_id, profile=self.profile, **anon_create_location_kwargs())
-        self.event_repository.save(self.world_id, anon_event(affected_locations={location.id}))
+        self.event_repository.save(anon_event(affected_locations={location.id}))
 
         # Act
         def action(): self.location_use_case.delete(self.world_id, location.id, profile=self.profile)
