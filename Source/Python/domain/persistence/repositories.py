@@ -25,6 +25,26 @@ class WorldRepository(ABC):
     def delete(self, world_id: PrefixedUUID) -> None:
         pass
 
+    @abstractmethod
+    def associate(
+            self, world_id: PrefixedUUID,
+            *, location_id: PrefixedUUID = None, traveler_id: PrefixedUUID = None, event_id: PrefixedUUID = None
+    ) -> None:
+        pass
+
+    @abstractmethod
+    def disassociate(
+            self, world_id: PrefixedUUID,
+            *, location_id: PrefixedUUID = None, traveler_id: PrefixedUUID = None, event_id: PrefixedUUID = None
+    ) -> None:
+        pass
+
+    @abstractmethod
+    def get_all_associated(
+            self, world_id: PrefixedUUID, *, locations: bool = False, travelers: bool = False, events: bool = False
+    ) -> Set[PrefixedUUID]:
+        pass
+
 
 class LocationRepository(ABC):
     @abstractmethod

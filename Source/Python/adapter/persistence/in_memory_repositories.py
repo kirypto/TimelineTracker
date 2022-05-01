@@ -50,9 +50,15 @@ class _InMemoryIdentifiedEntityRepository(Generic[_T]):
 
 class InMemoryWorldRepository(WorldRepository):
     _inner_repo: _InMemoryIdentifiedEntityRepository
+    _associated_locations: Dict[PrefixedUUID, Set[PrefixedUUID]]
+    _associated_travelers: Dict[PrefixedUUID, Set[PrefixedUUID]]
+    _associated_events: Dict[PrefixedUUID, Set[PrefixedUUID]]
 
     def __init__(self) -> None:
         self._inner_repo = _InMemoryIdentifiedEntityRepository(World)
+        self._associated_locations = defaultdict(set)
+        self._associated_travelers = defaultdict(set)
+        self._associated_events = defaultdict(set)
 
     def save(self, world: World) -> None:
         self._inner_repo.save(world)
@@ -65,6 +71,40 @@ class InMemoryWorldRepository(WorldRepository):
 
     def delete(self, world_id: PrefixedUUID) -> None:
         return self._inner_repo.delete(world_id)
+
+    def associate(
+            self, world_id: PrefixedUUID,
+            *, location_id: PrefixedUUID = None, traveler_id: PrefixedUUID = None, event_id: PrefixedUUID = None
+    ) -> None:
+        if location_id is not None:
+            self._associated_locations[world_id].add(location_id)
+        if traveler_id is not None:
+            self._associated_travelers[world_id].add(traveler_id)
+        if event_id is not None:
+            self._associated_events[world_id].add(event_id)
+
+    def disassociate(
+            self, world_id: PrefixedUUID,
+            *, location_id: PrefixedUUID = None, traveler_id: PrefixedUUID = None, event_id: PrefixedUUID = None
+    ) -> None:
+        if location_id is not None:
+            self._associated_locations[world_id].remove(location_id)
+        if traveler_id is not None:
+            self._associated_travelers[world_id].remove(traveler_id)
+        if event_id is not None:
+            self._associated_events[world_id].remove(event_id)
+
+    def get_all_associated(
+            self, world_id: PrefixedUUID, *, locations: bool = False, travelers: bool = False, events: bool = False
+    ) -> Set[PrefixedUUID]:
+        if not (locations ^ travelers ^ events):
+            raise ValueError(f"Exactly 1 entity type must be requested, was: locations={locations}, travelers={travelers}, events={events}")
+        if locations:
+            return set(self._associated_locations[world_id])
+        if travelers:
+            return set(self._associated_travelers[world_id])
+        if events:
+            return set(self._associated_events[world_id])
 
 
 class InMemoryLocationRepository(LocationRepository):

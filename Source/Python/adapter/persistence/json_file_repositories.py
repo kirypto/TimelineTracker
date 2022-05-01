@@ -126,6 +126,69 @@ class JsonFileWorldRepository(WorldRepository):
     def delete(self, world_id: PrefixedUUID) -> None:
         self._inner_repo.delete(world_id)
 
+    def associate(
+            self, world_id: PrefixedUUID,
+            *, location_id: PrefixedUUID = None, traveler_id: PrefixedUUID = None, event_id: PrefixedUUID = None
+    ) -> None:
+        if location_id is not None:
+            index_name = "associated_locations"
+            val = str(location_id)
+        elif traveler_id is not None:
+            index_name = "associated_travelers"
+            val = str(traveler_id)
+        elif event_id is not None:
+            index_name = "associated_events"
+            val = str(event_id)
+        else:
+            raise ValueError("Must provide a location_id, a traveler_id, or a event_id.")
+        index_str = self._inner_repo.retrieve_index(index_name)
+        index: Dict[str, Set[str]] = {key: set(vals) for key, vals in loads(index_str).items()} if index_str is not None else {}
+        index_key = str(world_id)
+        if index_key in index:
+            index[index_key].add(val)
+        else:
+            index[index_key] = {val}
+        self._inner_repo.save_index(index_name, dumps({key: list(vals) for key, vals in index.items()}))
+
+    def disassociate(
+            self, world_id: PrefixedUUID,
+            *, location_id: PrefixedUUID = None, traveler_id: PrefixedUUID = None, event_id: PrefixedUUID = None
+    ) -> None:
+        if location_id is not None:
+            index_name = "associated_locations"
+            val = str(location_id)
+        elif traveler_id is not None:
+            index_name = "associated_travelers"
+            val = str(traveler_id)
+        elif event_id is not None:
+            index_name = "associated_events"
+            val = str(event_id)
+        else:
+            raise ValueError("Must provide a location_id, a traveler_id, or a event_id.")
+        index_str = self._inner_repo.retrieve_index(index_name)
+        index: Dict[str, Set[str]] = {key: set(vals) for key, vals in loads(index_str).items()} if index_str is not None else {}
+        index_key = str(world_id)
+        if index_key in index:
+            index[index_key].remove(val)
+        else:
+            index[index_key] = {val}
+        self._inner_repo.save_index(index_name, dumps({key: list(vals) for key, vals in index.items()}))
+
+    def get_all_associated(
+            self, world_id: PrefixedUUID, *, locations: bool = False, travelers: bool = False, events: bool = False
+    ) -> Set[PrefixedUUID]:
+        if locations:
+            index_name = "associated_locations"
+        elif travelers:
+            index_name = "associated_travelers"
+        elif events:
+            index_name = "associated_events"
+        else:
+            raise ValueError(f"Exactly 1 entity type must be requested, was: locations={locations}, travelers={travelers}, events={events}")
+        index_str = self._inner_repo.retrieve_index(index_name)
+        index: Dict[str, List[str]] = loads(index_str) if index_str is not None else {}
+        return {JsonTranslator.from_json_str(entity_id, PrefixedUUID) for entity_id in index.get(str(world_id), [])}
+
 
 class JsonFileLocationRepository(LocationRepository):
     _inner_repo: _JsonFileIdentifiedEntityRepository[Location]
@@ -205,7 +268,7 @@ class JsonFileEventRepository(EventRepository):
             return
         index: Dict[str, List[str]] = loads(index_str)
         for key in index:
-            index[key] = list(set(index[key]) - {str(name)})
+            index[key] = list(set(index[key]) - {str(value)})
         self._inner_repo.save_index(name, dumps(index))
 
     def _retrieve_from_index(self, name: str, key: PrefixedUUID) -> Set[PrefixedUUID]:
