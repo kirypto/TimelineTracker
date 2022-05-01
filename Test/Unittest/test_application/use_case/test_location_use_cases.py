@@ -17,6 +17,7 @@ class TestLocationUseCase(TestCase):
     location_use_case: LocationUseCase
     profile: Profile
     world_id: PrefixedUUID
+    other_world_id: PrefixedUUID
 
     def setUp(self) -> None:
         self.event_repository = InMemoryEventRepository()
@@ -44,6 +45,15 @@ class TestLocationUseCase(TestCase):
         # Assert
         self.assertNotEqual(undesired_id, location.id)
 
+    def test__create__should_raise_exception__when_world_does_not_exist(self) -> None:
+        # Arrange
+
+        # Act
+        def action(): self.location_use_case.create(anon_prefixed_id(prefix="world"), **anon_create_location_kwargs(), profile=self.profile)
+
+        # Assert
+        self.assertRaises(ValueError, action)
+
     def test__create__should_use_provided_args(self) -> None:
         # Arrange
         expected_span = anon_positional_range()
@@ -61,7 +71,7 @@ class TestLocationUseCase(TestCase):
         self.assertEqual(expected_description, location.description)
         self.assertEqual(expected_tags, location.tags)
 
-    def test__retrieve__should_return_saved__when_exists(self) -> None:
+    def test__retrieve__should_return_saved__when_exists_for_given_world(self) -> None:
         # Arrange
         expected = self.location_use_case.create(self.world_id, profile=self.profile, **anon_create_location_kwargs())
 
@@ -71,7 +81,27 @@ class TestLocationUseCase(TestCase):
         # Assert
         self.assertEqual(expected, actual)
 
-    def test__retrieve__should_raise_exception__when_not_exists(self) -> None:
+    def test__retrieve__should_raise_exception__when_exists_for_another_world(self) -> None:
+        # Arrange
+        location = self.location_use_case.create(self.other_world_id, profile=self.profile, **anon_create_location_kwargs())
+
+        # Act
+        def action(): self.location_use_case.retrieve(self.world_id, location.id, profile=self.profile)
+
+        # Assert
+        self.assertRaises(NameError, action)
+
+    def test__retrieve__should_raise_exception__when_world_does_not_exist(self) -> None:
+        # Arrange
+
+        # Act
+        def action(): self.location_use_case.retrieve(
+            anon_prefixed_id(prefix="world"), anon_prefixed_id(prefix="location"), profile=self.profile)
+
+        # Assert
+        self.assertRaises(NameError, action)
+
+    def test__retrieve__should_raise_exception__when_location_does_not_exist(self) -> None:
         # Arrange
 
         # Act
@@ -89,11 +119,33 @@ class TestLocationUseCase(TestCase):
         # Assert
         self.assertRaises(ValueError, action)
 
-    def test__retrieve_all__should_return_all_saved__when_no_filters_provided(self) -> None:
+    def test__retrieve_all__should_raise_exception__when_world_does_not_exist(self) -> None:
+        # Arrange
+
+        # Act
+        def action(): self.location_use_case.retrieve_all(anon_prefixed_id(prefix="world"), profile=self.profile)
+
+        # Assert
+        self.assertRaises(NameError, action)
+
+    def test__retrieve_all__should_return_all_saved_for_world__when_no_filters_provided(self) -> None:
         # Arrange
         location_a = self.location_use_case.create(self.world_id, profile=self.profile, **anon_create_location_kwargs())
         location_b = self.location_use_case.create(self.world_id, profile=self.profile, **anon_create_location_kwargs())
         expected = {location_a, location_b}
+
+        # Act
+        actual = self.location_use_case.retrieve_all(self.world_id, profile=self.profile)
+
+        # Assert
+        self.assertSetEqual(expected, actual)
+
+    def test__retrieve_all__should_not_return_any_saved_for_another_world__when_no_filters_provided(self) -> None:
+        # Arrange
+        self.location_use_case.create(self.other_world_id, profile=self.profile, **anon_create_location_kwargs())
+        location_b = self.location_use_case.create(self.world_id, profile=self.profile, **anon_create_location_kwargs())
+        self.location_use_case.create(self.other_world_id, profile=self.profile, **anon_create_location_kwargs())
+        expected = {location_b}
 
         # Act
         actual = self.location_use_case.retrieve_all(self.world_id, profile=self.profile)
@@ -111,7 +163,7 @@ class TestLocationUseCase(TestCase):
 
         # Act
         actual = self.location_use_case.retrieve_all(self.world_id, profile=self.profile)
-        
+
         # Assert
         filter_named_entities_mock.assert_called_once_with(expected_input)
         self.assertEqual(expected_output, actual)
@@ -155,7 +207,16 @@ class TestLocationUseCase(TestCase):
         # Assert
         self.assertRaises(ValueError, action)
 
-    def test__update__should_raise_exception__when_not_exists(self) -> None:
+    def test__update__should_raise_exception__when_world_does_not_exist(self) -> None:
+        # Arrange
+
+        # Act
+        def action(): self.location_use_case.update(anon_prefixed_id(prefix="world"), anon_location(), profile=self.profile)
+
+        # Assert
+        self.assertRaises(NameError, action)
+
+    def test__update__should_raise_exception__when_location_does_not_exist(self) -> None:
         # Arrange
 
         # Act
@@ -205,7 +266,7 @@ class TestLocationUseCase(TestCase):
         self.assertEqual(expected_tags, actual.tags)
         self.assertEqual(expected_attributes, actual.attributes)
 
-    def test__delete__should_delete__when_location_exists(self) -> None:
+    def test__delete__should_delete__when_location_exists_for_world(self) -> None:
         # Arrange
         location = self.location_use_case.create(self.world_id, profile=self.profile, **anon_create_location_kwargs())
 
@@ -215,6 +276,16 @@ class TestLocationUseCase(TestCase):
         # Assert
         self.assertRaises(NameError, lambda: self.location_use_case.retrieve(self.world_id, location.id, profile=self.profile))
 
+    def test__delete__should_reject_ids_that_exist_for_another_world(self) -> None:
+        # Arrange
+        location = self.location_use_case.create(self.other_world_id, profile=self.profile, **anon_create_location_kwargs())
+
+        # Act
+        def action(): self.location_use_case.delete(self.world_id, location.id, profile=self.profile)
+
+        # Assert
+        self.assertRaises(NameError, action)
+
     def test__delete__should_reject_ids_that_do_not_exist(self) -> None:
         # Arrange
 
@@ -223,6 +294,15 @@ class TestLocationUseCase(TestCase):
 
         # Assert
         self.assertRaises(NameError, action)
+
+    def test__delete__should_raise_exception__when_world_does_not_exist(self) -> None:
+        # Arrange
+
+        # Act
+        def action(): self.location_use_case.delete(anon_prefixed_id(prefix="world"), anon_prefixed_id(prefix="location"), profile=self.profile)
+
+        # Assert
+        self.assertRaises(ValueError, action)
 
     def test__delete__should_reject_invalid_ids(self) -> None:
         # Arrange

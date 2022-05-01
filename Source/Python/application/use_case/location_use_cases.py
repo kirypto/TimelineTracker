@@ -4,10 +4,11 @@ from application.access.authentication import requires_authentication
 from application.use_case.filtering_use_cases import FilteringUseCase
 from domain.ids import PrefixedUUID, generate_prefixed_id
 from domain.locations import Location
-from domain.persistence.repositories import LocationRepository, EventRepository
+from domain.persistence.repositories import LocationRepository, EventRepository, WorldRepository
 
 
 class LocationUseCase:
+    _world_repository: WorldRepository
     _location_repository: LocationRepository
     _event_repository: EventRepository
 
@@ -38,6 +39,8 @@ class LocationUseCase:
 
     @requires_authentication()
     def retrieve_all(self, world_id: PrefixedUUID, **kwargs) -> Set[Location]:
+
+
         all_locations = self._location_repository.retrieve_all()
         name_filtered_locations, kwargs = FilteringUseCase.filter_named_entities(all_locations, **kwargs)
         tag_filtered_locations, kwargs = FilteringUseCase.filter_tagged_entities(name_filtered_locations, **kwargs)

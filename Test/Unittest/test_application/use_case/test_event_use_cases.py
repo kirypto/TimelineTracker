@@ -19,6 +19,7 @@ class TestEventUseCase(TestCase):
     traveler_repository: TravelerRepository
     profile: Profile
     world_id: PrefixedUUID
+    other_world_id: PrefixedUUID
 
     def setUp(self) -> None:
         self.location_repository = InMemoryLocationRepository()
@@ -26,6 +27,7 @@ class TestEventUseCase(TestCase):
         self.event_use_case = EventUseCase(self.location_repository, self.traveler_repository, InMemoryEventRepository())
         self.profile = Profile(anon_name(), anon_name())
         self.world_id = anon_prefixed_id(prefix="world")
+        self.other_world_id = anon_prefixed_id(prefix="world")
 
     def test__create__should_not_require_id_passed_in(self) -> None:
         # Arrange
@@ -41,10 +43,20 @@ class TestEventUseCase(TestCase):
         undesired_id = anon_prefixed_id()
 
         # Act
-        event = self.event_use_case.create(self.world_id, id=undesired_id, name=anon_name(), span=anon_positional_range(), profile=self.profile)
+        event = self.event_use_case.create(
+            self.world_id, id=undesired_id, name=anon_name(), span=anon_positional_range(), profile=self.profile)
 
         # Assert
         self.assertNotEqual(undesired_id, event.id)
+
+    def test__create__should_raise_exception__when_world_does_not_exist(self) -> None:
+        # Arrange
+
+        # Act
+        def action(): self.event_use_case.create(anon_prefixed_id(prefix="world"), **anon_create_event_kwargs(), profile=self.profile)
+
+        # Assert
+        self.assertRaises(ValueError, action)
 
     def test__create__should_use_provided_args__when_affected_travelers_and_locations_not_provided(self) -> None:
         # Arrange
@@ -90,8 +102,9 @@ class TestEventUseCase(TestCase):
         self.location_repository.save(location)
 
         # Act
-        def action(): self.event_use_case.create(self.world_id, span=anon_positional_range(), name=anon_name(), description=anon_description(),
-                                                 tags={anon_tag()}, affected_locations={location.id}, profile=self.profile)
+        def action(): self.event_use_case.create(
+            self.world_id, span=anon_positional_range(), name=anon_name(), description=anon_description(),
+            tags={anon_tag()}, affected_locations={location.id}, profile=self.profile)
 
         # Assert
         self.assertRaises(ValueError, action)
@@ -102,13 +115,14 @@ class TestEventUseCase(TestCase):
         self.traveler_repository.save(traveler)
 
         # Act
-        def action(): self.event_use_case.create(self.world_id, span=anon_positional_range(), name=anon_name(), description=anon_description(),
-                                                 tags={anon_tag()}, affected_travelers={traveler.id}, profile=self.profile)
+        def action(): self.event_use_case.create(
+            self.world_id, span=anon_positional_range(), name=anon_name(), description=anon_description(),
+            tags={anon_tag()}, affected_travelers={traveler.id}, profile=self.profile)
 
         # Assert
         self.assertRaises(ValueError, action)
 
-    def test__retrieve__should_return_saved__when_exists(self) -> None:
+    def test__retrieve__should_return_saved__when_exists_for_given_world(self) -> None:
         # Arrange
         expected = self.event_use_case.create(self.world_id, profile=self.profile, **anon_create_event_kwargs())
 
@@ -118,7 +132,27 @@ class TestEventUseCase(TestCase):
         # Assert
         self.assertEqual(expected, actual)
 
-    def test__retrieve__should_raise_exception__when_not_exists(self) -> None:
+    def test__retrieve__should_raise_exception__when_exists_for_another_world(self) -> None:
+        # Arrange
+        event = self.event_use_case.create(self.other_world_id, profile=self.profile, **anon_create_event_kwargs())
+
+        # Act
+        def action(): self.event_use_case.retrieve(self.world_id, event.id, profile=self.profile)
+
+        # Assert
+        self.assertRaises(NameError, action)
+
+    def test__retrieve__should_raise_exception__when_world_does_not_exist(self) -> None:
+        # Arrange
+
+        # Act
+        def action(): self.event_use_case.retrieve(
+            anon_prefixed_id(prefix="world"), anon_prefixed_id(prefix="event"), profile=self.profile)
+
+        # Assert
+        self.assertRaises(NameError, action)
+
+    def test__retrieve__should_raise_exception__when_event_does_not_exist(self) -> None:
         # Arrange
 
         # Act
@@ -136,11 +170,33 @@ class TestEventUseCase(TestCase):
         # Assert
         self.assertRaises(ValueError, action)
 
-    def test__retrieve_all__should_return_all_saved__when_no_filters_provided(self) -> None:
+    def test__retrieve_all__should_raise_exception__when_world_does_not_exist(self) -> None:
+        # Arrange
+
+        # Act
+        def action(): self.event_use_case.retrieve_all(anon_prefixed_id(prefix="world"), profile=self.profile)
+
+        # Assert
+        self.assertRaises(NameError, action)
+
+    def test__retrieve_all__should_return_all_saved_for_world__when_no_filters_provided(self) -> None:
         # Arrange
         event_a = self.event_use_case.create(self.world_id, profile=self.profile, **anon_create_event_kwargs())
         event_b = self.event_use_case.create(self.world_id, profile=self.profile, **anon_create_event_kwargs())
         expected = {event_a, event_b}
+
+        # Act
+        actual = self.event_use_case.retrieve_all(self.world_id, profile=self.profile)
+
+        # Assert
+        self.assertSetEqual(expected, actual)
+
+    def test__retrieve_all__should_not_return_any_saved_for_another_world__when_no_filters_provided(self) -> None:
+        # Arrange
+        self.event_use_case.create(self.other_world_id, profile=self.profile, **anon_create_event_kwargs())
+        event_b = self.event_use_case.create(self.world_id, profile=self.profile, **anon_create_event_kwargs())
+        self.event_use_case.create(self.other_world_id, profile=self.profile, **anon_create_event_kwargs())
+        expected = {event_b}
 
         # Act
         actual = self.event_use_case.retrieve_all(self.world_id, profile=self.profile)
@@ -202,7 +258,16 @@ class TestEventUseCase(TestCase):
         # Assert
         self.assertRaises(ValueError, action)
 
-    def test__update__should_raise_exception__when_not_exists(self) -> None:
+    def test__update__should_raise_exception__when_world_does_not_exist(self) -> None:
+        # Arrange
+
+        # Act
+        def action(): self.event_use_case.update(anon_prefixed_id(prefix="world"), anon_event(), profile=self.profile)
+
+        # Assert
+        self.assertRaises(NameError, action)
+
+    def test__update__should_raise_exception__when_event_does_not_exist(self) -> None:
         # Arrange
 
         # Act
@@ -268,7 +333,7 @@ class TestEventUseCase(TestCase):
         self.assertEqual(expected_tags, actual.tags)
         self.assertEqual(expected_attributes, actual.attributes)
 
-    def test__delete__should_delete__when_event_exists(self) -> None:
+    def test__delete__should_delete__when_location_exists_for_world(self) -> None:
         # Arrange
         event = self.event_use_case.create(self.world_id, profile=self.profile, **anon_create_event_kwargs())
 
@@ -278,14 +343,24 @@ class TestEventUseCase(TestCase):
         # Assert
         self.assertRaises(NameError, lambda: self.event_use_case.retrieve(self.world_id, event.id, profile=self.profile))
 
-    def test__delete__should_raise_exception__when_not_exits(self) -> None:
+    def test__delete__should_reject_ids_that_exist_for_another_world(self) -> None:
         # Arrange
+        event = self.event_use_case.create(self.other_world_id, profile=self.profile, **anon_create_event_kwargs())
 
         # Act
-        def action(): self.event_use_case.delete(self.world_id, anon_prefixed_id(prefix="event"), profile=self.profile)
+        def action(): self.event_use_case.delete(self.world_id, event.id, profile=self.profile)
 
         # Assert
         self.assertRaises(NameError, action)
+
+    def test__delete__should_raise_exception__when_world_does_not_exist(self) -> None:
+        # Arrange
+
+        # Act
+        def action(): self.event_use_case.delete(anon_prefixed_id(prefix="world"), anon_prefixed_id(prefix="event"), profile=self.profile)
+
+        # Assert
+        self.assertRaises(ValueError, action)
 
     def test__delete__should_raise_exception__when_invalid_id_provided(self) -> None:
         # Arrange

@@ -18,12 +18,14 @@ class TestTravelerUseCase(TestCase):
     traveler_use_case: TravelerUseCase
     profile: Profile
     world_id: PrefixedUUID
+    other_world_id: PrefixedUUID
 
     def setUp(self) -> None:
         self.event_repository = InMemoryEventRepository()
         self.traveler_use_case = TravelerUseCase(InMemoryTravelerRepository(), self.event_repository)
         self.profile = Profile(anon_name(), anon_name())
         self.world_id = anon_prefixed_id(prefix="world")
+        self.other_world_id = anon_prefixed_id(prefix="world")
 
     def test__create__should_not_require_id_passed_in(self) -> None:
         # Arrange
@@ -45,6 +47,15 @@ class TestTravelerUseCase(TestCase):
         # Assert
         self.assertNotEqual(undesired_id, traveler.id)
 
+    def test__create__should_raise_exception__when_world_does_not_exist(self) -> None:
+        # Arrange
+
+        # Act
+        def action(): self.traveler_use_case.create(anon_prefixed_id(prefix="world"), **anon_create_traveler_kwargs(), profile=self.profile)
+
+        # Assert
+        self.assertRaises(ValueError, action)
+
     def test__create__should_use_provided_args(self) -> None:
         # Arrange
         expected_journey = anon_journey()
@@ -62,7 +73,7 @@ class TestTravelerUseCase(TestCase):
         self.assertEqual(expected_description, traveler.description)
         self.assertEqual(expected_tags, traveler.tags)
 
-    def test__retrieve__should_return_saved__when_exists(self) -> None:
+    def test__retrieve__should_return_saved__when_exists_for_given_world(self) -> None:
         # Arrange
         expected = self.traveler_use_case.create(self.world_id, profile=self.profile, **anon_create_traveler_kwargs())
 
@@ -72,7 +83,27 @@ class TestTravelerUseCase(TestCase):
         # Assert
         self.assertEqual(expected, actual)
 
-    def test__retrieve__should_raise_exception__when_not_exists(self) -> None:
+    def test__retrieve__should_raise_exception__when_exists_for_another_world(self) -> None:
+        # Arrange
+        traveler = self.traveler_use_case.create(self.other_world_id, profile=self.profile, **anon_create_traveler_kwargs())
+
+        # Act
+        def action(): self.traveler_use_case.retrieve(self.world_id, traveler.id, profile=self.profile)
+
+        # Assert
+        self.assertRaises(NameError, action)
+
+    def test__retrieve__should_raise_exception__when_world_does_not_exist(self) -> None:
+        # Arrange
+
+        # Act
+        def action(): self.traveler_use_case.retrieve(
+            anon_prefixed_id(prefix="world"), anon_prefixed_id(prefix="traveler"), profile=self.profile)
+
+        # Assert
+        self.assertRaises(NameError, action)
+
+    def test__retrieve__should_raise_exception__when_traveler_does_not_exist(self) -> None:
         # Arrange
 
         # Act
@@ -90,11 +121,33 @@ class TestTravelerUseCase(TestCase):
         # Assert
         self.assertRaises(ValueError, action)
 
-    def test__retrieve_all__should_return_all_saved__when_no_filters_provided(self) -> None:
+    def test__retrieve_all__should_raise_exception__when_world_does_not_exist(self) -> None:
+        # Arrange
+
+        # Act
+        def action(): self.traveler_use_case.retrieve_all(anon_prefixed_id(prefix="world"), profile=self.profile)
+
+        # Assert
+        self.assertRaises(NameError, action)
+
+    def test__retrieve_all__should_return_all_saved_for_world__when_no_filters_provided(self) -> None:
         # Arrange
         traveler_a = self.traveler_use_case.create(self.world_id, profile=self.profile, **anon_create_traveler_kwargs())
         traveler_b = self.traveler_use_case.create(self.world_id, profile=self.profile, **anon_create_traveler_kwargs())
         expected = {traveler_a, traveler_b}
+
+        # Act
+        actual = self.traveler_use_case.retrieve_all(self.world_id, profile=self.profile)
+
+        # Assert
+        self.assertSetEqual(expected, actual)
+
+    def test__retrieve_all__should_not_return_any_saved_for_another_world__when_no_filters_provided(self) -> None:
+        # Arrange
+        self.traveler_use_case.create(self.other_world_id, profile=self.profile, **anon_create_traveler_kwargs())
+        traveler_b = self.traveler_use_case.create(self.world_id, profile=self.profile, **anon_create_traveler_kwargs())
+        self.traveler_use_case.create(self.other_world_id, profile=self.profile, **anon_create_traveler_kwargs())
+        expected = {traveler_b}
 
         # Act
         actual = self.traveler_use_case.retrieve_all(self.world_id, profile=self.profile)
@@ -156,7 +209,16 @@ class TestTravelerUseCase(TestCase):
         # Assert
         self.assertRaises(ValueError, action)
 
-    def test__update__should_raise_exception__when_not_exists(self) -> None:
+    def test__update__should_raise_exception__when_world_does_not_exist(self) -> None:
+        # Arrange
+
+        # Act
+        def action(): self.traveler_use_case.update(anon_prefixed_id(prefix="world"), anon_traveler(), profile=self.profile)
+
+        # Assert
+        self.assertRaises(NameError, action)
+
+    def test__update__should_raise_exception__when_traveler_does_not_exist(self) -> None:
         # Arrange
 
         # Act
@@ -210,7 +272,7 @@ class TestTravelerUseCase(TestCase):
         self.assertEqual(expected_tags, actual.tags)
         self.assertEqual(expected_attributes, actual.attributes)
 
-    def test__delete__should_delete__when_traveler_exists(self) -> None:
+    def test__delete__should_delete__when_traveler_exists_for_world(self) -> None:
         # Arrange
         traveler = self.traveler_use_case.create(self.world_id, profile=self.profile, **anon_create_traveler_kwargs())
 
@@ -220,7 +282,17 @@ class TestTravelerUseCase(TestCase):
         # Assert
         self.assertRaises(NameError, lambda: self.traveler_use_case.retrieve(self.world_id, traveler.id, profile=self.profile))
 
-    def test__delete__should_raise_exception__when_not_exits(self) -> None:
+    def test__delete__should_reject_ids_that_exist_for_another_world(self) -> None:
+        # Arrange
+        traveler = self.traveler_use_case.create(self.other_world_id, profile=self.profile, **anon_create_traveler_kwargs())
+
+        # Act
+        def action(): self.traveler_use_case.delete(self.world_id, traveler.id, profile=self.profile)
+
+        # Assert
+        self.assertRaises(NameError, action)
+
+    def test__delete__should_reject_ids_that_do_not_exist(self) -> None:
         # Arrange
 
         # Act
@@ -229,7 +301,16 @@ class TestTravelerUseCase(TestCase):
         # Assert
         self.assertRaises(NameError, action)
 
-    def test__delete__should_raise_exception__when_invalid_id_given(self) -> None:
+    def test__delete__should_raise_exception__when_world_does_not_exist(self) -> None:
+        # Arrange
+
+        # Act
+        def action(): self.traveler_use_case.delete(anon_prefixed_id(prefix="world"), anon_prefixed_id(prefix="traveler"), profile=self.profile)
+
+        # Assert
+        self.assertRaises(ValueError, action)
+
+    def test__delete__should_reject_invalid_ids(self) -> None:
         # Arrange
 
         # Act
