@@ -220,9 +220,10 @@ class TestTravelerUseCase(TestCase):
 
     def test__update__should_raise_exception__when_traveler_does_not_exist(self) -> None:
         # Arrange
+        traveler = self.traveler_use_case.create(self.world_id, profile=self.profile, **anon_create_traveler_kwargs())
 
         # Act
-        def action(): self.traveler_use_case.update(self.world_id, anon_traveler(), profile=self.profile)
+        def action(): self.traveler_use_case.update(self.world_id, traveler.id, profile=self.profile)
 
         # Assert
         self.assertRaises(NameError, action)
@@ -305,7 +306,8 @@ class TestTravelerUseCase(TestCase):
         # Arrange
 
         # Act
-        def action(): self.traveler_use_case.delete(anon_prefixed_id(prefix="world"), anon_prefixed_id(prefix="traveler"), profile=self.profile)
+        def action(): self.traveler_use_case.delete(
+            anon_prefixed_id(prefix="world"), anon_prefixed_id(prefix="traveler"), profile=self.profile)
 
         # Assert
         self.assertRaises(ValueError, action)

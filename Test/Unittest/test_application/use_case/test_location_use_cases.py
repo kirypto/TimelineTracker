@@ -4,12 +4,13 @@ from unittest.mock import patch, MagicMock
 
 from Test.Unittest.test_helpers.anons import anon_prefixed_id, anon_positional_range, anon_name, anon_description, anon_tag, \
     anon_create_location_kwargs, anon_location, anon_anything, anon_event, anon_attributes
-from adapter.persistence.in_memory_repositories import InMemoryLocationRepository, InMemoryEventRepository
+from adapter.persistence.in_memory_repositories import InMemoryLocationRepository, InMemoryEventRepository, InMemoryWorldRepository
 from application.access.clients import Profile
 from application.use_case.location_use_cases import LocationUseCase
 from domain.ids import PrefixedUUID
 from domain.locations import Location
 from domain.persistence.repositories import EventRepository
+from test_helpers.anons import anon_world
 
 
 class TestLocationUseCase(TestCase):
@@ -20,10 +21,16 @@ class TestLocationUseCase(TestCase):
     other_world_id: PrefixedUUID
 
     def setUp(self) -> None:
+        world_repository = InMemoryWorldRepository()
         self.event_repository = InMemoryEventRepository()
-        self.location_use_case = LocationUseCase(InMemoryLocationRepository(), self.event_repository)
+        self.location_use_case = LocationUseCase(world_repository, InMemoryLocationRepository(), self.event_repository)
         self.profile = Profile(anon_name(), anon_name())
-        self.world_id = anon_prefixed_id(prefix="world")
+        world_1 = anon_world()
+        world_2 = anon_world()
+        world_repository.save(world_1)
+        world_repository.save(world_2)
+        self.world_id = world_1.id
+        self.other_world_id = world_2.id
 
     def test__create__should_not_require_id_passed_in(self) -> None:
         # Arrange
@@ -52,7 +59,7 @@ class TestLocationUseCase(TestCase):
         def action(): self.location_use_case.create(anon_prefixed_id(prefix="world"), **anon_create_location_kwargs(), profile=self.profile)
 
         # Assert
-        self.assertRaises(ValueError, action)
+        self.assertRaises(NameError, action)
 
     def test__create__should_use_provided_args(self) -> None:
         # Arrange
@@ -209,9 +216,10 @@ class TestLocationUseCase(TestCase):
 
     def test__update__should_raise_exception__when_world_does_not_exist(self) -> None:
         # Arrange
+        location = self.location_use_case.create(self.world_id, profile=self.profile, **anon_create_location_kwargs())
 
         # Act
-        def action(): self.location_use_case.update(anon_prefixed_id(prefix="world"), anon_location(), profile=self.profile)
+        def action(): self.location_use_case.update(anon_prefixed_id(prefix="world"), location.id, profile=self.profile)
 
         # Assert
         self.assertRaises(NameError, action)
@@ -299,10 +307,11 @@ class TestLocationUseCase(TestCase):
         # Arrange
 
         # Act
-        def action(): self.location_use_case.delete(anon_prefixed_id(prefix="world"), anon_prefixed_id(prefix="location"), profile=self.profile)
+        def action(): self.location_use_case.delete(
+            anon_prefixed_id(prefix="world"), anon_prefixed_id(prefix="location"), profile=self.profile)
 
         # Assert
-        self.assertRaises(ValueError, action)
+        self.assertRaises(NameError, action)
 
     def test__delete__should_reject_invalid_ids(self) -> None:
         # Arrange

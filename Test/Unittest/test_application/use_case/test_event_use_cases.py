@@ -260,9 +260,10 @@ class TestEventUseCase(TestCase):
 
     def test__update__should_raise_exception__when_world_does_not_exist(self) -> None:
         # Arrange
+        event = self.event_use_case.create(self.world_id, profile=self.profile, **anon_create_event_kwargs())
 
         # Act
-        def action(): self.event_use_case.update(anon_prefixed_id(prefix="world"), anon_event(), profile=self.profile)
+        def action(): self.event_use_case.update(anon_prefixed_id(prefix="world"), event, profile=self.profile)
 
         # Assert
         self.assertRaises(NameError, action)

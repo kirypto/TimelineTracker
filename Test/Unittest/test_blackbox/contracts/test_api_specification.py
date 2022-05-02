@@ -110,29 +110,43 @@ class TestAPISpecification(TestCase):
         self.controller.profile = anon_profile()
 
     def _set_up_for(self, route: str, method: RESTMethod) -> Optional[Dict[str, str]]:
-        default_tags = set(map(Tag, {"important"}))
+        url_params: Dict[str, str] = {}
+        tags = {Tag("important")}
+        range_ = Range(-5.1, 15.1)
+        span = PositionalRange(latitude=range_, longitude=range_, altitude=range_, continuum=range_, reality={0})
+        position = Position(latitude=0., longitude=0., altitude=0., continuum=0., reality=0)
+        journey = [PositionalMove(position=position, movement_type=MovementType.IMMEDIATE)]
+        attributes = {"key1": "Value A", "key2": "Value B"}
+        profile = self.controller.profile
+
+        if route.startswith("/api/world/{worldId}/"):
+            world = self.world_use_case.create(name=anon_name(), profile=profile)
+            url_params["world_id"] = str(world.id)
+        else:
+            world = None
+
         if route == "/api/worlds" and method == RESTMethod.GET:
-            self.world_use_case.create(name="The Great Pyramid", tags=default_tags, profile=self.controller.profile)
+            self.world_use_case.create(name="The Great Pyramid", tags=tags, profile=profile)
         elif route == "/api/world/{worldId}" and method in {RESTMethod.DELETE, RESTMethod.GET, RESTMethod.PATCH}:
             world = self.world_use_case.create(
-                name="The Milky Way", tags=default_tags, attributes={"key1": "Value A", "key2": "Value B"},
+                name="The Milky Way", tags=tags, attributes=attributes,
                 description="The Milky Way is the galaxy that includes our Solar System, with the name describing the galaxy's appearance "
                             "from Earth.\n",
-                profile=self.controller.profile)
-            return {"world_id": str(world.id)}
-        elif route in {"/api/world/{worldId}/location", "/api/world/{worldId}/traveler", "/api/world/{worldId}/event"} \
-                and method == RESTMethod.POST:
-            world = self.world_use_case.create(name=anon_name(), profile=self.controller.profile)
-            if route == "/api/world/{worldId}/event":
-                zero_range = Range(0., 0.)
-                span = PositionalRange(latitude=zero_range, longitude=zero_range, altitude=zero_range, continuum=zero_range, reality={0})
-                zero_position = Position(latitude=0., longitude=0., altitude=0., continuum=0., reality=0)
-                journey = [PositionalMove(position=zero_position, movement_type=MovementType.IMMEDIATE)]
-                self.location_use_case.create(world.id, name=anon_name(), span=span, profile=self.controller.profile)
-                self.traveler_use_case.create(world.id, name=anon_name(), journey=journey, profile=self.controller.profile)
-            return {"world_id": str(world.id)}
+                profile=profile)
+            url_params["world_id"] = str(world.id)
+        elif route == "/api/world/{worldId}/event" and method == RESTMethod.POST:
+            self.location_use_case.create(world.id, name=anon_name(), span=span, profile=profile)
+            self.traveler_use_case.create(world.id, name=anon_name(), journey=journey, profile=profile)
+        elif route in {"/api/world/{worldId}/locations"} and method == RESTMethod.GET:
+            self.location_use_case.create(world.id, name="The Great Pyramid", tags=tags, span=span, profile=profile)
+        elif (route == "/api/world/{worldId}/location/{locationId}" and method in {RESTMethod.GET, RESTMethod.PATCH, RESTMethod.DELETE})\
+                or (route == "/api/world/{worldId}/location/{locationId}/timeline" and method == RESTMethod.GET):
+            location = self.location_use_case.create(
+                world.id, name="The Great Pyramid", tags=tags, span=span, attributes=attributes, profile=profile,
+                description="A great triangular structure in Egypt constructed long ago.")
+            url_params["location_id"] = str(location.id)
 
-        return None
+        return url_params if url_params else None
 
     @parameterized.expand(_get_test_params())
     @patch("application.use_case.event_use_cases.generate_prefixed_id")

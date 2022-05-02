@@ -12,7 +12,7 @@ from application.requests.data_forms import JsonTranslator
 from domain.ids import PrefixedUUID
 from domain.positions import PositionalMove, Position, MovementType
 from test_helpers import get_fully_qualified_name
-from test_helpers.anons import anon_event, anon_location, anon_traveler, anon_float, anon_string, anon_route, anon_name, anon_prefixed_id
+from test_helpers.anons import anon_event, anon_location, anon_traveler, anon_float, anon_string, anon_route, anon_name, anon_world
 
 
 _PORT = 54321
@@ -50,7 +50,9 @@ class EventResourceTest(ClientTestCase):
         with client.session_transaction() as session:
             session["profile"] = {"user_id": anon_string(), "name": anon_name()}
 
-        self.world_id = anon_prefixed_id(prefix="world")
+        world_post_body = JsonTranslator.to_json(anon_world())
+        world_post_response = client.post(f"/api/world", json=world_post_body)
+        self.world_id = JsonTranslator.from_json(world_post_response.json["id"], PrefixedUUID)
 
     def tearDown(self, client: FlaskClient) -> None:
         with client.session_transaction() as session:
