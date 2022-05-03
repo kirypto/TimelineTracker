@@ -169,6 +169,8 @@ class JsonTranslator(Generic[T]):
                     "affected_travelers": JsonTranslator.from_json(event_json["affected_travelers"], Set[PrefixedUUID]),
                 })
             if type_ is Set[int]:
+                if type(value) in {int, float}:
+                    value = [value]
                 ints_json: list = value
                 return {JsonTranslator.from_json(integer, int) for integer in ints_json}
         except BaseException as e:

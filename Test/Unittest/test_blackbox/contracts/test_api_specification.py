@@ -114,7 +114,7 @@ class TestAPISpecification(TestCase):
         tags = {Tag("important")}
         range_ = Range(-5.1, 15.1)
         span = PositionalRange(latitude=range_, longitude=range_, altitude=range_, continuum=range_, reality={0})
-        position = Position(latitude=0., longitude=0., altitude=0., continuum=0., reality=0)
+        position = Position(latitude=-10.9378, longitude=-8.61222, altitude=816.72, continuum=737194.31, reality=1)
         journey = [PositionalMove(position=position, movement_type=MovementType.IMMEDIATE)]
         attributes = {"key1": "Value A", "key2": "Value B"}
         profile = self.controller.profile
@@ -145,6 +145,15 @@ class TestAPISpecification(TestCase):
                 world.id, name="The Great Pyramid", tags=tags, span=span, attributes=attributes, profile=profile,
                 description="A great triangular structure in Egypt constructed long ago.")
             url_params["location_id"] = str(location.id)
+        elif route in {"/api/world/{worldId}/travelers"} and method == RESTMethod.GET:
+            self.traveler_use_case.create(world.id, name="Gaius Julius Caesar", tags=tags, journey=journey, profile=profile)
+        elif (route == "/api/world/{worldId}/traveler/{travelerId}" and method in {RESTMethod.GET, RESTMethod.PATCH, RESTMethod.DELETE})\
+                or (route == "/api/world/{worldId}/traveler/{travelerId}/timeline" and method == RESTMethod.GET)\
+                or (route == "/api/world/{worldId}/traveler/{travelerId}/journey" and method == RESTMethod.POST):
+            traveler = self.traveler_use_case.create(
+                world.id, name="Gaius Julius Caesar", tags=tags, journey=journey, attributes=attributes, profile=profile,
+                description="Gaius Julius Caesar was a Roman general and statesman.")
+            url_params["traveler_id"] = str(traveler.id)
 
         return url_params if url_params else None
 
@@ -155,7 +164,7 @@ class TestAPISpecification(TestCase):
     @patch("application.use_case.world_use_cases.generate_prefixed_id")
     def test__api_route__(
             self, _test_name,
-            route, method, world_id_generator_mock: MagicMock, location_id_generator_mock: MagicMock,
+            route: str, method: RESTMethod, world_id_generator_mock: MagicMock, location_id_generator_mock: MagicMock,
             traveler_id_generator_mock: MagicMock, event_id_generator_mock: MagicMock,
     ) -> None:
         # Arrange

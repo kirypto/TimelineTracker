@@ -1,6 +1,5 @@
 from copy import deepcopy
 from http import HTTPStatus
-from json import dumps
 from typing import Set, Dict, List, Any
 
 from jsonpatch import JsonPatch, PatchOperation
@@ -260,7 +259,7 @@ class TravelersRestRequestHandler:
 
             traveler_use_case.delete(to_world_id(world_id), traveler_id, **kwargs)
 
-            return HTTPStatus.NO_CONTENT, dumps("", indent=2)
+            return HTTPStatus.NO_CONTENT, ""
 
         @rest_controller.register_rest_endpoint("/api/world/<world_id>/traveler/<traveler_id>", RESTMethod.PATCH, MIMEType.JSON, json=True)
         def traveler_patch_handler(
@@ -379,7 +378,7 @@ class EventsRestRequestHandler:
 
             event_use_case.delete(to_world_id(world_id), event_id_, **kwargs)
 
-            return HTTPStatus.NO_CONTENT, dumps("", indent=2)
+            return HTTPStatus.NO_CONTENT, ""
 
         @rest_controller.register_rest_endpoint("/api/world/<world_id>/event/<event_id>", RESTMethod.PATCH, MIMEType.JSON, json=True)
         def event_patch_handler(body_patch_operations: List[Dict[str, Any]], *, world_id: str, event_id: str, **kwargs) -> HandlerResult:

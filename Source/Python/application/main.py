@@ -45,7 +45,7 @@ class TimelineTrackerApp:
 
         self._world_use_case = WorldUseCase(world_repository)
         self._location_use_case = LocationUseCase(world_repository, location_repository, event_repository)
-        self._traveler_use_case = TravelerUseCase(traveler_repository, event_repository)
+        self._traveler_use_case = TravelerUseCase(world_repository, traveler_repository, event_repository)
         self._event_use_case = EventUseCase(location_repository, traveler_repository, event_repository)
         self._timeline_use_case = TimelineUseCase(location_repository, traveler_repository, event_repository)
 
