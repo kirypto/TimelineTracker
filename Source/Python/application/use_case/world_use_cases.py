@@ -11,6 +11,8 @@ class WorldUseCase:
     _world_repository: WorldRepository
 
     def __init__(self, world_repository: WorldRepository) -> None:
+        if not isinstance(world_repository, WorldRepository):
+            raise TypeError(f"Argument 'world_repository' must be of type {WorldRepository}")
         self._world_repository = world_repository
 
     @requires_authentication()

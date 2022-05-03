@@ -15,6 +15,8 @@ class LocationUseCase:
     def __init__(
             self, world_repository: WorldRepository, location_repository: LocationRepository, event_repository: EventRepository
     ) -> None:
+        if not isinstance(world_repository, WorldRepository):
+            raise TypeError(f"Argument 'world_repository' must be of type {WorldRepository}")
         if not isinstance(location_repository, LocationRepository):
             raise TypeError(f"Argument 'location_repository' must be of type {LocationRepository}")
         if not isinstance(event_repository, EventRepository):

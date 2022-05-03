@@ -15,6 +15,8 @@ class TravelerUseCase:
     def __init__(
             self, world_repository: WorldRepository, traveler_repository: TravelerRepository, event_repository: EventRepository
     ) -> None:
+        if not isinstance(world_repository, WorldRepository):
+            raise TypeError(f"Argument 'world_repository' must be of type {WorldRepository}")
         if not isinstance(traveler_repository, TravelerRepository):
             raise TypeError(f"Argument 'traveler_repository' must be of type {TravelerRepository}")
         if not isinstance(event_repository, EventRepository):
