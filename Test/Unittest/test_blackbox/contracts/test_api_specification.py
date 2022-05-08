@@ -114,7 +114,7 @@ class TestAPISpecification(TestCase):
         tags = {Tag("important")}
         range_ = Range(-5.1, 15.1)
         span = PositionalRange(latitude=range_, longitude=range_, altitude=range_, continuum=range_, reality={0})
-        position = Position(latitude=-10.9378, longitude=-8.61222, altitude=816.72, continuum=737194.31, reality=1)
+        position = Position(latitude=-5.05, longitude=-2.6, altitude=3.5, continuum=11.9, reality=0)
         journey = [PositionalMove(position=position, movement_type=MovementType.IMMEDIATE)]
         attributes = {"key1": "Value A", "key2": "Value B"}
         profile = self.controller.profile
