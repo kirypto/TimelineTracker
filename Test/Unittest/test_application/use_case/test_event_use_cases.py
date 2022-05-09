@@ -3,8 +3,9 @@ from unittest import TestCase
 from unittest.mock import patch, MagicMock
 
 from Test.Unittest.test_helpers.anons import anon_prefixed_id, anon_positional_range, anon_name, anon_description, anon_tag, \
-    anon_create_event_kwargs, anon_event, anon_anything, anon_location, anon_traveler, anon_attributes
-from adapter.persistence.in_memory_repositories import InMemoryEventRepository, InMemoryLocationRepository, InMemoryTravelerRepository
+    anon_create_event_kwargs, anon_event, anon_anything, anon_location, anon_traveler, anon_attributes, anon_world
+from adapter.persistence.in_memory_repositories import InMemoryEventRepository, InMemoryLocationRepository, InMemoryTravelerRepository, \
+    InMemoryWorldRepository
 from application.access.clients import Profile
 from application.use_case.event_use_cases import EventUseCase
 from domain.events import Event
@@ -22,12 +23,17 @@ class TestEventUseCase(TestCase):
     other_world_id: PrefixedUUID
 
     def setUp(self) -> None:
+        world_repository = InMemoryWorldRepository()
         self.location_repository = InMemoryLocationRepository()
         self.traveler_repository = InMemoryTravelerRepository()
-        self.event_use_case = EventUseCase(self.location_repository, self.traveler_repository, InMemoryEventRepository())
+        self.event_use_case = EventUseCase(world_repository, self.location_repository, self.traveler_repository, InMemoryEventRepository())
         self.profile = Profile(anon_name(), anon_name())
-        self.world_id = anon_prefixed_id(prefix="world")
-        self.other_world_id = anon_prefixed_id(prefix="world")
+        world_1 = anon_world()
+        world_2 = anon_world()
+        world_repository.save(world_1)
+        world_repository.save(world_2)
+        self.world_id = world_1.id
+        self.other_world_id = world_2.id
 
     def test__create__should_not_require_id_passed_in(self) -> None:
         # Arrange
@@ -56,7 +62,7 @@ class TestEventUseCase(TestCase):
         def action(): self.event_use_case.create(anon_prefixed_id(prefix="world"), **anon_create_event_kwargs(), profile=self.profile)
 
         # Assert
-        self.assertRaises(ValueError, action)
+        self.assertRaises(NameError, action)
 
     def test__create__should_use_provided_args__when_affected_travelers_and_locations_not_provided(self) -> None:
         # Arrange
@@ -361,7 +367,7 @@ class TestEventUseCase(TestCase):
         def action(): self.event_use_case.delete(anon_prefixed_id(prefix="world"), anon_prefixed_id(prefix="event"), profile=self.profile)
 
         # Assert
-        self.assertRaises(ValueError, action)
+        self.assertRaises(NameError, action)
 
     def test__delete__should_raise_exception__when_invalid_id_provided(self) -> None:
         # Arrange

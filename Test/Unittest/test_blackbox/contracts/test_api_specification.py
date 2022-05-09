@@ -13,6 +13,7 @@ from adapter.persistence.in_memory_repositories import InMemoryEventRepository, 
     InMemoryWorldRepository
 from application.main import TimelineTrackerApp
 from application.requests.rest import RESTMethod
+from application.use_case.event_use_cases import EventUseCase
 from application.use_case.location_use_cases import LocationUseCase
 from application.use_case.traveler_use_cases import TravelerUseCase
 from application.use_case.world_use_cases import WorldUseCase
@@ -85,6 +86,7 @@ class TestAPISpecification(TestCase):
     world_use_case: WorldUseCase
     location_use_case: LocationUseCase
     traveler_use_case: TravelerUseCase
+    event_use_case: EventUseCase
 
     @patch("application.main.RESTControllersFactory")
     def setUp(
@@ -95,6 +97,7 @@ class TestAPISpecification(TestCase):
         self.world_use_case = timeline_tracker_application._world_use_case
         self.location_use_case = timeline_tracker_application._location_use_case
         self.traveler_use_case = timeline_tracker_application._traveler_use_case
+        self.event_use_case = timeline_tracker_application._event_use_case
 
         def rest_controller_factory(**_):
             factory_result = MagicMock()  # Container to store rest_controller property
@@ -154,6 +157,21 @@ class TestAPISpecification(TestCase):
                 world.id, name="Gaius Julius Caesar", tags=tags, journey=journey, attributes=attributes, profile=profile,
                 description="Gaius Julius Caesar was a Roman general and statesman.")
             url_params["traveler_id"] = str(traveler.id)
+        elif route in {"/api/world/{worldId}/events"} and method == RESTMethod.GET:
+            self.event_use_case.create(world.id, name="Skirmish in the market", tags=tags, span=span, profile=profile)
+        elif route == "/api/world/{worldId}/event/{eventId}" and method in {RESTMethod.GET, RESTMethod.PATCH, RESTMethod.DELETE}:
+            traveler = self.traveler_use_case.create(
+                world.id, name="Gaius Julius Caesar", tags=tags, journey=journey, attributes=attributes, profile=profile,
+                description="Gaius Julius Caesar was a Roman general and statesman.")
+            location = self.location_use_case.create(
+                world.id, name="The Great Pyramid", tags=tags, span=span, attributes=attributes, profile=profile,
+                description="A great triangular structure in Egypt constructed long ago.")
+            event = self.event_use_case.create(
+                world.id, name="Skirmish in the market", tags=tags, span=span, attributes=attributes, profile=profile,
+                affected_locations=[location.id], affected_travelers=[traveler.id],
+                description="Attacked by the Brigand Band, the civilians ran in despair until the courageous Band Of Defenders came to "
+                            "the rescue.")
+            url_params["event_id"] = str(event.id)
 
         return url_params if url_params else None
 
