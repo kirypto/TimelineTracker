@@ -22,7 +22,7 @@ from domain.ids import PrefixedUUID
 from domain.positions import PositionalRange, PositionalMove, MovementType, Position
 from domain.tags import Tag
 from test_helpers import get_fully_qualified_name
-from test_helpers.anons import anon_profile, anon_name
+from test_helpers.anons import anon_profile, anon_name, anon_create_traveler_kwargs, anon_create_location_kwargs, anon_create_event_kwargs
 from test_helpers.controllers import TestableRESTController
 from test_helpers.specifications import APISpecification, StatusCode, ContentType, JSONObject
 
@@ -142,8 +142,7 @@ class TestAPISpecification(TestCase):
             self.traveler_use_case.create(world.id, name=anon_name(), journey=journey, profile=profile)
         elif route in {"/api/world/{worldId}/locations"} and method == RESTMethod.GET:
             self.location_use_case.create(world.id, name="The Great Pyramid", tags=tags, span=span, profile=profile)
-        elif (route == "/api/world/{worldId}/location/{locationId}" and method in {RESTMethod.GET, RESTMethod.PATCH, RESTMethod.DELETE})\
-                or (route == "/api/world/{worldId}/location/{locationId}/timeline" and method == RESTMethod.GET):
+        elif route == "/api/world/{worldId}/location/{locationId}" and method in {RESTMethod.GET, RESTMethod.PATCH, RESTMethod.DELETE}:
             location = self.location_use_case.create(
                 world.id, name="The Great Pyramid", tags=tags, span=span, attributes=attributes, profile=profile,
                 description="A great triangular structure in Egypt constructed long ago.")
@@ -151,7 +150,6 @@ class TestAPISpecification(TestCase):
         elif route in {"/api/world/{worldId}/travelers"} and method == RESTMethod.GET:
             self.traveler_use_case.create(world.id, name="Gaius Julius Caesar", tags=tags, journey=journey, profile=profile)
         elif (route == "/api/world/{worldId}/traveler/{travelerId}" and method in {RESTMethod.GET, RESTMethod.PATCH, RESTMethod.DELETE})\
-                or (route == "/api/world/{worldId}/traveler/{travelerId}/timeline" and method == RESTMethod.GET)\
                 or (route == "/api/world/{worldId}/traveler/{travelerId}/journey" and method == RESTMethod.POST):
             traveler = self.traveler_use_case.create(
                 world.id, name="Gaius Julius Caesar", tags=tags, journey=journey, attributes=attributes, profile=profile,
@@ -172,6 +170,16 @@ class TestAPISpecification(TestCase):
                 description="Attacked by the Brigand Band, the civilians ran in despair until the courageous Band Of Defenders came to "
                             "the rescue.")
             url_params["event_id"] = str(event.id)
+        elif route in "/api/world/{worldId}/location/{locationId}/timeline" and method == RESTMethod.GET:
+            location = self.location_use_case.create(world.id, **anon_create_location_kwargs(span=span), profile=profile)
+            self.event_use_case.create(world.id, **anon_create_event_kwargs(
+                span=span, affected_locations={location.id}, tags=tags), profile=profile)
+            url_params["location_id"] = str(location.id)
+        elif route in "/api/world/{worldId}/traveler/{travelerId}/timeline" and method == RESTMethod.GET:
+            traveler = self.traveler_use_case.create(world.id, **anon_create_traveler_kwargs(journey=journey), profile=profile)
+            self.event_use_case.create(world.id, **anon_create_event_kwargs(
+                span=span, affected_travelers={traveler.id}, tags=tags), profile=profile)
+            url_params["traveler_id"] = str(traveler.id)
 
         return url_params if url_params else None
 

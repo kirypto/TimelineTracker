@@ -114,13 +114,13 @@ def anon_range(*, whole_numbers: bool = False) -> Range:
     return Range(low=low, high=high)
 
 
-def anon_positional_range(*, continuum: Range[float] = None) -> PositionalRange:
+def anon_positional_range(*, continuum: Range[float] = None, reality: Set[int] = None) -> PositionalRange:
     return PositionalRange(
         latitude=anon_range(),
         longitude=anon_range(),
         altitude=anon_range(),
         continuum=_coalesce(continuum, anon_range()),
-        reality={anon_int()})
+        reality=_coalesce(reality, {anon_int()}))
 
 
 def anon_location(

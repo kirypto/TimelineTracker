@@ -47,7 +47,7 @@ class TimelineTrackerApp:
         self._location_use_case = LocationUseCase(world_repository, location_repository, event_repository)
         self._traveler_use_case = TravelerUseCase(world_repository, traveler_repository, event_repository)
         self._event_use_case = EventUseCase(world_repository, location_repository, traveler_repository, event_repository)
-        self._timeline_use_case = TimelineUseCase(location_repository, traveler_repository, event_repository)
+        self._timeline_use_case = TimelineUseCase(world_repository, location_repository, traveler_repository, event_repository)
 
     def initialize_controllers(self, *, rest_controller_config: dict) -> None:
         rest_controller = RESTControllersFactory(**rest_controller_config).rest_controller
