@@ -48,8 +48,6 @@ class Position:
         self._longitude = validate_type("longitude", longitude, [float, int])
         self._altitude = validate_type("altitude", altitude, [float, int])
         self._continuum = validate_type("continuum", continuum, [float, int])
-        # if not self._reality.is_integer():
-        #     raise ValueError(f"{self.__class__.__name__} attribute 'reality' must be a whole number, was '{reality}'")
         self._reality = validate_type("reality", reality, [int])
         super().__init__(**kwargs)
 
