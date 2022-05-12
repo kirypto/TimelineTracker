@@ -1,7 +1,23 @@
 from importlib import import_module
+from typing import TypeVar, Type
 
 from application.requests.rest.controllers import RESTController
-from domain.persistence.repositories import TravelerRepository, LocationRepository, EventRepository
+from domain.persistence.repositories import TravelerRepository, LocationRepository, EventRepository, WorldRepository
+
+
+TClass = TypeVar("TClass")
+
+
+def _load_class(class_path: str, class_type: Type[TClass], **class_kwargs) -> TClass:
+    module_name, class_name = class_path.rsplit(".", maxsplit=1)
+    module = import_module(module_name)
+    object_class = getattr(module, class_name)
+
+    loaded = object_class(**class_kwargs)
+    if not isinstance(loaded, class_type):
+        raise ValueError(f"{class_path} did not result in a {class_type} object.")
+
+    return loaded
 
 
 class RepositoriesFactory:
@@ -9,9 +25,14 @@ class RepositoriesFactory:
         "memory": "in_memory_repositories",
         "json": "json_file_repositories",
     }
+    _world_repo: WorldRepository
     _location_repo: LocationRepository
     _traveler_repo: TravelerRepository
     _event_repo: EventRepository
+
+    @property
+    def world_repo(self) -> WorldRepository:
+        return self._world_repo
 
     @property
     def location_repo(self) -> LocationRepository:
@@ -25,19 +46,14 @@ class RepositoriesFactory:
     def event_repo(self) -> EventRepository:
         return self._event_repo
 
-    def __init__(self, repository_type: str, **kwargs) -> None:
-        if repository_type not in RepositoriesFactory._REPO_TYPES:
-            raise ValueError(f"Unsupported repository type {repository_type}. "
-                             f"Supported types are: {set(RepositoriesFactory._REPO_TYPES.keys())}")
-
-        repositories_module = import_module(f"adapter.persistence.{RepositoriesFactory._REPO_TYPES[repository_type]}")
-        location_repository_class = getattr(repositories_module, "location_repository_class")
-        traveler_repository_class = getattr(repositories_module, "traveler_repository_class")
-        event_repository_class = getattr(repositories_module, "event_repository_class")
-
-        self._location_repo = location_repository_class(**kwargs)
-        self._traveler_repo = traveler_repository_class(**kwargs)
-        self._event_repo = event_repository_class(**kwargs)
+    def __init__(
+            self, *, world_repo_class_path: str, location_repo_class_path: str, traveler_repo_class_path: str, event_repo_class_path: str,
+            **kwargs
+    ) -> None:
+        self._world_repo = _load_class(world_repo_class_path, WorldRepository, **kwargs)
+        self._location_repo = _load_class(location_repo_class_path, LocationRepository, **kwargs)
+        self._traveler_repo = _load_class(traveler_repo_class_path, TravelerRepository, **kwargs)
+        self._event_repo = _load_class(event_repo_class_path, EventRepository, **kwargs)
 
 
 class RESTControllersFactory:
@@ -52,4 +68,8 @@ class RESTControllersFactory:
         controller_module = import_module(module)
         rest_controller_class = getattr(controller_module, class_name)
 
-        self._rest_controller = rest_controller_class(**kwargs)
+        rest_controller = rest_controller_class(**kwargs)
+        if not isinstance(rest_controller, RESTController):
+            raise ValueError(f"{controller_class_path} did not result in a {RESTController} object.")
+
+        self._rest_controller = rest_controller

@@ -2,11 +2,13 @@ from pathlib import Path
 
 from _version import __version__
 from application.factories import RepositoriesFactory, RESTControllersFactory
-from application.requests.rest.handlers import LocationsRestRequestHandler, TravelersRestRequestHandler, EventsRestRequestHandler
+from application.requests.rest.handlers import LocationsRestRequestHandler, TravelersRestRequestHandler, EventsRestRequestHandler, \
+    WorldsRESTRequestHandler
 from application.use_case.event_use_cases import EventUseCase
 from application.use_case.location_use_cases import LocationUseCase
 from application.use_case.timeline_use_cases import TimelineUseCase
 from application.use_case.traveler_use_cases import TravelerUseCase
+from application.use_case.world_use_cases import WorldUseCase
 from util.logging import configure_logging
 
 
@@ -14,6 +16,7 @@ class TimelineTrackerApp:
     _version: str
     _resources_folder: Path
 
+    _world_use_case: WorldUseCase
     _location_use_case: LocationUseCase
     _traveler_use_case: TravelerUseCase
     _event_use_case: EventUseCase
@@ -35,18 +38,21 @@ class TimelineTrackerApp:
             raise ValueError(f"The provided resources folder does not exist or was not a directory. Was '{self._resources_folder}'.")
 
         repositories_factory = RepositoriesFactory(**repositories_config)
+        world_repository = repositories_factory.world_repo
         location_repository = repositories_factory.location_repo
         traveler_repository = repositories_factory.traveler_repo
         event_repository = repositories_factory.event_repo
 
-        self._location_use_case = LocationUseCase(location_repository, event_repository)
-        self._traveler_use_case = TravelerUseCase(traveler_repository, event_repository)
-        self._event_use_case = EventUseCase(location_repository, traveler_repository, event_repository)
-        self._timeline_use_case = TimelineUseCase(location_repository, traveler_repository, event_repository)
+        self._world_use_case = WorldUseCase(world_repository)
+        self._location_use_case = LocationUseCase(world_repository, location_repository, event_repository)
+        self._traveler_use_case = TravelerUseCase(world_repository, traveler_repository, event_repository)
+        self._event_use_case = EventUseCase(world_repository, location_repository, traveler_repository, event_repository)
+        self._timeline_use_case = TimelineUseCase(world_repository, location_repository, traveler_repository, event_repository)
 
     def initialize_controllers(self, *, rest_controller_config: dict) -> None:
         rest_controller = RESTControllersFactory(**rest_controller_config).rest_controller
 
+        WorldsRESTRequestHandler.register_routes(rest_controller, self._world_use_case)
         LocationsRestRequestHandler.register_routes(rest_controller, self._location_use_case, self._timeline_use_case)
         TravelersRestRequestHandler.register_routes(rest_controller, self._traveler_use_case, self._timeline_use_case)
         EventsRestRequestHandler.register_routes(rest_controller, self._event_use_case)

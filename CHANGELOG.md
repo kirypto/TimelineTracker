@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 ### Added
+- Added a new `World` resource that all other entities will be associated with.
+- Added new `/api/world...` routes to interact with `World` entities. See updated API Specification.
 - Added an application `secret_key` field to the configuration yaml to protect client-side connections.
 - Added authorization (supported by Auth0.com) to the application.
 - Added documentation to `projectDeployment.md` to show how to integrate Auth0.com with the application.
@@ -11,6 +13,8 @@ All notable changes to this project will be documented in this file.
 - Added a `/dashboard` page to be shown when the client is logged in with a Logout button and link to documentation.
 
 ### Changed
+- Updated API Specification to include new `World` resource.
+- All existing entity routes are now prefixed with `/api/world/:worldId/...`. See updated API Specification.
 - Modified the data migration to be triggered by run scripts prior to launching the application proper.
 - Corrected minor formatting in CHANGELOG _(added periods, fixed indentations)_.
 - Modified the `sampleConfig.md` to show the required configurations for Auth0.com.
@@ -18,6 +22,9 @@ All notable changes to this project will be documented in this file.
 - Modify api endpoints to enforce authorization.
 - Rework internal logic for REST request handling to improve code flow and simplicity.
 - Change default `host` in `sampleConfig.md` and `apiSpecification.json` from `localhost` to `127.0.0.1`.
+- Modify entity descriptions to append a single new-line character once whitespace is stripped.
+- Change repository config to accept python class path to allow custom implementations to be used.
+  - Update config examples accordingly.
 
 ---
 

@@ -1,3 +1,4 @@
+from json import dumps, loads
 from math import isinf
 from typing import Any, Set, List, Generic, TypeVar, Type, Union, Dict
 from uuid import UUID
@@ -9,6 +10,7 @@ from domain.locations import Location
 from domain.positions import PositionalRange, PositionalMove, Position, MovementType
 from domain.tags import Tag
 from domain.travelers import Traveler
+from domain.worlds import World
 
 
 T = TypeVar("T")
@@ -48,13 +50,16 @@ class JsonTranslator(Generic[T]):
                 JsonTranslator.to_json(key): JsonTranslator.to_json(val)
                 for key, val in value.items()
             }
-        if type(value) in {Location, Event, Traveler, PositionalRange, Position, Range, PositionalMove}:
-            location: Location = value
+        if type(value) in {World, Location, Event, Traveler, PositionalRange, Position, Range, PositionalMove}:
             return {
                 str(key).removeprefix("_"): JsonTranslator.to_json(val)
-                for key, val in vars(location).items()
+                for key, val in vars(value).items()
             }
         raise TypeError(f"Unsupported type {type(value)}")
+
+    @staticmethod
+    def to_json_str(value: T, *, indent: int = 2) -> str:
+        return dumps(JsonTranslator.to_json(value), indent=indent)
 
     @staticmethod
     def from_json(value: Any, type_: Type[T]) -> T:
@@ -111,7 +116,7 @@ class JsonTranslator(Generic[T]):
                     "longitude": JsonTranslator.from_json(position_json["longitude"], float),
                     "altitude": JsonTranslator.from_json(position_json["altitude"], float),
                     "continuum": JsonTranslator.from_json(position_json["continuum"], float),
-                    "reality": JsonTranslator.from_json(position_json["reality"], float),
+                    "reality": JsonTranslator.from_json(position_json["reality"], int),
                 })
             if type_ is MovementType:
                 movement_type_raw: str = value
@@ -122,6 +127,15 @@ class JsonTranslator(Generic[T]):
                     JsonTranslator.from_json(key, str): JsonTranslator.from_json(val, str)
                     for key, val in string_dict.items()
                 }
+            if type_ is World:
+                world_json: dict = value
+                return World(**{
+                    "id": JsonTranslator.from_json(world_json["id"], PrefixedUUID),
+                    "name": JsonTranslator.from_json(world_json["name"], str),
+                    "description": JsonTranslator.from_json(world_json["description"], str),
+                    "tags": JsonTranslator.from_json(world_json["tags"], Set[Tag]),
+                    "attributes": JsonTranslator.from_json(world_json["attributes"], Dict[str, str]),
+                })
             if type_ is Location:
                 location_json: dict = value
                 return Location(**{
@@ -130,7 +144,7 @@ class JsonTranslator(Generic[T]):
                     "description": JsonTranslator.from_json(location_json["description"], str),
                     "span": JsonTranslator.from_json(location_json["span"], PositionalRange),
                     "tags": JsonTranslator.from_json(location_json["tags"], Set[Tag]),
-                    "metadata": JsonTranslator.from_json(location_json["metadata"], Dict[str, str]),
+                    "attributes": JsonTranslator.from_json(location_json["attributes"], Dict[str, str]),
                 })
             if type_ is Traveler:
                 traveler_json: dict = value
@@ -140,7 +154,7 @@ class JsonTranslator(Generic[T]):
                     "description": JsonTranslator.from_json(traveler_json["description"], str),
                     "journey": JsonTranslator.from_json(traveler_json["journey"], List[PositionalMove]),
                     "tags": JsonTranslator.from_json(traveler_json["tags"], Set[Tag]),
-                    "metadata": JsonTranslator.from_json(traveler_json["metadata"], Dict[str, str]),
+                    "attributes": JsonTranslator.from_json(traveler_json["attributes"], Dict[str, str]),
                 })
             if type_ is Event:
                 event_json: dict = value
@@ -150,11 +164,13 @@ class JsonTranslator(Generic[T]):
                     "description": JsonTranslator.from_json(event_json["description"], str),
                     "span": JsonTranslator.from_json(event_json["span"], PositionalRange),
                     "tags": JsonTranslator.from_json(event_json["tags"], Set[Tag]),
-                    "metadata": JsonTranslator.from_json(event_json["metadata"], Dict[str, str]),
+                    "attributes": JsonTranslator.from_json(event_json["attributes"], Dict[str, str]),
                     "affected_locations": JsonTranslator.from_json(event_json["affected_locations"], Set[PrefixedUUID]),
                     "affected_travelers": JsonTranslator.from_json(event_json["affected_travelers"], Set[PrefixedUUID]),
                 })
             if type_ is Set[int]:
+                if type(value) in {int, float}:
+                    value = [value]
                 ints_json: list = value
                 return {JsonTranslator.from_json(integer, int) for integer in ints_json}
         except BaseException as e:
@@ -164,3 +180,7 @@ class JsonTranslator(Generic[T]):
                 name = str(type_).split(".")[-1]
             raise type(e)(f"Error when parsing {name}: {e}")
         raise TypeError(f"Unsupported type {type_}")
+
+    @staticmethod
+    def from_json_str(value: str, type_: Type[T]) -> T:
+        return JsonTranslator.from_json(loads(value), type_)

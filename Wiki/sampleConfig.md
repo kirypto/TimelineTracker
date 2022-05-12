@@ -12,10 +12,17 @@ timeline_tracker_app_config: {
   resources_folder_path: "/path/to/project/resources/folder",
 
   repositories_config: {
-    # Repository type supports 'json' or 'memory'
+    # Specify python class path for each repository implementation. Built in repositories are memory and json:
+    world_repo_class_path: adapter.persistence.in_memory_repositories.InMemoryWorldRepository,
+    location_repo_class_path: adapter.persistence.in_memory_repositories.InMemoryLocationRepository,
+    traveler_repo_class_path: adapter.persistence.in_memory_repositories.InMemoryTravelerRepository,
+    event_repo_class_path: adapter.persistence.in_memory_repositories.InMemoryEventRepository,
+    # world_repo_class_path: adapter.persistence.json_file_repositories.JsonFileWorldRepository,
+    # location_repo_class_path: adapter.persistence.json_file_repositories.JsonFileLocationRepository,
+    # traveler_repo_class_path: adapter.persistence.json_file_repositories.JsonFileTravelerRepository,
+    # event_repo_class_path: adapter.persistence.json_file_repositories.JsonFileEventRepository,
+
     # - If 'json' type is specified, the json_repository_directory_root must also be configured
-    repository_type: memory,
-    # repository_type: json,
     # json_repositories_directory_root: "/path/to/repo/root"
   },
 }

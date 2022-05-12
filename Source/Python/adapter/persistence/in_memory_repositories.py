@@ -5,8 +5,9 @@ from typing import Set, Dict, TypeVar, Generic, Type
 from domain.events import Event
 from domain.ids import PrefixedUUID, IdentifiedEntity
 from domain.locations import Location
-from domain.persistence.repositories import LocationRepository, TravelerRepository, EventRepository
+from domain.persistence.repositories import LocationRepository, TravelerRepository, EventRepository, WorldRepository
 from domain.travelers import Traveler
+from domain.worlds import World
 
 
 _T = TypeVar('_T', bound=IdentifiedEntity)
@@ -45,6 +46,65 @@ class _InMemoryIdentifiedEntityRepository(Generic[_T]):
             raise NameError(f"No stored entity with id '{entity_id}'")
 
         self._entities_by_id.pop(entity_id)
+
+
+class InMemoryWorldRepository(WorldRepository):
+    _inner_repo: _InMemoryIdentifiedEntityRepository
+    _associated_locations: Dict[PrefixedUUID, Set[PrefixedUUID]]
+    _associated_travelers: Dict[PrefixedUUID, Set[PrefixedUUID]]
+    _associated_events: Dict[PrefixedUUID, Set[PrefixedUUID]]
+
+    def __init__(self) -> None:
+        self._inner_repo = _InMemoryIdentifiedEntityRepository(World)
+        self._associated_locations = defaultdict(set)
+        self._associated_travelers = defaultdict(set)
+        self._associated_events = defaultdict(set)
+
+    def save(self, world: World) -> None:
+        self._inner_repo.save(world)
+
+    def retrieve(self, world_id: PrefixedUUID) -> World:
+        return self._inner_repo.retrieve(world_id)
+
+    def retrieve_all(self) -> Set[World]:
+        return self._inner_repo.retrieve_all()
+
+    def delete(self, world_id: PrefixedUUID) -> None:
+        return self._inner_repo.delete(world_id)
+
+    def associate(
+            self, world_id: PrefixedUUID,
+            *, location_id: PrefixedUUID = None, traveler_id: PrefixedUUID = None, event_id: PrefixedUUID = None
+    ) -> None:
+        if location_id is not None:
+            self._associated_locations[world_id].add(location_id)
+        if traveler_id is not None:
+            self._associated_travelers[world_id].add(traveler_id)
+        if event_id is not None:
+            self._associated_events[world_id].add(event_id)
+
+    def disassociate(
+            self, world_id: PrefixedUUID,
+            *, location_id: PrefixedUUID = None, traveler_id: PrefixedUUID = None, event_id: PrefixedUUID = None
+    ) -> None:
+        if location_id is not None:
+            self._associated_locations[world_id].remove(location_id)
+        if traveler_id is not None:
+            self._associated_travelers[world_id].remove(traveler_id)
+        if event_id is not None:
+            self._associated_events[world_id].remove(event_id)
+
+    def get_all_associated(
+            self, world_id: PrefixedUUID, *, locations: bool = False, travelers: bool = False, events: bool = False
+    ) -> Set[PrefixedUUID]:
+        if not (locations ^ travelers ^ events):
+            raise ValueError(f"Exactly 1 entity type must be requested, was: locations={locations}, travelers={travelers}, events={events}")
+        if locations:
+            return set(self._associated_locations[world_id])
+        if travelers:
+            return set(self._associated_travelers[world_id])
+        if events:
+            return set(self._associated_events[world_id])
 
 
 class InMemoryLocationRepository(LocationRepository):
@@ -126,8 +186,3 @@ class InMemoryEventRepository(EventRepository):
             self._event_ids_by_location_id[location_id].remove(event_id)
         for traveler_id in self._event_ids_by_traveler_id:
             self._event_ids_by_traveler_id[traveler_id].remove(event_id)
-
-
-location_repository_class = InMemoryLocationRepository
-traveler_repository_class = InMemoryTravelerRepository
-event_repository_class = InMemoryEventRepository

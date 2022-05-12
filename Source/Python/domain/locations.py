@@ -1,11 +1,11 @@
+from domain.attributes import AttributedEntity
 from domain.descriptors import NamedEntity, DescribedEntity
 from domain.ids import IdentifiedEntity, PrefixedUUID
-from domain.metadata import MetadataEntity
 from domain.positions import SpanningEntity
 from domain.tags import TaggedEntity
 
 
-class Location(IdentifiedEntity, NamedEntity, DescribedEntity, SpanningEntity, TaggedEntity, MetadataEntity):
+class Location(IdentifiedEntity, NamedEntity, DescribedEntity, SpanningEntity, TaggedEntity, AttributedEntity):
     def __init__(self, **kwargs) -> None:
         if "id" in kwargs:
             self.validate_id(kwargs["id"])

@@ -23,7 +23,7 @@ def _create_flask_web_app(auth_config: dict, resource_folder: Path, version: str
     # Web Paths
     _STATIC_URL_PREFIX = "/static"
     _SWAGGER_URL = "/api/docs"  # URL for exposing Swagger UI (without trailing '/')
-    _API_SPECIFICATION_URL = f"{_STATIC_URL_PREFIX}/apiSpecification.json"  # Our API url (can of course be a local resource)
+    _API_SPECIFICATION_URL = f"{_STATIC_URL_PREFIX}/APISpec/apiSpecification.json"  # Our API url (can of course be a local resource)
 
     statically_served_files_folder = resource_folder.joinpath("StaticallyServedFiles").as_posix()
     # Construct Flask web service
@@ -134,12 +134,23 @@ class FlaskRESTController(RESTController):
             raise ValueError(f"Cannot register, method {method} already registered for {route}")
 
         def handler_registerer(handler_func: RequestHandler) -> None:
-            validate_route_handler_declaration(route, handler_func)
+            validate_route_handler_declaration(route, handler_func, json, query_params)
 
+            def convert_to_flask_response(func: RequestHandler) -> Callable[[...], Response]:
+                @wraps(func)
+                def wrapper(*args, **kwargs) -> Response:
+                    response: HandlerResult = func(*args, **kwargs)
+                    status_code, contents = response
+                    flask_response = make_response(contents, status_code)
+                    flask_response.mimetype = response_type.value
+                    return flask_response
+                return wrapper
+
+            @convert_to_flask_response
             @with_error_response_on_raised_exceptions
             @extract_profile_from_flask_session
             @wraps(handler_func)
-            def handler_wrapper(**kwargs) -> Response:
+            def handler_wrapper(**kwargs) -> HandlerResult:
                 args = []
                 if json:
                     if request.json is None:
@@ -148,11 +159,7 @@ class FlaskRESTController(RESTController):
                 if query_params:
                     args.append(dict(request.args))
 
-                response: HandlerResult = handler_func(*args, **kwargs)
-                status_code, contents = response
-                flask_response = make_response(contents, status_code)
-                flask_response.mimetype = response_type.value
-                return flask_response
+                return handler_func(*args, **kwargs)
 
             self._routes[route][method] = handler_wrapper
 
