@@ -17,8 +17,8 @@ class TestTraveler(TestCase):
         tags = {anon_tag()}
 
         # Act
-        def action(): _ = Traveler(id=generate_prefixed_id(prefix=anon_id_prefix()), span=span, name=name, description=description,
-                                   tags=tags)
+        def action(): _ = Traveler(
+            id=generate_prefixed_id(prefix=anon_id_prefix()), span=span, name=name, description=description, tags=tags)
 
         # Assert
         self.assertRaises(ValueError, action)

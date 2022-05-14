@@ -90,8 +90,9 @@ class TestTimelineTrackerApp(TestCase):
 
 
 class TestableRESTControllerStub(RESTController):
-    def register_rest_endpoint(self, route: str, method: RESTMethod, response_type: MIMEType = MIMEType.JSON, *, json: bool = False,
-                               query_params: bool = False) -> HandlerRegisterer:
+    def register_rest_endpoint(
+            self, route: str, method: RESTMethod, response_type: MIMEType = MIMEType.JSON, *, json: bool = False, query_params: bool = False
+    ) -> HandlerRegisterer:
         return MagicMock()
 
     def finalize(self) -> None:
