@@ -26,6 +26,12 @@ def _translate_reality_to_json(reality: Union[Range[float], float]) -> Any:
         }
 
 
+def _ensure_type(value: Any, *types: Type[T]) -> T:
+    if type(value) not in types:
+        raise TypeError(f"Expected one of {types}, got '{type(value)}'")
+    return value
+
+
 class JsonTranslator(Generic[T]):
     __pass_through_types = [int, float, bool]
     __to_str_types = [PrefixedUUID, Tag]
@@ -67,18 +73,16 @@ class JsonTranslator(Generic[T]):
             if type_ in JsonTranslator.__pass_through_types:
                 return type_(value)
             if type_ is str:
-                if type(value) is not str:
-                    raise ValueError(f"Expected a str, got {type(value)}")
-                return value
+                return _ensure_type(value, str)
             if type_ is Set[PrefixedUUID]:
-                ids_json: list = value
+                ids_json = _ensure_type(value, list)
                 return {JsonTranslator.from_json(id_, PrefixedUUID) for id_ in ids_json}
             if type_ is PrefixedUUID:
-                prefixed_uuid_raw: str = value
+                prefixed_uuid_raw = _ensure_type(value, str)
                 prefix, uuid = prefixed_uuid_raw.split("-", 1)
                 return PrefixedUUID(prefix, UUID(uuid))
             if type_ is PositionalRange:
-                positional_range_json: dict = value
+                positional_range_json = _ensure_type(value, dict)
                 return PositionalRange(**{
                     "latitude": JsonTranslator.from_json(positional_range_json["latitude"], Range[float]),
                     "longitude": JsonTranslator.from_json(positional_range_json["longitude"], Range[float]),
@@ -89,28 +93,28 @@ class JsonTranslator(Generic[T]):
             if type_ is Range[float]:
                 if type(value) in {int, float}:
                     value = {"low": value, "high": value}
-                range_json: dict = value
+                range_json = _ensure_type(value, dict)
                 return Range(**{
                     "low": JsonTranslator.from_json(range_json["low"], float),
                     "high": JsonTranslator.from_json(range_json["high"], float),
                 })
             if type_ is Set[Tag]:
-                tags_json: list = value
+                tags_json = _ensure_type(value, list)
                 return {JsonTranslator.from_json(tag, Tag) for tag in tags_json}
             if type_ is Tag:
-                tag_raw: str = value
+                tag_raw = _ensure_type(value, str)
                 return Tag(tag_raw.lower())
             if type_ is List[PositionalMove]:
-                movements_json: list = value
+                movements_json = _ensure_type(value, list)
                 return [JsonTranslator.from_json(move, PositionalMove) for move in movements_json]
             if type_ is PositionalMove:
-                positional_movement_json: dict = value
+                positional_movement_json = _ensure_type(value, dict)
                 return PositionalMove(**{
                     "position": JsonTranslator.from_json(positional_movement_json["position"], Position),
                     "movement_type": JsonTranslator.from_json(positional_movement_json["movement_type"], MovementType),
                 })
             if type_ is Position:
-                position_json: dict = value
+                position_json = _ensure_type(value, dict)
                 return Position(**{
                     "latitude": JsonTranslator.from_json(position_json["latitude"], float),
                     "longitude": JsonTranslator.from_json(position_json["longitude"], float),
@@ -119,16 +123,16 @@ class JsonTranslator(Generic[T]):
                     "reality": JsonTranslator.from_json(position_json["reality"], int),
                 })
             if type_ is MovementType:
-                movement_type_raw: str = value
+                movement_type_raw = _ensure_type(value, str)
                 return MovementType(movement_type_raw)
             if type_ is Dict[str, str]:
-                string_dict: Dict[str, str] = value
+                string_dict: Dict[str, str] = _ensure_type(value, dict)
                 return {
                     JsonTranslator.from_json(key, str): JsonTranslator.from_json(val, str)
                     for key, val in string_dict.items()
                 }
             if type_ is World:
-                world_json: dict = value
+                world_json: Dict[str, Any] = _ensure_type(value, dict)
                 return World(**{
                     "id": JsonTranslator.from_json(world_json["id"], PrefixedUUID),
                     "name": JsonTranslator.from_json(world_json["name"], str),
@@ -137,7 +141,7 @@ class JsonTranslator(Generic[T]):
                     "attributes": JsonTranslator.from_json(world_json["attributes"], Dict[str, str]),
                 })
             if type_ is Location:
-                location_json: dict = value
+                location_json = _ensure_type(value, dict)
                 return Location(**{
                     "id": JsonTranslator.from_json(location_json["id"], PrefixedUUID),
                     "name": JsonTranslator.from_json(location_json["name"], str),
@@ -147,7 +151,7 @@ class JsonTranslator(Generic[T]):
                     "attributes": JsonTranslator.from_json(location_json["attributes"], Dict[str, str]),
                 })
             if type_ is Traveler:
-                traveler_json: dict = value
+                traveler_json = _ensure_type(value, dict)
                 return Traveler(**{
                     "id": JsonTranslator.from_json(traveler_json["id"], PrefixedUUID),
                     "name": JsonTranslator.from_json(traveler_json["name"], str),
@@ -157,7 +161,7 @@ class JsonTranslator(Generic[T]):
                     "attributes": JsonTranslator.from_json(traveler_json["attributes"], Dict[str, str]),
                 })
             if type_ is Event:
-                event_json: dict = value
+                event_json = _ensure_type(value, dict)
                 return Event(**{
                     "id": JsonTranslator.from_json(event_json["id"], PrefixedUUID),
                     "name": JsonTranslator.from_json(event_json["name"], str),
@@ -171,7 +175,7 @@ class JsonTranslator(Generic[T]):
             if type_ is Set[int]:
                 if type(value) in {int, float}:
                     value = [value]
-                ints_json: list = value
+                ints_json = _ensure_type(value, list)
                 return {JsonTranslator.from_json(integer, int) for integer in ints_json}
         except BaseException as e:
             if type(type_) is type:
