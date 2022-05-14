@@ -20,7 +20,7 @@ def _coalesce(obj: _T, fallback: _T) -> _T:
     return obj if obj is not None else fallback
 
 
-def anon_anything(*, not_type: Type = None) -> Any:
+def anon_anything(*, not_type: Type = None, not_types: Set[Type] = frozenset()) -> Any:
     random_items = [
         False,
         True,
@@ -30,7 +30,7 @@ def anon_anything(*, not_type: Type = None) -> Any:
         anon_float(),
         anon_prefixed_id()
     ]
-    return choice([item for item in random_items if type(item) is not not_type])
+    return choice([item for item in random_items if type(item) is not not_type and type(item) not in not_types])
 
 
 def anon_description(num_chars: int = 100) -> str:
