@@ -186,7 +186,7 @@ class JsonFileWorldRepository(WorldRepository):
             raise ValueError(f"Exactly 1 entity type must be requested, was: locations={locations}, travelers={travelers}, events={events}")
         index_str = self._inner_repo.retrieve_index(index_name)
         index: Dict[str, List[str]] = loads(index_str) if index_str is not None else {}
-        return {JsonTranslator.from_json_str(entity_id, PrefixedUUID) for entity_id in index.get(str(world_id), [])}
+        return {JsonTranslator.from_json(entity_id, PrefixedUUID) for entity_id in index.get(str(world_id), [])}
 
 
 class JsonFileLocationRepository(LocationRepository):
