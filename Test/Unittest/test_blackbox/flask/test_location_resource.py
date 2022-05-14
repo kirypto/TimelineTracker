@@ -1,4 +1,5 @@
 from copy import copy
+from http import HTTPStatus
 from json import loads
 from pathlib import Path
 from typing import Any
@@ -91,7 +92,7 @@ class LocationResourceTest(ClientTestCase):
         actual = client.get(f"/api/world/{self.world_id}/locations")
 
         # Assert
-        self.assertEqual(200, actual.status_code)
+        self.assertEqual(HTTPStatus.OK, actual.status_code)
         self.assertIn(expected_id, parse_json(actual.data))
 
     def test__get_location__should_return_existing_location(self, client: FlaskClient) -> None:
@@ -106,7 +107,7 @@ class LocationResourceTest(ClientTestCase):
         actual = client.get(f"/api/world/{self.world_id}/location/{location_id}")
 
         # Assert
-        self.assertEqual(200, actual.status_code)
+        self.assertEqual(HTTPStatus.OK, actual.status_code)
         self.assertEqual(expected_json, parse_json(actual.data))
 
     def test__delete_location__should_remove(self, client: FlaskClient) -> None:
@@ -135,7 +136,7 @@ class LocationResourceTest(ClientTestCase):
         actual = client.patch(f"/api/world/{self.world_id}/location/{location_id}", json=patch)
 
         # Assert
-        self.assertEqual(200, actual.status_code)
+        self.assertEqual(HTTPStatus.OK, actual.status_code)
         self.assertEqual(expected_json, parse_json(actual.data))
 
     def test__patch_location__should_allow_editing_tags(self, client: FlaskClient) -> None:
@@ -151,8 +152,22 @@ class LocationResourceTest(ClientTestCase):
         actual = client.patch(f"/api/world/{self.world_id}/location/{location_id}", json=patch)
 
         # Assert
-        self.assertEqual(200, actual.status_code)
+        self.assertEqual(HTTPStatus.OK, actual.status_code)
         self.assertEqual(expected_json, parse_json(actual.data))
+
+    def test__patch_location__should_raise_exception__when_attempting_to_replace_tags_set_with_string(self, client: FlaskClient) -> None:
+        # Arrange
+        body = JsonTranslator.to_json(anon_location())
+        response = client.post(f"/api/world/{self.world_id}/location", json=body)
+        expected_json = parse_json(response.data)
+        location_id = expected_json["id"]
+        patch = [{"op": "replace", "path": "/tags", "value": "invalid"}]
+
+        # Act
+        actual = client.patch(f"/api/world/{self.world_id}/location/{location_id}", json=patch)
+
+        # Assert
+        self.assertEqual(HTTPStatus.BAD_REQUEST, actual.status_code)
 
     def test__patch_location__should_allow_editing_span(self, client: FlaskClient) -> None:
         # Arrange
@@ -168,7 +183,7 @@ class LocationResourceTest(ClientTestCase):
         actual = client.patch(f"/api/world/{self.world_id}/location/{location_id}", json=patch)
 
         # Assert
-        self.assertEqual(200, actual.status_code)
+        self.assertEqual(HTTPStatus.OK, actual.status_code)
         self.assertEqual(expected_json, parse_json(actual.data))
 
     def test__patch_location__should_allow_editing_attributes(self, client: FlaskClient) -> None:
@@ -184,5 +199,5 @@ class LocationResourceTest(ClientTestCase):
         actual = client.patch(f"/api/world/{self.world_id}/location/{location_id}", json=patch)
 
         # Assert
-        self.assertEqual(200, actual.status_code)
+        self.assertEqual(HTTPStatus.OK, actual.status_code)
         self.assertEqual(expected_json, parse_json(actual.data))

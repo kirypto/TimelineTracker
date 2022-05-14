@@ -56,7 +56,7 @@ class WorldsRESTRequestHandler:
                 "name": JsonTranslator.from_json(json_body["name"], str),
                 "description": JsonTranslator.from_json(json_body.get("description", ""), str),
                 "attributes": JsonTranslator.from_json(json_body.get("attributes", {}), Dict[str, str]),
-                "tags": JsonTranslator.from_json(json_body.get("tags", set()), Set[Tag]),
+                "tags": JsonTranslator.from_json(json_body.get("tags", []), Set[Tag]),
             }
             world = world_use_case.create(**world_kwargs, **kwargs)
 
@@ -124,7 +124,7 @@ class LocationsRestRequestHandler:
                 "description": JsonTranslator.from_json(json_body.get("description", ""), str),
                 "span": JsonTranslator.from_json(json_body["span"], PositionalRange),
                 "attributes": JsonTranslator.from_json(json_body.get("attributes", {}), Dict[str, str]),
-                "tags": JsonTranslator.from_json(json_body.get("tags", set()), Set[Tag]),
+                "tags": JsonTranslator.from_json(json_body.get("tags", []), Set[Tag]),
             }
             location = location_use_case.create(to_world_id(world_id), **location_kwargs, **kwargs)
 
@@ -218,7 +218,7 @@ class TravelersRestRequestHandler:
                 "description": JsonTranslator.from_json(request_body.get("description", ""), str),
                 "journey": JsonTranslator.from_json(request_body["journey"], List[PositionalMove]),
                 "attributes": JsonTranslator.from_json(request_body.get("attributes", {}), Dict[str, str]),
-                "tags": JsonTranslator.from_json(request_body.get("tags", set()), Set[Tag]),
+                "tags": JsonTranslator.from_json(request_body.get("tags", []), Set[Tag]),
             }
             traveler = traveler_use_case.create(to_world_id(world_id), **traveler_kwargs, **kwargs)
 
@@ -334,7 +334,7 @@ class EventsRestRequestHandler:
                 "description": JsonTranslator.from_json(request_body.get("description", ""), str),
                 "span": JsonTranslator.from_json(request_body["span"], PositionalRange),
                 "attributes": JsonTranslator.from_json(request_body.get("attributes", {}), Dict[str, str]),
-                "tags": JsonTranslator.from_json(request_body.get("tags", set()), Set[Tag]),
+                "tags": JsonTranslator.from_json(request_body.get("tags", []), Set[Tag]),
                 "affected_locations": JsonTranslator.from_json(request_body["affected_locations"], Set[PrefixedUUID]),
                 "affected_travelers": JsonTranslator.from_json(request_body["affected_travelers"], Set[PrefixedUUID]),
             }

@@ -26,7 +26,6 @@ class _JsonFileIdentifiedEntityRepository(Generic[_T]):
 
     def __init__(self, repo_name: str, entity_type: Type[_T], *, json_repositories_directory_root: str) -> None:
         root_repos_path = Path(json_repositories_directory_root)
-        print(root_repos_path.as_posix())
         if not root_repos_path.exists() or not root_repos_path.is_dir():
             raise ValueError(f"The path '{root_repos_path}' is not a valid directory and cannot be used.")
         repo_path = root_repos_path.joinpath(repo_name)
@@ -187,7 +186,7 @@ class JsonFileWorldRepository(WorldRepository):
             raise ValueError(f"Exactly 1 entity type must be requested, was: locations={locations}, travelers={travelers}, events={events}")
         index_str = self._inner_repo.retrieve_index(index_name)
         index: Dict[str, List[str]] = loads(index_str) if index_str is not None else {}
-        return {JsonTranslator.from_json_str(entity_id, PrefixedUUID) for entity_id in index.get(str(world_id), [])}
+        return {JsonTranslator.from_json(entity_id, PrefixedUUID) for entity_id in index.get(str(world_id), [])}
 
 
 class JsonFileLocationRepository(LocationRepository):
@@ -276,7 +275,7 @@ class JsonFileEventRepository(EventRepository):
         if index_str is None:
             return set()
         index: Dict[str, List[str]] = loads(index_str)
-        return JsonTranslator.from_json(index.get(str(key), set()), Set[PrefixedUUID])
+        return JsonTranslator.from_json(index.get(str(key), []), Set[PrefixedUUID])
 
     def _add_to_index(self, name: str, keys: Set[PrefixedUUID], val: PrefixedUUID) -> None:
         index_str = self._inner_repo.retrieve_index(name)
