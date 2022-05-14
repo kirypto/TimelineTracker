@@ -26,7 +26,6 @@ class _JsonFileIdentifiedEntityRepository(Generic[_T]):
 
     def __init__(self, repo_name: str, entity_type: Type[_T], *, json_repositories_directory_root: str) -> None:
         root_repos_path = Path(json_repositories_directory_root)
-        print(root_repos_path.as_posix())
         if not root_repos_path.exists() or not root_repos_path.is_dir():
             raise ValueError(f"The path '{root_repos_path}' is not a valid directory and cannot be used.")
         repo_path = root_repos_path.joinpath(repo_name)
