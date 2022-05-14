@@ -276,7 +276,7 @@ class JsonFileEventRepository(EventRepository):
         if index_str is None:
             return set()
         index: Dict[str, List[str]] = loads(index_str)
-        return JsonTranslator.from_json(index.get(str(key), set()), Set[PrefixedUUID])
+        return JsonTranslator.from_json(index.get(str(key), []), Set[PrefixedUUID])
 
     def _add_to_index(self, name: str, keys: Set[PrefixedUUID], val: PrefixedUUID) -> None:
         index_str = self._inner_repo.retrieve_index(name)
