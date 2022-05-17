@@ -119,7 +119,7 @@ class TestAPISpecification(TestCase):
         span = PositionalRange(latitude=range_, longitude=range_, altitude=range_, continuum=range_, reality={0})
         position = Position(latitude=-5.05, longitude=-2.6, altitude=3.5, continuum=11.9, reality=0)
         journey = [PositionalMove(position=position, movement_type=MovementType.IMMEDIATE)]
-        attributes = {"key1": "Value A", "key2": "Value B"}
+        attributes = {"key1": "Value A", "key2": {"key3": "Value B", "key4": [4.2, False]}}
         profile = self.controller.profile
 
         if route.startswith("/api/world/{worldId}/"):
