@@ -228,6 +228,16 @@ class TestPositionalRange(TestCase):
         self.assertRaises(TypeError, invalid_continuum)
         self.assertRaises(TypeError, invalid_reality)
 
+    def test__init__should_reject_empty_reality_set(self) -> None:
+        # Arrange
+
+        # Act
+        def action(): PositionalRange(
+            latitude=anon_range(), longitude=anon_range(), altitude=anon_range(), continuum=anon_range(), reality=set())
+
+        # Assert
+        self.assertRaises(ValueError, action)
+
     def test__includes__should_return_true__when_provided_position_is_within_positional_range(self) -> None:
         # Arrange
         low = anon_int()

@@ -111,6 +111,8 @@ class PositionalRange:
             return Range(low=acceptable_types[0](range_.low), high=acceptable_types[0](range_.high))
         if not isinstance(reality, set):
             raise TypeError(f"{self.__class__.__name__} attribute 'reality' must be a set, was {type(reality)}")
+        if len(reality) == 0:
+            raise ValueError(f"{self.__class__.__name__} attribute 'reality' cannot be empty")
         if any({type(i) != int for i in reality}):
             raise TypeError(f"{self.__class__.__name__} attribute 'reality' must be a set of integers, was {reality}")
 
