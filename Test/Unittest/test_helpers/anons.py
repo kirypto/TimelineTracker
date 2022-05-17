@@ -3,6 +3,7 @@ from string import ascii_letters, printable, digits, ascii_lowercase
 from typing import Type, Any, Set, List, TypeVar, Dict
 
 from application.access.clients import Profile
+from domain.attributes import JsonType
 from domain.collections import Range
 from domain.events import Event
 from domain.ids import PrefixedUUID, IdentifiedEntity, generate_prefixed_id
@@ -28,7 +29,9 @@ def anon_anything(*, not_type: Type = None, not_types: Set[Type] = frozenset()) 
         anon_tag(),
         anon_int(),
         anon_float(),
-        anon_prefixed_id()
+        anon_prefixed_id(),
+        {anon_attribute_key(): anon_attribute_value()},
+        {anon_int(), anon_int()}
     ]
     return choice([item for item in random_items if type(item) is not not_type and type(item) not in not_types])
 
@@ -65,8 +68,16 @@ def anon_attribute_key() -> str:
     return "".join(choices("_-." + ascii_letters + digits, k=10))
 
 
-def anon_attribute_value() -> str:
-    return "".join(choices(printable, k=50)).strip()
+def anon_attribute_value() -> JsonType:
+    return choice([
+        anon_string(),
+        anon_int(),
+        anon_float(),
+        True,
+        False,
+        {"key": "val"},
+        [1, 2, 3],
+    ])
 
 
 def anon_attributes() -> Dict[str, str]:

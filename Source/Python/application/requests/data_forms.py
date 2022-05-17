@@ -3,6 +3,7 @@ from math import isinf
 from typing import Any, Set, List, Generic, TypeVar, Type, Union, Dict
 from uuid import UUID
 
+from domain.attributes import JsonType
 from domain.collections import Range
 from domain.events import Event
 from domain.ids import PrefixedUUID
@@ -28,7 +29,7 @@ def _translate_reality_to_json(reality: Union[Range[float], float]) -> Any:
 
 def _ensure_type(value: Any, *types: Type[T]) -> T:
     if type(value) not in types:
-        raise TypeError(f"Expected one of {types}, got '{type(value)}'")
+        raise TypeError(f"Expected value to be one of types {[t.__name__ for t in types]}, got '{type(value).__name__}'")
     return value
 
 
@@ -125,6 +126,12 @@ class JsonTranslator(Generic[T]):
             if type_ is MovementType:
                 movement_type_raw = _ensure_type(value, str)
                 return MovementType(movement_type_raw)
+            if type_ is Dict[str, JsonType]:
+                string_dict: Dict[str, JsonType] = _ensure_type(value, dict)
+                return {
+                    JsonTranslator.from_json(key, str): val
+                    for key, val in string_dict.items()
+                }
             if type_ is Dict[str, str]:
                 string_dict: Dict[str, str] = _ensure_type(value, dict)
                 return {
@@ -138,7 +145,7 @@ class JsonTranslator(Generic[T]):
                     "name": JsonTranslator.from_json(world_json["name"], str),
                     "description": JsonTranslator.from_json(world_json["description"], str),
                     "tags": JsonTranslator.from_json(world_json["tags"], Set[Tag]),
-                    "attributes": JsonTranslator.from_json(world_json["attributes"], Dict[str, str]),
+                    "attributes": JsonTranslator.from_json(world_json["attributes"], Dict[str, JsonType]),
                 })
             if type_ is Location:
                 location_json = _ensure_type(value, dict)
@@ -148,7 +155,7 @@ class JsonTranslator(Generic[T]):
                     "description": JsonTranslator.from_json(location_json["description"], str),
                     "span": JsonTranslator.from_json(location_json["span"], PositionalRange),
                     "tags": JsonTranslator.from_json(location_json["tags"], Set[Tag]),
-                    "attributes": JsonTranslator.from_json(location_json["attributes"], Dict[str, str]),
+                    "attributes": JsonTranslator.from_json(location_json["attributes"], Dict[str, JsonType]),
                 })
             if type_ is Traveler:
                 traveler_json = _ensure_type(value, dict)
@@ -158,7 +165,7 @@ class JsonTranslator(Generic[T]):
                     "description": JsonTranslator.from_json(traveler_json["description"], str),
                     "journey": JsonTranslator.from_json(traveler_json["journey"], List[PositionalMove]),
                     "tags": JsonTranslator.from_json(traveler_json["tags"], Set[Tag]),
-                    "attributes": JsonTranslator.from_json(traveler_json["attributes"], Dict[str, str]),
+                    "attributes": JsonTranslator.from_json(traveler_json["attributes"], Dict[str, JsonType]),
                 })
             if type_ is Event:
                 event_json = _ensure_type(value, dict)
@@ -168,7 +175,7 @@ class JsonTranslator(Generic[T]):
                     "description": JsonTranslator.from_json(event_json["description"], str),
                     "span": JsonTranslator.from_json(event_json["span"], PositionalRange),
                     "tags": JsonTranslator.from_json(event_json["tags"], Set[Tag]),
-                    "attributes": JsonTranslator.from_json(event_json["attributes"], Dict[str, str]),
+                    "attributes": JsonTranslator.from_json(event_json["attributes"], Dict[str, JsonType]),
                     "affected_locations": JsonTranslator.from_json(event_json["affected_locations"], Set[PrefixedUUID]),
                     "affected_travelers": JsonTranslator.from_json(event_json["affected_travelers"], Set[PrefixedUUID]),
                 })

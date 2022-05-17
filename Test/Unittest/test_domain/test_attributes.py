@@ -27,19 +27,6 @@ class TestAttributedEntity(TestCase):
         # Assert
         self.assertDictEqual(expected, actual)
 
-    def test__init__should_strip_attributed_whitespace__when_attributed_keys_or_values_have_whitespace(self) -> None:
-        # Arrange
-        attributed_key = anon_attribute_key()
-        attributed_value = anon_attribute_value()
-        expected = {attributed_key: attributed_value}
-        attributed_entity = AttributedEntity(attributes={f" {attributed_key}\t": f"\n{attributed_value}\t"})
-
-        # Act
-        actual = attributed_entity.attributes
-
-        # Assert
-        self.assertDictEqual(expected, actual)
-
     def test__init__should_support_kwargs(self) -> None:
         # Arrange
         class TestKwargs(AttributedEntity, _Other):
@@ -74,16 +61,6 @@ class TestAttributedEntity(TestCase):
         # Assert
         self.assertRaises(ValueError, action)
 
-    def test__init__should_reject_empty_value(self) -> None:
-        # Arrange
-        key = anon_attribute_key()
-
-        # Act
-        def action(): AttributedEntity(attributes={key: ""})
-
-        # Assert
-        self.assertRaises(ValueError, action)
-
     def test__init__should_reject_attributed_keys_of_invalid_type(self) -> None:
         # Arrange
         attributed = {anon_anything(not_type=str): anon_attribute_value()}
@@ -106,7 +83,7 @@ class TestAttributedEntity(TestCase):
 
     def test__init__should_reject_attributed_values_of_invalid_type(self) -> None:
         # Arrange
-        attributed = {anon_attribute_key(): anon_anything(not_type=str)}
+        attributed = {anon_attribute_key(): anon_anything(not_types={str, int, float, bool, dict, list})}
 
         # Act
         def action(): AttributedEntity(attributes=attributed)

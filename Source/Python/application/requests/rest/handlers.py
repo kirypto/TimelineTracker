@@ -14,6 +14,7 @@ from application.use_case.location_use_cases import LocationUseCase
 from application.use_case.timeline_use_cases import TimelineUseCase
 from application.use_case.traveler_use_cases import TravelerUseCase
 from application.use_case.world_use_cases import WorldUseCase
+from domain.attributes import JsonType
 from domain.events import Event
 from domain.ids import PrefixedUUID
 from domain.locations import Location
@@ -55,7 +56,7 @@ class WorldsRESTRequestHandler:
             world_kwargs = {
                 "name": JsonTranslator.from_json(json_body["name"], str),
                 "description": JsonTranslator.from_json(json_body.get("description", ""), str),
-                "attributes": JsonTranslator.from_json(json_body.get("attributes", {}), Dict[str, str]),
+                "attributes": JsonTranslator.from_json(json_body.get("attributes", {}), Dict[str, JsonType]),
                 "tags": JsonTranslator.from_json(json_body.get("tags", []), Set[Tag]),
             }
             world = world_use_case.create(**world_kwargs, **kwargs)
@@ -123,7 +124,7 @@ class LocationsRestRequestHandler:
                 "name": JsonTranslator.from_json(json_body["name"], str),
                 "description": JsonTranslator.from_json(json_body.get("description", ""), str),
                 "span": JsonTranslator.from_json(json_body["span"], PositionalRange),
-                "attributes": JsonTranslator.from_json(json_body.get("attributes", {}), Dict[str, str]),
+                "attributes": JsonTranslator.from_json(json_body.get("attributes", {}), Dict[str, JsonType]),
                 "tags": JsonTranslator.from_json(json_body.get("tags", []), Set[Tag]),
             }
             location = location_use_case.create(to_world_id(world_id), **location_kwargs, **kwargs)
@@ -217,7 +218,7 @@ class TravelersRestRequestHandler:
                 "name": JsonTranslator.from_json(request_body["name"], str),
                 "description": JsonTranslator.from_json(request_body.get("description", ""), str),
                 "journey": JsonTranslator.from_json(request_body["journey"], List[PositionalMove]),
-                "attributes": JsonTranslator.from_json(request_body.get("attributes", {}), Dict[str, str]),
+                "attributes": JsonTranslator.from_json(request_body.get("attributes", {}), Dict[str, JsonType]),
                 "tags": JsonTranslator.from_json(request_body.get("tags", []), Set[Tag]),
             }
             traveler = traveler_use_case.create(to_world_id(world_id), **traveler_kwargs, **kwargs)
@@ -333,7 +334,7 @@ class EventsRestRequestHandler:
                 "name": JsonTranslator.from_json(request_body["name"], str),
                 "description": JsonTranslator.from_json(request_body.get("description", ""), str),
                 "span": JsonTranslator.from_json(request_body["span"], PositionalRange),
-                "attributes": JsonTranslator.from_json(request_body.get("attributes", {}), Dict[str, str]),
+                "attributes": JsonTranslator.from_json(request_body.get("attributes", {}), Dict[str, JsonType]),
                 "tags": JsonTranslator.from_json(request_body.get("tags", []), Set[Tag]),
                 "affected_locations": JsonTranslator.from_json(request_body["affected_locations"], Set[PrefixedUUID]),
                 "affected_travelers": JsonTranslator.from_json(request_body["affected_travelers"], Set[PrefixedUUID]),
