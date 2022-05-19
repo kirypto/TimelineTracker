@@ -63,7 +63,7 @@ class TestAttributedEntity(TestCase):
 
     def test__init__should_reject_attributed_keys_of_invalid_type(self) -> None:
         # Arrange
-        attributed = {anon_anything(not_type=str): anon_attribute_value()}
+        attributed = {anon_anything(not_types={str, dict, set}): anon_attribute_value()}
 
         # Act
         def action(): AttributedEntity(attributes=attributed)
