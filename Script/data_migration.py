@@ -25,8 +25,8 @@ def _main() -> NoReturn:
     try:
         config: dict = YAML(typ="safe").load(Path(args.config))
         repository_config: Dict[str, str] = config["timeline_tracker_app_config"]["repositories_config"]
-        from _version import __version__
-        app_version = StrictVersion(__version__)
+        from _version import get_strict_version
+        app_version = get_strict_version()
         _ensure_data_migrated_to_current_version(app_version, **repository_config)
     except Exception as e:
         error(f"Failure occurred during data migration: {e}", exc_info=e)
