@@ -9,7 +9,7 @@ from flask_swagger_ui import get_swaggerui_blueprint
 from ruamel.yaml import YAML
 from waitress import serve
 
-from adapter.auth.auth0 import setup_flask_auth, extract_profile_from_flask_session
+from adapter.auth.auth0 import setup_flask_auth, extract_authentication_profile
 from application.access.authentication import requires_authentication
 from application.access.clients import Profile
 from application.access.errors import AuthError
@@ -48,7 +48,7 @@ def _create_flask_web_app(auth_config: dict, resource_folder: Path, version: str
 
     # Setup web path root
     @flask_web_app.route(dashboard_route)
-    @extract_profile_from_flask_session
+    @extract_authentication_profile
     @requires_authentication(profile_pass_through=True)
     def dashboard_page(profile: Profile):
         return f"""
@@ -58,7 +58,7 @@ def _create_flask_web_app(auth_config: dict, resource_folder: Path, version: str
         """
 
     @flask_web_app.route(home_route)
-    @extract_profile_from_flask_session
+    @extract_authentication_profile
     def home_page(profile: Profile = None):
         if profile is not None:
             return redirect(dashboard_route)
@@ -148,7 +148,7 @@ class FlaskRESTController(RESTController):
 
             @convert_to_flask_response
             @with_error_response_on_raised_exceptions
-            @extract_profile_from_flask_session
+            @extract_authentication_profile
             @wraps(handler_func)
             def handler_wrapper(**kwargs) -> HandlerResult:
                 args = []

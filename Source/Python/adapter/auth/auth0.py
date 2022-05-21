@@ -1,15 +1,16 @@
 """
 An Auth0 adapter for a web application.
 
-Currently supports only Flask, but is designed to be extendable to django or other web apps supported by authlib. Because of this, imports
-do not occur at the top of the module to prevent ModuleNotFoundErrors. Instead, imports are made within scope of the methods needing them.
+This currently supports only Flask, but is designed to be extendable to django or other web apps supported by authlib. Because of this,
+imports do not occur at the top of the module to prevent ModuleNotFoundErrors. Instead, imports are made within scope of the methods needing
+them.
 """
 from functools import wraps
 from json import loads
 from logging import info
 from operator import itemgetter
 from re import match
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 from urllib.parse import urlencode
 from urllib.request import urlopen
 
@@ -82,7 +83,7 @@ def setup_flask_auth(
         return redirect(auth0.api_base_url + "/v2/logout?" + urlencode(params))
 
 
-def extract_profile_from_flask_session(function: Callable) -> Callable:
+def extract_authentication_profile(function: Callable) -> Callable:
     from flask import session, request
 
     @wraps(function)
@@ -95,39 +96,8 @@ def extract_profile_from_flask_session(function: Callable) -> Callable:
                 raise AuthError("Invalid header: Authorization header must start with 'Bearer '.")
             token = auth_token_match.group(1)
 
-            domain, api_audience, algorithms = itemgetter("domain", "api_audience", "algorithms")(__AUTH_0_BEARER_TOKEN_INFO)
-
-            jsonurl = urlopen(f"https://{domain}/.well-known/jwks.json")
-            jwks = loads(jsonurl.read())
-            unverified_header = jwt.get_unverified_header(token)
-            rsa_key = {}
-            for key in jwks["keys"]:
-                if key["kid"] == unverified_header["kid"]:
-                    rsa_key = {
-                        "kty": key["kty"],
-                        "kid": key["kid"],
-                        "use": key["use"],
-                        "n": key["n"],
-                        "e": key["e"]
-                    }
-            if rsa_key:
-                try:
-                    payload = jwt.decode(
-                        token,
-                        rsa_key,
-                        algorithms=algorithms,
-                        audience=api_audience,
-                        issuer=f"https://{domain}/"
-                    )
-                except jwt.ExpiredSignatureError:
-                    raise AuthError("Token is expired")
-                except jwt.JWTClaimsError:
-                    raise AuthError("Incorrect claims: please check the audience and issuer")
-                except Exception:
-                    raise AuthError("Unable to parse authentication token.")
-
-                profile = Profile(payload["sub"], payload["name"])
-                return function(*args, profile=profile, **kwargs)
+            profile = _extract_profile_from_bearer_token(token)
+            return function(*args, profile=profile, **kwargs)
 
         # Check for auth in flask session
         if "profile" in session:
@@ -138,3 +108,39 @@ def extract_profile_from_flask_session(function: Callable) -> Callable:
         return function(*args, profile=None, **kwargs)
 
     return decorated
+
+
+def _extract_profile_from_bearer_token(token) -> Optional[Profile]:
+    domain, api_audience, algorithms = itemgetter("domain", "api_audience", "algorithms")(__AUTH_0_BEARER_TOKEN_INFO)
+
+    jsonurl = urlopen(f"https://{domain}/.well-known/jwks.json")
+    jwks = loads(jsonurl.read())
+    unverified_header = jwt.get_unverified_header(token)
+    rsa_key = {}
+    for key in jwks["keys"]:
+        if key["kid"] == unverified_header["kid"]:
+            rsa_key = {
+                "kty": key["kty"],
+                "kid": key["kid"],
+                "use": key["use"],
+                "n": key["n"],
+                "e": key["e"]
+            }
+    if rsa_key:
+        try:
+            user_profile = jwt.decode(
+                token,
+                rsa_key,
+                algorithms=algorithms,
+                audience=api_audience,
+                issuer=f"https://{domain}/"
+            )
+        except jwt.ExpiredSignatureError:
+            raise AuthError("Token is expired")
+        except jwt.JWTClaimsError:
+            raise AuthError("Incorrect claims: please check the audience and issuer")
+        except Exception:
+            raise AuthError("Unable to parse authentication token.")
+
+        return Profile(user_profile["sub"], user_profile["name"])
+    return None
