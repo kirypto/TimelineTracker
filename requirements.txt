@@ -9,3 +9,5 @@ authlib==0.15.5 # Updating requires changes to implementation. See issue #104
 openapi3==1.6.5
 parameterized==0.8.1
 inflection==0.5.1
+argparse==1.4.0
+python-jose==3.3.0
