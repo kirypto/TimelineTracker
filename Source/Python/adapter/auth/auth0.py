@@ -13,7 +13,8 @@ from typing import Any, Callable
 from urllib.parse import urlencode
 from urllib.request import urlopen
 
-from jose import jwt
+# noinspection PyPackageRequirements
+from jose import jwt  # For some reason PyCharm is not detecting that python-jose has been added to requirements.txt
 
 from application.access.clients import Profile
 from application.access.errors import AuthError
