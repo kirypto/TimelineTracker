@@ -18,6 +18,7 @@ All notable changes to this project will be documented in this file.
 - Modified the data migration to be triggered by run scripts prior to launching the application proper.
 - Corrected minor formatting in CHANGELOG _(added periods, fixed indentations)_.
 - Modified the `sampleConfig.md` to show the required configurations for Auth0.com.
+  - Added configurations for `domain`, `api_audience`, and `algorithms` as necessary for parsing bearer tokens.
 - Modified `/` page to navigate to the `/home` page.
 - Modify api endpoints to enforce authorization.
 - Rework internal logic for REST request handling to improve code flow and simplicity.
