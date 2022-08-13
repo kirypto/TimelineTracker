@@ -46,17 +46,17 @@ def _parse_arguments() -> Namespace:
 
 def _ensure_data_migrated_to_current_version(
         app_version: StrictVersion,
-        *, repository_type: str, json_repositories_directory_root: str = None) -> NoReturn:
-    if repository_type == "memory":
+        *, world_repo_class_path: str = None, json_repositories_directory_root: str = None, **_) -> NoReturn:
+    if world_repo_class_path == "adapter.persistence.in_memory_repositories.InMemoryWorldRepository":
         # No need to migrate data
         pass
-    elif repository_type == "json":
+    elif world_repo_class_path == "adapter.persistence.json_file_repositories.JsonFileWorldRepository":
         if json_repositories_directory_root is None:
             error("Config file specifies json type repositories but did not provide the directory root.")
             exit(-1)
         _ensure_json_data_migrated_to_current_version(app_version, json_repositories_directory_root)
     else:
-        error(f"Failed to check data repository: unhandled repository type '{repository_type}'")
+        error(f"Failed to check data repository: unhandled repository type '{world_repo_class_path}'")
         exit(-1)
 
 
@@ -77,7 +77,7 @@ def _ensure_json_data_migrated_to_current_version(app_version: StrictVersion, js
             error("Could not locate data migration files. (Was this script run from the Timeline Tracker API project root folder?)")
             exit(-1)
 
-        migration_instructions: List[Tuple[StrictVersion, str, Dict["str", Any]]] = sorted([
+        migration_instructions: List[Tuple[StrictVersion, str, Dict[str, Any]]] = sorted([
             (
                 StrictVersion(migration_file.name.split("__")[0][1:]),
                 migration_file.name.split("__")[1].removesuffix(".json").replace("_", " "),
