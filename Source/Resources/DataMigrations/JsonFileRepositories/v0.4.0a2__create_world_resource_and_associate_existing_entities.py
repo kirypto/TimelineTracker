@@ -21,6 +21,11 @@ def log(message: Any) -> None:
     print(f"[Migration v{new_version}] {message}")
 
 
+if existing_version < StrictVersion("0.3.0"):
+    log("[ERROR] This migration cannot be applied to data prior to v0.3.0. Please use the data migration tool from that version first, "
+        "then run this version's again.")
+    exit(-1)
+
 log(f"Attempting to migrate data from v{existing_version} to v{new_version} ({change_description})")
 
 # Generate a single world
