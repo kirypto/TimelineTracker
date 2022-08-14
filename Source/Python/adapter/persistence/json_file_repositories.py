@@ -1,8 +1,9 @@
+from distutils.version import StrictVersion
 from json import dumps, loads
 from pathlib import Path
 from typing import Set, Type, Generic, TypeVar, Dict, Optional, List
 
-from _version import __version__
+from _version import __version__, get_strict_version
 from application.requests.data_forms import JsonTranslator
 from domain.events import Event
 from domain.ids import PrefixedUUID, IdentifiedEntity
@@ -40,7 +41,7 @@ class _JsonFileIdentifiedEntityRepository(Generic[_T]):
         metadata_version_path = root_repos_path.joinpath(_METADATA_VERSION_FILE)
         if not metadata_version_path.exists():
             metadata_version_path.write_text(__version__, "utf8")
-        elif metadata_version_path.read_text("utf8") != __version__:
+        elif StrictVersion(metadata_version_path.read_text("utf8")) != get_strict_version():
             raise ValueError(f"The path '{repo_path}' contains data associated with a different app version.")
 
         self._repo_path = repo_path
