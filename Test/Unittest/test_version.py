@@ -1,8 +1,6 @@
 from distutils.version import StrictVersion
 from unittest import TestCase
 
-from _version import get_strict_version
-
 
 class VersionTest(TestCase):
     """
@@ -13,19 +11,39 @@ class VersionTest(TestCase):
     """
 
     @staticmethod
-    def test__get_strict_version__should_not_fail() -> None:
+    def test__app_version__should_not_fail() -> None:
         # Arrange
 
         # Act
-        get_strict_version()
+        pass
 
         # Assert
 
-    def test__get_strict_version__should_return_correct_type(self) -> None:
+    def test__app_version__should_return_correct_type(self) -> None:
         # Arrange
 
         # Act
-        actual = type(get_strict_version())
+        from _version import APP_VERSION
+        actual = type(APP_VERSION)
 
         # Assert
         self.assertIs(StrictVersion, actual)
+
+    @staticmethod
+    def test__app_version_raw__should_not_fail() -> None:
+        # Arrange
+
+        # Act
+        pass
+
+        # Assert
+
+    def test__app_version_raw__should_return_correct_type(self) -> None:
+        # Arrange
+
+        # Act
+        from _version import APP_VERSION_RAW
+        actual = type(APP_VERSION_RAW)
+
+        # Assert
+        self.assertIs(str, actual)

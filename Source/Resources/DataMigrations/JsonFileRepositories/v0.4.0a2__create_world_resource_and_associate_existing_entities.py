@@ -1,27 +1,27 @@
-from distutils.version import StrictVersion
 from json import dumps
 from pathlib import Path
 from sys import argv
 from typing import Any
 from uuid import uuid4
 
+from _version import parse_version
 from application.requests.data_forms import JsonTranslator
 from domain.ids import PrefixedUUID
 from domain.worlds import World
 
 
 __ver_and_descr = Path(__file__).name.removesuffix(".py")[1:].split("__")
-new_version = StrictVersion(__ver_and_descr[0])
+new_version = parse_version(__ver_and_descr[0])
 change_description = __ver_and_descr[1].replace("_", " ")
 json_repository_path = Path(argv[1])
-existing_version = StrictVersion(json_repository_path.joinpath("repository_version.metadata").read_text("utf8"))
+existing_version = parse_version(json_repository_path.joinpath("repository_version.metadata").read_text("utf8"))
 
 
 def log(message: Any) -> None:
     print(f"[Migration v{new_version}] {message}")
 
 
-if existing_version < StrictVersion("0.3.0"):
+if existing_version < parse_version("0.3.0"):
     log("[ERROR] This migration cannot be applied to data prior to v0.3.0. Please use the data migration tool from that version first, "
         "then run this version's again.")
     exit(-1)

@@ -7,6 +7,7 @@ from typing import Dict, NoReturn, Any, List, Tuple, Union
 
 from ruamel.yaml import YAML
 
+from _version import parse_version
 from util.logging import configure_logging
 
 
@@ -23,9 +24,8 @@ def _main() -> NoReturn:
     try:
         config: dict = YAML(typ="safe").load(Path(args.config))
         repository_config: Dict[str, str] = config["timeline_tracker_app_config"]["repositories_config"]
-        from _version import get_strict_version
-        app_version = get_strict_version()
-        _ensure_data_migrated_to_current_version(app_version, **repository_config)
+        from _version import APP_VERSION
+        _ensure_data_migrated_to_current_version(APP_VERSION, **repository_config)
     except Exception as e:
         error(f"Failure occurred during data migration: {e}", exc_info=e)
         exit(-1)
@@ -61,7 +61,7 @@ def _ensure_data_migrated_to_current_version(
 def _ensure_json_data_migrated_to_current_version(app_version: StrictVersion, json_repositories_directory_root: str) -> NoReturn:
     json_repository_path = Path(json_repositories_directory_root)
     data_version_file = json_repository_path.joinpath("repository_version.metadata")
-    data_version = StrictVersion(data_version_file.read_text(encoding="utf8") if data_version_file.exists() else "0.0")
+    data_version = parse_version(data_version_file.read_text(encoding="utf8") if data_version_file.exists() else "0.0")
     if data_version > app_version:
         error("Repository data version is ahead of the application, this is an invalid state. Aborting...")
         exit(-1)
@@ -77,7 +77,7 @@ def _ensure_json_data_migrated_to_current_version(app_version: StrictVersion, js
 
         migration_instructions: List[Tuple[StrictVersion, Path]] = sorted([
             (
-                StrictVersion(migration_file.name.split("__")[0][1:]),
+                parse_version(migration_file.name.split("__")[0][1:]),
                 migration_file
             )
             for migration_file in json_file_repository_migrations_dir.iterdir()
