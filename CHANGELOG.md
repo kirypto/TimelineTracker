@@ -28,7 +28,7 @@ All notable changes to this project will be documented in this file.
 - Modify entity descriptions to append a single new-line character once whitespace is stripped.
 - Change repository config to accept python class path to allow custom implementations to be used.
     - Update config examples accordingly.
-
+- Renamed `metadata` field to `attributes` for all entities
 ---
 
 ## [0.3.0] - 2021-09-08
