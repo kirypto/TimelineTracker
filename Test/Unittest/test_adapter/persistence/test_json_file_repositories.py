@@ -10,10 +10,10 @@ from domain.persistence.repositories import LocationRepository, TravelerReposito
 
 
 def _prepare_temp_directory_for_json_repo_tests() -> TemporaryDirectory:
-    from _version import __version__
+    from _version import APP_VERSION_RAW
 
     repo_dir = TemporaryDirectory()
-    Path(repo_dir.name).joinpath("repository_version.metadata").write_text(__version__)
+    Path(repo_dir.name).joinpath("repository_version.metadata").write_text(APP_VERSION_RAW, "utf8")
     return repo_dir
 
 

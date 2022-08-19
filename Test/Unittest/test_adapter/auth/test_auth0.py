@@ -19,6 +19,9 @@ class TestAuth0(TestCase):
         self._setup_flask_kwargs = {
             "auth_callback_route": anon_name(),
             "client_id": anon_string(),
+            "domain": anon_name(),
+            "api_audience": anon_string(),
+            "algorithms": ["RS256"],
         }
 
     def test__setup_flask_auth__should_throw_exception__when_non_flask_type_given(self) -> None:

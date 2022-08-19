@@ -29,6 +29,9 @@ _APP_CONFIG = {
 _AUTH_CONFIG = {
     "auth_callback_route": anon_route(),
     "client_id": anon_string(),
+    "domain": anon_name(),
+    "api_audience": anon_string(),
+    "algorithms": ["RS256"],
 }
 
 

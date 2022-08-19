@@ -1,6 +1,5 @@
 from pathlib import Path
 
-from _version import __version__
 from application.factories import RepositoriesFactory, RESTControllersFactory
 from application.requests.rest.handlers import LocationsRestRequestHandler, TravelersRestRequestHandler, EventsRestRequestHandler, \
     WorldsRESTRequestHandler
@@ -13,7 +12,6 @@ from util.logging import configure_logging
 
 
 class TimelineTrackerApp:
-    _version: str
     _resources_folder: Path
 
     _world_use_case: WorldUseCase
@@ -21,10 +19,6 @@ class TimelineTrackerApp:
     _traveler_use_case: TravelerUseCase
     _event_use_case: EventUseCase
     _timeline_use_case: TimelineUseCase
-
-    @property
-    def version(self) -> str:
-        return __version__
 
     @property
     def resources_folder(self) -> Path:

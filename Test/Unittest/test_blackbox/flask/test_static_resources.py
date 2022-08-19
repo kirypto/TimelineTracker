@@ -7,7 +7,7 @@ from flask_unittest import ClientTestCase
 from adapter.persistence.in_memory_repositories import InMemoryEventRepository, InMemoryTravelerRepository, InMemoryLocationRepository, \
     InMemoryWorldRepository
 from test_helpers import get_fully_qualified_name
-from test_helpers.anons import anon_string, anon_route
+from test_helpers.anons import anon_string, anon_route, anon_name
 
 
 _PORT = 54321
@@ -24,6 +24,9 @@ _APP_CONFIG = {
 _AUTH_CONFIG = {
     "auth_callback_route": anon_route(),
     "client_id": anon_string(),
+    "domain": anon_name(),
+    "api_audience": anon_string(),
+    "algorithms": ["RS256"],
 }
 
 

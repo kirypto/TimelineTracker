@@ -65,5 +65,10 @@ auth_config: {
   client_kwargs: {
     scope: "openid profile email",
   },
+
+  # Setting from Auth0.com for parsing bearer tokens from FE as described here https://auth0.com/docs/quickstart/backend/python/01-authorization.
+  domain: "<Auth0.com -> Application -> Domain>",
+  api_audience: "<Auth0.com -> Application -> TODO>", # TODO kirypto 2021-Aug-09: Fill in location of this
+  algorithms: ["RS256"],
 }
 ```

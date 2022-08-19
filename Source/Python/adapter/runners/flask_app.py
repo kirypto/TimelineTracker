@@ -9,6 +9,7 @@ from flask_swagger_ui import get_swaggerui_blueprint
 from ruamel.yaml import YAML
 from waitress import serve
 
+from _version import APP_VERSION
 from adapter.auth.auth0 import setup_flask_auth, extract_authentication_profile
 from application.access.authentication import requires_authentication
 from application.access.clients import Profile
@@ -19,7 +20,7 @@ from application.requests.rest.controllers import RESTController, HandlerRegiste
 from application.requests.rest.utils import with_error_response_on_raised_exceptions
 
 
-def _create_flask_web_app(auth_config: dict, resource_folder: Path, version: str, secret_key: str) -> Flask:
+def _create_flask_web_app(auth_config: dict, resource_folder: Path, secret_key: str) -> Flask:
     # Web Paths
     _STATIC_URL_PREFIX = "/static"
     _SWAGGER_URL = "/api/docs"  # URL for exposing Swagger UI (without trailing '/')
@@ -53,7 +54,7 @@ def _create_flask_web_app(auth_config: dict, resource_folder: Path, version: str
     def dashboard_page(profile: Profile):
         return f"""
         <div> Logged in as {profile.name} <div>
-        <div> <a href=\"/api/docs\"> API {version} Documentation </a> </div>
+        <div> <a href=\"/api/docs\"> API {APP_VERSION} Documentation </a> </div>
         <div> <button onclick="window.location.href='{logout_route}'"> Logout </button> </div>
         """
 
@@ -96,8 +97,7 @@ def _run_app(
 def _create_timeline_tracker_flask_app(timeline_tracker_app_config: dict, auth_config: dict, secret_key: str) -> Flask:
     timeline_tracker_application = TimelineTrackerApp(**timeline_tracker_app_config)
 
-    flask_web_app = _create_flask_web_app(
-        auth_config, timeline_tracker_application.resources_folder, timeline_tracker_application.version, secret_key)
+    flask_web_app = _create_flask_web_app(auth_config, timeline_tracker_application.resources_folder, secret_key)
 
     controller_config = dict(
         rest_controller_config=dict(

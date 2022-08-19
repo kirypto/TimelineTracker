@@ -13,19 +13,22 @@ All notable changes to this project will be documented in this file.
 - Added a `/dashboard` page to be shown when the client is logged in with a Logout button and link to documentation.
 
 ### Changed
+- **Significant Change**: Reworked data migration. Existing json data will need to be updated to version 0.3.0 before attempting to update to
+  version 0.4.0
 - Updated API Specification to include new `World` resource.
 - All existing entity routes are now prefixed with `/api/world/:worldId/...`. See updated API Specification.
 - Modified the data migration to be triggered by run scripts prior to launching the application proper.
 - Corrected minor formatting in CHANGELOG _(added periods, fixed indentations)_.
 - Modified the `sampleConfig.md` to show the required configurations for Auth0.com.
+    - Added configurations for `domain`, `api_audience`, and `algorithms` as necessary for parsing bearer tokens.
 - Modified `/` page to navigate to the `/home` page.
 - Modify api endpoints to enforce authorization.
 - Rework internal logic for REST request handling to improve code flow and simplicity.
 - Change default `host` in `sampleConfig.md` and `apiSpecification.json` from `localhost` to `127.0.0.1`.
 - Modify entity descriptions to append a single new-line character once whitespace is stripped.
 - Change repository config to accept python class path to allow custom implementations to be used.
-  - Update config examples accordingly.
-
+    - Update config examples accordingly.
+- Renamed `metadata` field to `attributes` for all entities
 ---
 
 ## [0.3.0] - 2021-09-08

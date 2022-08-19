@@ -3,6 +3,10 @@ __version__ = "0.4.0alpha2"
 from distutils.version import StrictVersion
 
 
-def get_strict_version() -> StrictVersion:
-    compatible_version_str = __version__.replace("alpha", "a").replace("beta", "b")
-    return StrictVersion(compatible_version_str)
+def parse_version(raw_version: str) -> StrictVersion:
+    compatible_version_string = raw_version.replace("alpha", "a").replace("beta", "b")
+    return StrictVersion(compatible_version_string)
+
+
+APP_VERSION_RAW = __version__
+APP_VERSION = parse_version(APP_VERSION_RAW)
