@@ -40,7 +40,6 @@ world = World(
 new_world_json_path.write_text(JsonTranslator.to_json_str(world), "utf8")
 log(f"Generated a single new World resource with id {new_world_id}")
 
-
 # Create location association index files
 location_ids_to_associate = [
     path.name.removesuffix(".json")
@@ -51,7 +50,6 @@ world_repository_dir.joinpath("associated_locations.index").write_text(dumps({
     str(new_world_id): location_ids_to_associate
 }))
 log(f"Associated all existing locations with new world")
-
 
 # Create traveler association index files
 traveler_ids_to_associate = [
@@ -64,7 +62,6 @@ world_repository_dir.joinpath("associated_travelers.index").write_text(dumps({
 }))
 log(f"Associated all existing travelers with new world")
 
-
 # Create event association index files
 event_ids_to_associate = [
     path.name.removesuffix(".json")
@@ -75,3 +72,12 @@ world_repository_dir.joinpath("associated_events.index").write_text(dumps({
     str(new_world_id): event_ids_to_associate
 }))
 log(f"Associated all existing events with new world")
+
+# Rename 'metadata' to 'attributes'
+for path in json_repository_path.joinpath("LocationRepo").iterdir():
+    path.write_text(path.read_text("utf8").replace('"metadata"', '"attributes"'), "utf8")
+for path in json_repository_path.joinpath("TravelerRepo").iterdir():
+    path.write_text(path.read_text("utf8").replace('"metadata"', '"attributes"'), "utf8")
+for path in json_repository_path.joinpath("EventRepo").iterdir():
+    path.write_text(path.read_text("utf8").replace('"metadata"', '"attributes"'), "utf8")
+log(f"Renamed 'metadata' field to 'attributes' for all existing entities")
