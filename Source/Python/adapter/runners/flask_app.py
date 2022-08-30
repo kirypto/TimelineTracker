@@ -153,8 +153,8 @@ class FlaskRESTController(RESTController):
             def handler_wrapper(**kwargs) -> HandlerResult:
                 args = []
                 if json:
-                    if request.json is None:
-                        raise ValueError("Json body must be provided")
+                    if request.get_json(silent=True) is None:
+                        raise ValueError("A JSON body must be provided and the Content-Type header must be 'application/json'")
                     args.append(request.json)
                 if query_params:
                     args.append(dict(request.args))
