@@ -27,6 +27,12 @@ class TestFlaskRESTController(TestRESTController, ClientTestCase):
         self._controller = FlaskRESTController(flask_web_app=self.app)
         self._client = client
 
+        # TODO kirypto 2022-sept-03: Find a better way than modifying the private field. Currenly we need to manually reset the
+        #  'got first request' boolean as Flask rejects adding new routes after a request is received. This is only an issue because the
+        #  'app' field is initialized once on the class and reused for all tests. Created an issue in the flask_unittest repository to
+        #  hopefully have this addressed: https://github.com/TotallyNotChase/flask-unittest/issues/7
+        self.app._got_first_request = False
+
     def tearDown(self, client: FlaskClient) -> None:
         with client.session_transaction() as session:
             if "profile" in session:
