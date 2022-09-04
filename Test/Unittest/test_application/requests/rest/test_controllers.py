@@ -43,10 +43,11 @@ class TestRESTController(ABC):
 
         @self.controller.register_rest_endpoint(route, RESTMethod.GET)
         def handler(**_) -> HandlerResult:
-            # Act
             raise ValueError("expected message")
 
         self.controller.finalize()
+
+        # Act
         actual = self.invoke(route, RESTMethod.GET)
 
         # Assert
@@ -60,7 +61,6 @@ class TestRESTController(ABC):
         method_2 = choice([m for m in RESTMethod if m != method_1])
         expected_1, expected_2 = anon_string(), anon_string()
 
-        # Act
         @self.controller.register_rest_endpoint(route, method_1)
         def handler_1(**_) -> HandlerResult:
             return HTTPStatus.OK, expected_1
@@ -70,6 +70,8 @@ class TestRESTController(ABC):
             return HTTPStatus.OK, expected_2
 
         self.controller.finalize()
+
+        # Act
         actual_1 = self.invoke(route, method_1)
         actual_2 = self.invoke(route, method_2)
 
@@ -82,14 +84,19 @@ class TestRESTController(ABC):
         self.setup_equivalent_of_profile(None)
         route = anon_route()
 
-        # Act
         @self.controller.register_rest_endpoint(route, RESTMethod.GET)
         def handler(*, profile: Profile = None, **_) -> HandlerResult:
             # Assert
             self.assertIsNone(profile)
-            return HTTPStatus.OK, ""
+            return -1, ""
 
-        self.invoke(route, RESTMethod.GET)
+        self.controller.finalize()
+
+        # Act
+        actual = self.invoke(route, RESTMethod.GET)
+
+        # Assert
+        self.assertEqual(-1, actual.status_code)
 
     def test__registered_route__should_pass_expected_profile__when_profile_equivalent_is_set(self, *_) -> None:
         # Arrange
@@ -97,61 +104,78 @@ class TestRESTController(ABC):
         self.setup_equivalent_of_profile(expected)
         route = anon_route()
 
-        # Act
         @self.controller.register_rest_endpoint(route, RESTMethod.GET)
         def handler(*, profile: Profile = None, **_) -> HandlerResult:
             # Assert
             self.assertEqual(expected, profile)
-            return HTTPStatus.OK, ""
+            return -1, ""
 
-        self.invoke(route, RESTMethod.GET)
+        self.controller.finalize()
+
+        # Act
+        actual = self.invoke(route, RESTMethod.GET)
+
+        # Assert
+        self.assertEqual(-1, actual.status_code)
 
     def test__registered_route__should_not_pass_body__when_body_not_requested(self, *_) -> None:
         # Arrange
         route = anon_route()
 
-        # Act
         @self.controller.register_rest_endpoint(route, RESTMethod.GET, json=False)
         def handler(*args, **_) -> HandlerResult:
             # Assert
             self.assertEqual(0, len(args))
-            return HTTPStatus.OK, ""
+            return -1, ""
 
-        self.invoke(route, RESTMethod.GET, json=None)
+        self.controller.finalize()
+
+        # Act
+        actual = self.invoke(route, RESTMethod.GET, json=None)
+
+        # Assert
+        self.assertEqual(-1, actual.status_code)
 
     def test__registered_route__should_pass_body__when_body_requested_and_available(self, *_) -> None:
         # Arrange
         route = anon_route()
         expected_body = anon_string()
 
-        # Act
         @self.controller.register_rest_endpoint(route, RESTMethod.GET, json=True)
         def handler(json_body: Any, **_) -> HandlerResult:
             # Assert
             self.assertEqual(expected_body, json_body)
-            return HTTPStatus.OK, ""
+            return -1, ""
 
-        self.invoke(route, RESTMethod.GET, json=expected_body)
+        self.controller.finalize()
+
+        # Act
+        actual = self.invoke(route, RESTMethod.GET, json=expected_body)
+
+        # Assert
+        self.assertEqual(-1, actual.status_code)
 
     def test__registered_route__should_return_error_response__when_body_requested_but_not_available(self, *_) -> None:
         # Arrange
         route = anon_route()
-        expected_status_code, expected_json = error_response("Json body must be provided", HTTPStatus.BAD_REQUEST)
+        expected_status_code, expected_json = error_response(
+            "A JSON body must be provided and the Content-Type header must be 'application/json'",
+            HTTPStatus.BAD_REQUEST)
 
-        # Act
         @self.controller.register_rest_endpoint(route, RESTMethod.GET, json=True)
         def handler(body: Any, **_) -> HandlerResult:
             return self.fail_with_message(f"Should not have invoked method as 'body' arg should not have been passed in, was {body}")
 
         self.controller.finalize()
 
+        # Act
         actual = self.invoke(route, RESTMethod.GET, json=None)
 
         # Assert
         self.assertEqual(expected_status_code, actual.status_code)
         self.assertEqual(expected_json, dumps(actual.json))
 
-    def test__register_route__should_throw_exception__when_controller_already_finalized(self, *_) -> None:
+    def test__register_rest_endpoint__should_throw_exception__when_controller_already_finalized(self, *_) -> None:
         # Arrange
         self.controller.finalize()
 
@@ -188,7 +212,7 @@ class TestRESTController(ABC):
 
         # Assert
         self.assertEqual(HTTPStatus.NOT_FOUND, actual.status_code)
-    
+
     def test__register_rest_endpoint__should_raise_exception__when_handler_does_not_accept_correct_arguments(self, *_) -> None:
         # Arrange
         route = anon_route() + "/<foo>" + anon_route() + "/<bar>"
