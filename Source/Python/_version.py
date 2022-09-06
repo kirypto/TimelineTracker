@@ -1,4 +1,4 @@
-__version__ = "0.4.0alpha2"
+__version__ = "0.4.0alpha3"
 
 from distutils.version import StrictVersion
 
