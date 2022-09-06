@@ -1,4 +1,3 @@
-from math import inf
 from unittest import TestCase
 from unittest.mock import patch, MagicMock
 
@@ -77,17 +76,17 @@ class TestTimelineUseCase(TestCase):
 
     def test__construct_location_timeline__should_return_list_of_linked_events_ordered_by_continuum_low_and_then_high(self) -> None:
         # Arrange
-        inf_range = Range(-inf, inf)
+        large_range = Range(-2000000000., 2000000000.)
         location_id = self.location_use_case.create(self.world_id, **anon_create_location_kwargs(
-            span=PositionalRange(latitude=inf_range, longitude=inf_range, altitude=inf_range, continuum=inf_range, reality={0})
+            span=PositionalRange(latitude=large_range, longitude=large_range, altitude=large_range, continuum=large_range, reality={0})
         ), profile=self.profile).id
-        cont_1 = Range(-inf, -56.)
+        cont_1 = Range(-2000000000., -56.)
         cont_2 = Range(-58., -20.)
         cont_3 = Range(-19., 20.)
         cont_4 = Range(-18., 20.)
         cont_5 = Range(22., 42.)
         cont_6 = Range(22., 43.)
-        cont_7 = Range(25., inf)
+        cont_7 = Range(25., 2000000000.)
         event_1 = self.event_use_case.create(
             self.world_id, **anon_create_event_kwargs(
                 span=anon_positional_range(continuum=cont_1, reality={0}), affected_locations={location_id}),
