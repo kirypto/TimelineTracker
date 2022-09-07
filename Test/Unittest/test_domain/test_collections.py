@@ -1,8 +1,13 @@
 from random import choice, shuffle
+from sys import float_info
 from unittest import TestCase
 
 from Test.Unittest.test_helpers.anons import anon_float, anon_range
 from domain.collections import Range
+
+
+FLOAT_MAX_VALUE = float_info.max
+FLOAT_MIN_VALUE = -1 * FLOAT_MAX_VALUE
 
 
 class TestRange(TestCase):
@@ -200,9 +205,9 @@ class TestRange(TestCase):
     def test__comparison__should_be_able_to_ordered(self) -> None:
         # Arrange
         expected_order = [
-            Range(-2000000000., -10.),
-            Range(-2000000000., -5.),
-            Range(-2000000000., 2000000000.),
+            Range(FLOAT_MIN_VALUE, -10.),
+            Range(FLOAT_MIN_VALUE, -5.),
+            Range(FLOAT_MIN_VALUE, FLOAT_MAX_VALUE),
             Range(-4., -4.),
             Range(-4., 4.),
             Range(-1., -1.),
@@ -212,8 +217,8 @@ class TestRange(TestCase):
             Range(0., 1.),
             Range(1., 1.),
             Range(4., 4.),
-            Range(5., 2000000000.),
-            Range(10., 2000000000.),
+            Range(5., FLOAT_MAX_VALUE),
+            Range(10., FLOAT_MAX_VALUE),
         ]
         randomized = list(expected_order)
         shuffle(randomized)

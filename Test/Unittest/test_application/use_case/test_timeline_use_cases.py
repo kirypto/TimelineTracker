@@ -1,3 +1,4 @@
+from sys import float_info
 from unittest import TestCase
 from unittest.mock import patch, MagicMock
 
@@ -14,6 +15,10 @@ from domain.collections import Range
 from domain.ids import PrefixedUUID
 from domain.positions import Position, PositionalMove, MovementType, PositionalRange
 from test_helpers.anons import anon_create_location_kwargs, anon_create_event_kwargs
+
+
+FLOAT_MAX_VALUE = float_info.max
+FLOAT_MIN_VALUE = -1 * FLOAT_MAX_VALUE
 
 
 class TestTimelineUseCase(TestCase):
@@ -76,17 +81,17 @@ class TestTimelineUseCase(TestCase):
 
     def test__construct_location_timeline__should_return_list_of_linked_events_ordered_by_continuum_low_and_then_high(self) -> None:
         # Arrange
-        large_range = Range(-2000000000., 2000000000.)
+        large_range = Range(FLOAT_MIN_VALUE, FLOAT_MAX_VALUE)
         location_id = self.location_use_case.create(self.world_id, **anon_create_location_kwargs(
             span=PositionalRange(latitude=large_range, longitude=large_range, altitude=large_range, continuum=large_range, reality={0})
         ), profile=self.profile).id
-        cont_1 = Range(-2000000000., -56.)
+        cont_1 = Range(FLOAT_MIN_VALUE, -56.)
         cont_2 = Range(-58., -20.)
         cont_3 = Range(-19., 20.)
         cont_4 = Range(-18., 20.)
         cont_5 = Range(22., 42.)
         cont_6 = Range(22., 43.)
-        cont_7 = Range(25., 2000000000.)
+        cont_7 = Range(25., FLOAT_MAX_VALUE)
         event_1 = self.event_use_case.create(
             self.world_id, **anon_create_event_kwargs(
                 span=anon_positional_range(continuum=cont_1, reality={0}), affected_locations={location_id}),
