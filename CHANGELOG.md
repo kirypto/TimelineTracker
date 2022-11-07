@@ -29,6 +29,8 @@ All notable changes to this project will be documented in this file.
 - Change repository config to accept python class path to allow custom implementations to be used.
     - Update config examples accordingly.
 - Renamed `metadata` field to `attributes` for all entities
+- Replaced `Infinity` and `-Infinity` with `1.7976931348623157e+308` and `-1.7976931348623157e+308` respectively for each entities' `span`.
+- Modified `Location` and `Event` resources to reject `+/-infinity` as span range values.
 ---
 
 ## [0.3.0] - 2021-09-08

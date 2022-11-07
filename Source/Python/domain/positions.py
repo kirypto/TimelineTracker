@@ -108,6 +108,8 @@ class PositionalRange:
                                 f"{acceptable_types}")
             if isnan(range_.low) or isnan(range_.high):
                 raise ValueError(f"{self.__class__.__name__} attribute '{argument_name}' contained NaN")
+            if isinf(range_.low) or isinf(range_.high):
+                raise ValueError(f"{self.__class__.__name__} attribute '{argument_name}' is infinite")
             return Range(low=acceptable_types[0](range_.low), high=acceptable_types[0](range_.high))
         if not isinstance(reality, set):
             raise TypeError(f"{self.__class__.__name__} attribute 'reality' must be a set, was {type(reality)}")

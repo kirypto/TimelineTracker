@@ -1,9 +1,13 @@
-from math import inf
 from random import choice, shuffle
+from sys import float_info
 from unittest import TestCase
 
 from Test.Unittest.test_helpers.anons import anon_float, anon_range
 from domain.collections import Range
+
+
+FLOAT_MAX_VALUE = float_info.max
+FLOAT_MIN_VALUE = -1 * FLOAT_MAX_VALUE
 
 
 class TestRange(TestCase):
@@ -13,13 +17,13 @@ class TestRange(TestCase):
 
         # Act
         # noinspection PyTypeChecker
-        def DifferentTypeLow(): Range(non_float_type, anon_float())
+        def different_type_low(): Range(non_float_type, anon_float())
 
-        def DifferentTypeHigh(): Range(anon_float(), non_float_type)
+        def different_type_high(): Range(anon_float(), non_float_type)
 
         # Assert
-        self.assertRaises(TypeError, DifferentTypeLow)
-        self.assertRaises(TypeError, DifferentTypeHigh)
+        self.assertRaises(TypeError, different_type_low)
+        self.assertRaises(TypeError, different_type_high)
 
     def test__init__should_initialize_from_provided_args(self) -> None:
         # Arrange
@@ -51,14 +55,14 @@ class TestRange(TestCase):
 
         # Act
         # noinspection PyPropertyAccess
-        def ActionLow(): range_.low = anon_float()
+        def action_low(): range_.low = anon_float()
 
         # noinspection PyPropertyAccess
-        def ActionHigh(): range_.high = anon_float()
+        def action_high(): range_.high = anon_float()
 
         # Assert
-        self.assertRaises(AttributeError, ActionLow)
-        self.assertRaises(AttributeError, ActionHigh)
+        self.assertRaises(AttributeError, action_low)
+        self.assertRaises(AttributeError, action_high)
 
     def test__includes__should_reject_arguments_of_invalid_types(self) -> None:
         # Arrange
@@ -66,10 +70,10 @@ class TestRange(TestCase):
         range_ = anon_range()
 
         # Act
-        def Action(): range_.includes(invalid_type)
+        def action(): range_.includes(invalid_type)
 
         # Assert
-        self.assertRaises(TypeError, Action)
+        self.assertRaises(TypeError, action)
 
     def test__includes__should_return_true__when_value_is_within_range(self) -> None:
         # Arrange
@@ -115,10 +119,10 @@ class TestRange(TestCase):
 
         # Act
         # noinspection PyTypeChecker
-        def Action(): range_.intersects(invalid_type)
+        def action(): range_.intersects(invalid_type)
 
         # Assert
-        self.assertRaises(TypeError, Action)
+        self.assertRaises(TypeError, action)
 
     def test__intersects__should_return_true__when_provided_range_partially_overlaps(self) -> None:
         # Arrange
@@ -201,9 +205,9 @@ class TestRange(TestCase):
     def test__comparison__should_be_able_to_ordered(self) -> None:
         # Arrange
         expected_order = [
-            Range(-inf, -10.),
-            Range(-inf, -5.),
-            Range(-inf, inf),
+            Range(FLOAT_MIN_VALUE, -10.),
+            Range(FLOAT_MIN_VALUE, -5.),
+            Range(FLOAT_MIN_VALUE, FLOAT_MAX_VALUE),
             Range(-4., -4.),
             Range(-4., 4.),
             Range(-1., -1.),
@@ -213,8 +217,8 @@ class TestRange(TestCase):
             Range(0., 1.),
             Range(1., 1.),
             Range(4., 4.),
-            Range(5., inf),
-            Range(10., inf),
+            Range(5., FLOAT_MAX_VALUE),
+            Range(10., FLOAT_MAX_VALUE),
         ]
         randomized = list(expected_order)
         shuffle(randomized)
@@ -230,7 +234,7 @@ class TestRange(TestCase):
         position = anon_range()
 
         # Act
-        def Action(): _ = {position}
+        def action(): _ = {position}
 
         # Assert
-        Action()
+        action()

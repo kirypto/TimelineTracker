@@ -1,4 +1,4 @@
 [submodule "Source/Resources/StaticallyServedFiles/APISpec"]
 	path = Source/Resources/StaticallyServedFiles/APISpec
 	url = git@github.com:kirypto/TimelineTrackerAPISpec.git
-	branch = v0.4.0-alpha2
+	branch = v0.4.0-alpha3

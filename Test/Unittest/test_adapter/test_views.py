@@ -132,3 +132,33 @@ class TestValueTranslator(TestCase):
 
         # Assert
         self.assertListEqual(actual_1, actual_2)
+
+    def test__from_json__should_reject__when_value_is_infinity(self) -> None:
+        # Arrange
+        infinity_string = "Infinity"
+
+        # Act
+        def action(): JsonTranslator.from_json_str(infinity_string, float)
+
+        # Assert
+        self.assertRaises(ValueError, action)
+
+    def test__from_json__should_reject__when_value_is_negative_infinity(self) -> None:
+        # Arrange
+        infinity_string = "-Infinity"
+
+        # Act
+        def action(): JsonTranslator.from_json_str(infinity_string, float)
+
+        # Assert
+        self.assertRaises(ValueError, action)
+
+    def test__from_json__should_reject__when_value_is_nan(self) -> None:
+        # Arrange
+        infinity_string = "NaN"
+
+        # Act
+        def action(): JsonTranslator.from_json_str(infinity_string, float)
+
+        # Assert
+        self.assertRaises(ValueError, action)

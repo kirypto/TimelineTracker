@@ -1,5 +1,5 @@
 from json import dumps, loads
-from math import isinf
+from math import isinf, isnan
 from typing import Any, Set, List, Generic, TypeVar, Type, Union, Dict
 from uuid import UUID
 
@@ -72,7 +72,10 @@ class JsonTranslator(Generic[T]):
     def from_json(value: Any, type_: Type[T]) -> T:
         try:
             if type_ in JsonTranslator.__pass_through_types:
-                return type_(value)
+                translated_value = type_(value)
+                if isinf(translated_value) or isnan(translated_value):
+                    raise ValueError("Infinity, -Infinity, and NaN are not supported")
+                return translated_value
             if type_ is str:
                 return _ensure_type(value, str)
             if type_ is Set[PrefixedUUID]:
