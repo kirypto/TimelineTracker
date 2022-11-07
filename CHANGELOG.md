@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+
+_Nothing to see here_
+
+## [0.4.0] - 2022-11-07
+
 ### Added
 - Added a new `World` resource that all other entities will be associated with.
 - Added new `/api/world...` routes to interact with `World` entities. See updated API Specification.
@@ -13,8 +18,8 @@ All notable changes to this project will be documented in this file.
 - Added a `/dashboard` page to be shown when the client is logged in with a Logout button and link to documentation.
 
 ### Changed
-- **Significant Change**: Reworked data migration. Existing json data will need to be updated to version 0.3.0 before attempting to update to
-  version 0.4.0
+- **Significant Change**: Reworked data migration. Existing json data will need to be updated to version 0.3.0 before attempting to update
+  to version 0.4.0
 - Updated API Specification to include new `World` resource.
 - All existing entity routes are now prefixed with `/api/world/:worldId/...`. See updated API Specification.
 - Modified the data migration to be triggered by run scripts prior to launching the application proper.
@@ -145,7 +150,9 @@ All notable changes to this project will be documented in this file.
 - Added Event PATCH route for modification.
 
 
-[Unreleased]: https://github.com/kirypto/TimelineTracker/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/kirypto/TimelineTracker/compare/v0.4.0...HEAD
+
+[0.4.0]: https://github.com/kirypto/TimelineTracker/compare/v0.3.0...v0.4.0
 
 [0.3.0]: https://github.com/kirypto/TimelineTracker/compare/v0.2.1...v0.3.0
 
