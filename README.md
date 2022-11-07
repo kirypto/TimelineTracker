@@ -33,7 +33,6 @@ This project conforms to the following standards:
 - [RFC 6902 JavaScript Object Notation (JSON) Patch][rfc6902]
 - [RFC 7231 Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content][rfc7231]
 - [RFC 8259 The JavaScript Object Notation (JSON) Data Interchange Format][rfc8259]
-  - __Exception:__ JSON responses from this API may include the numeric symbols `Infinity`, `-Infinity`, and `NaN`. 
 
 [swaggerHubTimelineTrackerSpec]: https://app.swaggerhub.com/apis-docs/kirypto/TimelineTracker/0.1.0
 

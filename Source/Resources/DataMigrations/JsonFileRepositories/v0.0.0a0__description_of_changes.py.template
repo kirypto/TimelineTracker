@@ -1,0 +1,18 @@
+from distutils.version import StrictVersion
+from pathlib import Path
+from sys import argv
+from typing import Any
+
+
+__ver_and_descr = Path(__file__).name.removesuffix(".py")[1:].split("__")
+new_version = StrictVersion(__ver_and_descr[0])
+change_description = __ver_and_descr[1].replace("_", " ")
+json_repository_path = Path(argv[1])
+existing_version = StrictVersion(json_repository_path.joinpath("repository_version.metadata").read_text("utf8"))
+
+
+def log(message: Any) -> None:
+    print(f"[Migration v{new_version}] {message}")
+
+
+log(f"Attempting to migrate data from v{existing_version} to v{new_version} ({change_description})")

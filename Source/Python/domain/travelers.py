@@ -1,11 +1,11 @@
+from domain.attributes import AttributedEntity
 from domain.descriptors import NamedEntity, DescribedEntity
 from domain.ids import IdentifiedEntity, PrefixedUUID
-from domain.metadata import MetadataEntity
 from domain.positions import JourneyingEntity
 from domain.tags import TaggedEntity
 
 
-class Traveler(IdentifiedEntity, NamedEntity, DescribedEntity, JourneyingEntity, TaggedEntity, MetadataEntity):
+class Traveler(IdentifiedEntity, NamedEntity, DescribedEntity, JourneyingEntity, TaggedEntity, AttributedEntity):
     def __init__(self, **kwargs) -> None:
         if "id" in kwargs and isinstance(kwargs["id"], PrefixedUUID):
             self.validate_id(kwargs["id"])

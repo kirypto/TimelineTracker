@@ -1,5 +1,5 @@
 from re import match
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from domain.base_entity import BaseEntity
 
@@ -63,3 +63,7 @@ class IdentifiedEntity(BaseEntity):
 
     def __hash__(self) -> int:
         return hash((IdentifiedEntity, self._id, super().__hash__()))
+
+
+def generate_prefixed_id(prefix: str) -> PrefixedUUID:
+    return PrefixedUUID(prefix, uuid4())
