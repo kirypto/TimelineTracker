@@ -28,6 +28,7 @@ __In PyCharm__
 ## Releasing a New Version
 
 - Update the version in the [API Specification json](../Source/Resources/StaticallyServedFiles/APISpec/apiSpecification.json)
+- Update the API Specification link in the [Read Me](../README.md#api-specification).
 - Update the version in [python project](../Source/Python/_version.py).
 - Add a section for the new version to the [Changelog](../CHANGELOG.md).
 - Create a pull request to the `main` branch.

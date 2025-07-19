@@ -24,8 +24,8 @@ See [LICENSE](./LICENSE) or [gnu.org/licenses/agpl-3.0.html](https://www.gnu.org
 
 ## API Specification
 
-The Timeline Tracker API specification is written making use of SwaggerHub web tool and can be viewed here:
-[Timeline Tracker API Specification v0.1.0][swaggerHubTimelineTrackerSpec].
+The Timeline Tracker API specification adheres to the OpenAPI spec and is available here:
+[Timeline Tracker API Specification](Source/Resources/StaticallyServedFiles/APISpec/apiSpecification.json).
 
 ## Project Standards
 
