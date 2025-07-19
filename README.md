@@ -9,6 +9,11 @@ this project came from my need to track and manage the plenitude of ideas that I
 See [Resource Details](Wiki/resourceDetails.md) for in-depth explanation on how information can be stored and retrieved using Timeline
 Tracker API.
 
+## License
+
+This project is licensed under the GNU Affero General Public License v3.0 (AGPLv3).  
+See [LICENSE](./LICENSE) or [gnu.org/licenses/agpl-3.0.html](https://www.gnu.org/licenses/agpl-3.0.html) for details.
+
 ## Deploying / Using
 
 [Instructions for deploying Timeline Tracker API to use can be found here](Wiki/projectDeployment.md).

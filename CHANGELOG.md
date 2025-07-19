@@ -4,7 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-_Nothing to see here_
+### Changed
+- **Significant Change**: Change license to AGPLv3 for stronger network use protections.
 
 ## [0.4.0] - 2022-11-07
 
