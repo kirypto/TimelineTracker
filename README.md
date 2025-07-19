@@ -25,7 +25,7 @@ See [LICENSE](./LICENSE) or [gnu.org/licenses/agpl-3.0.html](https://www.gnu.org
 ## API Specification
 
 The Timeline Tracker API specification adheres to the OpenAPI spec and is available here:
-[Timeline Tracker API Specification](Source/Resources/StaticallyServedFiles/APISpec/apiSpecification.json).
+[Timeline Tracker API Specification v0.5.0](https://github.com/kirypto/TimelineTrackerAPISpec/tree/v0.5.0).
 
 ## Project Standards
 
