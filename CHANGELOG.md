@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+_Nothing to see here_
+
+## [0.5.0] - 2025-07-19
+
 ### Changed
 - **Significant Change**: Change license to AGPLv3 for stronger network use protections.
 
@@ -151,7 +155,9 @@ All notable changes to this project will be documented in this file.
 - Added Event PATCH route for modification.
 
 
-[Unreleased]: https://github.com/kirypto/TimelineTracker/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/kirypto/TimelineTracker/compare/v0.5.0...HEAD
+
+[0.5.0]: https://github.com/kirypto/TimelineTracker/compare/v0.4.0...v0.5.0
 
 [0.4.0]: https://github.com/kirypto/TimelineTracker/compare/v0.3.0...v0.4.0
 
